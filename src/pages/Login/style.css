@@ -1,0 +1,39 @@
+.container {
+    position: relative;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    margin: 0 auto;
+    overflow: hidden;
+}
+
+.container::before {
+    content: "";
+    position: absolute;
+    top: 0;
+    right: 0;
+    bottom: 0;
+    left: 0;
+    background: url('./../../assets/mail-sender-bgd.png') center/cover no-repeat;
+    opacity: 0.1;
+    z-index: 0;
+}
+
+.form {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    width: 25rem;
+    height: 30rem;
+    background-color: rgba(255, 255, 255, 0.5);
+    border-radius: 15px;
+    border: 1px solid white;
+}
+
+.title {
+    color: white;
+    font-weight: 200;
+    font-size: 48px;
+}

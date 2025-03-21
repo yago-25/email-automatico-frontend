@@ -1,0 +1,8 @@
+{
+  "login-page": {
+    "title": "Acceso",
+    "user-text": "Nombre",
+    "password-text": "Contraseña",
+    "button-text": "Acceso"
+  }
+}
