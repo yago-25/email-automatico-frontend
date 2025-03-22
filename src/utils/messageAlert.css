@@ -1,0 +1,70 @@
+.msg-container {
+    position: fixed;
+    top: 50px;
+    right: -100px;
+    z-index: 9999;
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+  }
+  
+  .msg-box {
+    display: flex;
+    align-items: center;
+    background: #fff;
+    border-left: 4px solid;
+    padding: 8px 14px;
+    border-radius: 8px;
+    box-shadow: 0 6px 20px rgba(0, 0, 0, 0.12);
+    min-width: 240px;
+    max-width: 400px;
+    font-size: 14px;
+    color: #333;
+    height: 25px;
+    opacity: 0;
+    animation: fadeIn 0.3s forwards;
+  }
+  
+  @keyframes fadeIn {
+    from {
+      opacity: 0;
+      transform: translate(-50%, -60%);
+    }
+    to {
+      opacity: 1;
+      transform: translate(-50%, -50%);
+    }
+  }
+  
+  .msg-icon {
+    margin-right: 8px;
+  }
+  
+  .msg-icon.success {
+    color: #22c55e;
+  }
+  
+  .msg-icon.info {
+    color: #3b82f6;
+  }
+  
+  .msg-icon.error {
+    color: #ef4444;
+  }
+  
+  .msg-box.success {
+    border-color: #22c55e;
+  }
+  
+  .msg-box.info {
+    border-color: #3b82f6;
+  }
+  
+  .msg-box.error {
+    border-color: #ef4444;
+  }
+  
+  .msg-text {
+    flex: 1;
+    margin-bottom: 4px;
+  }

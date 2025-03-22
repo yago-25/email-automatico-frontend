@@ -1,8 +1,9 @@
 {
-  "login-page": {
+  "login_page": {
     "title": "Login",
-    "user-text": "Nome",
-    "password-text": "Senha",
-    "button-text": "Entrar"
+    "user_text": "Nome",
+    "password_text": "Senha",
+    "button_text": "Entrar",
+    "error_credential": "Usuário ou Senha inválidos"
   }
 }

@@ -1,8 +1,8 @@
 {
-  "login-page": {
+  "login_page": {
     "title": "Login",
-    "user-text": "User",
-    "password-text": "Password",
-    "button-text": "Login"
+    "user_text": "User",
+    "password_text": "Password",
+    "button_text": "Login"
   }
 }

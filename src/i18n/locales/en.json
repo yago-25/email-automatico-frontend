@@ -1,8 +1,8 @@
 {
-  "login-page": {
+  "login_page": {
     "title": "Acceso",
-    "user-text": "Nombre",
-    "password-text": "Contraseña",
-    "button-text": "Acceso"
+    "user_text": "Nombre",
+    "password_text": "Contraseña",
+    "button_text": "Acceso"
   }
 }
