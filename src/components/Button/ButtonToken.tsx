@@ -1,15 +1,15 @@
 import React from "react";
-import "./ButtonRegister.css";
+import "./ButtonToken.css";
 
 interface ButtonProps {
   text: string;
   onClick: () => void;
 }
 
-const ButtonRegister: React.FC<ButtonProps> = ({ text, onClick }) => {
+const ButtonToken: React.FC<ButtonProps> = ({ text, onClick }) => {
   return (
     <button className="btn" onClick={onClick}>{text}</button>
   );
 };
 
-export default ButtonRegister;
+export default ButtonToken;

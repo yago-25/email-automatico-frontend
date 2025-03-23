@@ -39,9 +39,9 @@ const Register = () => {
             password,
         });
 
-        // Redireciona para a página de login após o registro
-        navigate("/");
+        navigate("/token");
     };
+   
     if (!i18n.isInitialized || loading) {
         return (
             <Spin />

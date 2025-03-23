@@ -1,11 +1,16 @@
 {
   "login_page": {
-    "title": "Login",
-    "user_text": "Username",
-    "password_text": "Password",
-    "button_text": "Login",
-    "error_credential": "Invalid username or password"
-  },
+      "title": "Login",
+      "email_label": "Email",
+      "email_placeholder": "Enter your email",
+      "password_label": "Password",
+      "password_placeholder": "Enter your password",
+      "forgot_password": "Forgot your password? Reset here.",
+      "login_button": "LOGIN",
+      "back_button": "BACK",
+      "register_text": "Don't have an account?",
+      "register_button": "Sign Up"
+    },
   "register_page": {
     "title": "Register",
     "full_name": "Full Name",
@@ -17,5 +22,15 @@
     "confirm_password": "Confirm Password",
     "button_text": "Register",
     "password_mismatch_error": "Passwords do not match!"
-  }
+  },
+    "email_verification": {
+      "title": "Verify Your Email",
+      "verification_code": "Verification Code",
+      "verify_button": "Verify Code",
+      "back_button": "Back",
+      "didnt_receive_code": "Didn't receive the code?",
+      "resend_button": "Click here to resend"
+    }
+  
+  
 }
