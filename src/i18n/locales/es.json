@@ -3,6 +3,19 @@
     "title": "Login",
     "user_text": "User",
     "password_text": "Password",
-    "button_text": "Login"
+    "button_text": "Login",
+    "error_credential": "Nombre de usuario o contraseña no válidos"
+  },
+  "register_page": {
+    "title": "Registro",
+    "full_name": "Nombre Completo",
+    "email": "Correo Electrónico",
+    "cpf_cnpj": "CPF/CNPJ",
+    "phone": "Teléfono",
+    "username": "Nombre de Usuario",
+    "password": "Contraseña",
+    "confirm_password": "Confirmar Contraseña",
+    "button_text": "Registrar",
+    "password_mismatch_error": "¡Las contraseñas no coinciden!"
   }
 }

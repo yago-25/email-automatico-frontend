@@ -36,8 +36,8 @@ const Login: React.FC<LoginProps> = ({ setIsAuthenticated }) => {
           message: 'Login realizado com sucesso!'
         });
       }
-      
-    } catch(e) {
+
+    } catch (e) {
       messageAlert({
         type: 'error',
         message: 'Erro ao fazer login'
@@ -46,6 +46,10 @@ const Login: React.FC<LoginProps> = ({ setIsAuthenticated }) => {
     } finally {
       setLoading(false);
     }
+  };
+
+  const handleRegister = () => {
+    navigate("/register");
   };
 
   if (!i18n.isInitialized || loading) {
@@ -58,11 +62,23 @@ const Login: React.FC<LoginProps> = ({ setIsAuthenticated }) => {
     <div className="container">
       <h1 className='title'>{t("login_page.title")}</h1>
       <div className="form">
-        <Input type='text' text={t("login_page.user_text")} required={true} value={user} onChange={(e) => setUser(e.target.value)} />
-        <Input type="password" text={t("login_page.password_text")} required={true} value={password} onChange={(e) => setPassword(e.target.value)} />
-        <Button text={t("login_page.button_text")} onClick={handleLogin}/>
+        <div className="card-content">
+          <div className="card-content-area-login">
+            <Input type='text' text={t("login_page.user_text")} required={true} value={user} onChange={(e) => setUser(e.target.value)} />
+          </div>
+
+          <div className="card-content-area-login">
+            <Input type="password" text={t("login_page.password_text")} required={true} value={password} onChange={(e) => setPassword(e.target.value)} />
+          </div>
+        </div>
+        <Button text={t("login_page.button_text")} onClick={handleLogin} />
+      </div>
+      <div className="register-section">
+        <p>{t("não tem uma conta?")}</p>
+        <Button text={t("Cadastre-se")} onClick={handleRegister} />
       </div>
     </div>
+
   );
 };
 

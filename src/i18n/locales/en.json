@@ -1,8 +1,21 @@
 {
   "login_page": {
-    "title": "Acceso",
-    "user_text": "Nombre",
-    "password_text": "Contraseña",
-    "button_text": "Acceso"
+    "title": "Login",
+    "user_text": "Username",
+    "password_text": "Password",
+    "button_text": "Login",
+    "error_credential": "Invalid username or password"
+  },
+  "register_page": {
+    "title": "Register",
+    "full_name": "Full Name",
+    "email": "Email",
+    "cpf_cnpj": "CPF/CNPJ",
+    "phone": "Phone",
+    "username": "Username",
+    "password": "Password",
+    "confirm_password": "Confirm Password",
+    "button_text": "Register",
+    "password_mismatch_error": "Passwords do not match!"
   }
 }

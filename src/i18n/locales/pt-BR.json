@@ -5,5 +5,17 @@
     "password_text": "Senha",
     "button_text": "Entrar",
     "error_credential": "Usuário ou Senha inválidos"
+  },
+  "register_page": {
+    "title": "Cadastro",
+    "full_name": "Nome Completo",
+    "email": "E-mail",
+    "cpf_cnpj": "CPF/CNPJ",
+    "phone": "Telefone",
+    "username": "Nome de Usuário",
+    "password": "Senha",
+    "confirm_password": "Confirmar Senha",
+    "button_text": "Registrar",
+    "password_mismatch_error": "As senhas não coincidem!"
   }
 }
