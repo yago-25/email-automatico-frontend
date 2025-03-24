@@ -48,12 +48,14 @@ const Register = () => {
         try {
             const response = await api.post('/register', userData);
     
-            if (response.data.status === 201) {
+            if (response.status === 201) {
                 messageAlert({
                     type: "success",
                     message: "Cadastro realizado com sucesso! Verifique seu e-mail."
                 });
-                navigate("/token");
+    
+                // Redireciona para a tela de confirmação do token, passando o email para identificar o usuário
+                navigate("/token", { state: { email } });
             } else {
                 messageAlert({
                     type: "error",
@@ -71,6 +73,7 @@ const Register = () => {
             setLoading(false);
         }
     };
+    
     
     
    
