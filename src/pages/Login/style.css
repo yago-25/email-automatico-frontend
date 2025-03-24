@@ -14,11 +14,12 @@
     display: flex;
     align-items: center;
     justify-content: center;
-    background-color: transparent;
+    /* background-color: transparent; */
+    background-color: rgba(255, 255, 255, 0.1);
     backdrop-filter: blur(5px);
-    border: 1px solid white;
+    border: 2px solid white;
     border-radius: 20px;
-    margin: 1rem auto;
+    margin: 3rem auto;
     width: 28rem;
     height: 32rem;
     color: white;
@@ -29,14 +30,14 @@
     color: #000000;
     width: 95px;
     height: 95px;
-    background-color: #e7e7e7;
+    background-color:rgb(255, 255, 255);
     backdrop-filter: blur(5px);
     /* border: 1px solid #000000; */
     padding: 15px;
     border-radius: 50%;
     position: relative;
-    left: 46.5%;
-    top: 4rem;
+    left: 47%;
+    top: 6rem;
     z-index: 2;
     display: flex;
     align-items: center;
@@ -64,7 +65,7 @@
 }
 
 .inputForm {
-    border: 1.5px solid #ecedec;
+    border: 1.9px solid #ecedec;
     border-radius: 8px;
     height: 40px;
     display: flex;
@@ -86,10 +87,6 @@
 
 .input:focus {
     outline: none;
-}
-
-.inputForm:focus-within {
-    border: 1.5px solid #5c5c5c;
 }
 
 .flex-row {

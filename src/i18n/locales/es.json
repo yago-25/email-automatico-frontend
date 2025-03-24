@@ -9,7 +9,9 @@
       "login_button": "INICIAR SESIÓN",
       "back_button": "VOLVER",
       "register_text": "¿No tienes una cuenta?",
-      "register_button": "Regístrate"
+      "register_button": "Regístrate",
+      "no_account": "¿No tienes una cuenta?",
+      "signup": "Regístrate"
     },
   "register_page": {
     "title": "Registro",

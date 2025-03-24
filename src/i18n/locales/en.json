@@ -9,7 +9,9 @@
       "login_button": "LOGIN",
       "back_button": "BACK",
       "register_text": "Don't have an account?",
-      "register_button": "Sign Up"
+      "register_button": "Sign Up",
+      "no_account": "Don't have an account?",
+      "signup": "Sign up"
     },
   "register_page": {
     "title": "Register",

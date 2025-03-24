@@ -89,20 +89,31 @@ const Login: React.FC<LoginProps> = ({ setIsAuthenticated }) => {
                   <input placeholder={t("login_page.password_placeholder")} className="input" type="password" name="password" required value={password} onChange={(e) => setPassword(e.target.value)} />
                 </div>
               </div>
+              <div className="card-footer-not">
+                <p style={{ color: "white", fontSize: "13px" }}>
+                  {t("login_page.no_account")}{" "}
+                  <a
+                    href="#"
+                    onClick={handleRegister}
+                    style={{ color: "blue", cursor: "pointer", textDecoration: "underline" }}
+                  >
+                    {t("login_page.signup")}
+                  </a>
+                </p>
+              </div>
 
               <div className="card-footer">
                 <p className="password">
                   <a href="/password/reset">{t("login_page.forgot_password")}</a>
                 </p>
               </div>
-              
 
               <div className="card-footer">
                 <Button text={t("login_page.login_button")} onClick={handleLogin} />
               </div>
             </form>
 
-            
+
           </div>
         </div>
       </div>

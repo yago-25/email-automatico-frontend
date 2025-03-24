@@ -1,42 +1,51 @@
-.btn {
-    --color: #0077ff;
-    font-family: inherit;
+@import url('https://fonts.googleapis.com/css2?family=Poppins:ital,wght@0,100;0,200;0,300;0,400;0,500;0,600;0,700;0,800;0,900;1,100;1,200;1,300;1,400;1,500;1,600;1,700;1,800;1,900&display=swap');
+
+.btne {
+    --color:rgba(0, 119, 255, 0.55);
+    --color-1:rgb(30, 109, 199);
+    font-family: Poppins, 'sans-serif';
+    /* font-family: inherit; */
     display: inline-block;
-    width: 6em;
-    height: 2.6em;
+    justify-content: center;
+    align-items: center;
+    width: 240px;
+    height: 45px;
     line-height: 2.5em;
     overflow: hidden;
     cursor: pointer;
     margin: 20px;
     font-size: 17px;
     z-index: 1;
-    color: var(--color);
+    color: var(--color-1);
     border: 2px solid var(--color);
     border-radius: 6px;
     position: relative;
+    margin-bottom: 1px;
+    margin-top: 12px;
+    
   }
   
-  .btn::before {
+  .btne::before {
     position: absolute;
     content: "";
     background: var(--color);
-    width: 150px;
+    width: 320px;
     height: 200px;
     z-index: -1;
     border-radius: 50%;
   }
   
-  .btn:hover {
+  .btne:hover {
     color: white;
   }
   
-  .btn:before {
+  .btne:before {
     top: 100%;
     left: 100%;
     transition: 0.3s all;
   }
   
-  .btn:hover::before {
+  .btne:hover::before {
     top: -30px;
     left: -30px;
   }
