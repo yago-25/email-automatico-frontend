@@ -11,17 +11,70 @@ const EmailVerification = () => {
   const navigate = useNavigate();
   const { t, i18n } = useTranslation();
   const [loading, setLoading] = useState(false);
+  const [email, setEmail] = useState("");
 
-  const handleVerify = () => {
+  const handleVerify = async () => {
     setLoading(true);
-    // Lógica para verificar código
-    console.log("Código digitado:", code);
-  };
 
-  const handleResend = () => {
-    // Lógica para reenviar código
-    console.log("Reenviar código");
-  };
+    if (!code) {
+        alert("Por favor, insira o código de verificação.");
+        setLoading(false);
+        return;
+    }
+
+    try {
+        const response = await fetch("http://localhost:8000/api/verify-token", {
+            method: "POST",
+            headers: {
+                "Content-Type": "application/json",
+            },
+            body: JSON.stringify({ token: code }),
+        });
+
+        const data = await response.json();
+
+        if (response.ok) {
+            alert("Token verificado com sucesso! Aguarde a aprovação do administrador.");
+            navigate("/");
+        } else {
+            alert(data.message || "Código inválido. Tente novamente.");
+        }
+    } catch (error) {
+        console.error("Erro ao verificar token:", error);
+        alert("Erro ao conectar ao servidor.");
+    } finally {
+        setLoading(false);
+    }
+};
+
+
+const handleResend = async () => {
+  setLoading(true);
+
+  try {
+      const response = await fetch("http://localhost:8000/api/resend-token", {
+          method: "POST",
+          headers: {
+              "Content-Type": "application/json",
+          },
+          body: JSON.stringify({ email }) // Certifique-se de ter o e-mail salvo no localStorage ou estado
+      });
+
+      const data = await response.json();
+
+      if (response.ok) {
+          alert("Novo código enviado para seu e-mail!");
+      } else {
+          alert(data.message || "Erro ao reenviar código.");
+      }
+  } catch (error) {
+      console.error("Erro ao reenviar token:", error);
+      alert("Erro ao conectar ao servidor.");
+  } finally {
+      setLoading(false);
+  }
+};
+
 
   const handleLogin = () => {
     navigate("/");

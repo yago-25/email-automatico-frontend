@@ -5,6 +5,8 @@ import ButtonRegister from '../../components/Button/ButtonRegiser';
 import { useNavigate } from "react-router-dom";
 import { useTranslation } from 'react-i18next';
 import Spin from '../../components/Spin/Spin';
+import { api } from '../../api/api';
+import { messageAlert } from '../../utils/messageAlert';
 
 
 const Register = () => {
@@ -22,25 +24,55 @@ const Register = () => {
     const [confirmPassword, setConfirmPassword] = useState("");
 
 
-    const handleRegister = () => {
+    const handleRegister = async () => {
         setLoading(true);
+    
         if (password !== confirmPassword) {
-            alert("As senhas não coincidem!");
+            messageAlert({
+                type: "error",
+                message: "As senhas não coincidem!"
+            });
+            setLoading(false);
             return;
         }
-
-        // Aqui você pode adicionar a lógica de envio dos dados para o backend
-        console.log({
-            fullName,
+    
+        const userData = {
+            nome_completo: fullName,
             email,
-            cpfCnpj,
-            phone,
-            username,
-            password,
-        });
-
-        navigate("/token");
+            cpf: cpfCnpj,
+            telefone: phone,
+            nome_usuario: username,
+            senha: password,
+        };
+    
+        try {
+            const response = await api.post('/register', userData);
+    
+            if (response.data.status === 201) {
+                messageAlert({
+                    type: "success",
+                    message: "Cadastro realizado com sucesso! Verifique seu e-mail."
+                });
+                navigate("/token");
+            } else {
+                messageAlert({
+                    type: "error",
+                    message: response.data.message || "Erro ao cadastrar. Tente novamente."
+                });
+            }
+    
+        } catch (error) {
+            console.error("Erro ao cadastrar:", error);
+            messageAlert({
+                type: "error",
+                message: "Erro ao conectar ao servidor."
+            });
+        } finally {
+            setLoading(false);
+        }
     };
+    
+    
    
     if (!i18n.isInitialized || loading) {
         return (
