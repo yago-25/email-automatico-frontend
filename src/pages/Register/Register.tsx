@@ -47,6 +47,9 @@ const Register = () => {
             <Spin />
         );
     }
+    const handleLogin = () => {
+        navigate("/");
+      }
 
     return (
         
@@ -90,6 +93,9 @@ const Register = () => {
                     </div>
                     <div className="card-footer">
                         <ButtonRegister text={t("Cadastre-se")} onClick={handleRegister} />
+                    </div>
+                    <div className="card-footer">
+                        <ButtonRegister text={t("Voltar")} onClick={handleLogin} />
                     </div>
                 </div>
             </div>
