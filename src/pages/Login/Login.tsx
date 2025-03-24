@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import './style.css';
-import Input from '../../components/Input/Input';
+
 import Button from '../../components/Button/Button';
 import { useTranslation } from 'react-i18next';
 import { useNavigate } from 'react-router-dom';
