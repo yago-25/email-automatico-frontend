@@ -25,9 +25,8 @@ const EmailVerification = () => {
         setLoading(false);
         return;
     }
-
     try {
-        const response = await api.post('/validate-token', { code: code }); 
+        const response = await api.post('/validate-token', { code }); 
 
         if (response.status === 200) {
             alert("Token verificado com sucesso! Aguarde a aprovação do administrador.");

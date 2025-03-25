@@ -93,7 +93,7 @@ const Login: React.FC<LoginProps> = ({ setIsAuthenticated }) => {
             <a
               href="#"
               onClick={handleRegister}
-              style={{ color: "blue", cursor: "pointer", textDecoration: "underline" }}
+              style={{ color: "#007BFF", cursor: "pointer", textDecoration: "underline" }}
             >
               {t("login_page.signup")}
             </a>
