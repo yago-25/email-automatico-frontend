@@ -80,7 +80,13 @@
     text-decoration: underline;
 }
 
-.input-group{
+.input-group {
     position: relative;
-    margin-top: 20px;
+}
+
+.card-content-area-login {
+    display: flex;
+    flex-direction: column;
+    width: 100%;
+    gap: 20px;
 }

@@ -6,7 +6,6 @@ import { useTranslation } from "react-i18next";
 import Spin from "../../components/Spin/Spin";
 import { api } from "../../api/api";
 import { messageAlert } from "../../utils/messageAlert";
-import { IoArrowBackCircleOutline } from "react-icons/io5";
 
 const Register = () => {
   const navigate = useNavigate();
@@ -23,8 +22,21 @@ const Register = () => {
   const [confirmPassword, setConfirmPassword] = useState("");
 
   const handleRegister = async () => {
-    setLoading(true);
-
+    if (
+      !fullName ||
+      !email ||
+      !cpfCnpj ||
+      !phone ||
+      !username ||
+      !password
+    ) {
+      messageAlert({
+        type: 'error',
+        message: 'Preencha todos os campos!',
+      });
+      return;
+    }
+    
     if (password !== confirmPassword) {
       messageAlert({
         type: "error",
@@ -33,6 +45,8 @@ const Register = () => {
       setLoading(false);
       return;
     }
+    
+    setLoading(true);
 
     const userData = {
       nome_completo: fullName,
@@ -135,7 +149,7 @@ const Register = () => {
                   onChange={(e) => setConfirmPassword(e.target.value)}
                 />
               </div>
-              <div className="grid-2">
+              <div className="grid-2 different">
                 <Input
                   type="text"
                   text={t("register_page.username")}
@@ -143,10 +157,13 @@ const Register = () => {
                   value={username}
                   onChange={(e) => setUsername(e.target.value)}
                 />
-                <div>
-                  <button className="btn-register" onClick={handleRegister}>
-                    Cadastrar
-                  </button>
+                <div className="back-home">
+                  <div style={{ width: '100%' }}>
+                    <button className="btn-register" onClick={handleRegister}>
+                      Cadastrar
+                    </button>
+                  </div>
+                  <p onClick={handleLogin} className="btn-back-home">Voltar</p>
                 </div>
               </div>
             </div>
@@ -154,9 +171,6 @@ const Register = () => {
           <div className="card-footer">
           </div>
         </div>
-            <button className="back-button" onClick={handleLogin}>
-              <IoArrowBackCircleOutline className="back-icon" />
-            </button>
       </div>
     </div>
   );

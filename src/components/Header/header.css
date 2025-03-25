@@ -1,0 +1,20 @@
+.header-container {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    width: 99%;
+    height: 60px;
+    padding-left: 10px;
+    padding-right: 10px;
+}
+
+.logout {
+    display: flex;
+}
+
+.icon-logout {
+    width: 18px;
+    height: 18px;
+    font-size: 18px;
+    color: red;
+}

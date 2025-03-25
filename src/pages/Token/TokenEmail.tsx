@@ -6,6 +6,7 @@ import Input from "../../components/Input/Input";
 import ButtonToken from "../../components/Button/ButtonToken";
 import Spin from "../../components/Spin/Spin";
 import { api } from '../../api/api';
+import { messageAlert } from "../../utils/messageAlert";
 
 const EmailVerification = () => {
   const navigate = useNavigate();
@@ -29,7 +30,10 @@ const EmailVerification = () => {
         const response = await api.post('/validate-token', { code }); 
 
         if (response.status === 200) {
-            alert("Token verificado com sucesso! Aguarde a aprovação do administrador.");
+            messageAlert({
+              type: 'success',
+              message: "Token verificado com sucesso! Aguarde a aprovação do administrador."
+            });
             navigate("/");
         } else {
             alert(response.data.message || "Código inválido. Tente novamente.");

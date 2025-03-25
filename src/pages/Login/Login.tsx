@@ -21,7 +21,16 @@ const Login: React.FC<LoginProps> = ({ setIsAuthenticated }) => {
   const [loading, setLoading] = useState(false);
 
   const handleLogin = async () => {
+    if (!user || !password) {
+      messageAlert({
+        type: 'error',
+        message: 'Por favor, preencha todos os dados de login.'
+      });
+      return;
+    }
+
     setLoading(true);
+    
     try {
       const response = await api.post('/login', {
         email: user,
@@ -89,7 +98,7 @@ const Login: React.FC<LoginProps> = ({ setIsAuthenticated }) => {
         <Button text={t("login_page.login_button")} onClick={handleLogin} />
         <div className="card-footer-not">
           <p style={{ color: "white", fontSize: "13px" }}>
-            {t("login_page.no_account")}{" "}
+            {/* {t("login_page.no_account")}{" "} */}
             <a
               href="#"
               onClick={handleRegister}
