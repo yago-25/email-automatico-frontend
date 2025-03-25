@@ -1,8 +1,38 @@
 {
   "login_page": {
-    "title": "Login",
-    "user_text": "User",
-    "password_text": "Password",
-    "button_text": "Login"
-  }
+      "title": "Iniciar sesión",
+      "email_label": "Correo electrónico",
+      "email_placeholder": "Ingrese su correo electrónico",
+      "password_label": "Contraseña",
+      "password_placeholder": "Ingrese su contraseña",
+      "forgot_password": "¿Olvidaste tu contraseña? Restablecer aquí.",
+      "login_button": "INICIAR SESIÓN",
+      "back_button": "VOLVER",
+      "register_text": "¿No tienes una cuenta?",
+      "register_button": "Regístrate",
+      "no_account": "¿No tienes una cuenta?",
+      "signup": "Regístrate"
+    },
+  "register_page": {
+    "title": "Registro",
+    "full_name": "Nombre Completo",
+    "email": "Correo Electrónico",
+    "cpf_cnpj": "CPF/CNPJ",
+    "phone": "Teléfono",
+    "username": "Nombre de Usuario",
+    "password": "Contraseña",
+    "confirm_password": "Confirmar Contraseña",
+    "button_text": "Registrar",
+    "password_mismatch_error": "¡Las contraseñas no coinciden!"
+  },
+    "email_verification": {
+      "title": "Verifica Tu Correo Electrónico",
+      "verification_code": "Código de Verificación",
+      "verify_button": "Verificar Código",
+      "back_button": "Volver",
+      "didnt_receive_code": "¿No recibiste el código?",
+      "resend_button": "Haz clic aquí para reenviar"
+    }
+  
+  
 }

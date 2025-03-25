@@ -17,7 +17,7 @@
     flex-direction: column;
     align-items: center;
     justify-content: center;
-    width: 100%;
+    width: 25rem;
     height: 24rem;
     background-color: rgba(255, 255, 255, 0.5);
     border-radius: 15px;
@@ -46,47 +46,3 @@
     font-size: 12px;
 }
 
-.password a {
-    color: #ffffffc4;
-    text-decoration: underline;
-    font-family: "Montserrat", sans-serif;
-    font-optical-sizing: auto;
-    font-style: normal;
-    font-size: 15px;
-    
-}
-
-.footer {
-    text-align: center;
-    padding: 20px;
-    font-size: 15px;
-    color: #e7e7e7;
-    margin-top: 12px;
-    background-color: #000000e3;
-}
-
-.footer-links {
-    margin-bottom: 62px;
-    margin-top: 60px;
-}
-
-.footer-links a {
-    margin: 0 15px;
-    text-decoration: none;
-    color: inherit;
-}
-
-.footer-links a:hover {
-    text-decoration: underline;
-}
-
-.input-group {
-    position: relative;
-}
-
-.card-content-area-login {
-    display: flex;
-    flex-direction: column;
-    width: 100%;
-    gap: 20px;
-}

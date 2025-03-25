@@ -1,9 +1,38 @@
 {
   "login_page": {
-    "title": "Login",
-    "user_text": "Nome",
-    "password_text": "Senha",
-    "button_text": "Entrar",
-    "error_credential": "Usuário ou Senha inválidos"
-  }
+      "title": "Login",
+      "email_label": "Email",
+      "email_placeholder": "Insira seu email",
+      "password_label": "Senha",
+      "password_placeholder": "Insira sua senha",
+      "forgot_password": "Esqueceu sua senha? Redefina aqui.",
+      "login_button": "ENTRAR",
+      "back_button": "VOLTAR",
+      "register_text": "Não tem uma conta?",
+      "register_button": "Cadastre-se",
+      "no_account": "Não tem uma conta?",
+      "signup": "Solicitar Cadastro"
+    },
+  "register_page": {
+    "title": "Cadastro",
+    "full_name": "Nome Completo",
+    "email": "E-mail",
+    "cpf_cnpj": "CPF/CNPJ",
+    "phone": "Telefone",
+    "username": "Nome de Usuário",
+    "password": "Senha",
+    "confirm_password": "Confirmar Senha",
+    "button_text": "Registrar",
+    "password_mismatch_error": "As senhas não coincidem!"
+  },
+    "email_verification": {
+      "title": "Verifique Seu Email",
+      "verification_code": "Código de Verificação",
+      "verify_button": "Verificar Código",
+      "back_button": "Voltar",
+      "didnt_receive_code": "Não recebeu o código?",
+      "resend_button": "Clique aqui para reenviar"
+    }
+  
+  
 }

@@ -1,6 +1,10 @@
 body {
   background-color: #007BFF;
   font-family: system-ui, Avenir, Helvetica, Arial, sans-serif;
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+  overflow: hidden;
 }
 
 .message-container {

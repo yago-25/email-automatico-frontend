@@ -21,7 +21,16 @@ const Login: React.FC<LoginProps> = ({ setIsAuthenticated }) => {
   const [loading, setLoading] = useState(false);
 
   const handleLogin = async () => {
+    if (!user || !password) {
+      messageAlert({
+        type: 'error',
+        message: 'Por favor, preencha todos os dados de login.'
+      });
+      return;
+    }
+
     setLoading(true);
+    
     try {
       const response = await api.post('/login', {
         email: user,
@@ -36,8 +45,8 @@ const Login: React.FC<LoginProps> = ({ setIsAuthenticated }) => {
           message: 'Login realizado com sucesso!'
         });
       }
-      
-    } catch(e) {
+
+    } catch (e) {
       messageAlert({
         type: 'error',
         message: 'Erro ao fazer login'
@@ -48,6 +57,10 @@ const Login: React.FC<LoginProps> = ({ setIsAuthenticated }) => {
     }
   };
 
+  const handleRegister = () => {
+    navigate("/register");
+  };
+
   if (!i18n.isInitialized || loading) {
     return (
       <Spin />
@@ -56,11 +69,46 @@ const Login: React.FC<LoginProps> = ({ setIsAuthenticated }) => {
 
   return (
     <div className="container">
-      <h1 className='title'>{t("login_page.title")}</h1>
-      <div className="form">
-        <Input type='text' text={t("login_page.user_text")} required={true} value={user} onChange={(e) => setUser(e.target.value)} />
-        <Input type="password" text={t("login_page.password_text")} required={true} value={password} onChange={(e) => setPassword(e.target.value)} />
-        <Button text={t("login_page.button_text")} onClick={handleLogin}/>
+      <h1 className="title">{t("login_page.title")}</h1>
+      <div className="form-token">
+        <div className="card-content">
+          <div className="card-content-area-login">
+            <Input
+              type="text"
+              text={t("login_page.email_label")}
+              required={true}
+              value={user}
+              onChange={(e) => setUser(e.target.value)}
+            />
+            <Input
+              type="password"
+              text={t("login_page.password_label")}
+              required={true}
+              value={password}
+              onChange={(e) => setPassword(e.target.value)}
+            />
+          </div>
+        </div>
+        <div className="card-footer">
+          <p className="password">
+            <a href="/password/reset">{t("login_page.forgot_password")}</a>
+          </p>
+        </div>
+
+        <Button text={t("login_page.login_button")} onClick={handleLogin} />
+        <div className="card-footer-not">
+          <p style={{ color: "white", fontSize: "13px" }}>
+            {/* {t("login_page.no_account")}{" "} */}
+            <a
+              href="#"
+              onClick={handleRegister}
+              style={{ color: "#007BFF", cursor: "pointer", textDecoration: "underline" }}
+            >
+              {t("login_page.signup")}
+            </a>
+          </p>
+        </div>
+
       </div>
     </div>
   );
