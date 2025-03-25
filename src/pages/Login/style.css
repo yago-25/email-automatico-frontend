@@ -79,3 +79,8 @@
 .footer-links a:hover {
     text-decoration: underline;
 }
+
+.input-group{
+    position: relative;
+    margin-top: 20px;
+}
