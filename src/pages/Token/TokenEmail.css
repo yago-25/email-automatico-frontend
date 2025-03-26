@@ -12,21 +12,25 @@
     font-family: Poppins, 'sans-serif';
 }
 
-.form-token {
+.form-tokene {
     display: flex;
     flex-direction: column;
     align-items: center;
     justify-content: center;
     width: 25rem;
-    height: 24rem;
+    height: 22rem;
     background-color: rgba(255, 255, 255, 0.5);
     border-radius: 15px;
     border: 1px solid white;
+    
 }
 .card-content-area{
     margin-top: -1rem;
 }
 
+.card-contente{
+    margin-top: 65px;
+}
 .title {
     color: white;
     font-weight: 200;
@@ -46,3 +50,20 @@
     font-size: 12px;
 }
 
+.card-footer-note{
+    margin-top: 14px;
+}
+
+.btn-back-homee {
+    cursor: pointer;
+    color: white;
+    
+  }
+
+.btn-token{
+    margin-top: 4px;
+}
+
+.p{
+    margin-top: 15px;
+}
