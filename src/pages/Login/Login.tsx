@@ -39,6 +39,7 @@ const Login: React.FC<LoginProps> = ({ setIsAuthenticated }) => {
 
       if (response.data.status === 200) {
         setIsAuthenticated(true);
+        localStorage.setItem('user', JSON.stringify(response.data.user));
         navigate('/dashboard');
         messageAlert({
           type: 'success',
