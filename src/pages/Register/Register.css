@@ -111,13 +111,10 @@
     color: white;
     font-size: 1rem;
     cursor: pointer;
-  
     display: flex;
     align-items: center;
     justify-content: center;
-  
     transition: all 0.2s ease;
-
     padding: 1rem;
     box-sizing: border-box;
 }

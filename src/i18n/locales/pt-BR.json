@@ -30,8 +30,8 @@
       "verification_code": "Código de Verificação",
       "verify_button": "Verificar Código",
       "back_button": "Voltar",
-      "didnt_receive_code": "Não recebeu o código?",
-      "resend_button": "Clique aqui para reenviar"
+      "didnt_receive_code": "Não recebeu?",
+      "resend_button": "Clique para reenviar"
     }
   
   

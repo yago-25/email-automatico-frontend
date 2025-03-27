@@ -3,10 +3,11 @@ import { useNavigate, useLocation } from "react-router-dom";
 import { useTranslation } from "react-i18next";
 import "./TokenEmail.css";
 import Input from "../../components/Input/Input";
-import ButtonToken from "../../components/Button/ButtonToken";
+import Button from "../../components/Button/Button";
 import Spin from "../../components/Spin/Spin";
 import { api } from '../../api/api';
 import { messageAlert } from "../../utils/messageAlert";
+// import ButtonRegister from "../../components/Button/ButtonRegiser";
 
 const EmailVerification = () => {
   const navigate = useNavigate();
@@ -15,36 +16,35 @@ const EmailVerification = () => {
   const [code, setCode] = useState("");
   const [loading, setLoading] = useState(false);
 
-  // Obtém o e-mail passado via navigate (se houver)
   const email = location.state?.email || "";
 
   const handleVerify = async () => {
     setLoading(true);
 
     if (!code) {
-        alert("Por favor, insira o código de verificação.");
-        setLoading(false);
-        return;
+      alert("Por favor, insira o código de verificação.");
+      setLoading(false);
+      return;
     }
     try {
-        const response = await api.post('/validate-token', { code }); 
+      const response = await api.post('/validate-token', { code });
 
-        if (response.status === 200) {
-            messageAlert({
-              type: 'success',
-              message: "Token verificado com sucesso! Aguarde a aprovação do administrador."
-            });
-            navigate("/");
-        } else {
-            alert(response.data.message || "Código inválido. Tente novamente.");
-        }
+      if (response.status === 200) {
+        messageAlert({
+          type: 'success',
+          message: "Token verificado com sucesso! Aguarde a aprovação do administrador."
+        });
+        navigate("/");
+      } else {
+        alert(response.data.message || "Código inválido. Tente novamente.");
+      }
     } catch (error) {
-        console.error("Erro ao verificar token:", error);
-        alert("Erro ao conectar ao servidor.");
+      console.error("Erro ao verificar token:", error);
+      alert("Erro ao conectar ao servidor.");
     } finally {
-        setLoading(false);
+      setLoading(false);
     }
-};
+  };
 
 
 
@@ -92,7 +92,7 @@ const EmailVerification = () => {
     <div className="container">
       <h1 className="title">{t("email_verification.title")}</h1>
       <div className="form-token">
-        <div className="card-content">
+        <div className="card-contente">
           <div className="card-content-area-login">
             <Input
               text={t("email_verification.verification_code")}
@@ -103,9 +103,10 @@ const EmailVerification = () => {
             />
           </div>
         </div>
-        <ButtonToken text={t("email_verification.verify_button")} onClick={handleVerify} />
-        <ButtonToken text={t("email_verification.back_button")} onClick={handleLogin} />
-        <div className="card-footer-not">
+        <div className="btn-tokene">
+          <Button text={t("email_verification.verify_button")} onClick={handleVerify} />
+        </div>
+        <div className="card-footer-note">
           <p style={{ color: "white", fontSize: "12px" }}>
             {t("email_verification.didnt_receive_code")}{" "}
             <a
@@ -117,6 +118,10 @@ const EmailVerification = () => {
             </a>
           </p>
         </div>
+        <div className="p"></div>
+        {/* <Button text={t("email_verification.back_button")} onClick={handleLogin} /> */}
+        <p onClick={handleLogin} className="btn-back-homee">Voltar</p>
+
       </div>
     </div>
   );

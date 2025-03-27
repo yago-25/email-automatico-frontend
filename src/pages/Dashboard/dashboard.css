@@ -1,0 +1,112 @@
+.title-dash {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    color: white;
+    font-size: 72px;
+    font-weight: 200;
+    line-height: 0.1;
+}
+
+.container-dash {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    width: 100%;
+}
+
+.input-dash {
+    width: 100%;
+    max-width: 500px;
+    background-color: #f5f5f5;
+    color: #242424;
+    padding: .15rem .5rem;
+    min-height: 50px;
+    border-radius: 4px;
+    outline: none;
+    border: none;
+    line-height: 1.15;
+    box-shadow: 0px 10px 20px -18px;
+    font-size: 20px;
+}
+  
+.input-dash:focus {
+    border-bottom: 2px solid #00448d;
+    border-radius: 4px 4px 2px 2px;
+}
+
+.tb {
+    width: 100%;
+    max-width: 800px;
+    margin-top: 2rem;
+    border-radius: 12px;
+    overflow: hidden;
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
+}
+
+.table {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 1rem 1.5rem;
+    background-color: white;
+    border-bottom: 1px solid #e0e0e0;
+    transition: background 0.2s;
+}
+
+.table:hover {
+    background-color: #f9f9f9;
+}
+
+.table p {
+    margin: 0;
+    flex: 1;
+    text-align: left;
+    font-size: 16px;
+    color: #333;
+    font-weight: 400;
+}
+
+#header p {
+    color: white;
+}
+
+.tb .table:first-child {
+    background-color: #00448d;
+    color: white;
+    font-weight: 600;
+    font-size: 18px;
+    border-top-left-radius: 12px;
+    border-top-right-radius: 12px;
+}
+
+.pagination {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    gap: 1rem;
+    margin-top: 1.5rem;
+    font-size: 16px;
+    color: white;
+}
+
+.pagination button {
+    padding: 0.5rem 1rem;
+    background-color: #00448d;
+    border: none;
+    border-radius: 6px;
+    color: white;
+    cursor: pointer;
+    transition: background 0.3s;
+}
+
+.pagination button:disabled {
+    background-color: #999;
+    cursor: not-allowed;
+}
+
+.pagination button:hover:not(:disabled) {
+    background-color: #0055aa;
+}
