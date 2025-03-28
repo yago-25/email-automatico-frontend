@@ -28,8 +28,13 @@ const EmailVerification = () => {
     }
   
     setLoading(true);
-  
+    
+    if (!email) {
+      alert("E-mail não encontrado. Tente se cadastrar novamente.");
+      return;
+    }
     try {
+      
       const response = await api.post('/validate-token', { code });
   
       if (response.status === 200) {

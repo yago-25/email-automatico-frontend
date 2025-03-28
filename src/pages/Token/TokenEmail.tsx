@@ -46,8 +46,6 @@ const EmailVerification = () => {
     }
   };
 
-
-
   const handleResend = async () => {
     if (!email) {
       alert("E-mail não encontrado. Tente se cadastrar novamente.");
