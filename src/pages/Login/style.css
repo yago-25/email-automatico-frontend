@@ -91,3 +91,12 @@
     width: 100%;
     gap: 20px;
 }
+
+.card-footere {
+    display: flex
+;
+    align-items: flex-start;
+    justify-content: flex-start;
+    margin-bottom: -7px;
+    margin-top: 3px;
+}

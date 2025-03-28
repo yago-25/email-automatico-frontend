@@ -93,7 +93,7 @@ const Login: React.FC<LoginProps> = ({ setIsAuthenticated }) => {
             />
           </div>
         </div>
-        <div className="card-footer">
+        <div className="card-footere">
           <p className="password">
             <a  href="#"
               onClick={handleResetPassword}>{t("login_page.forgot_password")}</a>

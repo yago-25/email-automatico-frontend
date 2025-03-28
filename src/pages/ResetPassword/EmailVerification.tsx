@@ -19,6 +19,7 @@ const EmailVerification = () => {
   const email = location.state?.email || "";
 
   const handleVerify = async () => {
+    navigate("/reset-password");
     if (!code) {
       messageAlert({
         type: 'error',
@@ -27,37 +28,37 @@ const EmailVerification = () => {
       return;
     }
   
-    setLoading(true);
+    // setLoading(true);
     
-    if (!email) {
-      alert("E-mail não encontrado. Tente se cadastrar novamente.");
-      return;
-    }
-    try {
+    // if (!email) {
+    //   alert("E-mail não encontrado. Tente se cadastrar novamente.");
+    //   return;
+    // }
+    // try {
       
-      const response = await api.post('/validate-token', { code });
+    //   const response = await api.post('/validate-token', { code });
   
-      if (response.status === 200) {
-        messageAlert({
-          type: 'success',
-          message: "Token verificado com sucesso! Aguarde a aprovação do administrador."
-        });
-        navigate("/");
-      } else {
-        messageAlert({
-          type: 'error',
-          message: response.data.message || "Código inválido. Tente novamente."
-        });
-      }
-    } catch (error) {
-      console.error("Erro ao verificar token:", error);
-      messageAlert({
-        type: 'error',
-        message: "Erro ao conectar ao servidor. Tente novamente mais tarde."
-      });
-    } finally {
-      setLoading(false);
-    }
+    //   if (response.status === 200) {
+    //     messageAlert({
+    //       type: 'success',
+    //       message: "Token verificado com sucesso! Aguarde a aprovação do administrador."
+    //     });
+    //     navigate("/");
+    //   } else {
+    //     messageAlert({
+    //       type: 'error',
+    //       message: response.data.message || "Código inválido. Tente novamente."
+    //     });
+    //   }
+    // } catch (error) {
+    //   console.error("Erro ao verificar token:", error);
+    //   messageAlert({
+    //     type: 'error',
+    //     message: "Erro ao conectar ao servidor. Tente novamente mais tarde."
+    //   });
+    // } finally {
+    //   setLoading(false);
+    // }
   };
   
 
