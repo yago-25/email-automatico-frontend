@@ -61,6 +61,9 @@ const Login: React.FC<LoginProps> = ({ setIsAuthenticated }) => {
   const handleRegister = () => {
     navigate("/register");
   };
+  const handleResetPassword = () => {
+    navigate("/email-verification");
+  };
 
   if (!i18n.isInitialized || loading) {
     return (
@@ -92,7 +95,8 @@ const Login: React.FC<LoginProps> = ({ setIsAuthenticated }) => {
         </div>
         <div className="card-footer">
           <p className="password">
-            <a href="/password/reset">{t("login_page.forgot_password")}</a>
+            <a  href="#"
+              onClick={handleResetPassword}>{t("login_page.forgot_password")}</a>
           </p>
         </div>
 
