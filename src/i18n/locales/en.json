@@ -32,7 +32,20 @@
       "back_button": "Back",
       "didnt_receive_code": "Didn't receive it?",
       "resend_button": "Click to resend"
+    },
+    "password_reset": {
+      "title": "Password Reset",
+      "new_password": "New Password",
+      "confirm_password": "Confirm Password",
+      "button_text": "Reset Password",
+      "back": "Back"
+    },
+    "password_reset": {
+      "title": "Password Reset",
+      "email_input": "Enter your Email",
+      "verify_email_button": "Verify Email",
+      "didnt_receive_code": "Didn't receive the code?",
+      "resend_button": "Resend Code",
+      "back": "Back"
     }
-  
-  
 }

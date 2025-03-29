@@ -1,7 +1,7 @@
 import { useState } from "react";
 import { useNavigate, useLocation } from "react-router-dom";
 import { useTranslation } from "react-i18next";
-import "./EmailVerification.css";
+import "./ResetPassword.css";
 import Input from "../../components/Input/Input";
 import Button from "../../components/Button/Button";
 import Spin from "../../components/Spin/Spin";
@@ -27,17 +27,17 @@ const ResetPassword = () => {
       });
       return;
     }
-  
+
     // setLoading(true);
-    
+
     // if (!email) {
     //   alert("E-mail não encontrado. Tente se cadastrar novamente.");
     //   return;
     // }
     // try {
-      
+
     //   const response = await api.post('/validate-token', { code });
-  
+
     //   if (response.status === 200) {
     //     messageAlert({
     //       type: 'success',
@@ -60,12 +60,6 @@ const ResetPassword = () => {
     //   setLoading(false);
     // }
   };
-  
-
-  const handleResend = async () => {
-    console.log('teste')
-  };
-
 
   const handleLogin = () => {
     navigate("/");
@@ -77,41 +71,42 @@ const ResetPassword = () => {
 
   return (
     <div className="container">
-      <h1 className="title">Redefinição de Senha</h1>
-      <div className="form-token">
-        <div className="card-contente">
-          <div className="card-content-area-login">
-            <Input
-              text="Nova Senha"
-              type="text"
-              required={true}
-              value={code}
-              onChange={(e) => setCode(e.target.value)}
-            />
+      <h1 className="title">{t("password_reset.title")}</h1>
+      <div className="form-tokenee">
+        <div className="card-contentee">
+          <div className="input-login">
+            <div className="card-content-area-login">
+              <Input
+                text={t("password_reset.new_password")}
+                type="password"
+                required={true}
+                value={code}
+                onChange={(e) => setCode(e.target.value)}
+              />
+            </div>
+          </div>
+          <div className="input-login">
+            <div className="card-content-area-login">
+              <Input
+                text={t("password_reset.confirm_password")}
+                type="password"
+                required={true}
+                value={code}
+                onChange={(e) => setCode(e.target.value)}
+              />
+            </div>
           </div>
         </div>
         <div className="btn-tokene">
-          <Button text="Verificar E-mail" onClick={handleVerify} />
+          <Button text={t("password_reset.button_text")} onClick={handleVerify} />
         </div>
-        <div className="card-footer-note">
-          <p style={{ color: "white", fontSize: "12px" }}>
-            {t("email_verification.didnt_receive_code")}{" "}
-            <a
-              href="#"
-              onClick={handleResend}
-              style={{ color: "blue", cursor: "pointer", textDecoration: "underline" }}
-            >
-              {t("email_verification.resend_button")}
-            </a>
-          </p>
+        <div className="p">
+          <p onClick={handleLogin} className="btn-back-homee">{t("password_reset.back")}</p>
         </div>
-        <div className="p"></div>
-
-        <p onClick={handleLogin} className="btn-back-homee">Voltar</p>
-
       </div>
     </div>
   );
+  
 };
 
 export default ResetPassword;

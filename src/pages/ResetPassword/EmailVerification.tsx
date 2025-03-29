@@ -77,12 +77,12 @@ const EmailVerification = () => {
 
   return (
     <div className="container">
-      <h1 className="title">Redefinição de Senha</h1>
+      <h1 className="title">{t("password_reset_email.title")}</h1>
       <div className="form-token">
         <div className="card-contente">
           <div className="card-content-area-login">
             <Input
-              text="Digite seu E-mail"
+              text={t("password_reset_email.email_input")}
               type="text"
               required={true}
               value={code}
@@ -91,24 +91,22 @@ const EmailVerification = () => {
           </div>
         </div>
         <div className="btn-tokene">
-          <Button text="Verificar E-mail" onClick={handleVerify} />
+          <Button text={t("password_reset_email.verify_email_button")} onClick={handleVerify} />
         </div>
         <div className="card-footer-note">
           <p style={{ color: "white", fontSize: "12px" }}>
-            {t("email_verification.didnt_receive_code")}{" "}
+            {t("password_reset_email.didnt_receive_code")}{" "}
             <a
               href="#"
               onClick={handleResend}
               style={{ color: "blue", cursor: "pointer", textDecoration: "underline" }}
             >
-              {t("email_verification.resend_button")}
+              {t("password_reset_email.resend_button")}
             </a>
           </p>
         </div>
         <div className="p"></div>
-
-        <p onClick={handleLogin} className="btn-back-homee">Voltar</p>
-
+        <p onClick={handleLogin} className="btn-back-homee">{t("password_reset_email.back")}</p>
       </div>
     </div>
   );

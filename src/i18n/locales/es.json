@@ -32,7 +32,21 @@
       "back_button": "Volver",
       "didnt_receive_code": "¿No lo recibiste?",
       "resend_button": "Haz clic para reenviar"
-    }
-  
+    },
+    "password_reset": {
+    "title": "Restablecimiento de Contraseña",
+    "new_password": "Nueva Contraseña",
+    "confirm_password": "Confirme la Contraseña",
+    "button_text": "Restablecer la Contraseña",
+    "back": "Volver"
+  },
+  "password_reset": {
+    "title": "Restablecimiento de Contraseña",
+    "email_input": "Introduce tu Correo Electrónico",
+    "verify_email_button": "Verificar Correo Electrónico",
+    "didnt_receive_code": "¿No recibiste el código?",
+    "resend_button": "Reenviar Código",
+    "back": "Volver"
+  }
   
 }
