@@ -26,7 +26,7 @@ const EmailVerification = () => {
     if (!email) {
       messageAlert({
         type: 'error',
-        message: t("password_reset_email.email_input"), 
+        message: 'Por favor, insira o e-mail para verificação.',
       });
       return;
     }
@@ -46,13 +46,12 @@ const EmailVerification = () => {
     } catch (error) {
       messageAlert({
         type: 'error',
-        message: t("password_reset_email.invalid_email"), 
+        message: "E-mail invalido. Tente novamente mais tarde.",
       });
     } finally {
       setLoading(false); 
     }
-};
-
+  };
 
  
   const handleLogin = () => {

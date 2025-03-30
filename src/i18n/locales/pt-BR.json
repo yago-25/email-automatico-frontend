@@ -65,7 +65,6 @@
       "didnt_receive_code": "Não recebeu o código?",
       "resend_button": "Reenviar Código",
       "back": "Voltar",
-      "email_input": "Por favor, insira o e-mail para verificação.",
       "invalid_email": "E-mail inválido. Tente novamente mais tarde."
   }
 }
