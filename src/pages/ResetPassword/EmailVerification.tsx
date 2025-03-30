@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";  // Importar o useEffect junto com useState
+import { useState, useEffect } from "react";  
 import { useNavigate, useLocation } from "react-router-dom";
 import { useTranslation } from "react-i18next";
 import "./EmailVerification.css";
@@ -12,10 +12,10 @@ const EmailVerification = () => {
   const navigate = useNavigate();
   const location = useLocation();
   const { t, i18n } = useTranslation();
-  const [email, setEmail] = useState(""); // Variável de estado 'email'
+  const [email, setEmail] = useState(""); 
   const [loading, setLoading] = useState(false);
 
-  // Definir o e-mail de location.state, caso exista
+  
   useEffect(() => {
     if (location.state?.email) {
       setEmail(location.state.email);
@@ -26,7 +26,7 @@ const EmailVerification = () => {
     if (!email) {
       messageAlert({
         type: 'error',
-        message: 'Por favor, insira o e-mail para verificação.',
+        message: t("password_reset_email.email_input"), 
       });
       return;
     }
@@ -46,51 +46,19 @@ const EmailVerification = () => {
     } catch (error) {
       messageAlert({
         type: 'error',
-        message: "E-mail invalido. Tente novamente mais tarde.",
+        message: t("password_reset_email.invalid_email"), 
       });
     } finally {
       setLoading(false); 
     }
-  };
-
-  // Função para reenviar o token de verificação
-  // const handleResend = async () => {
-  //   if (!email) {
-  //     messageAlert({
-  //       type: 'error',
-  //       message: 'Por favor, insira o e-mail para reenvio do token.',
-  //     });
-  //     return;
-  //   }
-
-  //   setLoading(true);
-
-  //   try {
-  //     const response = await api.post('/password/forgot', { email });
-
-  //     if (response.status === 200) {
-  //       messageAlert({
-  //         type: 'success',
-  //         message: 'O token de redefinição de senha foi reenviado para o seu e-mail.',
-  //       });
-  //     }
-  //   } catch (error) {
-  //     messageAlert({
-  //       type: 'error',
-  //       message: "Erro ao reenviar o token de redefinição. Tente novamente mais tarde.",
-  //     });
-  //   } finally {
-  //     setLoading(false);
-  //   }
-  // };
+};
 
 
-  // Função de navegação para a tela de login
+ 
   const handleLogin = () => {
-    navigate("/"); // Navega para a página de login
+    navigate("/"); 
   };
 
-  // Exibe a tela de carregamento se o i18n ainda não estiver inicializado ou se a requisição estiver carregando
   if (!i18n.isInitialized || loading) {
     return <Spin />;
   }
@@ -106,7 +74,7 @@ const EmailVerification = () => {
               type="email" 
               required={true}
               value={email}
-              onChange={(e) => setEmail(e.target.value)} // Atualiza o estado 'email'
+              onChange={(e) => setEmail(e.target.value)} 
             />
           </div>
         </div>

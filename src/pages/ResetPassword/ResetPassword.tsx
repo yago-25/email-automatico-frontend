@@ -16,14 +16,13 @@ const ResetPassword = () => {
   const [passwordConfirmation, setPasswordConfirmation] = useState("");
   const [loading, setLoading] = useState(false);
 
-  // Pegue o token e o email da URL
   const { email, token } = location.state || {};
 
   const handleResetPassword = async () => {
     if (!password || !passwordConfirmation) {
       messageAlert({
         type: 'error',
-        message: 'Por favor, preencha todos os campos.',
+        message: t("password_reset.fill_all_fields"), 
       });
       return;
     }
@@ -31,7 +30,7 @@ const ResetPassword = () => {
     if (password !== passwordConfirmation) {
       messageAlert({
         type: 'error',
-        message: 'As senhas não coincidem.',
+        message: t("password_reset.passwords_do_not_match"), 
       });
       return;
     }
@@ -49,19 +48,20 @@ const ResetPassword = () => {
       if (response.status === 200) {
         messageAlert({
           type: 'success',
-          message: 'Senha redefinida com sucesso!',
+          message: t("password_reset.success"), 
         });
         navigate("/");
       }
     } catch (error) {
       messageAlert({
         type: 'error',
-        message: "Erro ao redefinir senha. Tente novamente mais tarde.",
+        message: t("password_reset.error"), 
       });
     } finally {
       setLoading(false);
     }
-  };
+};
+
 
   if (!i18n.isInitialized || loading) {
     return <Spin />;

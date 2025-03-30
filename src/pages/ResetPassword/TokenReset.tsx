@@ -7,7 +7,6 @@ import Button from "../../components/Button/Button";
 import Spin from "../../components/Spin/Spin";
 import { api } from '../../api/api';
 import { messageAlert } from "../../utils/messageAlert";
-// import ButtonRegister from "../../components/Button/ButtonRegiser";
 
 const TokenReset = () => {
   const navigate = useNavigate();
@@ -21,85 +20,77 @@ const TokenReset = () => {
   const handleVerify = async () => {
     setLoading(true);
 
-    // Verificando se o código foi inserido
     if (!code || !email) {
         messageAlert({
             type: 'error',
-            message: 'Por favor, insira o código de verificação e o e-mail.',
+            message: t("email_verification.missing_code_email"), 
         });
-        console.log("Código de verificação ou e-mail não fornecido");
+        console.log(t("email_verification.console_missing_code_email"));
         setLoading(false);
         return;
     }
 
-    console.log("Iniciando verificação do código de verificação para o e-mail:", email);
+    console.log(t("email_verification.console_verification_start"), email);
 
     try {
-        // Verificando se o email e o código foram enviados corretamente
-        console.log("Enviando para a API:", { email, code });
+        console.log(t("email_verification.console_sending_to_api"), { email, code });
 
         const response = await api.post('/reset-token', { email, code });
 
-        // Se a resposta for bem-sucedida
         if (response.status === 200) {
-            console.log("Token verificado com sucesso para o e-mail:", email);
+            console.log(t("email_verification.console_success"), email);
 
             messageAlert({
                 type: 'success',
-                message: 'Token verificado com sucesso!',
+                message: t("email_verification.success"), 
             });
 
-            // Navegar para a página de redefinir senha com o estado do e-mail
             navigate("/reset-password", { state: { email, token: code } });
         } else {
-            // Em caso de falha
-            console.log("Falha na verificação do token para o e-mail:", email, "Mensagem:", response.data.message);
+            console.log(t("email_verification.console_failed"), email, response.data.message);
 
             messageAlert({
                 type: 'error',
-                message: response.data.message || 'Código inválido. Tente novamente.',
+                message: response.data.message || t("email_verification.invalid_code"), 
             });
         }
     } catch (error) {
-        // Log de erro
-        console.error("Erro ao verificar token:", error);
+        console.error(t("email_verification.console_error"), error);
 
         messageAlert({
             type: 'error',
-            message: 'Erro ao conectar ao servidor.',
+            message: t("email_verification.server_error"), 
         });
     } finally {
         setLoading(false);
-        console.log("Processo de verificação finalizado.");
+        console.log(t("email_verification.console_verification_end"));
     }
 };
 
-
-
 const handleResend = async () => {
+    console.log(t("email_verification.console_resend"), email);
 
-  console.log("e-mail:", email);
+    setLoading(true);
 
-  setLoading(true);
-  
-  try {
+    try {
         const response = await api.post('/password/forgot', { email });
-  
+
         if (response.status === 200) {
-          messageAlert({
-            type: 'success',
-            message: 'O token de redefinição de senha foi reenviado para o seu e-mail.',
-          });
+            messageAlert({
+                type: 'success',
+                message: t("email_verification.token_resent"), 
+            });
         }
-      } catch (error) {
+    } catch (error) {
         messageAlert({
-          type: 'error',
-          message: "Erro ao reenviar o token de redefinição. Tente novamente mais tarde.",
+            type: 'error',
+            message: t("email_verification.resend_error"), 
         });
-      } finally {
+    } finally {
         setLoading(false);
-      }
-    };
+    }
+};
+
 
 
   const handleLogin = () => {

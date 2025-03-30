@@ -31,14 +31,32 @@
       "verify_button": "Verificar Código",
       "back_button": "Voltar",
       "didnt_receive_code": "Não recebeu?",
-      "resend_button": "Clique para reenviar"
+      "resend_button": "Clique para reenviar",
+      "missing_code_email": "Por favor, insira o código de verificação e o e-mail.",
+      "invalid_code": "Código inválido. Tente novamente.",
+      "success": "Token verificado com sucesso!",
+      "server_error": "Erro ao conectar ao servidor.",
+      "token_resent": "O token de redefinição de senha foi reenviado para o seu e-mail.",
+      "resend_error": "Erro ao reenviar o token de redefinição. Tente novamente mais tarde.",
+      "console_missing_code_email": "Código de verificação ou e-mail não fornecido",
+      "console_verification_start": "Iniciando verificação do código de verificação para o e-mail:",
+      "console_sending_to_api": "Enviando para a API:",
+      "console_success": "Token verificado com sucesso para o e-mail:",
+      "console_failed": "Falha na verificação do token para o e-mail:",
+      "console_error": "Erro ao verificar token:",
+      "console_verification_end": "Processo de verificação finalizado.",
+      "console_resend": "Reenviando token para o e-mail:"
       },
   "password_reset": {
       "title": "Redefinição de Senha",
       "new_password": "Nova Senha",
       "confirm_password": "Confirme a Senha",
       "button_text": "Redefinir a Senha",
-      "back": "Voltar"
+      "back": "Voltar",
+      "fill_all_fields": "Por favor, preencha todos os campos.",
+      "passwords_do_not_match": "As senhas não coincidem.",
+      "success": "Senha redefinida com sucesso!",
+      "error": "Erro ao redefinir senha. Tente novamente mais tarde."
       },
   "password_reset_email": {
       "title": "Redefinição de Senha",
@@ -46,7 +64,9 @@
       "verify_email_button": "Verificar E-mail",
       "didnt_receive_code": "Não recebeu o código?",
       "resend_button": "Reenviar Código",
-      "back": "Voltar"
+      "back": "Voltar",
+      "email_input": "Por favor, insira o e-mail para verificação.",
+      "invalid_email": "E-mail inválido. Tente novamente mais tarde."
   }
 }
     
