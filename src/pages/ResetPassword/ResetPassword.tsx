@@ -16,9 +16,8 @@ const ResetPassword = () => {
   const [passwordConfirmation, setPasswordConfirmation] = useState("");
   const [loading, setLoading] = useState(false);
 
-  // Pegue o token da URL
-  const token = new URLSearchParams(location.search).get("token");
-  const email = new URLSearchParams(location.search).get("email");
+  // Pegue o token e o email da URL
+  const { email, token } = location.state || {};
 
   const handleResetPassword = async () => {
     if (!password || !passwordConfirmation) {
@@ -42,9 +41,9 @@ const ResetPassword = () => {
     try {
       const response = await api.post('/reset-password', { 
         email, 
-        password, 
-        password_confirmation: passwordConfirmation, 
-        token 
+        senha: password,  
+        senha_confirmation: passwordConfirmation,  
+        token
       });
 
       if (response.status === 200) {
@@ -52,7 +51,7 @@ const ResetPassword = () => {
           type: 'success',
           message: 'Senha redefinida com sucesso!',
         });
-        navigate("/login");
+        navigate("/");
       }
     } catch (error) {
       messageAlert({

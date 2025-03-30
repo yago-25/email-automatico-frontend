@@ -22,7 +22,6 @@ const EmailVerification = () => {
     }
   }, [location.state?.email]);
 
-  // Função para verificar o e-mail e enviar o link de redefinição
   const handleVerify = async () => {
     if (!email) {
       messageAlert({
@@ -32,59 +31,59 @@ const EmailVerification = () => {
       return;
     }
 
-    setLoading(true); // Iniciar carregamento ao enviar a requisição
+    setLoading(true); 
 
     try {
-      // Enviar solicitação para enviar o link de redefinição
-      const response = await api.post('/password/forgot', { email });
+      const response = await api.post('/password/forgot', { email }); 
 
       if (response.status === 200) {
         messageAlert({
           type: 'success',
-          message: 'O link de redefinição de senha foi enviado para o seu e-mail.',
+          message: response.data.message, 
         });
-        navigate("/reset-password"); // Navega para a página de redefinição
+        navigate("/token-reset", { state: { email } });
       }
     } catch (error) {
       messageAlert({
         type: 'error',
-        message: "Erro ao enviar o link de redefinição. Tente novamente mais tarde.",
+        message: "E-mail invalido. Tente novamente mais tarde.",
       });
     } finally {
-      setLoading(false); // Finaliza carregamento após a requisição
+      setLoading(false); 
     }
   };
 
-  // Função para reenviar o código de verificação
-  const handleResend = async () => {
-    if (!email) {
-      messageAlert({
-        type: 'error',
-        message: 'Por favor, insira o e-mail para reenvio do código.',
-      });
-      return;
-    }
+  // Função para reenviar o token de verificação
+  // const handleResend = async () => {
+  //   if (!email) {
+  //     messageAlert({
+  //       type: 'error',
+  //       message: 'Por favor, insira o e-mail para reenvio do token.',
+  //     });
+  //     return;
+  //   }
 
-    setLoading(true); // Iniciar carregamento ao reenviar o código
+  //   setLoading(true);
 
-    try {
-      const response = await api.post('/password/forgot', { email });
+  //   try {
+  //     const response = await api.post('/password/forgot', { email });
 
-      if (response.status === 200) {
-        messageAlert({
-          type: 'success',
-          message: 'O link de redefinição de senha foi reenviado para o seu e-mail.',
-        });
-      }
-    } catch (error) {
-      messageAlert({
-        type: 'error',
-        message: "Erro ao reenviar o link de redefinição. Tente novamente mais tarde.",
-      });
-    } finally {
-      setLoading(false); // Finaliza carregamento após a requisição
-    }
-  };
+  //     if (response.status === 200) {
+  //       messageAlert({
+  //         type: 'success',
+  //         message: 'O token de redefinição de senha foi reenviado para o seu e-mail.',
+  //       });
+  //     }
+  //   } catch (error) {
+  //     messageAlert({
+  //       type: 'error',
+  //       message: "Erro ao reenviar o token de redefinição. Tente novamente mais tarde.",
+  //     });
+  //   } finally {
+  //     setLoading(false);
+  //   }
+  // };
+
 
   // Função de navegação para a tela de login
   const handleLogin = () => {
@@ -114,7 +113,7 @@ const EmailVerification = () => {
         <div className="btn-tokene">
           <Button text={t("password_reset_email.verify_email_button")} onClick={handleVerify} />
         </div>
-        <div className="card-footer-note">
+        {/* <div className="card-footer-note">
           <p style={{ color: "white", fontSize: "12px" }}>
             {t("password_reset_email.didnt_receive_code")}{" "}
             <a
@@ -125,7 +124,7 @@ const EmailVerification = () => {
               {t("password_reset_email.resend_button")}
             </a>
           </p>
-        </div>
+        </div> */}
         <div className="p"></div>
         <p onClick={handleLogin} className="btn-back-homee">{t("password_reset_email.back")}</p>
       </div>

@@ -9,7 +9,7 @@ import { api } from '../../api/api';
 import { messageAlert } from "../../utils/messageAlert";
 // import ButtonRegister from "../../components/Button/ButtonRegiser";
 
-const EmailVerification = () => {
+const TokenEmail = () => {
   const navigate = useNavigate();
   const location = useLocation();
   const { t, i18n } = useTranslation();
@@ -125,4 +125,4 @@ const EmailVerification = () => {
   );
 };
 
-export default EmailVerification;
+export default TokenEmail;
