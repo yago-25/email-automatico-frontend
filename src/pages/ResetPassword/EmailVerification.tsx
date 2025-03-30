@@ -1,4 +1,4 @@
-import { useState } from "react";
+import React, { useState, useEffect } from "react";  // Importar o useEffect junto com useState
 import { useNavigate, useLocation } from "react-router-dom";
 import { useTranslation } from "react-i18next";
 import "./EmailVerification.css";
@@ -7,70 +7,91 @@ import Button from "../../components/Button/Button";
 import Spin from "../../components/Spin/Spin";
 import { api } from '../../api/api';
 import { messageAlert } from "../../utils/messageAlert";
-// import ButtonRegister from "../../components/Button/ButtonRegiser";
 
 const EmailVerification = () => {
   const navigate = useNavigate();
   const location = useLocation();
   const { t, i18n } = useTranslation();
-  const [code, setCode] = useState("");
+  const [email, setEmail] = useState(""); // Variável de estado 'email'
   const [loading, setLoading] = useState(false);
 
-  const email = location.state?.email || "";
+  // Definir o e-mail de location.state, caso exista
+  useEffect(() => {
+    if (location.state?.email) {
+      setEmail(location.state.email);
+    }
+  }, [location.state?.email]);
 
+  // Função para verificar o e-mail e enviar o link de redefinição
   const handleVerify = async () => {
-    navigate("/reset-password");
-    if (!code) {
+    if (!email) {
       messageAlert({
         type: 'error',
-        message: 'Por favor, insira o e-mail para verificação.'
+        message: 'Por favor, insira o e-mail para verificação.',
       });
       return;
     }
-  
-    // setLoading(true);
-    
-    // if (!email) {
-    //   alert("E-mail não encontrado. Tente se cadastrar novamente.");
-    //   return;
-    // }
-    // try {
-      
-    //   const response = await api.post('/validate-token', { code });
-  
-    //   if (response.status === 200) {
-    //     messageAlert({
-    //       type: 'success',
-    //       message: "Token verificado com sucesso! Aguarde a aprovação do administrador."
-    //     });
-    //     navigate("/");
-    //   } else {
-    //     messageAlert({
-    //       type: 'error',
-    //       message: response.data.message || "Código inválido. Tente novamente."
-    //     });
-    //   }
-    // } catch (error) {
-    //   console.error("Erro ao verificar token:", error);
-    //   messageAlert({
-    //     type: 'error',
-    //     message: "Erro ao conectar ao servidor. Tente novamente mais tarde."
-    //   });
-    // } finally {
-    //   setLoading(false);
-    // }
-  };
-  
 
+    setLoading(true); // Iniciar carregamento ao enviar a requisição
+
+    try {
+      // Enviar solicitação para enviar o link de redefinição
+      const response = await api.post('/password/forgot', { email });
+
+      if (response.status === 200) {
+        messageAlert({
+          type: 'success',
+          message: 'O link de redefinição de senha foi enviado para o seu e-mail.',
+        });
+        navigate("/reset-password"); // Navega para a página de redefinição
+      }
+    } catch (error) {
+      messageAlert({
+        type: 'error',
+        message: "Erro ao enviar o link de redefinição. Tente novamente mais tarde.",
+      });
+    } finally {
+      setLoading(false); // Finaliza carregamento após a requisição
+    }
+  };
+
+  // Função para reenviar o código de verificação
   const handleResend = async () => {
-    console.log('teste')
+    if (!email) {
+      messageAlert({
+        type: 'error',
+        message: 'Por favor, insira o e-mail para reenvio do código.',
+      });
+      return;
+    }
+
+    setLoading(true); // Iniciar carregamento ao reenviar o código
+
+    try {
+      const response = await api.post('/password/forgot', { email });
+
+      if (response.status === 200) {
+        messageAlert({
+          type: 'success',
+          message: 'O link de redefinição de senha foi reenviado para o seu e-mail.',
+        });
+      }
+    } catch (error) {
+      messageAlert({
+        type: 'error',
+        message: "Erro ao reenviar o link de redefinição. Tente novamente mais tarde.",
+      });
+    } finally {
+      setLoading(false); // Finaliza carregamento após a requisição
+    }
   };
 
-
+  // Função de navegação para a tela de login
   const handleLogin = () => {
-    navigate("/");
+    navigate("/"); // Navega para a página de login
   };
 
+  // Exibe a tela de carregamento se o i18n ainda não estiver inicializado ou se a requisição estiver carregando
   if (!i18n.isInitialized || loading) {
     return <Spin />;
   }
@@ -83,10 +104,10 @@ const EmailVerification = () => {
           <div className="card-content-area-login">
             <Input
               text={t("password_reset_email.email_input")}
-              type="text"
+              type="email" 
               required={true}
-              value={code}
-              onChange={(e) => setCode(e.target.value)}
+              value={email}
+              onChange={(e) => setEmail(e.target.value)} // Atualiza o estado 'email'
             />
           </div>
         </div>

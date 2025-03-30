@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useNavigate, useLocation } from "react-router-dom";
 import { useTranslation } from "react-i18next";
 import "./ResetPassword.css";
@@ -7,62 +7,61 @@ import Button from "../../components/Button/Button";
 import Spin from "../../components/Spin/Spin";
 import { api } from '../../api/api';
 import { messageAlert } from "../../utils/messageAlert";
-// import ButtonRegister from "../../components/Button/ButtonRegiser";
 
 const ResetPassword = () => {
   const navigate = useNavigate();
   const location = useLocation();
   const { t, i18n } = useTranslation();
-  const [code, setCode] = useState("");
+  const [password, setPassword] = useState("");
+  const [passwordConfirmation, setPasswordConfirmation] = useState("");
   const [loading, setLoading] = useState(false);
 
-  const email = location.state?.email || "";
+  // Pegue o token da URL
+  const token = new URLSearchParams(location.search).get("token");
+  const email = new URLSearchParams(location.search).get("email");
 
-  const handleVerify = async () => {
-    navigate("/reset-password");
-    if (!code) {
+  const handleResetPassword = async () => {
+    if (!password || !passwordConfirmation) {
       messageAlert({
         type: 'error',
-        message: 'Por favor, insira o e-mail para verificação.'
+        message: 'Por favor, preencha todos os campos.',
       });
       return;
     }
 
-    // setLoading(true);
+    if (password !== passwordConfirmation) {
+      messageAlert({
+        type: 'error',
+        message: 'As senhas não coincidem.',
+      });
+      return;
+    }
 
-    // if (!email) {
-    //   alert("E-mail não encontrado. Tente se cadastrar novamente.");
-    //   return;
-    // }
-    // try {
+    setLoading(true);
 
-    //   const response = await api.post('/validate-token', { code });
+    try {
+      const response = await api.post('/reset-password', { 
+        email, 
+        password, 
+        password_confirmation: passwordConfirmation, 
+        token 
+      });
 
-    //   if (response.status === 200) {
-    //     messageAlert({
-    //       type: 'success',
-    //       message: "Token verificado com sucesso! Aguarde a aprovação do administrador."
-    //     });
-    //     navigate("/");
-    //   } else {
-    //     messageAlert({
-    //       type: 'error',
-    //       message: response.data.message || "Código inválido. Tente novamente."
-    //     });
-    //   }
-    // } catch (error) {
-    //   console.error("Erro ao verificar token:", error);
-    //   messageAlert({
-    //     type: 'error',
-    //     message: "Erro ao conectar ao servidor. Tente novamente mais tarde."
-    //   });
-    // } finally {
-    //   setLoading(false);
-    // }
-  };
-
-  const handleLogin = () => {
-    navigate("/");
+      if (response.status === 200) {
+        messageAlert({
+          type: 'success',
+          message: 'Senha redefinida com sucesso!',
+        });
+        navigate("/login");
+      }
+    } catch (error) {
+      messageAlert({
+        type: 'error',
+        message: "Erro ao redefinir senha. Tente novamente mais tarde.",
+      });
+    } finally {
+      setLoading(false);
+    }
   };
 
   if (!i18n.isInitialized || loading) {
@@ -80,8 +79,8 @@ const ResetPassword = () => {
                 text={t("password_reset.new_password")}
                 type="password"
                 required={true}
-                value={code}
-                onChange={(e) => setCode(e.target.value)}
+                value={password}
+                onChange={(e) => setPassword(e.target.value)}
               />
             </div>
           </div>
@@ -91,22 +90,21 @@ const ResetPassword = () => {
                 text={t("password_reset.confirm_password")}
                 type="password"
                 required={true}
-                value={code}
-                onChange={(e) => setCode(e.target.value)}
+                value={passwordConfirmation}
+                onChange={(e) => setPasswordConfirmation(e.target.value)}
               />
             </div>
           </div>
         </div>
         <div className="btn-tokene">
-          <Button text={t("password_reset.button_text")} onClick={handleVerify} />
+          <Button text={t("password_reset.button_text")} onClick={handleResetPassword} />
         </div>
         <div className="p">
-          <p onClick={handleLogin} className="btn-back-homee">{t("password_reset.back")}</p>
+          <p onClick={() => navigate("/")} className="btn-back-homee">{t("password_reset.back")}</p>
         </div>
       </div>
     </div>
   );
-  
 };
 
 export default ResetPassword;
