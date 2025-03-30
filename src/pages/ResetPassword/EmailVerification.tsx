@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";  // Importar o useEffect junto com useState
+import { useState, useEffect } from "react";  // Importar o useEffect junto com useState
 import { useNavigate, useLocation } from "react-router-dom";
 import { useTranslation } from "react-i18next";
 import "./EmailVerification.css";
