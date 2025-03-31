@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import { useState } from 'react';
 import './style.css';
 import Input from '../../components/Input/Input';
 import Button from '../../components/Button/Button';
@@ -8,11 +8,7 @@ import { api } from '../../api/api';
 import { messageAlert } from '../../utils/messageAlert';
 import Spin from '../../components/Spin/Spin';
 
-interface LoginProps {
-  setIsAuthenticated: (auth: boolean) => void;
-}
-
-const Login: React.FC<LoginProps> = ({ setIsAuthenticated }) => {
+const Login = () => {
   const { t, i18n } = useTranslation();
   const navigate = useNavigate();
 
@@ -38,8 +34,8 @@ const Login: React.FC<LoginProps> = ({ setIsAuthenticated }) => {
       });
 
       if (response.data.status === 200) {
-        setIsAuthenticated(true);
         localStorage.setItem('user', JSON.stringify(response.data.user));
+        localStorage.setItem("accessToken", response.data.accessToken);
         navigate('/dashboard');
         messageAlert({
           type: 'success',
@@ -62,6 +58,12 @@ const Login: React.FC<LoginProps> = ({ setIsAuthenticated }) => {
     navigate("/register");
   };
 
+  const handleKeyDown = (e: React.KeyboardEvent) => {
+    if (e.key === "Enter") {
+      handleLogin();
+    }
+  };
+
   if (!i18n.isInitialized || loading) {
     return (
       <Spin />
@@ -80,6 +82,7 @@ const Login: React.FC<LoginProps> = ({ setIsAuthenticated }) => {
               required={true}
               value={user}
               onChange={(e) => setUser(e.target.value)}
+              onKeyDown={handleKeyDown}
             />
             <Input
               type="password"
@@ -87,6 +90,7 @@ const Login: React.FC<LoginProps> = ({ setIsAuthenticated }) => {
               required={true}
               value={password}
               onChange={(e) => setPassword(e.target.value)}
+              onKeyDown={handleKeyDown}
             />
           </div>
         </div>
