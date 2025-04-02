@@ -31,8 +31,40 @@
       "verify_button": "Verify Code",
       "back_button": "Back",
       "didnt_receive_code": "Didn't receive it?",
-      "resend_button": "Click to resend"
+      "resend_button": "Click to resend",
+      "missing_code_email": "Please enter the verification code and email.",
+      "invalid_code": "Invalid code. Please try again.",
+      "success": "Token successfully verified!",
+      "server_error": "Error connecting to the server.",
+      "token_resent": "The password reset token has been resent to your email.",
+      "resend_error": "Error resending the reset token. Please try again later.",
+      "console_missing_code_email": "Verification code or email not provided",
+      "console_verification_start": "Starting verification of the code for email:",
+      "console_sending_to_api": "Sending to API:",
+      "console_success": "Token successfully verified for email:",
+      "console_failed": "Token verification failed for email:",
+      "console_error": "Error verifying token:",
+      "console_verification_end": "Verification process completed.",
+      "console_resend": "Resending token for email:"
+    },
+    "password_reset": {
+      "title": "Password Reset",
+      "new_password": "New Password",
+      "confirm_password": "Confirm Password",
+      "button_text": "Reset Password",
+      "back": "Back",
+      "fill_all_fields": "Please fill in all fields.",
+      "passwords_do_not_match": "Passwords do not match.",
+      "success": "Password reset successfully!",
+      "error": "Error resetting password. Please try again later."
+    },
+    "password_reset_email": {
+      "title": "Password Reset",
+      "email_input": "Ingrese su correo electrónico",
+      "verify_email_button": "Verify Email",
+      "didnt_receive_code": "Didn't receive the code?",
+      "resend_button": "Resend Code",
+      "back": "Back",
+      "invalid_email": "Invalid email. Please try again later."
     }
-  
-  
 }

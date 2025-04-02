@@ -31,8 +31,41 @@
       "verify_button": "Verificar Código",
       "back_button": "Volver",
       "didnt_receive_code": "¿No lo recibiste?",
-      "resend_button": "Haz clic para reenviar"
-    }
-  
+      "resend_button": "Haz clic para reenviar",
+      "missing_code_email": "Por favor, ingrese el código de verificación y el correo electrónico.",
+      "invalid_code": "Código no válido. Inténtelo de nuevo.",
+      "success": "¡Token verificado con éxito!",
+      "server_error": "Error al conectar con el servidor.",
+      "token_resent": "El token de restablecimiento de contraseña ha sido reenviado a su correo electrónico.",
+      "resend_error": "Error al reenviar el token de restablecimiento. Inténtelo de nuevo más tarde.",
+      "console_missing_code_email": "Código de verificación o correo electrónico no proporcionado",
+      "console_verification_start": "Iniciando verificación del código para el correo electrónico:",
+      "console_sending_to_api": "Enviando a la API:",
+      "console_success": "Token verificado con éxito para el correo electrónico:",
+      "console_failed": "Falló la verificación del token para el correo electrónico:",
+      "console_error": "Error al verificar el token:",
+      "console_verification_end": "Proceso de verificación finalizado.",
+      "console_resend": "Reenviando token para el correo electrónico:"
+    },
+    "password_reset": {
+    "title": "Restablecimiento de Contraseña",
+    "new_password": "Nueva Contraseña",
+    "confirm_password": "Confirme la Contraseña",
+    "button_text": "Restablecer la Contraseña",
+    "back": "Volver",
+    "fill_all_fields": "Por favor, complete todos los campos.",
+    "passwords_do_not_match": "Las contraseñas no coinciden.",
+    "success": "¡Contraseña restablecida con éxito!",
+    "error": "Error al restablecer la contraseña. Inténtelo de nuevo más tarde."
+  },
+  "password_reset_email": {
+    "title": "Restablecimiento de Contraseña",
+    "email_input": "Por favor, ingrese su correo electrónico para verificación.",
+    "verify_email_button": "Verificar Correo Electrónico",
+    "didnt_receive_code": "¿No recibió el código?",
+    "resend_button": "Reenviar Código",
+    "back": "Volver",
+    "invalid_email": "Correo electrónico no válido. Inténtelo de nuevo más tarde."
+  }
   
 }

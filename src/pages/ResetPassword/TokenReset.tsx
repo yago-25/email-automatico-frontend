@@ -1,15 +1,14 @@
 import { useState } from "react";
 import { useNavigate, useLocation } from "react-router-dom";
 import { useTranslation } from "react-i18next";
-import "./TokenEmail.css";
+import "./TokenReset.css";
 import Input from "../../components/Input/Input";
 import Button from "../../components/Button/Button";
 import Spin from "../../components/Spin/Spin";
 import { api } from '../../api/api';
 import { messageAlert } from "../../utils/messageAlert";
-// import ButtonRegister from "../../components/Button/ButtonRegiser";
 
-const TokenEmail = () => {
+const TokenReset = () => {
   const navigate = useNavigate();
   const location = useLocation();
   const { t, i18n } = useTranslation();
@@ -21,62 +20,78 @@ const TokenEmail = () => {
   const handleVerify = async () => {
     setLoading(true);
 
-    if (!code) {
-      alert("Por favor, insira o código de verificação.");
-      setLoading(false);
-      return;
-    }
-    try {
-      const response = await api.post('/validate-token', { code });
-
-      if (response.status === 200) {
+    if (!code || !email) {
         messageAlert({
-          type: 'success',
-          message: "Token verificado com sucesso! Aguarde a aprovação do administrador."
+            type: 'error',
+            message: t("email_verification.missing_code_email"), 
         });
-        navigate("/");
-      } else {
-        alert(response.data.message || "Código inválido. Tente novamente.");
-      }
-    } catch (error) {
-      console.error("Erro ao verificar token:", error);
-      alert("Erro ao conectar ao servidor.");
-    } finally {
-      setLoading(false);
+        console.log(t("email_verification.console_missing_code_email"));
+        setLoading(false);
+        return;
     }
-  };
 
-  const handleResend = async () => {
-    if (!email) {
-      alert("E-mail não encontrado. Tente se cadastrar novamente.");
-      return;
+    console.log(t("email_verification.console_verification_start"), email);
+
+    try {
+        console.log(t("email_verification.console_sending_to_api"), { email, code });
+
+        const response = await api.post('/reset-token', { email, code });
+
+        if (response.status === 200) {
+            console.log(t("email_verification.console_success"), email);
+
+            messageAlert({
+                type: 'success',
+                message: t("email_verification.success"), 
+            });
+
+            navigate("/reset-password", { state: { email, token: code } });
+        } else {
+            console.log(t("email_verification.console_failed"), email, response.data.message);
+
+            messageAlert({
+                type: 'error',
+                message: response.data.message || t("email_verification.invalid_code"), 
+            });
+        }
+    } catch (error) {
+        console.error(t("email_verification.console_error"), error);
+
+        messageAlert({
+            type: 'error',
+            message: t("email_verification.server_error"), 
+        });
+    } finally {
+        setLoading(false);
+        console.log(t("email_verification.console_verification_end"));
     }
+};
+
+const handleResend = async () => {
+    console.log(t("email_verification.console_resend"), email);
 
     setLoading(true);
 
     try {
-      const response = await fetch("http://localhost:8000/api/resend-token", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify({ email }),
-      });
+        const response = await api.post('/password/forgot', { email });
 
-      const data = await response.json();
-
-      if (response.ok) {
-        alert("Novo código enviado para seu e-mail!");
-      } else {
-        alert(data.message || "Erro ao reenviar código.");
-      }
+        if (response.status === 200) {
+            messageAlert({
+                type: 'success',
+                message: t("email_verification.token_resent"), 
+            });
+        }
     } catch (error) {
-      console.error("Erro ao reenviar token:", error);
-      alert("Erro ao conectar ao servidor.");
+        messageAlert({
+            type: 'error',
+            message: t("email_verification.resend_error"), 
+        });
     } finally {
-      setLoading(false);
+        setLoading(false);
     }
-  };
+};
+
+
 
   const handleLogin = () => {
     navigate("/");
@@ -125,4 +140,4 @@ const TokenEmail = () => {
   );
 };
 
-export default TokenEmail;
+export default TokenReset;

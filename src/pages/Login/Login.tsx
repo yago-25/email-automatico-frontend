@@ -57,6 +57,9 @@ const Login = () => {
   const handleRegister = () => {
     navigate("/register");
   };
+  const handleResetPassword = () => {
+    navigate("/email-verification");
+  };
 
   const handleKeyDown = (e: React.KeyboardEvent) => {
     if (e.key === "Enter") {
@@ -94,9 +97,10 @@ const Login = () => {
             />
           </div>
         </div>
-        <div className="card-footer">
+        <div className="card-footere">
           <p className="password">
-            <a href="/password/reset">{t("login_page.forgot_password")}</a>
+            <a  href="#"
+              onClick={handleResetPassword}>{t("login_page.forgot_password")}</a>
           </p>
         </div>
 
