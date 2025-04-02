@@ -1,0 +1,22 @@
+.authenticated-layout {
+    display: flex;
+    height: 100vh;
+  }
+  
+  .sidebar-container {
+    width: 240px;
+    background-color: #00448d;
+    color: white;
+    padding: 0px;
+    max-height: 100%;
+    padding-left: 10px;
+    padding-right: 10px;
+    height: 100vh;
+  }
+  
+  .authenticated-content {
+    flex: 1;
+    padding: 10px;
+    overflow-y: auto;
+  }
+  
