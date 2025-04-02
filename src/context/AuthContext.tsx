@@ -16,13 +16,20 @@ interface AuthContextType {
 const AuthContext = createContext<AuthContextType | null>(null);
 
 export const AuthProvider = ({ children }: { children: ReactNode }) => {
-  const [accessToken, setAccessToken] = useState<string | null>(localStorage.getItem("accessToken"));
-  const [user, setUser] = useState<User | null>(
-    localStorage.getItem("user") ? JSON.parse(localStorage.getItem("user")!) : null
-  );
   const navigate = useNavigate();
 
-  const isAuthenticated = !!accessToken;
+  const [accessToken, setAccessToken] = useState<string | null>(() => localStorage.getItem("accessToken"));
+  const [user, setUser] = useState<User | null>(() => {
+    try {
+      const storedUser = localStorage.getItem("user");
+      return storedUser ? JSON.parse(storedUser) : null;
+    } catch (error) {
+      console.error("Erro ao parsear user do localStorage:", error);
+      return null;
+    }
+  });
+
+  const isAuthenticated = !!accessToken && !!user;
 
   const login = async (email: string, password: string) => {
     try {
@@ -32,9 +39,9 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
         { withCredentials: true }
       );
 
-      setAccessToken(res.data.token);
+      setAccessToken(res.data.accessToken);
       setUser(res.data.user);
-      localStorage.setItem("accessToken", res.data.token);
+      localStorage.setItem("accessToken", res.data.accessToken);
       localStorage.setItem("user", JSON.stringify(res.data.user));
 
       navigate("/dashboard");
@@ -66,10 +73,16 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
   useEffect(() => {
     const token = localStorage.getItem("accessToken");
     const storedUser = localStorage.getItem("user");
-
+    console.log(storedUser, 'storedUser');
+  
     if (token && storedUser) {
-      setAccessToken(token);
-      setUser(JSON.parse(storedUser));
+      try {
+        setAccessToken(token);
+        setUser(JSON.parse(storedUser));
+      } catch (error) {
+        console.error("Erro ao parsear user do localStorage:", error);
+        setUser(null);
+      }
     }
   }, []);
 

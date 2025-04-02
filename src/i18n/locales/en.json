@@ -60,7 +60,7 @@
     },
     "password_reset_email": {
       "title": "Password Reset",
-      "email_input": "Ingrese su correo electrónico",
+      "email_input": "Email",
       "verify_email_button": "Verify Email",
       "didnt_receive_code": "Didn't receive the code?",
       "resend_button": "Resend Code",
