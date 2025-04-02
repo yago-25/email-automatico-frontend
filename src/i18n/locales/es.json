@@ -60,7 +60,7 @@
   },
   "password_reset_email": {
     "title": "Restablecimiento de Contraseña",
-    "email_input": "Por favor, ingrese su correo electrónico para verificación.",
+    "email_input": "Correo Electrónico",
     "verify_email_button": "Verificar Correo Electrónico",
     "didnt_receive_code": "¿No recibió el código?",
     "resend_button": "Reenviar Código",

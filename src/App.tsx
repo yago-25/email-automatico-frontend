@@ -7,6 +7,11 @@ import ProtectedRoute from './routes/ProtectedRoute';
 import Dashboard from './pages/Dashboard/Dashboard';
 import AuthenticatedLayout from './pages/AuthenticatedLayout/AuthenticatedLayout';
 import { AuthProvider } from './context/AuthContext';
+import TraductionButton from './components/TraductionButton/TraductionButton';
+import TokenReset from './pages/ResetPassword/TokenReset';
+import EmailVerification from './pages/ResetPassword/EmailVerification';
+import ResetPassword from './pages/ResetPassword/ResetPassword';
+import './../dist/index.css';
 
 function App() {
   return (
@@ -16,6 +21,9 @@ function App() {
           <Route path="/" element={<Login />} />
           <Route path="/register" element={<Register />} />
           <Route path="/token" element={<Token />} />
+          <Route path="/token-reset" element={<TokenReset />} />
+          <Route path="/email-verification" element={<EmailVerification />} />
+          <Route path="/reset-password" element={<ResetPassword />} />
 
           <Route element={<ProtectedRoute />}>
             <Route path="/dashboard" element={
@@ -25,6 +33,7 @@ function App() {
             } />
           </Route>
         </Routes>
+        <TraductionButton />
       </AuthProvider>
     </Router>
   );
