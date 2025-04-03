@@ -22,6 +22,7 @@
     background-color: rgba(255, 255, 255, 0.5);
     border-radius: 15px;
     border: 1px solid white;
+    gap: 15px;
     
 }
 .card-content-area{

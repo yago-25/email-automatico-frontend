@@ -13,28 +13,44 @@ interface InputProps {
   onKeyDown?: (e: React.KeyboardEvent<HTMLInputElement>) => void;
 }
 
-const Input: React.FC<InputProps> = ({ required, onChange, value, text, type, styles, onClick, onKeyDown }) => {
+const Input: React.FC<InputProps> = ({
+  required,
+  onChange,
+  value,
+  text,
+  type,
+  styles,
+  onClick,
+  onKeyDown,
+}) => {
   const [showPassword, setShowPassword] = useState(false);
 
   const togglePasswordVisibility = () => setShowPassword(!showPassword);
 
   return (
-    <div className="w-full relative flex flex-col items-start justify-center" style={styles} onClick={onClick}>
-      <input
-        required={required}
-        type={showPassword ? 'text' : type}
-        name={type}
-        value={value}
-        onChange={onChange}
-        onKeyDown={onKeyDown}
-        className="w-[300px] border-2 border-white rounded-md bg-transparent p-[1rem] text-white pr-[40px] focus:outline-none focus:ring-2 focus:ring-blue-500"
-      />
-      <label className="absolute left-[15px] top-0 text-white pointer-events-none pb-[0.25rem] transition-all ease-in-out duration-200">{text}</label>
-      {type === 'password' && (
-        <div className="absolute right-2 top-1/2 transform -translate-y-1/2 cursor-pointer" onClick={togglePasswordVisibility}>
-          {showPassword ? <FaRegEyeSlash /> : <FaRegEye />}
-        </div>
-      )}
+    <div className="w-60 h-12 relative flex rounded-xl" style={styles}>
+      <div className="flex items-center justify-center h-12 gap-2">
+        <input
+          onChange={onChange}
+          value={value}
+          onClick={onClick}
+          onKeyDown={onKeyDown}
+          required={required}
+          className="peer w-full h-full text-blue-500 bg-transparent outline-none px-4 text-base rounded-xl bg-white border border-[#4070f4] focus:shadow-md"
+          id={text}
+          type={type === "password" ? (showPassword ? "text" : "password") : type}
+          placeholder={text}
+        />
+        {type === 'password' && (
+          <div onClick={togglePasswordVisibility}>
+            {showPassword ? (
+              <FaRegEye className="w-6 h-6 text-white cursor-pointer" />
+            ) : (
+              <FaRegEyeSlash className="w-6 h-6 text-white cursor-pointer" />
+            )}
+          </div>
+        )}
+      </div>
     </div>
   );
 };

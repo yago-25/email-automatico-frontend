@@ -5,6 +5,9 @@
     margin: 20px;
     display: flex;
     gap: 10px;
+    background-color: white;
+    padding-left: 10px;
+    padding-right: 10px;
 }
 
 .container-icons-traduction img {

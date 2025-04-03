@@ -1,7 +1,7 @@
 import { useTranslation } from 'react-i18next';
-import iconBrasil from './../../../public/icons8-brasil-48.png';
-import iconEua from './../../../public/icons8-eua-48.png';
-import iconSpain from './../../../public/icons8-espanha-2-48.png';
+import iconBrasil from './../../assets/icons8-brasil-48.png';
+import iconEua from './../../assets/icons8-eua-48.png';
+import iconSpain from './../../assets/icons8-espanha-2-48.png';
 import './traductionButton.css';
 
 const TraductionButton = () => {

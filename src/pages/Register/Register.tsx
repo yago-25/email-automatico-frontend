@@ -1,5 +1,4 @@
 import { useState } from "react";
-import "./Register.css";
 import Input from "../../components/Input/Input";
 import { useNavigate } from "react-router-dom";
 import { useTranslation } from "react-i18next";
@@ -22,30 +21,17 @@ const Register = () => {
   const [confirmPassword, setConfirmPassword] = useState("");
 
   const handleRegister = async () => {
-    if (
-      !fullName ||
-      !email ||
-      !cpfCnpj ||
-      !phone ||
-      !username ||
-      !password
-    ) {
-      messageAlert({
-        type: 'error',
-        message: 'Preencha todos os campos!',
-      });
+    if (!fullName || !email || !cpfCnpj || !phone || !username || !password) {
+      messageAlert({ type: "error", message: "Preencha todos os campos!" });
       return;
     }
-    
+
     if (password !== confirmPassword) {
-      messageAlert({
-        type: "error",
-        message: "As senhas não coincidem!",
-      });
+      messageAlert({ type: "error", message: "As senhas não coincidem!" });
       setLoading(false);
       return;
     }
-    
+
     setLoading(true);
 
     const userData = {
@@ -65,8 +51,6 @@ const Register = () => {
           type: "success",
           message: "Cadastro realizado com sucesso! Verifique seu e-mail.",
         });
-
-        // Redireciona para a tela de confirmação do token, passando o email para identificar o usuário
         navigate("/token", { state: { email } });
       } else {
         messageAlert({
@@ -77,10 +61,7 @@ const Register = () => {
       }
     } catch (error) {
       console.error("Erro ao cadastrar:", error);
-      messageAlert({
-        type: "error",
-        message: "Erro ao conectar ao servidor.",
-      });
+      messageAlert({ type: "error", message: "Erro ao conectar ao servidor." });
     } finally {
       setLoading(false);
     }
@@ -89,87 +70,97 @@ const Register = () => {
   if (!i18n.isInitialized || loading) {
     return <Spin />;
   }
+
   const handleLogin = () => {
     navigate("/");
   };
 
   return (
-    <div className="container">
-      <h1 className="title">Solicitação de Cadastro</h1>
-      <div className="forme">
-        <div className="card">
-          <div className="card-content">
-            <div className="grid">
-              <Input
-                type="text"
-                text={t("register_page.full_name")}
-                required
-                value={fullName}
-                onChange={(e) => setFullName(e.target.value)}
-              />
-              <Input
-                type="email"
-                text={t("register_page.email")}
-                required
-                value={email}
-                onChange={(e) => setEmail(e.target.value)}
-              />
-            </div>
-            <div className="grid">
-              <Input
-                type="text"
-                text={t("register_page.cpf_cnpj")}
-                required
-                value={cpfCnpj}
-                onChange={(e) => setCpfCnpj(e.target.value)}
-              />
-              <Input
-                type="text"
-                text={t("register_page.phone")}
-                required
-                value={phone}
-                onChange={(e) => setPhone(e.target.value)}
-              />
-            </div>
-            <h1 className="subtitle">Dados de acesso</h1>
-            <div className="second-grid">
-              <div className="grid">
-                <Input
-                  type="password"
-                  text={t("register_page.password")}
-                  required
-                  value={password}
-                  onChange={(e) => setPassword(e.target.value)}
-                />
-                <Input
-                  type="password"
-                  text={t("register_page.confirm_password")}
-                  required
-                  value={confirmPassword}
-                  onChange={(e) => setConfirmPassword(e.target.value)}
-                />
-              </div>
-              <div className="grid-2 different">
-                <Input
-                  type="text"
-                  text={t("register_page.username")}
-                  required
-                  value={username}
-                  onChange={(e) => setUsername(e.target.value)}
-                />
-                <div className="back-home">
-                  <div style={{ width: '100%' }}>
-                    <button className="btn-register" onClick={handleRegister}>
-                      Cadastrar
-                    </button>
-                  </div>
-                  <p onClick={handleLogin} className="btn-back-home">Voltar</p>
-                </div>
-              </div>
-            </div>
+    <div className="mt-[5%] h-screen flex items-center justify-center">
+      <div className="w-2/5 bg-white bg-opacity-50 rounded-xl border border-white p-6">
+        <h1 className="text-white font-light text-4xl text-center mb-8">
+          Solicitação de Cadastro
+        </h1>
+        <div className="flex flex-col items-center justify-start gap-5">
+          <div className="w-full flex gap-5 justify-between">
+            <Input
+              type="text"
+              text={t("register_page.full_name")}
+              required
+              value={fullName}
+              onChange={(e) => setFullName(e.target.value)}
+              styles={{ width: '50%' }}
+            />
+            <Input
+              type="email"
+              text={t("register_page.email")}
+              required
+              value={email}
+              onChange={(e) => setEmail(e.target.value)}
+              styles={{ width: '50%' }}
+            />
           </div>
-          <div className="card-footer">
+          <div className="w-full flex gap-5 justify-between">
+            <Input
+              type="text"
+              text={t("register_page.cpf_cnpj")}
+              required
+              value={cpfCnpj}
+              onChange={(e) => setCpfCnpj(e.target.value)}
+              styles={{ width: '50%' }}
+            />
+            <Input
+              type="text"
+              text={t("register_page.phone")}
+              required
+              value={phone}
+              onChange={(e) => setPhone(e.target.value)}
+              styles={{ width: '50%' }}
+            />
           </div>
+          <h1 className="text-white font-light text-xl mt-5 text-center">
+            Dados de acesso
+          </h1>
+          <div className="w-full flex gap-5 justify-between">
+            <Input
+              type="password"
+              text={t("register_page.password")}
+              required
+              value={password}
+              onChange={(e) => setPassword(e.target.value)}
+              styles={{ width: '50%' }}
+            />
+            <Input
+              type="password"
+              text={t("register_page.confirm_password")}
+              required
+              value={confirmPassword}
+              onChange={(e) => setConfirmPassword(e.target.value)}
+              styles={{ width: '50%' }}
+            />
+          </div>
+          <div className="w-full flex gap-5 justify-between">
+            <Input
+              type="text"
+              text={t("register_page.username")}
+              required
+              value={username}
+              onChange={(e) => setUsername(e.target.value)}
+              styles={{ width: '110%' }}
+            />
+            <button
+              className="h-12 w-full rounded-xl border-none outline-none bg-blue-500 text-white text-lg cursor-pointer flex items-center justify-center transition-all duration-200 p-4 hover:bg-blue-800"
+              onClick={handleRegister}
+            >
+              Cadastrar
+            </button>
+          </div>
+          <p
+            onClick={handleLogin}
+            className="cursor-pointer text-white text-center mt-4"
+          >
+            Voltar
+          </p>
         </div>
       </div>
     </div>
