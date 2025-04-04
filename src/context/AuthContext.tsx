@@ -3,6 +3,7 @@ import { ReactNode, createContext, useContext, useEffect, useState } from "react
 import axios from "axios";
 import { useNavigate } from "react-router-dom";
 import { User } from "../types/User";
+import { api } from "../api/api";
 
 interface AuthContextType {
   accessToken: string | null;
@@ -33,8 +34,8 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
 
   const login = async (email: string, password: string) => {
     try {
-      const res = await axios.post(
-        "/api/login",
+      const res = await api.post(
+        "/login",
         { email, password },
         { withCredentials: true }
       );

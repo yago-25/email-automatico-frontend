@@ -10,7 +10,7 @@ const Header: React.FC<HeaderProps> = ({ name }) => {
     <div className="header-container">
         <div className='padding'>
         </div>
-        <div className='logout'>
+        <div className='logout' style={{ cursor: 'pointer' }}>
           <img src={`https://ui-avatars.com/api/?name=${name}&background=0D8ABC&color=fff&size=34&rounded=true`} />
           <p>{name}</p>
         </div>

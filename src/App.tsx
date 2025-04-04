@@ -12,6 +12,7 @@ import TokenReset from './pages/ResetPassword/TokenReset';
 import EmailVerification from './pages/ResetPassword/EmailVerification';
 import ResetPassword from './pages/ResetPassword/ResetPassword';
 import './../dist/index.css';
+import Clients from './pages/Clients/Clients';
 
 function App() {
   return (
@@ -29,6 +30,11 @@ function App() {
             <Route path="/dashboard" element={
               <AuthenticatedLayout>
                 <Dashboard />
+              </AuthenticatedLayout>
+            } />
+            <Route path="/clients" element={
+              <AuthenticatedLayout>
+                <Clients />
               </AuthenticatedLayout>
             } />
           </Route>

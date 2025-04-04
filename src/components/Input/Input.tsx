@@ -11,6 +11,7 @@ interface InputProps {
   styles?: CSSProperties;
   onClick?: () => void;
   onKeyDown?: (e: React.KeyboardEvent<HTMLInputElement>) => void;
+  ref?: React.Ref<HTMLInputElement>;
 }
 
 const Input: React.FC<InputProps> = ({
@@ -22,6 +23,7 @@ const Input: React.FC<InputProps> = ({
   styles,
   onClick,
   onKeyDown,
+  ref
 }) => {
   const [showPassword, setShowPassword] = useState(false);
 
@@ -31,6 +33,7 @@ const Input: React.FC<InputProps> = ({
     <div className="w-60 h-12 relative flex rounded-xl" style={styles}>
       <div className="flex items-center justify-center h-12 gap-2">
         <input
+          ref={ref}
           onChange={onChange}
           value={value}
           onClick={onClick}
