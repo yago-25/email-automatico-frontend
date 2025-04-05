@@ -30,9 +30,10 @@ const Input: React.FC<InputProps> = ({
   const togglePasswordVisibility = () => setShowPassword(!showPassword);
 
   return (
-    <div className="w-60 h-12 relative flex rounded-xl" style={styles}>
-      <div className="flex items-center justify-center h-12 gap-2">
+    <div className="w-full h-12 relative flex rounded-xl">
+      <div className="flex items-center justify-center h-12 gap-2 w-full">
         <input
+          style={styles}
           ref={ref}
           onChange={onChange}
           value={value}

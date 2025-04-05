@@ -8,6 +8,7 @@ import { messageAlert } from "../../utils/messageAlert";
 import Spin from "../../components/Spin/Spin";
 import Modal from "../../components/Modal/Modal";
 import Input from "../../components/Input/Input";
+import Select from "../../components/Select/Select";
 
 interface Clients {
   id: number;
@@ -23,7 +24,10 @@ interface ButtonProps {
 
 const Button: React.FC<ButtonProps> = ({ text, onClick }) => {
   return (
-    <button onClick={onClick} className="cursor-pointer w-44 h-12 bg-blue-600 text-white rounded-lg hover:bg-blue-700 hover:shadow-lg transition-all group active:w-11 active:h-11 active:rounded-full active:duration-300 ease-in-out">
+    <button
+      onClick={onClick}
+      className="cursor-pointer w-44 h-12 bg-blue-600 text-white rounded-lg hover:bg-blue-700 hover:shadow-lg transition-all group active:w-11 active:h-11 active:rounded-full active:duration-300 ease-in-out"
+    >
       <svg
         className="animate-spin hidden group-active:block mx-auto"
         width="33"
@@ -50,16 +54,36 @@ const Dashboard = () => {
   const storedUser = localStorage.getItem("user");
   const authUser: User | null = storedUser ? JSON.parse(storedUser) : null;
 
+  const statusTickets = [
+    { name: "not_started", title: "Não iniciada" },
+    { name: "waiting", title: "Esperando" },
+    { name: "in_progress", title: "Em progresso" },
+    { name: "discarted", title: "Descartada" },
+    { name: "completed", title: "Completa" },
+  ];
+
   const [filteredTxt, setFilteredTxt] = useState("");
   const [currentPage, setCurrentPage] = useState(1);
   const [clients, setClients] = useState<Clients[]>([]);
   const [addClient, setAddClient] = useState(false);
-  const [clientName, setClientName] = useState('');
-  const [clientPhone, setClientPhone] = useState('');
-  const [clientMail, setClientMail] = useState('');
+  const [addTicket, setAddTicket] = useState(false);
+  const [clientName, setClientName] = useState("");
+  const [clientPhone, setClientPhone] = useState("");
+  const [clientMail, setClientMail] = useState("");
+  const [statusTicket, setStatusTicket] = useState("");
   const [loading, setLoading] = useState(false);
   const [loadingPost, setLoadingPost] = useState(false);
   const itemsPerPage = 5;
+
+  console.log(statusTicket)
+
+  const [selected, setSelected] = useState("");
+
+  const options = [
+    { label: "Aberto", value: "open" },
+    { label: "Fechado", value: "closed" },
+    { label: "Em andamento", value: "in_progress" },
+  ];
 
   const filteredClients = clients.filter(
     (client: Clients) =>
@@ -120,34 +144,38 @@ const Dashboard = () => {
       if (!clientName || !clientPhone || !clientMail) {
         messageAlert({
           type: "error",
-          message: "Por favor, preencha todos os campos."
+          message: "Por favor, preencha todos os campos.",
         });
         return;
       }
 
-      await api.post('/clients', {
-        name: clientName,
-        phone: clientPhone,
-        mail: clientMail
-      }, {
-        headers: {
-          Authorization: `Bearer ${localStorage.getItem('accessToken')}`
+      await api.post(
+        "/clients",
+        {
+          name: clientName,
+          phone: clientPhone,
+          mail: clientMail,
+        },
+        {
+          headers: {
+            Authorization: `Bearer ${localStorage.getItem("accessToken")}`,
+          },
         }
-      });
+      );
 
       messageAlert({
         type: "success",
-        message: "Cliente cadastrado com sucesso!"
+        message: "Cliente cadastrado com sucesso!",
       });
-      setAddClient(false)
-      setClientName('');
-      setClientPhone('');
-      setClientMail('');
-    } catch(e) {
-      console.log('Erro ao criar usuário: ', e);
+      setAddClient(false);
+      setClientName("");
+      setClientPhone("");
+      setClientMail("");
+    } catch (e) {
+      console.log("Erro ao criar usuário: ", e);
       messageAlert({
         type: "error",
-        message: "Erro ao criar usuário"
+        message: "Erro ao criar usuário",
       });
     } finally {
       setLoadingPost(false);
@@ -228,10 +256,15 @@ const Dashboard = () => {
         </button>
       </div>
       <div className="flex gap-5" style={{ marginTop: "95px" }}>
-        <Button text='Adicionar Cliente' onClick={() => setAddClient(true)} />
-        <Button text='Adicionar Ticket' onClick={() => alert('add ticket')} />
+        <Button text="Adicionar Cliente" onClick={() => setAddClient(true)} />
+        <Button text="Adicionar Ticket" onClick={() => setAddTicket(true)} />
       </div>
-      <Modal title="Adicionar Cliente" isVisible={addClient} onClose={() => setAddClient(false)}>
+      <Modal
+        width={500}
+        title="Adicionar Cliente"
+        isVisible={addClient}
+        onClose={() => setAddClient(false)}
+      >
         {loadingPost ? (
           <div className="flex flex-col items-center justify-center w-full gap-4">
             <Spin />
@@ -246,7 +279,7 @@ const Dashboard = () => {
                 required
                 onChange={(e) => setClientName(e.target.value)}
                 value={clientName}
-                />
+              />
             </div>
             <div>
               <p>Telefone</p>
@@ -269,6 +302,82 @@ const Dashboard = () => {
               />
             </div>
             <Button text="Cadastrar Cliente" onClick={handleAddClient} />
+          </div>
+        )}
+      </Modal>
+      <Modal
+        title="Adicionar Ticket"
+        isVisible={addTicket}
+        onClose={() => setAddTicket(false)}
+      >
+        {loadingPost ? (
+          <div className="flex flex-col items-center justify-center w-full gap-4">
+            <Spin />
+          </div>
+        ) : (
+          <div className="flex flex-col items-center justify-center w-full gap-4">
+            <div className="wrapper">
+              {statusTickets.map((status) => (
+                <div className="option" key={status.name}>
+                  <input
+                    value={status.name}
+                    name="btn"
+                    type="radio"
+                    className="input"
+                    onClick={(e) =>
+                      setStatusTicket((e.target as HTMLInputElement).value)
+                    }
+                  />
+                  <div className="btn">
+                    <span className="span">{status.title}</span>
+                  </div>
+                </div>
+              ))}
+            </div>
+            <div className="flex items-center justify-between w-full gap-4 flex-wrap">
+              <div className="flex flex-col flex-1 min-w-[200px] max-w-[calc(50%-0.5rem)] gap-2">
+                <p>Nome</p>
+                <Input
+                  text="Nome"
+                  type="text"
+                  required
+                  onChange={(e) => setClientName(e.target.value)}
+                  value={clientName}
+                />
+              </div>
+              <div className="flex flex-col flex-1 min-w-[200px] max-w-[calc(50%-0.5rem)] gap-2">
+                <p>Tipo</p>
+                <Input
+                  text="Tipo"
+                  type="text"
+                  required
+                  onChange={(e) => setClientName(e.target.value)}
+                  value={clientName}
+                />
+              </div>
+            </div>
+            <div className="flex items-center justify-between w-full gap-4">
+              <div className="flex flex-col flex-1 min-w-[200px] max-w-[calc(50%-0.5rem)] gap-2">
+                <p className="mt-4">Usuário</p>
+                <Select
+                  options={options}
+                  value={selected}
+                  onChange={setSelected}
+                  placeholder="Status do ticket"
+                  width="320px"
+                />
+              </div>
+              <div className="flex flex-col flex-1 min-w-[200px] max-w-[calc(50%-0.5rem)] gap-2">
+                <p className="mt-4">Operador</p>
+                <Select
+                  options={options}
+                  value={selected}
+                  onChange={setSelected}
+                  placeholder="Status do ticket"
+                  width="320px"
+                />
+              </div>
+            </div>
           </div>
         )}
       </Modal>
