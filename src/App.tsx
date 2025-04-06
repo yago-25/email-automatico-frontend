@@ -1,5 +1,6 @@
 import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
 import './App.css';
+import './index.css';
 import Login from './pages/Login/Login';
 import Register from './pages/Register/Register';
 import Token from './pages/Token/TokenEmail';
@@ -11,7 +12,8 @@ import TraductionButton from './components/TraductionButton/TraductionButton';
 import TokenReset from './pages/ResetPassword/TokenReset';
 import EmailVerification from './pages/ResetPassword/EmailVerification';
 import ResetPassword from './pages/ResetPassword/ResetPassword';
-import './../dist/index.css';
+
+
 import Clients from './pages/Clients/Clients';
 
 function App() {
