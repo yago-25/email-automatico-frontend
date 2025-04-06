@@ -66,6 +66,27 @@
     "resend_button": "Reenviar Código",
     "back": "Volver",
     "invalid_email": "Correo electrónico no válido. Inténtelo de nuevo más tarde."
-  }
-  
+  },
+ "clients":{
+      "fetch_error": "Error al obtener los clientes.",
+      "fill_all_fields": "Por favor, completa todos los campos.",
+      "created_successfully": "Cliente creado con éxito.",
+      "create_error": "Error al crear el cliente.",
+      "deleted_successfully": "Cliente eliminado con éxito.",
+      "delete_error": "Error al eliminar el cliente.",
+      "updated_successfully": "Cliente actualizado con éxito.",
+      "update_error": "Error al actualizar el cliente.",
+      "search_placeholder": "Buscar clientes",
+      "name": "Nombre",
+      "email": "Correo electrónico",
+      "phone": "Teléfono",
+      "actions": "Acciones",
+      "edit_client": "Editar Cliente",
+      "add_client": "Agregar Cliente",
+      "save_changes": "Guardar Cambios",
+      "register_client": "Registrar Cliente",
+      "load_error": "Error al cargar el cliente",
+      "of": "de"
+    }
+    
 }

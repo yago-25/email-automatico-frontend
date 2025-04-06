@@ -2,6 +2,7 @@ import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
 import './App.css';
 import './index.css';
 import Login from './pages/Login/Login';
+import Ticket from './pages/Ticket/Ticket';
 import Register from './pages/Register/Register';
 import Token from './pages/Token/TokenEmail';
 import ProtectedRoute from './routes/ProtectedRoute';
@@ -37,6 +38,11 @@ function App() {
             <Route path="/clients" element={
               <AuthenticatedLayout>
                 <Clients />
+              </AuthenticatedLayout>
+            } />
+            <Route path="/ticket" element={
+              <AuthenticatedLayout>
+                <Ticket />
               </AuthenticatedLayout>
             } />
           </Route>
