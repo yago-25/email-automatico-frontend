@@ -260,8 +260,8 @@ const Clients = () => {
               </p>
               <div className="flex justify-center gap-4">
 
-              <button
-                  onClick= {handleTicket}
+                <button
+                  onClick={handleTicket}
                   className="text-red-500 hover:text-red-700"
                 >
                   <IoTicketOutline className="h-5 w-5" />
@@ -283,7 +283,7 @@ const Clients = () => {
                 >
                   <Trash className="h-5 w-5" />
                 </button>
-                
+
               </div>
             </div>
           ))}
@@ -423,8 +423,6 @@ const Clients = () => {
         </Modal>
       </div>
     </div>
-
-
   );
 };
 
