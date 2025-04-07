@@ -87,7 +87,25 @@
     "register_client": "Cadastrar Cliente",
     "load_error": "Erro ao carregar cliente",
     "of": "de"
-  }
+  },
+    "dashboard": {
+      "fetch_error": "Erro ao listar clientes.",
+      "fill_all_fields": "Por favor, preencha todos os campos.",
+      "created_successfully": "Cliente cadastrado com sucesso!",
+      "create_error": "Erro ao criar usuário.",
+      "search_placeholder": "Buscar clientes",
+      "id": "ID",
+      "name": "Nome",
+      "email": "Email",
+      "phone": "Telefone",
+      "previous": "Anterior",
+      "next": "Próximo",
+      "of": "de",
+      "add_client": "Adicionar Cliente",
+      "add_ticket": "Adicionar Ticket",
+      "modal_title": "Adicionar Cliente",
+      "register_client": "Cadastrar Cliente"
+    }
 }
     
   

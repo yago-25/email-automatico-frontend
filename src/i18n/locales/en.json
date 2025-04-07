@@ -87,7 +87,24 @@
       "register_client": "Register Client",
       "load_error": "Error loading client",
       "of": "of"
-    }
-  
+    },
+      "dashboard": {
+        "fetch_error": "Error fetching clients.",
+        "fill_all_fields": "Please fill in all fields.",
+        "created_successfully": "Client successfully registered!",
+        "create_error": "Error creating user.",
+        "search_placeholder": "Search clients",
+        "id": "ID",
+        "name": "Name",
+        "email": "Email",
+        "phone": "Phone",
+        "previous": "Previous",
+        "next": "Next",
+        "of": "of",
+        "add_client": "Add Client",
+        "add_ticket": "Add Ticket",
+        "modal_title": "Add Client",
+        "register_client": "Register Client"
+      } 
 }
 
