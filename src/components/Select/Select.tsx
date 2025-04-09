@@ -3,14 +3,14 @@ import { IoIosArrowDown } from "react-icons/io";
 
 interface Option {
   label: string;
-  value: string;
+  value: string | number;
 }
 
 interface SelectProps {
   options: Option[];
   placeholder?: string;
-  value: string;
-  onChange: (value: string) => void;
+  value: string | number;
+  onChange: (value: string | number) => void;
   width?: string;
 }
 
