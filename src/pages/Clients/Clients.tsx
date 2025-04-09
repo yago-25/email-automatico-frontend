@@ -43,7 +43,7 @@ const Button: React.FC<ButtonProps> = ({ text, onClick }) => {
 };
 
 const Clients = () => {
-  const { t } = useTranslation(); // <-- Hook de tradução
+  const { t } = useTranslation(); 
   const navigate = useNavigate();
 
   const storedUser = localStorage.getItem("user");

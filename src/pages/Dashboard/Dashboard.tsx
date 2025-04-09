@@ -12,6 +12,13 @@ import Input from "../../components/Input/Input";
 import Select from "../../components/Select/Select";
 import { useSwr } from "../../api/useSwr";
 import TagInput from "../../components/TagInput/TagInput";
+import { MdOutlineFormatListNumbered } from "react-icons/md";
+import { CiPhone } from "react-icons/ci";
+import { CiMail } from "react-icons/ci";
+import { FaGear } from "react-icons/fa6";
+import { HiOutlineUser } from "react-icons/hi";
+import { IoTicketOutline } from "react-icons/io5";
+import { useNavigate } from "react-router-dom";
 
 interface Option {
   label: string;
@@ -92,6 +99,7 @@ const Dashboard = () => {
   const storedUser = localStorage.getItem("user");
   const authUser: User | null = storedUser ? JSON.parse(storedUser) : null;
 
+  const navigate = useNavigate();
   const [filteredTxt, setFilteredTxt] = useState("");
   const [currentPage, setCurrentPage] = useState(1);
   const [clients, setClients] = useState<Clients[]>([]);
@@ -247,6 +255,10 @@ const Dashboard = () => {
     getClients();
   }, [loadingPost]);
 
+  const handleTicket = () => {
+    navigate("/ticket");
+  };
+
   if (loading || loadingClients || loadingAdmins) {
     return (
       <div className="flex items-center justify-center h-full w-full">
@@ -269,22 +281,43 @@ const Dashboard = () => {
         />
       </div>
 
-      <div className="tb w-full max-w-3xl mt-8 rounded-2xl overflow-hidden shadow-lg">
-        <div className="table grid grid-cols-4 gap-x-6 gap-y-3 items-center p-4 border-b hover:bg-gray-50">
-          <p>ID</p>
-          <p>{t("dashboard.name")}</p>
-          <p>{t("dashboard.email")}</p>
-          <p>{t("dashboard.phone")}</p>
-        </div>
-        {currentClients.map((client) => (
-          <div key={client.id} className="table grid grid-cols-4 gap-x-6 gap-y-3 items-center p-4 border-b hover:bg-gray-50">
-            <p className="whitespace-nowrap">{client.id}</p>
-            <p className="truncate max-w-[180px]" title={client.name}>{client.name}</p>
-            <p className="truncate max-w-[250px]" title={client.mail}>{client.mail}</p>
-            <p className="truncate max-w-[150px]" title={client.phone}>{formatPhone(client.phone)}</p>
-          </div>
-        ))}
-      </div>
+      <div className="tbe w-full max-w-3xl mt-8 rounded-2xl overflow-hidden shadow-lg">
+                <div className="tablee grid grid-cols-5 gap-x-6 items-center p-4 bg-blue-100 border-b font-medium text-blue-900">
+      
+                  <p className="id-center"> <MdOutlineFormatListNumbered /> ID</p>
+                  <p className="id-center"> <HiOutlineUser /> {t("clients.name")}</p>
+                  <p className="id-center"> <CiMail /> {t("clients.email")}</p>
+                  <p className="id-center"> <CiPhone /> {t("clients.phone")}</p>
+                  <p className="text-centere"> <FaGear /> {t("clients.actions")}</p>
+                </div>
+                {currentClients.map((client) => (
+                  <div
+                    key={client.id}
+                    className="tablee grid grid-cols-5 gap-x-6 items-center p-4 bg-white border-b hover:bg-gray-50 text-sm"
+                  >
+                    <p className="id-center">{client.id}</p>
+                    <p className="id-center" title={client.name}>
+                      {client.name}
+                    </p>
+                    <p className="id-center" title={client.mail}>
+                      {client.mail}
+                    </p>
+                    <p className="id-center" title={client.phone}>
+                      {formatPhone(client.phone)}
+                    </p>
+                    <div className="flex justify-center gap-4">
+      
+                      <button
+                        onClick={handleTicket}
+                        className="text-red-500 hover:text-red-700"
+                      >
+                        <IoTicketOutline className="h-5 w-5" />
+                      </button>
+      
+                    </div>
+                  </div>
+                ))}
+              </div>
 
       <div className="pagination flex justify-center items-center gap-4 mt-6 text-white">
         <button onClick={() => goToPage(currentPage - 1)} disabled={currentPage === 1} className="p-2 bg-blue-700 rounded-lg hover:bg-blue-800 disabled:bg-gray-400 disabled:cursor-not-allowed">
@@ -296,9 +329,9 @@ const Dashboard = () => {
         </button>
       </div>
 
-      <div className="flex gap-5 mt-24">
+      <div className="flex gap-5 mt-56">
         <Button text={t("dashboard.add_client")} onClick={() => setAddClient(true)} />
-        <Button text={t("dashboard.add_ticket")} onClick={() => alert('add ticket')} />
+        <Button text={t("dashboard.add_ticket")} onClick={() => setAddTicket(true)} />
       </div>
 
       <Modal title={t("dashboard.add_client")} isVisible={addClient} onClose={() => setAddClient(false)}>
