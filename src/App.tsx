@@ -1,6 +1,8 @@
 import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
 import './App.css';
+import './index.css';
 import Login from './pages/Login/Login';
+import Ticket from './pages/Ticket/Ticket';
 import Register from './pages/Register/Register';
 import Token from './pages/Token/TokenEmail';
 import ProtectedRoute from './routes/ProtectedRoute';
@@ -11,7 +13,8 @@ import TraductionButton from './components/TraductionButton/TraductionButton';
 import TokenReset from './pages/ResetPassword/TokenReset';
 import EmailVerification from './pages/ResetPassword/EmailVerification';
 import ResetPassword from './pages/ResetPassword/ResetPassword';
-import './../dist/index.css';
+
+
 import Clients from './pages/Clients/Clients';
 
 function App() {
@@ -35,6 +38,11 @@ function App() {
             <Route path="/clients" element={
               <AuthenticatedLayout>
                 <Clients />
+              </AuthenticatedLayout>
+            } />
+            <Route path="/ticket" element={
+              <AuthenticatedLayout>
+                <Ticket />
               </AuthenticatedLayout>
             } />
           </Route>

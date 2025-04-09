@@ -42,8 +42,8 @@ const Sidebar = () => {
             onClick={() => handleNavigation("/clients")}
           />
           <IoTicketSharp
-            className={`icon ${isActiveRoute("/tickets") ? "active-icon" : ""}`}
-            onClick={() => handleNavigation("/tickets")}
+            className={`icon ${isActiveRoute("/ticket") ? "active-icon" : ""}`}
+            onClick={() => handleNavigation("/ticket")}
           />
           <IoMail
             className={`icon ${isActiveRoute("/mails") ? "active-icon" : ""}`}

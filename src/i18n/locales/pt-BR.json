@@ -66,7 +66,46 @@
       "resend_button": "Reenviar Código",
       "back": "Voltar",
       "invalid_email": "E-mail inválido. Tente novamente mais tarde."
-  }
+  },
+  "clients": {
+    "fetch_error": "Erro ao listar clientes",
+    "fill_all_fields": "Por favor, preencha todos os campos.",
+    "created_successfully": "Cliente cadastrado com sucesso!",
+    "create_error": "Erro ao criar usuário",
+    "deleted_successfully": "Cliente excluído com sucesso",
+    "delete_error": "Erro ao excluir cliente",
+    "updated_successfully": "Cliente editado com sucesso",
+    "update_error": "Erro ao editar cliente",
+    "search_placeholder": "Buscar clientes",
+    "name": "Nome",
+    "email": "Email",
+    "phone": "Telefone",
+    "actions": "Ações",
+    "edit_client": "Editar Cliente",
+    "add_client": "Adicionar Cliente",
+    "save_changes": "Salvar Alterações",
+    "register_client": "Cadastrar Cliente",
+    "load_error": "Erro ao carregar cliente",
+    "of": "de"
+  },
+    "dashboard": {
+      "fetch_error": "Erro ao listar clientes.",
+      "fill_all_fields": "Por favor, preencha todos os campos.",
+      "created_successfully": "Cliente cadastrado com sucesso!",
+      "create_error": "Erro ao criar usuário.",
+      "search_placeholder": "Buscar clientes",
+      "id": "ID",
+      "name": "Nome",
+      "email": "Email",
+      "phone": "Telefone",
+      "previous": "Anterior",
+      "next": "Próximo",
+      "of": "de",
+      "add_client": "Adicionar Cliente",
+      "add_ticket": "Adicionar Ticket",
+      "modal_title": "Adicionar Cliente",
+      "register_client": "Cadastrar Cliente"
+    }
 }
     
   

@@ -66,5 +66,45 @@
       "resend_button": "Resend Code",
       "back": "Back",
       "invalid_email": "Invalid email. Please try again later."
-    }
+    },
+    "clients":{
+      "fetch_error": "Error fetching clients.",
+      "fill_all_fields": "Please fill in all fields.",
+      "created_successfully": "Client created successfully.",
+      "create_error": "Error creating client.",
+      "deleted_successfully": "Client deleted successfully.",
+      "delete_error": "Error deleting client.",
+      "updated_successfully": "Client updated successfully.",
+      "update_error": "Error updating client.",
+      "search_placeholder": "Search clients",
+      "name": "Name",
+      "email": "Email",
+      "phone": "Phone",
+      "actions": "Actions",
+      "edit_client": "Edit Client",
+      "add_client": "Add Client",
+      "save_changes": "Save Changes",
+      "register_client": "Register Client",
+      "load_error": "Error loading client",
+      "of": "of"
+    },
+      "dashboard": {
+        "fetch_error": "Error fetching clients.",
+        "fill_all_fields": "Please fill in all fields.",
+        "created_successfully": "Client successfully registered!",
+        "create_error": "Error creating user.",
+        "search_placeholder": "Search clients",
+        "id": "ID",
+        "name": "Name",
+        "email": "Email",
+        "phone": "Phone",
+        "previous": "Previous",
+        "next": "Next",
+        "of": "of",
+        "add_client": "Add Client",
+        "add_ticket": "Add Ticket",
+        "modal_title": "Add Client",
+        "register_client": "Register Client"
+      } 
 }
+
