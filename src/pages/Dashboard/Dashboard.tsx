@@ -9,12 +9,34 @@ import { messageAlert } from "../../utils/messageAlert";
 import Spin from "../../components/Spin/Spin";
 import Modal from "../../components/Modal/Modal";
 import Input from "../../components/Input/Input";
+import Select from "../../components/Select/Select";
+import { useSwr } from "../../api/useSwr";
+import TagInput from "../../components/TagInput/TagInput";
+
+interface Option {
+  label: string;
+  value: string;
+}
 
 interface Clients {
   id: number;
   name: string;
   phone: string;
   mail: string;
+  value?: string;
+}
+
+interface Admins {
+  id: number;
+  nome_completo: string;
+  email: string;
+  cpf: string;
+  telefone: string;
+  nome_usuario: string;
+  cargo_id: number;
+  email_verificado_at: string | null;
+  created_at: string;
+  updated_at: string;
 }
 
 interface ButtonProps {
@@ -44,6 +66,27 @@ const Button: React.FC<ButtonProps> = ({ text, onClick }) => {
 };
 
 const Dashboard = () => {
+  const { data: rawClients = [], loading: loadingClients } = useSwr<Clients[]>('/clients');
+  const { data: rawAdmins = [], loading: loadingAdmins } = useSwr<Admins[]>('/admins');
+
+  const optionsClient: Option[] = rawClients.map((client: Clients) => ({
+    value: String(client.id),
+    label: client.name,
+  }));
+
+  const optionsAdmin: Option[] = rawAdmins.map((admin: Admins) => ({
+    value: String(admin.id),
+    label: admin.nome_completo
+  }));
+
+  const statusTickets = [
+    {  name: "not_started", title: "Não iniciada" },
+    {  name: "waiting", title: "Esperando" },
+    {  name: "in_progress", title: "Em progresso" },
+    {  name: "discarded", title: "Descartada" },
+    {  name: "finished", title: "Completa" },
+  ];
+
   const { t } = useTranslation();
 
   const storedUser = localStorage.getItem("user");
@@ -53,11 +96,18 @@ const Dashboard = () => {
   const [currentPage, setCurrentPage] = useState(1);
   const [clients, setClients] = useState<Clients[]>([]);
   const [addClient, setAddClient] = useState(false);
-  const [clientName, setClientName] = useState('');
-  const [clientPhone, setClientPhone] = useState('');
-  const [clientMail, setClientMail] = useState('');
+  const [addTicket, setAddTicket] = useState(false);
+  const [clientName, setClientName] = useState("");
+  const [typeName, setTypeName] = useState("");
+  const [clientPhone, setClientPhone] = useState("");
+  const [clientMail, setClientMail] = useState("");
+  const [statusTicket, setStatusTicket] = useState("");
   const [loading, setLoading] = useState(false);
   const [loadingPost, setLoadingPost] = useState(false);
+  const [loadingPostTicket, setLoadingPostTicket] = useState(false);
+  const [selected, setSelected] = useState<string>("");
+  const [selectedAdmin, setSelectedAdmin] = useState<string>("");
+  const [tags, setTags] = useState<string[]>([]);
   const itemsPerPage = 5;
 
   const filteredClients = clients.filter(
@@ -81,6 +131,14 @@ const Dashboard = () => {
       return cleaned.replace(/(\d{2})(\d{4})(\d{4})/, "($1) $2-$3");
     }
     return phone;
+  };
+
+  const handleSelectChange = (value: string | number) => {
+    setSelected(value.toString());
+  };
+
+  const handleSelectChangeAdmin = (value: string | number) => {
+    setSelectedAdmin(value.toString());
   };
 
   const goToPage = (page: number) => {
@@ -133,11 +191,63 @@ const Dashboard = () => {
     }
   };
 
+  const handleAddTicket = async () => {
+    setLoadingPostTicket(true);
+    try {
+      if (
+        !statusTicket ||
+        !clientName ||
+        !typeName ||
+        !selected ||
+        !selectedAdmin
+      ) {
+        messageAlert({
+          type: "error",
+          message: "Por favor, preencha todos os campos.",
+        });
+        return;
+      }
+
+      await api.post('/tickets', {
+        name: clientName,
+        type: typeName,
+        tags: tags,
+        client_id: selected,
+        user_id: selectedAdmin,
+        status: statusTicket
+      }, {
+        headers: {
+          Authorization: `Bearer ${localStorage.getItem("accessToken")}`
+        }
+      });
+
+      messageAlert({
+        type: "success",
+        message: "Ticket cadastrado com sucesso!",
+      });
+
+      setStatusTicket('');
+      setClientName('');
+      setTypeName('');
+      setSelected('');
+      setSelectedAdmin('');
+      setTags([]);
+    } catch(e) {
+      console.log('Erro ao adicionar ticket: ', e);
+      messageAlert({
+        type: "error",
+        message: "Erro ao adicionar ticket"
+      });
+    } finally {
+      setLoadingPostTicket(false);
+    }
+  };
+
   useEffect(() => {
     getClients();
   }, [loadingPost]);
 
-  if (loading) {
+  if (loading || loadingClients || loadingAdmins) {
     return (
       <div className="flex items-center justify-center h-full w-full">
         <Spin />
@@ -222,8 +332,90 @@ const Dashboard = () => {
                      onChange={(e) => setClientMail(e.target.value)}
                      value={clientMail} />
             </div>
-            <Button text={t("dashboard.register_client")}
-                    onClick={handleAddClient} />
+            <Button text="Cadastrar Cliente" onClick={handleAddClient} />
+          </div>
+        )}
+      </Modal>
+      <Modal
+        title="Adicionar Ticket"
+        isVisible={addTicket}
+        onClose={() => setAddTicket(false)}
+      >
+        {loadingPostTicket ? (
+          <div className="flex flex-col items-center justify-center w-full gap-4">
+            <Spin />
+          </div>
+        ) : (
+          <div className="flex flex-col items-center justify-center w-full gap-4">
+            <div className="wrapper">
+              {statusTickets.map((status) => (
+                <div className="option" key={status.name}>
+                  <input
+                    value={status.name}
+                    name="btn"
+                    type="radio"
+                    className="input"
+                    onClick={(e) =>
+                      setStatusTicket((e.target as HTMLInputElement).value)
+                    }
+                  />
+                  <div className="btn">
+                    <span className="span">{status.title}</span>
+                  </div>
+                </div>
+              ))}
+            </div>
+            <div className="flex items-center justify-between w-full gap-4 flex-wrap">
+              <div className="flex flex-col flex-1 min-w-[200px] max-w-[calc(50%-0.5rem)] gap-2">
+                <p>Nome</p>
+                <Input
+                  text="Nome"
+                  type="text"
+                  required
+                  onChange={(e) => setClientName(e.target.value)}
+                  value={clientName}
+                />
+              </div>
+              <div className="flex flex-col flex-1 min-w-[200px] max-w-[calc(50%-0.5rem)] gap-2">
+                <p>Tipo</p>
+                <Input
+                  text="Tipo"
+                  type="text"
+                  required
+                  onChange={(e) => setTypeName(e.target.value)}
+                  value={typeName}
+                />
+              </div>
+            </div>
+            <div className="flex items-center justify-between w-full gap-4">
+              <div className="flex flex-col flex-1 min-w-[200px] max-w-[calc(50%-0.5rem)] gap-2">
+                <p className="mt-4">Usuário</p>
+                <Select
+                  options={optionsClient}
+                  value={selected}
+                  onChange={handleSelectChange}
+                  placeholder="Status do ticket"
+                  width="320px"
+                />
+              </div>
+              <div className="flex flex-col flex-1 min-w-[200px] max-w-[calc(50%-0.5rem)] gap-2">
+                <p className="mt-4">Operador</p>
+                <Select
+                  options={optionsAdmin}
+                  value={selectedAdmin}
+                  onChange={handleSelectChangeAdmin}
+                  placeholder="Status do ticket"
+                  width="320px"
+                />
+              </div>
+            </div>
+            <div className="flex flex-col items-start justify-start w-full gap-4">
+              <p className="mt-4">Tags</p>
+              <TagInput tags={tags} setTags={setTags} placeholder="Adicione tags e pressione Enter" />
+            </div>
+            <div className="flex flex-col items-end justify-end w-full gap-4">
+              <Button text="Criar Ticket" onClick={handleAddTicket}  />
+            </div>
           </div>
         )}
       </Modal>
