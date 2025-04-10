@@ -71,4 +71,72 @@
     transition: all 0.3s ease-out;
     color: #fff;
   }
+  .ticket-container {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 16px;
+    padding: 1rem;
+  }
+  
+  .ticket-card {
+    background: #eef2fb;
+    border-radius: 12px;
+    padding: 1rem;
+    width: 300px;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+    cursor: pointer;
+    transition: 0.3s;
+  }
+  
+  .ticket-card:hover {
+    box-shadow: 0 4px 10px rgba(0,0,0,0.15);
+  }
+  
+  .ticket-header-no-avatar {
+    display: flex;
+    justify-content: space-between;
+    margin-bottom: 0.5rem;
+  }
+  
+  .ticket-user {
+    font-weight: 600;
+    margin: 0;
+  }
+  
+  .ticket-time {
+    font-size: 12px;
+    color: #666;
+    margin: 0;
+    align-self: flex-start;
+  }
+  
+  .ticket-message {
+    font-size: 14px;
+    margin-bottom: 8px;
+    color: #333;
+  }
+  
+  .ticket-tags {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 6px;
+  }
+  
+  .ticket-tag {
+    padding: 2px 8px;
+    font-size: 12px;
+    border-radius: 8px;
+    font-weight: 500;
+    background: #ccc;
+  }
+  .ticket-name{
+    font-size:20px;
+  }
+  
+  .color-0 { background-color: #f8d7da; color: #721c24; } /* Vermelho */
+  .color-1 { background-color: #d4edda; color: #155724; } /* Verde */
+  .color-2 { background-color: #cce5ff; color: #004085; } /* Azul */
+  .color-3 { background-color: #fff3cd; color: #856404; } /* Amarelo */
+  .color-4 { background-color: #e2e3e5; color: #383d41; } /* Cinza */
+  .color-5 { background-color: #d1ecf1; color: #0c5460; } /* Ciano */
   

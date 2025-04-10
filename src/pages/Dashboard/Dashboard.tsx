@@ -87,11 +87,11 @@ const Dashboard = () => {
   }));
 
   const statusTickets = [
-    {  name: "not_started", title: "Não iniciada" },
-    {  name: "waiting", title: "Esperando" },
-    {  name: "in_progress", title: "Em progresso" },
-    {  name: "discarded", title: "Descartada" },
-    {  name: "finished", title: "Completa" },
+    { name: "not_started", title: "Não iniciada" },
+    { name: "waiting", title: "Esperando" },
+    { name: "in_progress", title: "Em progresso" },
+    { name: "discarded", title: "Descartada" },
+    { name: "finished", title: "Completa" },
   ];
 
   const { t } = useTranslation();
@@ -116,6 +116,7 @@ const Dashboard = () => {
   const [selected, setSelected] = useState<string>("");
   const [selectedAdmin, setSelectedAdmin] = useState<string>("");
   const [tags, setTags] = useState<string[]>([]);
+  const [observation, setObservation] = useState("");
   const itemsPerPage = 5;
 
   const filteredClients = clients.filter(
@@ -191,7 +192,7 @@ const Dashboard = () => {
       setClientName('');
       setClientPhone('');
       setClientMail('');
-    } catch(e) {
+    } catch (e) {
       console.log('Erro ao criar usuário: ', e);
       messageAlert({ type: "error", message: t("dashboard.create_error") });
     } finally {
@@ -222,7 +223,8 @@ const Dashboard = () => {
         tags: tags,
         client_id: selected,
         user_id: selectedAdmin,
-        status: statusTicket
+        status: statusTicket,
+        observation: observation,
       }, {
         headers: {
           Authorization: `Bearer ${localStorage.getItem("accessToken")}`
@@ -240,7 +242,8 @@ const Dashboard = () => {
       setSelected('');
       setSelectedAdmin('');
       setTags([]);
-    } catch(e) {
+      setObservation('');
+    } catch (e) {
       console.log('Erro ao adicionar ticket: ', e);
       messageAlert({
         type: "error",
@@ -250,6 +253,7 @@ const Dashboard = () => {
       setLoadingPostTicket(false);
     }
   };
+
 
   useEffect(() => {
     getClients();
@@ -282,42 +286,42 @@ const Dashboard = () => {
       </div>
 
       <div className="tbe w-full max-w-3xl mt-8 rounded-2xl overflow-hidden shadow-lg">
-                <div className="tablee grid grid-cols-5 gap-x-6 items-center p-4 bg-blue-100 border-b font-medium text-blue-900">
-      
-                  <p className="id-center"> <MdOutlineFormatListNumbered /> ID</p>
-                  <p className="id-center"> <HiOutlineUser /> {t("clients.name")}</p>
-                  <p className="id-center"> <CiMail /> {t("clients.email")}</p>
-                  <p className="id-center"> <CiPhone /> {t("clients.phone")}</p>
-                  <p className="text-centere"> <FaGear /> {t("clients.actions")}</p>
-                </div>
-                {currentClients.map((client) => (
-                  <div
-                    key={client.id}
-                    className="tablee grid grid-cols-5 gap-x-6 items-center p-4 bg-white border-b hover:bg-gray-50 text-sm"
-                  >
-                    <p className="id-center">{client.id}</p>
-                    <p className="id-center" title={client.name}>
-                      {client.name}
-                    </p>
-                    <p className="id-center" title={client.mail}>
-                      {client.mail}
-                    </p>
-                    <p className="id-center" title={client.phone}>
-                      {formatPhone(client.phone)}
-                    </p>
-                    <div className="flex justify-center gap-4">
-      
-                      <button
-                        onClick={handleTicket}
-                        className="text-red-500 hover:text-red-700"
-                      >
-                        <IoTicketOutline className="h-5 w-5" />
-                      </button>
-      
-                    </div>
-                  </div>
-                ))}
-              </div>
+        <div className="tablee grid grid-cols-5 gap-x-6 items-center p-4 bg-blue-100 border-b font-medium text-blue-900">
+
+          <p className="id-center"> <MdOutlineFormatListNumbered /> ID</p>
+          <p className="id-center"> <HiOutlineUser /> {t("clients.name")}</p>
+          <p className="id-center"> <CiMail /> {t("clients.email")}</p>
+          <p className="id-center"> <CiPhone /> {t("clients.phone")}</p>
+          <p className="text-centere"> <FaGear /> {t("clients.actions")}</p>
+        </div>
+        {currentClients.map((client) => (
+          <div
+            key={client.id}
+            className="tablee grid grid-cols-5 gap-x-6 items-center p-4 bg-white border-b hover:bg-gray-50 text-sm"
+          >
+            <p className="id-center">{client.id}</p>
+            <p className="id-center" title={client.name}>
+              {client.name}
+            </p>
+            <p className="id-center" title={client.mail}>
+              {client.mail}
+            </p>
+            <p className="id-center" title={client.phone}>
+              {formatPhone(client.phone)}
+            </p>
+            <div className="flex justify-center gap-4">
+
+              <button
+                onClick={handleTicket}
+                className="text-red-500 hover:text-red-700"
+              >
+                <IoTicketOutline className="h-5 w-5" />
+              </button>
+
+            </div>
+          </div>
+        ))}
+      </div>
 
       <div className="pagination flex justify-center items-center gap-4 mt-6 text-white">
         <button onClick={() => goToPage(currentPage - 1)} disabled={currentPage === 1} className="p-2 bg-blue-700 rounded-lg hover:bg-blue-800 disabled:bg-gray-400 disabled:cursor-not-allowed">
@@ -344,26 +348,26 @@ const Dashboard = () => {
             <div>
               <p>{t("dashboard.name")}</p>
               <Input text={t("dashboard.name")}
-                     type="text"
-                     required
-                     onChange={(e) => setClientName(e.target.value)}
-                     value={clientName} />
+                type="text"
+                required
+                onChange={(e) => setClientName(e.target.value)}
+                value={clientName} />
             </div>
             <div>
               <p>{t("dashboard.phone")}</p>
               <Input text={t("dashboard.phone")}
-                     type="text"
-                     required
-                     onChange={(e) => setClientPhone(e.target.value)}
-                     value={clientPhone} />
+                type="text"
+                required
+                onChange={(e) => setClientPhone(e.target.value)}
+                value={clientPhone} />
             </div>
             <div>
               <p>{t("dashboard.email")}</p>
               <Input text={t("dashboard.email")}
-                     type="email"
-                     required
-                     onChange={(e) => setClientMail(e.target.value)}
-                     value={clientMail} />
+                type="email"
+                required
+                onChange={(e) => setClientMail(e.target.value)}
+                value={clientMail} />
             </div>
             <Button text="Cadastrar Cliente" onClick={handleAddClient} />
           </div>
@@ -422,7 +426,7 @@ const Dashboard = () => {
             </div>
             <div className="flex items-center justify-between w-full gap-4">
               <div className="flex flex-col flex-1 min-w-[200px] max-w-[calc(50%-0.5rem)] gap-2">
-                <p className="mt-4">Usuário</p>
+                <p className="mt-4">Cliente</p>
                 <Select
                   options={optionsClient}
                   value={selected}
@@ -446,8 +450,18 @@ const Dashboard = () => {
               <p className="mt-4">Tags</p>
               <TagInput tags={tags} setTags={setTags} placeholder="Adicione tags e pressione Enter" />
             </div>
+            <div className="flex flex-col items-start justify-start w-full gap-2">
+              <p className="mt-4">Observações</p>
+              <Input
+                text="Observação"
+                type="text"
+                onChange={(e) => setObservation(e.target.value)}
+                value={observation}
+              />
+            </div>
+
             <div className="flex flex-col items-end justify-end w-full gap-4">
-              <Button text="Criar Ticket" onClick={handleAddTicket}  />
+              <Button text="Criar Ticket" onClick={handleAddTicket} />
             </div>
           </div>
         )}
