@@ -431,7 +431,7 @@ const Dashboard = () => {
                   options={optionsClient}
                   value={selected}
                   onChange={handleSelectChange}
-                  placeholder="Status do ticket"
+                  placeholder="Cliente"
                   width="320px"
                 />
               </div>

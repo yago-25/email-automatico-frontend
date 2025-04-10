@@ -6,6 +6,20 @@ import { api } from "../../api/api";
 import Modal from "../../components/Modal/Modal";
 import './ticket.css';
 
+interface TicketHistory {
+  id: number;
+  ticket_id: number;
+  user_id: number;
+  field_modified: string;
+  old_value: string | null;
+  new_value: string | null;
+  created_at: string;
+  updated_at: string;
+  user?: {
+    name: string;
+  };
+}
+
 interface Ticket {
   id: number;
   name: string;
@@ -15,13 +29,13 @@ interface Ticket {
   client: {
     name: string;
   };
-  user: {
-    name: string;
-  };
+  user: User;
   message: string;
-  observation: string;
   created_at: string;
+  observation?: string;
+  histories?: TicketHistory[];
 }
+
 
 const Ticket = () => {
   // const { t } = useTranslation();
@@ -31,7 +45,8 @@ const Ticket = () => {
   const [tickets, setTickets] = useState<Ticket[]>([]);
   const [selectedTicket, setSelectedTicket] = useState<Ticket | null>(null);
   const [showModal, setShowModal] = useState(false);
-  const [history, setHistory] = useState([]);
+  const [history, setHistory] = useState<any[]>([]);
+
 
   useEffect(() => {
     const fetchTickets = async () => {
@@ -72,7 +87,9 @@ const Ticket = () => {
   const handleCardClick = (ticket: Ticket) => {
     setSelectedTicket(ticket);
     setShowModal(true);
+    fetchHistory(ticket.id);
   };
+
 
   const fetchHistory = async (ticketId: number) => {
     const { data } = await api.get(`/tickets/${ticketId}/history`, {
@@ -83,6 +100,20 @@ const Ticket = () => {
     setHistory(data);
   };
 
+  if (selectedTicket) {
+    console.log("Cliente:", selectedTicket.client);
+    console.log("Operador:", selectedTicket.user);
+    console.log("Nome:", selectedTicket.name);
+  }
+
+  useEffect(() => {
+    if (selectedTicket) {
+      console.log("Ticket selecionado:", selectedTicket);
+      console.log("Operador:", selectedTicket.user);
+    }
+  }, [selectedTicket]);
+  
+
   return (
     <div>
       <Header name={authUser?.nome_completo} />
@@ -92,7 +123,7 @@ const Ticket = () => {
           <div key={ticket.id} className="ticket-card" onClick={() => handleCardClick(ticket)}>
             <div className="ticket-header-no-avatar">
               <div>
-                <p className="ticket-user">{ticket.user?.name}</p>
+                <p className="ticket-user">{ticket.user?.nome_completo}</p>
                 <p className="ticket-time">{formatDate(ticket.created_at)}</p>
                 <p className="ticket-name">{ticket.name}</p>
                 <p className="ticket-observation line-clamp-3">
@@ -114,48 +145,54 @@ const Ticket = () => {
       </div>
 
       <Modal
-  title={selectedTicket ? `Ticket: ${selectedTicket.name}` : ""}
-  isVisible={showModal}
-  onClose={() => setShowModal(false)}
->
-  {selectedTicket && (
-    <div className="flex flex-col gap-2">
-      <p><strong>Nome:</strong> {selectedTicket.name}</p>
-      <p><strong>Tipo:</strong> {selectedTicket.type}</p>
-      <p><strong>Status:</strong> {selectedTicket.status}</p>
-      <p><strong>Cliente:</strong> {selectedTicket.client?.name}</p>
-      <p><strong>Operador:</strong> {selectedTicket.user?.name}</p>
-      <p><strong>Tags:</strong> {
-        Array.isArray(selectedTicket.tags)
-          ? selectedTicket.tags.join(", ")
-          : JSON.parse(selectedTicket.tags).join(", ")
-      }</p>
-      <p><strong>Observações:</strong> {selectedTicket.observation || "Sem observações"}</p>
+        title={selectedTicket ? `Ticket: ${selectedTicket.name}` : ""}
+        isVisible={showModal}
+        onClose={() => setShowModal(false)}
+      >
+        {selectedTicket && (
+          <div className="flex flex-col gap-2">
+            <p><strong>Nome:</strong> {selectedTicket.name}</p>
+            <p><strong>Tipo:</strong> {selectedTicket.type}</p>
+            <p><strong>Status:</strong> {selectedTicket.status}</p>
+            
+            <p><strong>Cliente:</strong> {selectedTicket.client?.name}</p>
+            <p><strong>Operador:</strong> {selectedTicket.user?.nome_completo}</p>
 
-      {/* Histórico de modificações */}
-      {selectedTicket.histories && selectedTicket.histories.length > 0 && (
-        <div className="ticket-history mt-4">
-          <h4><strong>Histórico de Modificações:</strong></h4>
-          <div className="history-list">
-            {selectedTicket.histories.map((item, index) => (
-              <div key={index} className="history-item border-t pt-2 mt-2">
-                <p>
-                  <strong>{item.field_modified}:</strong> de <em>"{item.old_value}"</em> para <em>"{item.new_value}"</em>
-                </p>
-                <p className="text-sm text-gray-600">
-                  {new Date(item.created_at).toLocaleString()} 
-                  {item.user?.name && ` por ${item.user.name}`}
-                </p>
+
+            <p><strong>Tags:</strong> {
+              Array.isArray(selectedTicket.tags)
+                ? selectedTicket.tags.join(", ")
+                : JSON.parse(selectedTicket.tags).join(", ")
+            }</p>
+            <p><strong>Observações:</strong> {selectedTicket.observation || "Sem observações"}</p>
+            {history.length > 0 && (
+              <div className="ticket-history mt-4">
+                <h4><strong>Histórico de Modificações:</strong></h4>
+                <div className="history-list">
+                  {history.map((item, index) => (
+                    <div key={index} className="history-item border-t pt-2 mt-2">
+                      <p>
+                        <strong>{item.field_modified}:</strong>{" "}
+                        {item.old_value === null || item.old_value === ""
+                          ? <>definido como <em>"{item.new_value || 'vazio'}"</em></>
+                          : <>de <em>"{item.old_value}"</em> para <em>"{item.new_value}"</em></>}
+                      </p>
+                      <p className="text-sm text-gray-600">
+                        {new Date(item.created_at).toLocaleString()}
+                      </p>
+                      {item.user?.nome_completo && (
+                        <p className="text-sm text-gray-600">
+                          <strong>Modificado por - {item.user.nome_completo}</strong>
+                        </p>
+                      )}
+                    </div>
+                  ))}
+                </div>
               </div>
-            ))}
+            )}
           </div>
-        </div>
-      )}
-    </div>
-  )}
-</Modal>
-
-
+        )}
+      </Modal>
     </div>
   );
 };
