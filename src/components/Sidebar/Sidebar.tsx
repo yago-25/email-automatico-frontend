@@ -1,3 +1,4 @@
+import { useEffect, useState } from "react";
 import "./sidebar.css";
 import mailIcon from "./../../../public/mail-svgrepo-com.svg";
 import { IoIosLogOut, IoMdHome, IoLogoWhatsapp } from "react-icons/io";
@@ -7,6 +8,7 @@ import { FaGear } from "react-icons/fa6";
 import { MdSms } from "react-icons/md";
 import { messageAlert } from "../../utils/messageAlert";
 import { useLocation, useNavigate } from "react-router-dom";
+import { api } from "../../api/api";
 
 const Sidebar = () => {
   const navigate = useNavigate();
@@ -27,6 +29,45 @@ const Sidebar = () => {
   const handleNavigation = (path: string) => {
     navigate(path);
   };
+
+  const [ticketCount, setTicketCount] = useState(0);
+
+  useEffect(() => {
+    const fetchCounts = async () => {
+      try {
+        const ticketRes = await api.get("/tickets/count");
+        setTicketCount(ticketRes.data.total); 
+      } catch (err) {
+        console.error("Erro ao buscar contagens:", err);
+      }
+    };
+  
+    fetchCounts();
+  }, []);
+  const SidebarIconWithBadge = ({
+    icon: Icon,
+    count,
+    isActive,
+    onClick,
+  }: {
+    icon: any;
+    count?: number;
+    isActive: boolean;
+    onClick: () => void;
+  }) => (
+    <div className="">
+      <Icon
+        className={`icon ${isActive ? "active-icon" : ""}`}
+        onClick={onClick}
+      />
+     {typeof count === "number" && (
+        <span>
+          {count}
+        </span>
+      )}
+    </div>
+  );
+
 
   return (
     <div className="sidebar-container">
@@ -60,6 +101,12 @@ const Sidebar = () => {
           <FaGear
             className={`icon ${isActiveRoute("/settings") ? "active-icon" : ""}`}
             onClick={() => handleNavigation("/settings")}
+          />
+          <SidebarIconWithBadge
+            icon={IoTicketSharp}
+            count={ticketCount}
+            isActive={isActiveRoute("/ticket")}
+            onClick={() => handleNavigation("/ticket")}
           />
         </div>
       </div>

@@ -200,6 +200,9 @@ const Dashboard = () => {
     }
   };
 
+  console.log("authUser:", authUser);
+  console.log("authUser.id:", authUser?.id);
+
   const handleAddTicket = async () => {
     setLoadingPostTicket(true);
     try {
@@ -223,6 +226,7 @@ const Dashboard = () => {
         tags: tags,
         client_id: selected,
         user_id: selectedAdmin,
+        create_id: authUser?.id, 
         status: statusTicket,
         observation: observation,
       }, {

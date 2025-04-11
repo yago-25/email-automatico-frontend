@@ -30,6 +30,7 @@ interface Ticket {
     name: string;
   };
   user: User;
+  create:User;
   message: string;
   created_at: string;
   observation?: string;
