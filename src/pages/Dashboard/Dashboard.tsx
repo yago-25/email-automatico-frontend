@@ -112,7 +112,6 @@ const Dashboard = () => {
   const [statusTicket, setStatusTicket] = useState("");
   const [loading, setLoading] = useState(false);
   const [loadingPost, setLoadingPost] = useState(false);
-  const [loadingPostTicket, setLoadingPostTicket] = useState(false);
   const [selected, setSelected] = useState<string>("");
   const [selectedAdmin, setSelectedAdmin] = useState<string>("");
   const [tags, setTags] = useState<string[]>([]);
@@ -204,7 +203,7 @@ const Dashboard = () => {
   console.log("authUser.id:", authUser?.id);
 
   const handleAddTicket = async () => {
-    setLoadingPostTicket(true);
+    setLoadingPost(true);
     try {
       if (
         !statusTicket ||
@@ -247,6 +246,7 @@ const Dashboard = () => {
       setSelectedAdmin('');
       setTags([]);
       setObservation('');
+      setAddTicket(false);
     } catch (e) {
       console.log('Erro ao adicionar ticket: ', e);
       messageAlert({
@@ -254,7 +254,7 @@ const Dashboard = () => {
         message: "Erro ao adicionar ticket"
       });
     } finally {
-      setLoadingPostTicket(false);
+      setLoadingPost(false);
     }
   };
 
@@ -313,7 +313,7 @@ const Dashboard = () => {
             <p className="id-center" title={client.phone}>
               {formatPhone(client.phone)}
             </p>
-            <div className="flex justify-center gap-4">
+            <div className="flex justify-end gap-4">
 
               <button
                 onClick={handleTicket}
@@ -349,15 +349,16 @@ const Dashboard = () => {
           </div>
         ) : (
           <div className="flex flex-col items-center justify-center w-full gap-4">
-            <div>
+            <div className="w-full">
               <p>{t("dashboard.name")}</p>
               <Input text={t("dashboard.name")}
                 type="text"
                 required
                 onChange={(e) => setClientName(e.target.value)}
-                value={clientName} />
+                value={clientName}
+              />
             </div>
-            <div>
+            <div className="w-full">
               <p>{t("dashboard.phone")}</p>
               <Input text={t("dashboard.phone")}
                 type="text"
@@ -365,7 +366,7 @@ const Dashboard = () => {
                 onChange={(e) => setClientPhone(e.target.value)}
                 value={clientPhone} />
             </div>
-            <div>
+            <div className="w-full">
               <p>{t("dashboard.email")}</p>
               <Input text={t("dashboard.email")}
                 type="email"
@@ -382,7 +383,7 @@ const Dashboard = () => {
         isVisible={addTicket}
         onClose={() => setAddTicket(false)}
       >
-        {loadingPostTicket ? (
+        {loadingPost ? (
           <div className="flex flex-col items-center justify-center w-full gap-4">
             <Spin />
           </div>

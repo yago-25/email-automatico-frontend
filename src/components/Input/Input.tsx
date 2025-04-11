@@ -12,6 +12,7 @@ interface InputProps {
   onClick?: () => void;
   onKeyDown?: (e: React.KeyboardEvent<HTMLInputElement>) => void;
   ref?: React.Ref<HTMLInputElement>;
+  width?: number;
 }
 
 const Input: React.FC<InputProps> = ({
@@ -23,15 +24,16 @@ const Input: React.FC<InputProps> = ({
   styles,
   onClick,
   onKeyDown,
-  ref
+  ref,
+  width,
 }) => {
   const [showPassword, setShowPassword] = useState(false);
 
   const togglePasswordVisibility = () => setShowPassword(!showPassword);
 
   return (
-    <div className="w-60 h-12 relative flex rounded-xl" style={styles}>
-      <div className="flex items-center justify-center h-12 gap-2">
+    <div className="w-full h-12 relative flex rounded-xl" style={styles}>
+      <div className="w-full flex items-center justify-center h-12 gap-2">
         <input
           ref={ref}
           onChange={onChange}
@@ -39,7 +41,7 @@ const Input: React.FC<InputProps> = ({
           onClick={onClick}
           onKeyDown={onKeyDown}
           required={required}
-          className="peer w-full h-full text-blue-500 bg-transparent outline-none px-4 text-base rounded-xl bg-white border border-[#4070f4] focus:shadow-md"
+          className={`peer ${width ? `w-[${width}px]` : ' w-full'} h-full text-blue-500 bg-transparent outline-none px-4 text-base rounded-xl bg-white border border-[#4070f4] focus:shadow-md`}
           id={text}
           type={type === "password" ? (showPassword ? "text" : "password") : type}
           placeholder={text}

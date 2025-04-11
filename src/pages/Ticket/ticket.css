@@ -89,7 +89,7 @@
   }
   
   .ticket-card:hover {
-    box-shadow: 0 4px 10px rgba(0,0,0,0.15);
+    box-shadow: 0 4px 10px rgba(184, 184, 184, 0.514);
   }
   
   .ticket-header-no-avatar {
@@ -133,10 +133,15 @@
     font-size:20px;
   }
   
-  .color-0 { background-color: #f8d7da; color: #721c24; } /* Vermelho */
-  .color-1 { background-color: #d4edda; color: #155724; } /* Verde */
+  .color-0 { background-color: #cce5ff; color: #004085; } /* Vermelho */
+  .color-1 { background-color: #cce5ff; color: #004085; } /* Verde */
   .color-2 { background-color: #cce5ff; color: #004085; } /* Azul */
-  .color-3 { background-color: #fff3cd; color: #856404; } /* Amarelo */
-  .color-4 { background-color: #e2e3e5; color: #383d41; } /* Cinza */
-  .color-5 { background-color: #d1ecf1; color: #0c5460; } /* Ciano */
+  .color-3 { background-color: #cce5ff; color: #004085; } /* Amarelo */
+  .color-4 { background-color: #cce5ff; color: #004085; } /* Cinza */
+  .color-5 { background-color: #cce5ff; color: #004085; } /* Ciano */
   
+  .no-tickets {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }

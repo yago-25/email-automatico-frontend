@@ -11,7 +11,7 @@ const Modal: React.FC<ModalProps> = ({ title, isVisible, onClose, children }) =>
   if (!isVisible) return null;
 
   return (
-    <div className="fixed inset-0 bg-gray-500 bg-opacity-50 flex justify-center items-center z-50">
+    <div className="fixed inset-0 bg-gray-500 bg-opacity-50 flex justify-center items-center z-50" style={{ justifyContent: 'center' }}>
       <div className=" teste bg-white rounded-lg shadow-lg p-6 w-96">
         <div className="flex justify-between items-center">
           <h2 className="text-xl font-semibold">{title}</h2>

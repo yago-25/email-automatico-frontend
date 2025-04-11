@@ -4,7 +4,7 @@ import { User } from "../../models/User";
 // import { useTranslation } from "react-i18next";
 import { api } from "../../api/api";
 import Modal from "../../components/Modal/Modal";
-import './ticket.css';
+import "./ticket.css";
 
 interface TicketHistory {
   id: number;
@@ -37,7 +37,6 @@ interface Ticket {
   histories?: TicketHistory[];
 }
 
-
 const Ticket = () => {
   // const { t } = useTranslation();
   const storedUser = localStorage.getItem("user");
@@ -48,18 +47,20 @@ const Ticket = () => {
   const [showModal, setShowModal] = useState(false);
   const [history, setHistory] = useState<any[]>([]);
 
-
   useEffect(() => {
     const fetchTickets = async () => {
       const { data } = await api.get<Ticket[]>("/tickets", {
         headers: {
-          Authorization: `Bearer ${localStorage.getItem("accessToken")}`
-        }
+          Authorization: `Bearer ${localStorage.getItem("accessToken")}`,
+        },
       });
 
       const parsed = data.map((ticket) => ({
         ...ticket,
-        tags: typeof ticket.tags === "string" ? JSON.parse(ticket.tags) : ticket.tags
+        tags:
+          typeof ticket.tags === "string"
+            ? JSON.parse(ticket.tags)
+            : ticket.tags,
       }));
 
       setTickets(parsed);
@@ -91,7 +92,6 @@ const Ticket = () => {
     fetchHistory(ticket.id);
   };
 
-
   const fetchHistory = async (ticketId: number) => {
     const { data } = await api.get(`/tickets/${ticketId}/history`, {
       headers: {
@@ -101,48 +101,46 @@ const Ticket = () => {
     setHistory(data);
   };
 
-  if (selectedTicket) {
-    console.log("Cliente:", selectedTicket.client);
-    console.log("Operador:", selectedTicket.user);
-    console.log("Nome:", selectedTicket.name);
-  }
-
-  useEffect(() => {
-    if (selectedTicket) {
-      console.log("Ticket selecionado:", selectedTicket);
-      console.log("Operador:", selectedTicket.user);
-    }
-  }, [selectedTicket]);
-  
-
   return (
     <div>
       <Header name={authUser?.nome_completo} />
 
       <div className="ticket-container">
-        {tickets.map((ticket) => (
-          <div key={ticket.id} className="ticket-card" onClick={() => handleCardClick(ticket)}>
-            <div className="ticket-header-no-avatar">
-              <div>
-                <p className="ticket-user">{ticket.user?.nome_completo}</p>
-                <p className="ticket-time">{formatDate(ticket.created_at)}</p>
-                <p className="ticket-name">{ticket.name}</p>
-                <p className="ticket-observation line-clamp-3">
-                  {ticket.observation || "Sem observações"}
-                </p>
-
+        {tickets && tickets.length > 0 ? (
+          tickets.map((ticket) => (
+            <div
+              key={ticket.id}
+              className="ticket-card"
+              onClick={() => handleCardClick(ticket)}
+            >
+              <div className="ticket-header-no-avatar">
+                <div>
+                  <p className="ticket-user">{ticket.user?.nome_completo}</p>
+                  <p className="ticket-time">{formatDate(ticket.created_at)}</p>
+                  <p className="ticket-name">{ticket.name}</p>
+                  <p className="ticket-observation line-clamp-3">
+                    {ticket.observation || "Sem observações"}
+                  </p>
+                </div>
+              </div>
+              <div className="ticket-tags">
+                {Array.isArray(ticket.tags) &&
+                  ticket.tags.map((tag, index) => (
+                    <span
+                      key={index}
+                      className={`ticket-tag color-${index % 6}`}
+                    >
+                      {tag}
+                    </span>
+                  ))}
               </div>
             </div>
-            <div className="ticket-tags">
-              {Array.isArray(ticket.tags) &&
-                ticket.tags.map((tag, index) => (
-                  <span key={index} className={`ticket-tag color-${index % 6}`}>
-                    {tag}
-                  </span>
-                ))}
-            </div>
+          ))
+        ) : (
+          <div className="no-tickets">
+            <p>Nenhum ticket encontrado</p>
           </div>
-        ))}
+        )}
       </div>
 
       <Modal
@@ -152,38 +150,65 @@ const Ticket = () => {
       >
         {selectedTicket && (
           <div className="flex flex-col gap-2">
-            <p><strong>Nome:</strong> {selectedTicket.name}</p>
-            <p><strong>Tipo:</strong> {selectedTicket.type}</p>
-            <p><strong>Status:</strong> {selectedTicket.status}</p>
-            
-            <p><strong>Cliente:</strong> {selectedTicket.client?.name}</p>
-            <p><strong>Operador:</strong> {selectedTicket.user?.nome_completo}</p>
+            <p>
+              <strong>Nome:</strong> {selectedTicket.name}
+            </p>
+            <p>
+              <strong>Tipo:</strong> {selectedTicket.type}
+            </p>
+            <p>
+              <strong>Status:</strong> {selectedTicket.status}
+            </p>
 
+            <p>
+              <strong>Cliente:</strong> {selectedTicket.client?.name}
+            </p>
+            <p>
+              <strong>Operador:</strong> {selectedTicket.user?.nome_completo}
+            </p>
 
-            <p><strong>Tags:</strong> {
-              Array.isArray(selectedTicket.tags)
+            <p>
+              <strong>Tags:</strong>{" "}
+              {Array.isArray(selectedTicket.tags)
                 ? selectedTicket.tags.join(", ")
-                : JSON.parse(selectedTicket.tags).join(", ")
-            }</p>
-            <p><strong>Observações:</strong> {selectedTicket.observation || "Sem observações"}</p>
+                : JSON.parse(selectedTicket.tags).join(", ")}
+            </p>
+            <p>
+              <strong>Observações:</strong>{" "}
+              {selectedTicket.observation || "Sem observações"}
+            </p>
             {history.length > 0 && (
               <div className="ticket-history mt-4">
-                <h4><strong>Histórico de Modificações:</strong></h4>
+                <h4>
+                  <strong>Histórico de Modificações:</strong>
+                </h4>
                 <div className="history-list">
                   {history.map((item, index) => (
-                    <div key={index} className="history-item border-t pt-2 mt-2">
+                    <div
+                      key={index}
+                      className="history-item border-t pt-2 mt-2"
+                    >
                       <p>
                         <strong>{item.field_modified}:</strong>{" "}
-                        {item.old_value === null || item.old_value === ""
-                          ? <>definido como <em>"{item.new_value || 'vazio'}"</em></>
-                          : <>de <em>"{item.old_value}"</em> para <em>"{item.new_value}"</em></>}
+                        {item.old_value === null || item.old_value === "" ? (
+                          <>
+                            definido como <em>"{item.new_value || "vazio"}"</em>
+                          </>
+                        ) : (
+                          <>
+                            de <em>"{item.old_value}"</em> para{" "}
+                            <em>"{item.new_value}"</em>
+                          </>
+                        )}
                       </p>
                       <p className="text-sm text-gray-600">
                         {new Date(item.created_at).toLocaleString()}
                       </p>
                       {item.user?.nome_completo && (
                         <p className="text-sm text-gray-600">
-                          <strong>Modificado por - {item.user.nome_completo}</strong>
+                          <strong>
+                            Modificado por - {item.user.nome_completo}
+                          </strong>
                         </p>
                       )}
                     </div>
