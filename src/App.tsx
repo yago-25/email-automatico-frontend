@@ -17,6 +17,7 @@ import Approve from './pages/Approve/Approve';
 
 
 import Clients from './pages/Clients/Clients';
+import Profile from './pages/Profile/Profile';
 
 function App() {
   return (
@@ -45,6 +46,11 @@ function App() {
             <Route path="/ticket" element={
               <AuthenticatedLayout>
                 <Ticket />
+              </AuthenticatedLayout>
+            } />
+            <Route path="/profile" element={
+              <AuthenticatedLayout>
+                <Profile />
               </AuthenticatedLayout>
             } />
             <Route path="/approve" element={

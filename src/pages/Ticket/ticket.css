@@ -136,9 +136,20 @@
   .color-0 { background-color: #cce5ff; color: #004085; } /* Vermelho */
   .color-1 { background-color: #cce5ff; color: #004085; } /* Verde */
   .color-2 { background-color: #cce5ff; color: #004085; } /* Azul */
-  .color-3 { background-color: #cce5ff; color: #004085; } /* Amarelo */
-  .color-4 { background-color: #cce5ff; color: #004085; } /* Cinza */
-  .color-5 { background-color: #cce5ff; color: #004085; } /* Ciano */
+  
+  .ticket-history {
+    max-height: 300px;
+    overflow-y: auto;
+  }
+  
+  .ticket-history::-webkit-scrollbar {
+    width: 6px;
+  }
+  
+  .ticket-history::-webkit-scrollbar-thumb {
+    background-color: #cbd5e0; /* tailwind gray-300 */
+    border-radius: 8px;
+  }
   
   .no-tickets {
     display: flex;

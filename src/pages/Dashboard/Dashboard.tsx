@@ -1,3 +1,4 @@
+/* eslint-disable react-hooks/exhaustive-deps */
 import { useEffect, useState } from "react";
 import { useTranslation } from "react-i18next";
 import Header from "../../components/Header/Header";
@@ -51,7 +52,7 @@ interface ButtonProps {
   onClick: () => void;
 }
 
-const Button: React.FC<ButtonProps> = ({ text, onClick }) => {
+export const Button: React.FC<ButtonProps> = ({ text, onClick }) => {
   return (
     <button
       onClick={onClick}

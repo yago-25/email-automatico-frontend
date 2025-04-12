@@ -10,6 +10,8 @@ body {
   padding: 0;
   box-sizing: border-box;
   overflow: hidden;
+  height: inherit;
+  width: inherit;
 }
 
 .message-container {

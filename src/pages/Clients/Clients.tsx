@@ -1,7 +1,9 @@
+/* eslint-disable react-hooks/exhaustive-deps */
+/* eslint-disable @typescript-eslint/no-explicit-any */
 import { useEffect, useState } from "react";
 import Header from "../../components/Header/Header";
 import "./clients.css";
-import { Pencil, Trash, PlusCircle, XCircle } from "lucide-react";
+import { Pencil, Trash } from "lucide-react";
 import { messageAlert } from "../../utils/messageAlert";
 import { useNavigate } from "react-router-dom";
 import Spin from "../../components/Spin/Spin";
@@ -27,15 +29,15 @@ interface Client {
 }
 
 interface ButtonProps {
-  text: string;
+  text: any;
   onClick: () => void;
+  className?: string;
 }
 
 const Button: React.FC<ButtonProps> = ({ text, onClick }) => {
   return (
     <button onClick={onClick} className="cursor-pointer w-44 h-12 bg-blue-600 text-white rounded-lg hover:bg-blue-700 hover:shadow-lg transition-all group active:w-11 active:h-11 active:rounded-full active:duration-300 ease-in-out">
       <svg className="animate-spin hidden group-active:block mx-auto" width="33" height="32" viewBox="0 0 33 32" fill="none" xmlns="http://www.w3.org/2000/svg">
-        {/* SVG Path... */}
       </svg>
       <span className="group-active:hidden">{text}</span>
     </button>
@@ -175,6 +177,7 @@ const Clients = () => {
         type: "error",
         message: t("clients.delete_error")
       });
+      console.log(error, 'Error');
     } finally {
       setLoading(false);
     }
@@ -203,6 +206,7 @@ const Clients = () => {
         type: "error",
         message: t("clients.update_error")
       });
+      console.log(error, 'Error');
     } finally {
       setLoading(false);
     }

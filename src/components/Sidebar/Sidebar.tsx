@@ -2,7 +2,7 @@ import { useEffect, useState } from "react";
 import "./sidebar.css";
 import mailIcon from "./../../../public/mail-svgrepo-com.svg";
 import { IoIosLogOut, IoMdHome, IoLogoWhatsapp } from "react-icons/io";
-import { FaUser } from "react-icons/fa";
+import { FaCalendar, FaUser } from "react-icons/fa";
 import { IoTicketSharp, IoMail } from "react-icons/io5";
 import { FaGear } from "react-icons/fa6";
 import { MdSms } from "react-icons/md";
@@ -102,6 +102,10 @@ const Sidebar = () => {
           <IoLogoWhatsapp
             className={`icon ${isActiveRoute("/whatsapp") ? "active-icon" : ""}`}
             onClick={() => handleNavigation("/whatsapp")}
+          />
+          <FaCalendar
+            className={`icon ${isActiveRoute("/calendar") ? "active-icon" : ""}`}
+            onClick={() => handleNavigation("/calendar")}
           />
           <FaGear
             className={`icon ${isActiveRoute("/settings") ? "active-icon" : ""}`}
