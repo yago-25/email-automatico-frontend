@@ -6,6 +6,7 @@ import { FaUser } from "react-icons/fa";
 import { IoTicketSharp, IoMail } from "react-icons/io5";
 import { FaGear } from "react-icons/fa6";
 import { MdSms } from "react-icons/md";
+import { FaCheckCircle } from "react-icons/fa";
 import { messageAlert } from "../../utils/messageAlert";
 import { useLocation, useNavigate } from "react-router-dom";
 import { api } from "../../api/api";
@@ -82,6 +83,10 @@ const Sidebar = () => {
             className={`icon ${isActiveRoute("/clients") ? "active-icon" : ""}`}
             onClick={() => handleNavigation("/clients")}
           />
+          <FaCheckCircle 
+            className={`icon ${isActiveRoute("/approve") ? "active-icon" : ""}`}
+            onClick={() => handleNavigation("/approve")}
+          />
           <IoTicketSharp
             className={`icon ${isActiveRoute("/ticket") ? "active-icon" : ""}`}
             onClick={() => handleNavigation("/ticket")}
@@ -108,6 +113,7 @@ const Sidebar = () => {
             isActive={isActiveRoute("/ticket")}
             onClick={() => handleNavigation("/ticket")}
           />
+          
         </div>
       </div>
       <div className="logout">

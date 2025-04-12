@@ -13,6 +13,7 @@ import TraductionButton from './components/TraductionButton/TraductionButton';
 import TokenReset from './pages/ResetPassword/TokenReset';
 import EmailVerification from './pages/ResetPassword/EmailVerification';
 import ResetPassword from './pages/ResetPassword/ResetPassword';
+import Approve from './pages/Approve/Approve';
 
 
 import Clients from './pages/Clients/Clients';
@@ -29,6 +30,7 @@ function App() {
           <Route path="/email-verification" element={<EmailVerification />} />
           <Route path="/reset-password" element={<ResetPassword />} />
 
+
           <Route element={<ProtectedRoute />}>
             <Route path="/dashboard" element={
               <AuthenticatedLayout>
@@ -43,6 +45,11 @@ function App() {
             <Route path="/ticket" element={
               <AuthenticatedLayout>
                 <Ticket />
+              </AuthenticatedLayout>
+            } />
+            <Route path="/approve" element={
+              <AuthenticatedLayout>
+                <Approve />
               </AuthenticatedLayout>
             } />
           </Route>
