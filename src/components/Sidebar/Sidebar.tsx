@@ -9,7 +9,7 @@ import { MdSms } from "react-icons/md";
 import { FaCheckCircle } from "react-icons/fa";
 import { messageAlert } from "../../utils/messageAlert";
 import { useLocation, useNavigate } from "react-router-dom";
-import { api } from "../../api/api";
+
 
 const Sidebar = () => {
   const navigate = useNavigate();
@@ -30,44 +30,6 @@ const Sidebar = () => {
   const handleNavigation = (path: string) => {
     navigate(path);
   };
-
-  const [ticketCount, setTicketCount] = useState(0);
-
-  useEffect(() => {
-    const fetchCounts = async () => {
-      try {
-        const ticketRes = await api.get("/tickets/count");
-        setTicketCount(ticketRes.data.total); 
-      } catch (err) {
-        console.error("Erro ao buscar contagens:", err);
-      }
-    };
-  
-    fetchCounts();
-  }, []);
-  const SidebarIconWithBadge = ({
-    icon: Icon,
-    count,
-    isActive,
-    onClick,
-  }: {
-    icon: any;
-    count?: number;
-    isActive: boolean;
-    onClick: () => void;
-  }) => (
-    <div className="">
-      <Icon
-        className={`icon ${isActive ? "active-icon" : ""}`}
-        onClick={onClick}
-      />
-     {typeof count === "number" && (
-        <span>
-          {count}
-        </span>
-      )}
-    </div>
-  );
 
 
   return (
@@ -111,12 +73,12 @@ const Sidebar = () => {
             className={`icon ${isActiveRoute("/settings") ? "active-icon" : ""}`}
             onClick={() => handleNavigation("/settings")}
           />
-          <SidebarIconWithBadge
+          {/* <SidebarIconWithBadge
             icon={IoTicketSharp}
             count={ticketCount}
             isActive={isActiveRoute("/ticket")}
             onClick={() => handleNavigation("/ticket")}
-          />
+          /> */}
           
         </div>
       </div>

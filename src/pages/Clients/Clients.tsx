@@ -221,15 +221,19 @@ const Clients = () => {
   }
   return (
     <div className="body">
-      <div className="container-dash">
-        <Header name={authUser?.nome_completo} />
+   <div className="max-w-6xl mx-auto px-4 py-8">
+      <Header name={authUser?.nome_completo} />
 
-        <div className="title-dash">
+  
+        {/* Título + Input */}
+        <div className="flex flex-col sm:flex-row justify-between items-center mb-6 gap-4">
+          <h1 className="text-3xl font-bold text-gray-800">📁 Clientes</h1>
+  
           <input
             placeholder={t("clients.search_placeholder")}
             type="text"
             name="text"
-            className="input-dash"
+            className="w-full sm:w-96 px-4 py-2 border border-gray-300 rounded-xl shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-400 transition"
             onChange={(e) => {
               setFilteredTxt(e.target.value);
               setCurrentPage(1);
@@ -237,82 +241,86 @@ const Clients = () => {
             value={filteredTxt}
           />
         </div>
-
-        <div className="tbe w-full max-w-3xl mt-8 rounded-2xl overflow-hidden shadow-lg">
-          <div className="tablee grid grid-cols-5 gap-x-6 items-center p-4 bg-blue-100 border-b font-medium text-blue-900">
-
-            <p className="id-center"> <MdOutlineFormatListNumbered /> ID</p>
-            <p className="id-center"> <HiOutlineUser /> {t("clients.name")}</p>
-            <p className="id-center"> <CiMail /> {t("clients.email")}</p>
-            <p className="id-center"> <CiPhone /> {t("clients.phone")}</p>
-            <p className="text-centere"> <FaGear /> {t("clients.actions")}</p>
+  
+        {/* Tabela */}
+        <div className="w-full rounded-xl overflow-hidden shadow-md">
+          <div className="grid grid-cols-5 gap-x-6 items-center px-6 py-4 bg-blue-100 border-b text-blue-900 font-semibold text-sm">
+            <p className="flex items-center gap-2"><MdOutlineFormatListNumbered /> ID</p>
+            <p className="flex items-center gap-2"><HiOutlineUser /> {t("clients.name")}</p>
+            <p className="flex items-center gap-2"><CiMail /> {t("clients.email")}</p>
+            <p className="flex items-center gap-2"><CiPhone /> {t("clients.phone")}</p>
+            <p className="flex items-center justify-center gap-2"><FaGear /> {t("clients.actions")}</p>
           </div>
+  
           {currentClients.map((client) => (
             <div
               key={client.id}
-              className="tablee grid grid-cols-5 gap-x-6 items-center p-4 bg-white border-b hover:bg-gray-50 text-sm"
+              className="grid grid-cols-5 gap-x-6 items-center px-6 py-4 bg-white border-b hover:bg-gray-50 text-sm"
             >
-              <p className="id-center">{client.id}</p>
-              <p className="id-center" title={client.name}>
-                {client.name}
-              </p>
-              <p className="id-center" title={client.mail}>
-                {client.mail}
-              </p>
-              <p className="id-center" title={client.phone}>
-                {formatPhone(client.phone)}
-              </p>
+              <p>{client.id}</p>
+              <p title={client.name}>{client.name}</p>
+              <p title={client.mail}>{client.mail}</p>
+              <p title={client.phone}>{formatPhone(client.phone)}</p>
               <div className="flex justify-center gap-4">
-
-                <button
-                  onClick={handleTicket}
-                  className="text-red-500 hover:text-red-700"
-                >
+                <button onClick={handleTicket} className="text-indigo-500 hover:text-indigo-700">
                   <IoTicketOutline className="h-5 w-5" />
                 </button>
-
                 <button
-                  className="text-blue-500 hover:text-blue-700"
                   onClick={() => {
                     setEditingClient(client);
                     setIsModalOpen(true);
                   }}
+                  className="text-blue-500 hover:text-blue-700"
                 >
                   <Pencil className="h-5 w-5" />
                 </button>
-
                 <button
                   onClick={() => handleDelete(client.id)}
                   className="text-red-500 hover:text-red-700"
                 >
                   <Trash className="h-5 w-5" />
                 </button>
-
               </div>
             </div>
           ))}
         </div>
-
-        <div className="pagination flex justify-center items-center gap-4 mt-6 text-white">
+  
+        {/* Paginação */}
+        <div className="flex justify-center items-center gap-4 mt-8">
           <button
             onClick={() => goToPage(currentPage - 1)}
             disabled={currentPage === 1}
-            className="p-2 bg-blue-700 rounded-lg hover:bg-blue-800 disabled:bg-gray-400 disabled:cursor-not-allowed"
+            className="p-2 bg-blue-600 text-white rounded-full hover:bg-blue-700 disabled:bg-gray-300 disabled:cursor-not-allowed"
           >
             <MdArrowBackIos />
           </button>
-          <span className="font-semibold">
+          <span className="font-medium text-gray-700">
             {currentPage} {t("clients.of")} {totalPages}
           </span>
           <button
             onClick={() => goToPage(currentPage + 1)}
             disabled={currentPage === totalPages}
-            className="p-2 bg-blue-700 rounded-lg hover:bg-blue-800 disabled:bg-gray-400 disabled:cursor-not-allowed"
+            className="p-2 bg-blue-600 text-white rounded-full hover:bg-blue-700 disabled:bg-gray-300 disabled:cursor-not-allowed"
           >
             <MdArrowForwardIos />
           </button>
         </div>
-
+  
+        {/* Botão de adicionar */}
+        <div className="flex justify-end mt-10">
+          <Button
+            text={
+              <span className="inline-flex items-center gap-2">
+                <IoMdAddCircleOutline className="w-5 h-5" />
+                {t("clients.add_client")}
+              </span>
+            }
+            onClick={() => setAddClient(true)}
+            className="bg-blue-600 hover:bg-blue-700 text-white px-6 py-2 rounded-2xl shadow-md transition duration-200"
+          />
+        </div>
+  
+        {/* Modal de edição */}
         <Modal
           title={t("clients.edit_client")}
           isVisible={isModalOpen}
@@ -363,23 +371,11 @@ const Clients = () => {
               <Button text={t("clients.save_changes")} onClick={handleEdit} />
             </div>
           ) : (
-            <div className="text-center">{t("clients.load_error")}</div>
+            <div className="text-center text-red-500">{t("clients.load_error")}</div>
           )}
         </Modal>
-
-        <div className="flex gap-5" style={{ marginTop: "95px" }}>
-          <Button
-            text={
-              <span className="inline-flex items-center justify-center gap-2 relative top-[2px]">
-                <IoMdAddCircleOutline className="w-5 h-5" />
-                {t("clients.add_client")}
-              </span>
-            }
-            onClick={() => setAddClient(true)}
-            className="bg-blue-600 hover:bg-blue-700 text-white px-6 py-2 rounded-2xl shadow-md transition duration-200"
-          />
-        </div>
-
+  
+        {/* Modal de cadastro */}
         <Modal
           title={t("clients.add_client")}
           isVisible={addClient}
@@ -428,6 +424,7 @@ const Clients = () => {
       </div>
     </div>
   );
+  
 };
 
 export default Clients;
