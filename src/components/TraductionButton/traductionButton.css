@@ -1,0 +1,21 @@
+.container-icons-traduction {
+    position: fixed;
+    bottom: 0;
+    right: 0;
+    margin: 20px;
+    display: flex;
+    gap: 10px;
+    background-color: white;
+    padding-left: 10px;
+    padding-right: 10px;
+    border-radius: 8px;
+}
+
+.container-icons-traduction img {
+    transition: all 0.3s ease;
+}
+
+.container-icons-traduction img:hover {
+    transform: scale(1.1);
+    cursor: pointer;
+}

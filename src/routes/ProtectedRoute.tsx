@@ -1,12 +1,14 @@
 import { Navigate, Outlet } from 'react-router-dom';
+import { useAuth } from '../context/AuthContext';
 
-interface ProtectedRouteProps {
-  isAuthenticated: boolean;
-  redirectPath?: string;
-}
+const ProtectedRoute: React.FC = () => {
+  const { isAuthenticated } = useAuth();
 
-const ProtectedRoute: React.FC<ProtectedRouteProps> = ({ isAuthenticated, redirectPath = "/" }) => {
-  return isAuthenticated ? <Outlet /> : <Navigate to={redirectPath} replace />;
+  if (!isAuthenticated) {
+    return <Navigate to="/" replace />;
+  }
+
+  return <Outlet />;
 };
 
 export default ProtectedRoute;
