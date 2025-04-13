@@ -20,6 +20,8 @@ import { FaGear } from "react-icons/fa6";
 import { HiOutlineUser } from "react-icons/hi";
 import { IoTicketOutline } from "react-icons/io5";
 import { useNavigate } from "react-router-dom";
+import { FaTags, FaClipboardList, FaRegStickyNote } from 'react-icons/fa';
+
 
 interface Option {
   label: string;
@@ -226,7 +228,7 @@ const Dashboard = () => {
         tags: tags,
         client_id: selected,
         user_id: selectedAdmin,
-        create_id: authUser?.id, 
+        create_id: authUser?.id,
         status: statusTicket,
         observation: observation,
       }, {
@@ -380,7 +382,7 @@ const Dashboard = () => {
         )}
       </Modal>
       <Modal
-        title="Adicionar Ticket"
+        title="📝 Adicionar Ticket"
         isVisible={addTicket}
         onClose={() => setAddTicket(false)}
       >
@@ -389,89 +391,119 @@ const Dashboard = () => {
             <Spin />
           </div>
         ) : (
-          <div className="flex flex-col items-center justify-center w-full gap-4">
-            <div className="wrapper">
-              {statusTickets.map((status) => (
-                <div className="option" key={status.name}>
-                  <input
-                    value={status.name}
-                    name="btn"
-                    type="radio"
-                    className="input"
-                    onClick={(e) =>
-                      setStatusTicket((e.target as HTMLInputElement).value)
-                    }
+          <div className="flex flex-col gap-4 text-sm text-gray-800 max-h-[80vh] overflow-y-auto pr-1">
+            {/* Detalhes do Ticket */}
+            <div className="bg-white p-4 rounded-xl shadow-md space-y-2">
+              <h3 className="text-lg font-semibold flex items-center gap-2 text-blue-600">
+                <FaClipboardList /> Detalhes do Ticket
+              </h3>
+
+              <div className="grid grid-cols-2 gap-4">
+                <div className="flex flex-col">
+                  <label className="text-sm font-medium text-gray-700 mb-1">Nome</label>
+                  <Input
+                    text="Nome"
+                    type="text"
+                    required
+                    onChange={(e) => setClientName(e.target.value)}
+                    value={clientName}
                   />
-                  <div className="btn">
-                    <span className="span">{status.title}</span>
+                </div>
+
+                <div className="flex flex-col">
+                  <label className="text-sm font-medium text-gray-700 mb-1">Tipo</label>
+                  <Input
+                    text="Tipo"
+                    type="text"
+                    required
+                    onChange={(e) => setTypeName(e.target.value)}
+                    value={typeName}
+                  />
+                </div>
+
+                <div className="col-span-2">
+                  <label className="block text-sm font-medium text-gray-700 mb-1">
+                    <strong>Status</strong>
+                  </label>
+                  <div className="wrapper">
+                    {statusTickets.map((status) => (
+                      <div className="option" key={status.name}>
+                        <input
+                          value={status.name}
+                          name="btn"
+                          type="radio"
+                          className="input"
+                          onClick={(e) =>
+                            setStatusTicket((e.target as HTMLInputElement).value)
+                          }
+                        />
+                        <div className="btn">
+                          <span className="span">{status.title}</span>
+                        </div>
+                      </div>
+                    ))}
                   </div>
                 </div>
-              ))}
-            </div>
-            <div className="flex items-center justify-between w-full gap-4 flex-wrap">
-              <div className="flex flex-col flex-1 min-w-[200px] max-w-[calc(50%-0.5rem)] gap-2">
-                <p>Nome</p>
-                <Input
-                  text="Nome"
-                  type="text"
-                  required
-                  onChange={(e) => setClientName(e.target.value)}
-                  value={clientName}
-                />
               </div>
-              <div className="flex flex-col flex-1 min-w-[200px] max-w-[calc(50%-0.5rem)] gap-2">
-                <p>Tipo</p>
-                <Input
-                  text="Tipo"
-                  type="text"
-                  required
-                  onChange={(e) => setTypeName(e.target.value)}
-                  value={typeName}
-                />
-              </div>
-            </div>
-            <div className="flex items-center justify-between w-full gap-4">
-              <div className="flex flex-col flex-1 min-w-[200px] max-w-[calc(50%-0.5rem)] gap-2">
-                <p className="mt-4">Cliente</p>
-                <Select
-                  options={optionsClient}
-                  value={selected}
-                  onChange={handleSelectChange}
-                  placeholder="Cliente"
-                  width="320px"
-                />
-              </div>
-              <div className="flex flex-col flex-1 min-w-[200px] max-w-[calc(50%-0.5rem)] gap-2">
-                <p className="mt-4">Operador</p>
-                <Select
-                  options={optionsAdmin}
-                  value={selectedAdmin}
-                  onChange={handleSelectChangeAdmin}
-                  placeholder="Status do ticket"
-                  width="320px"
-                />
-              </div>
-            </div>
-            <div className="flex flex-col items-start justify-start w-full gap-4">
-              <p className="mt-4">Tags</p>
-              <TagInput tags={tags} setTags={setTags} placeholder="Adicione tags e pressione Enter" />
-            </div>
-            <div className="flex flex-col items-start justify-start w-full gap-2">
-              <p className="mt-4">Observações</p>
-              <Input
-                text="Observação"
-                type="text"
-                onChange={(e) => setObservation(e.target.value)}
-                value={observation}
-              />
             </div>
 
-            <div className="flex flex-col items-end justify-end w-full gap-4">
+            {/* Seleção de Cliente e Operador */}
+            <div className="bg-white p-4 rounded-xl shadow-md">
+              <h3 className="text-lg font-semibold flex items-center gap-2 text-green-600">
+                <FaTags /> Cliente e Operador
+              </h3>
+              <div className="flex flex-wrap gap-2 mt-2">
+                <div className="flex flex-col w-full sm:w-1/2 mb-2">
+                  <label className="text-sm font-medium text-gray-700">Cliente</label>
+                  <Select
+                    options={optionsClient}
+                    value={selected}
+                    onChange={handleSelectChange}
+                    placeholder="Selecione o Cliente"
+                    width="320px"
+                  />
+                </div>
+                <div className="flex flex-col w-full sm:w-1/2 mb-2">
+                  <label className="text-sm font-medium text-gray-700">Operador</label>
+                  <Select
+                    options={optionsAdmin}
+                    value={selectedAdmin}
+                    onChange={handleSelectChangeAdmin}
+                    placeholder="Selecione o Operador"
+                    width="320px"
+                  />
+                </div>
+              </div>
+            </div>
+
+            {/* Tags e Observações */}
+            <div className="bg-white p-4 rounded-xl shadow-md">
+              <h3 className="text-lg font-semibold flex items-center gap-2 text-yellow-600">
+                <FaRegStickyNote /> Tags e Observações
+              </h3>
+              <div className="flex flex-col gap-2 mt-2">
+                <label className="text-sm font-medium text-gray-700">Tags</label>
+                <TagInput tags={tags} setTags={setTags} placeholder="Adicione tags e pressione Enter" />
+              </div>
+              <div className="flex flex-col gap-2 mt-2">
+                <label className="text-sm font-medium text-gray-700">Observações</label>
+                <Input
+                  text="Observação"
+                  type="text"
+                  onChange={(e) => setObservation(e.target.value)}
+                  value={observation}
+                />
+              </div>
+            </div>
+
+            {/* Botão de Ação */}
+            <div className="flex flex-col items-end justify-end w-full gap-4 mt-4">
               <Button text="Criar Ticket" onClick={handleAddTicket} />
             </div>
           </div>
         )}
       </Modal>
+
     </div>
   );
 };
