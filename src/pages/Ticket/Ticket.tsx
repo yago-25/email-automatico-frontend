@@ -239,6 +239,7 @@ const Ticket = () => {
     label: ticket.name,
   }));
 
+
   return (
     <div>
       <Header name={authUser?.nome_completo} />

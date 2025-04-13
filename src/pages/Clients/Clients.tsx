@@ -3,7 +3,7 @@
 import { useEffect, useState } from "react";
 import Header from "../../components/Header/Header";
 import "./clients.css";
-import { Pencil, Trash } from "lucide-react";
+import { Pencil, Tickets, Trash } from "lucide-react";
 import { messageAlert } from "../../utils/messageAlert";
 import { useNavigate } from "react-router-dom";
 import Spin from "../../components/Spin/Spin";
@@ -20,18 +20,36 @@ import { FaGear } from "react-icons/fa6";
 import { HiOutlineUser } from "react-icons/hi";
 import { IoMdAddCircleOutline } from "react-icons/io";
 import { IoTicketOutline } from "react-icons/io5";
+import useSwr from "swr";
 
 interface Client {
   id: number;
   name: string;
   phone: string;
   mail: string;
+  
 }
 
 interface ButtonProps {
   text: any;
   onClick: () => void;
   className?: string;
+}
+interface Ticket {
+  id: number;
+  name: string;
+  type: string;
+  status: string;
+  tags: string[] | string;
+  client: {
+    id: number;
+    name: string;
+  };
+  user: User;
+  create: User;
+  message: string;
+  created_at: string;
+  observation?: string;
 }
 
 const Button: React.FC<ButtonProps> = ({ text, onClick }) => {
@@ -45,7 +63,7 @@ const Button: React.FC<ButtonProps> = ({ text, onClick }) => {
 };
 
 const Clients = () => {
-  const { t } = useTranslation(); 
+  const { t } = useTranslation();
   const navigate = useNavigate();
 
   const storedUser = localStorage.getItem("user");
@@ -73,6 +91,14 @@ const Clients = () => {
     }
     return phone;
   };
+
+  const { data: tickets } = useSwr<Ticket[]>('/tickets', {
+    fetcher: (url) => api.get(url, {
+      headers: {
+        Authorization: `Bearer ${localStorage.getItem("accessToken")}`,
+      },
+    }).then(res => res.data),
+  });
 
   const filteredClients = clients.filter(
     (client: Client) =>
@@ -212,8 +238,9 @@ const Clients = () => {
     }
   };
 
-  const handleTicket = () => {
-    navigate("/ticket");
+  const handleTicket = (ticketId: number) => {
+    console.log(`Ticket selecionado com ID: ${ticketId}`);
+    navigate(`/ticket/${ticketId}`);
   };
 
   if (loading) {
@@ -221,14 +248,14 @@ const Clients = () => {
   }
   return (
     <div className="body">
-   <div className="max-w-6xl mx-auto px-4 py-8">
-      <Header name={authUser?.nome_completo} />
+      <div className="max-w-6xl mx-auto px-4 py-8">
+        <Header name={authUser?.nome_completo} />
 
-  
+
         {/* Título + Input */}
         <div className="flex flex-col sm:flex-row justify-between items-center mb-6 gap-4">
           <h1 className="text-3xl font-bold text-gray-800">📁 Clientes</h1>
-  
+
           <input
             placeholder={t("clients.search_placeholder")}
             type="text"
@@ -241,7 +268,7 @@ const Clients = () => {
             value={filteredTxt}
           />
         </div>
-  
+
         {/* Tabela */}
         <div className="w-full rounded-xl overflow-hidden shadow-md">
           <div className="grid grid-cols-5 gap-x-6 items-center px-6 py-4 bg-blue-100 border-b text-blue-900 font-semibold text-sm">
@@ -251,7 +278,7 @@ const Clients = () => {
             <p className="flex items-center gap-2"><CiPhone /> {t("clients.phone")}</p>
             <p className="flex items-center justify-center gap-2"><FaGear /> {t("clients.actions")}</p>
           </div>
-  
+
           {currentClients.map((client) => (
             <div
               key={client.id}
@@ -262,9 +289,19 @@ const Clients = () => {
               <p title={client.mail}>{client.mail}</p>
               <p title={client.phone}>{formatPhone(client.phone)}</p>
               <div className="flex justify-center gap-4">
-                <button onClick={handleTicket} className="text-indigo-500 hover:text-indigo-700">
-                  <IoTicketOutline className="h-5 w-5" />
-                </button>
+                {tickets
+                  ?.filter((ticket) => ticket.client?.id === client.id) 
+                  .map((ticket) => (
+                    <div key={ticket.id}>
+                      <button
+                        onClick={() => handleTicket(ticket.id)}
+                        className="text-indigo-500 hover:text-indigo-700"
+                      >
+                        <IoTicketOutline className="h-5 w-5" />
+                      </button>
+                    </div>
+                  ))}
+
                 <button
                   onClick={() => {
                     setEditingClient(client);
@@ -284,7 +321,7 @@ const Clients = () => {
             </div>
           ))}
         </div>
-  
+
         {/* Paginação */}
         <div className="flex justify-center items-center gap-4 mt-8">
           <button
@@ -305,7 +342,7 @@ const Clients = () => {
             <MdArrowForwardIos />
           </button>
         </div>
-  
+
         {/* Botão de adicionar */}
         <div className="flex justify-end mt-10">
           <Button
@@ -319,7 +356,7 @@ const Clients = () => {
             className="bg-blue-600 hover:bg-blue-700 text-white px-6 py-2 rounded-2xl shadow-md transition duration-200"
           />
         </div>
-  
+
         {/* Modal de edição */}
         <Modal
           title={t("clients.edit_client")}
@@ -374,7 +411,7 @@ const Clients = () => {
             <div className="text-center text-red-500">{t("clients.load_error")}</div>
           )}
         </Modal>
-  
+
         {/* Modal de cadastro */}
         <Modal
           title={t("clients.add_client")}
@@ -424,7 +461,7 @@ const Clients = () => {
       </div>
     </div>
   );
-  
+
 };
 
 export default Clients;
