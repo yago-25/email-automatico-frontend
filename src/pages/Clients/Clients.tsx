@@ -3,7 +3,7 @@
 import { useEffect, useState } from "react";
 import Header from "../../components/Header/Header";
 import "./clients.css";
-import { Pencil, Tickets, Trash } from "lucide-react";
+import { Pencil, Trash } from "lucide-react";
 import { messageAlert } from "../../utils/messageAlert";
 import { useNavigate } from "react-router-dom";
 import Spin from "../../components/Spin/Spin";

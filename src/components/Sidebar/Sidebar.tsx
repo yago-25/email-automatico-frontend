@@ -1,4 +1,3 @@
-import { useEffect, useState } from "react";
 import "./sidebar.css";
 import mailIcon from "./../../../public/mail-svgrepo-com.svg";
 import { IoIosLogOut, IoMdHome, IoLogoWhatsapp } from "react-icons/io";
