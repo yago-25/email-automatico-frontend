@@ -381,6 +381,7 @@ const Dashboard = () => {
           </div>
         )}
       </Modal>
+      
       <Modal
         title="📝 Adicionar Ticket"
         isVisible={addTicket}

@@ -1,6 +1,6 @@
 {
   "login_page": {
-      "title": "Login",
+      "title": "Entrar",
       "email_label": "Email",
       "email_placeholder": "Insira seu email",
       "password_label": "Senha",

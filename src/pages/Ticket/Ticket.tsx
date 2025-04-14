@@ -8,6 +8,12 @@ import Spin from "../../components/Spin/Spin";
 import useSwr from "swr";
 import { FaFilter } from "react-icons/fa";
 import { useParams } from "react-router-dom";
+import Input from "../../components/Input/Input";
+import Select from "../../components/Select/Select";
+// import { useSwre } from "../../api/useSwr";
+import TagInput from "../../components/TagInput/TagInput";
+import { useTranslation } from "react-i18next";
+import { IoMdAddCircleOutline } from "react-icons/io";
 
 
 import {
@@ -55,6 +61,53 @@ interface Option {
   value: string;
 }
 
+interface Clients {
+  id: number;
+  name: string;
+  phone: string;
+  mail: string;
+  value?: string;
+}
+
+interface Admins {
+  id: number;
+  nome_completo: string;
+  email: string;
+  cpf: string;
+  telefone: string;
+  nome_usuario: string;
+  cargo_id: number;
+  email_verificado_at: string | null;
+  created_at: string;
+  updated_at: string;
+}
+
+interface ButtonProps {
+  text: string;
+  onClick: () => void;
+}
+
+export const Button: React.FC<ButtonProps> = ({ text, onClick }) => {
+  return (
+    <button
+      onClick={onClick}
+      className="cursor-pointer w-44 h-12 bg-blue-600 text-white rounded-lg hover:bg-blue-700 hover:shadow-lg transition-all group active:w-11 active:h-11 active:rounded-full active:duration-300 ease-in-out"
+    >
+      <svg
+        className="animate-spin hidden group-active:block mx-auto"
+        width="33"
+        height="32"
+        viewBox="0 0 33 32"
+        fill="none"
+        xmlns="http://www.w3.org/2000/svg"
+      >
+        <path d="..." fill="white" />
+      </svg>
+      <span className="group-active:hidden">{text}</span>
+    </button>
+  );
+};
+
 const updateTicketStatus = async (ticketId: number, newStatus: string) => {
   await api.put(
     `/tickets/${ticketId}/status`,
@@ -72,7 +125,7 @@ const Ticket = () => {
   const { id } = useParams<{ id: string }>();
 
   const { data: rawTickets = [], isLoading } = useSwr<Ticket[]>('/tickets', {
-    
+
     fetcher: (url) => api.get(url, {
       headers: {
         Authorization: `Bearer ${localStorage.getItem("accessToken")}`,
@@ -100,9 +153,42 @@ const Ticket = () => {
     )
   );
 
+  const statusTickets = [
+    { name: "not_started", title: "Não iniciada" },
+    { name: "waiting", title: "Esperando" },
+    { name: "in_progress", title: "Em progresso" },
+    { name: "discarded", title: "Descartada" },
+    { name: "finished", title: "Completa" },
+  ];
+
+  const { data: rawClients = [], isLoading: loadingClients } = useSwr<Clients[]>('/clients');
+  const { data: rawAdmins = [], isLoading: loadingAdmins } = useSwr<Admins[]>('/admins');
+
+  const optionsClient: Option[] = rawClients.map((client: Clients) => ({
+    value: String(client.id),
+    label: client.name,
+  }));
+
+  const optionsAdmin: Option[] = rawAdmins.map((admin: Admins) => ({
+    value: String(admin.id),
+    label: admin.nome_completo
+  }));
+
+  const handleSelectChange = (value: string | number) => {
+    setSelected(value.toString());
+  };
+
+  const handleSelectChangeAdmin = (value: string | number) => {
+    setSelectedAdmin(value.toString());
+  };
+
   const storedUser = localStorage.getItem("user");
   const authUser: User | null = storedUser ? JSON.parse(storedUser) : null;
+  const { t } = useTranslation();
 
+  const [clients, setClients] = useState<Clients[]>([]);
+  const [filteredTxt, setFilteredTxt] = useState("");
+  const [currentPage, setCurrentPage] = useState(1);
   const [selectedTicket, setSelectedTicket] = useState<Ticket | null>(null);
   const [showModal, setShowModal] = useState(false);
   const [showModalFilter, setShowModalFilter] = useState(false);
@@ -114,6 +200,37 @@ const Ticket = () => {
   const [filteredTickets, setFilteredTickets] = useState<Ticket[]>([]);
   const [filterUser, setFilterUser] = useState('');
   const [filterClient, setFilterClient] = useState<string>("");
+  const [addTicket, setAddTicket] = useState(false);
+  const [loadingPost, setLoadingPost] = useState(false);
+  const [clientName, setClientName] = useState("");
+  const [typeName, setTypeName] = useState("");
+  const [clientPhone, setClientPhone] = useState("");
+  const [clientMail, setClientMail] = useState("");
+  const [statusTicket, setStatusTicket] = useState("");
+  const [loading, setLoading] = useState(false);
+  const [selected, setSelected] = useState<string>("");
+  const [selectedAdmin, setSelectedAdmin] = useState<string>("");
+  const [tags, setTags] = useState<string[]>([]);
+  const [observation, setObservation] = useState("");
+  // const itemsPerPage = 5;
+
+  // const filteredClients = clients.filter(
+  //   (client: Clients) =>
+  //     client.name.toLowerCase().includes(filteredTxt.toLowerCase()) ||
+  //     client.mail.toLowerCase().includes(filteredTxt.toLowerCase())
+  // );
+  // const totalPages = Math.ceil(filteredClients.length / itemsPerPage);
+  // const startIndex = (currentPage - 1) * itemsPerPage;
+  // const currentClients = filteredClients.slice(
+  //   startIndex,
+  //   startIndex + itemsPerPage
+  // );
+
+  // const goToPage = (page: number) => {
+  //   if (page >= 1 && page <= totalPages) {
+  //     setCurrentPage(page);
+  //   }
+  // };
 
 
   const formatDate = (dateString: string) => {
@@ -162,7 +279,7 @@ const Ticket = () => {
 
       setSelectedTicket((prev) => {
         if (!prev) return prev;
-      
+
         return {
           ...prev,
           status: data.status
@@ -193,35 +310,35 @@ const Ticket = () => {
   }, [rawTickets]);
 
   const handleFilterToggle = () => {
-    setShowModalFilter(true); // Abre o modal
+    setShowModalFilter(true);
   };
 
   const handleFilterChange = () => {
     const filtered = rawTickets.filter((ticket) => {
       const matchesStatus = filterStatus ? ticket.status === filterStatus : true;
-  
+
       const matchesTag =
         filterTag
           ? Array.isArray(ticket.tags)
             ? ticket.tags.some((tag) =>
-                tag.toLowerCase().includes(filterTag.toLowerCase())
-              )
+              tag.toLowerCase().includes(filterTag.toLowerCase())
+            )
             : ticket.tags.toLowerCase().includes(filterTag.toLowerCase())
           : true;
-  
+
       const matchesDate =
         filterDate ? new Date(ticket.created_at).toLocaleDateString() === new Date(filterDate).toLocaleDateString() : true;
-  
+
       const matchesTicket =
         filterTicket ? String(ticket.id) === filterTicket : true;
-  
+
       const matchesUser = filterUser ? ticket.user?.id === Number(filterUser) : true;
-  
+
       const matchesClient =
         filterClient
           ? ticket.client?.name.toLowerCase().includes(filterClient.toLowerCase())
           : true;
-  
+
       return (
         matchesStatus &&
         matchesTag &&
@@ -231,10 +348,10 @@ const Ticket = () => {
         matchesClient
       );
     });
-  
+
     setFilteredTickets(filtered);
   };
-  
+
 
   const allUsers = Array.from(
     new Map(
@@ -265,19 +382,112 @@ const Ticket = () => {
     label: ticket.name,
   }));
 
+  if (loading || loadingClients || loadingAdmins) {
+    return (
+      <div className="flex items-center justify-center h-full w-full">
+        <Spin />
+      </div>
+    );
+  }
+
+  const handleAddTicket = async () => {
+    setLoadingPost(true);
+    try {
+      if (
+        !statusTicket ||
+        !clientName ||
+        !typeName ||
+        !selected ||
+        !selectedAdmin
+      ) {
+        messageAlert({
+          type: "error",
+          message: "Por favor, preencha todos os campos.",
+        });
+        return;
+      }
+
+      await api.post('/tickets', {
+        name: clientName,
+        type: typeName,
+        tags: tags,
+        client_id: selected,
+        user_id: selectedAdmin,
+        create_id: authUser?.id,
+        status: statusTicket,
+        observation: observation,
+      }, {
+        headers: {
+          Authorization: `Bearer ${localStorage.getItem("accessToken")}`
+        }
+      });
+
+      messageAlert({
+        type: "success",
+        message: "Ticket cadastrado com sucesso!",
+      });
+
+      setStatusTicket('');
+      setClientName('');
+      setTypeName('');
+      setSelected('');
+      setSelectedAdmin('');
+      setTags([]);
+      setObservation('');
+      setAddTicket(false);
+    } catch (e) {
+      console.log('Erro ao adicionar ticket: ', e);
+      messageAlert({
+        type: "error",
+        message: "Erro ao adicionar ticket"
+      });
+    } finally {
+      setLoadingPost(false);
+    }
+  };
+
+  const getClients = async () => {
+    setLoading(true);
+    try {
+      const response = await api.get("/clients", {
+        headers: {
+          Authorization: `Bearer ${localStorage.getItem("accessToken")}`,
+        },
+      });
+      setClients(response.data);
+    } catch (e) {
+      console.log("Erro ao listar clientes: ", e);
+      messageAlert({ type: "error", message: t("dashboard.fetch_error") });
+    } finally {
+      setLoading(false);
+    }
+  };
+
+   useEffect(() => {
+      getClients();
+    }, [loadingPost]);
+
 
   return (
     <div>
       <Header name={authUser?.nome_completo} />
 
-      <div className="filter-button-container">
+      <div className="filter-button-container flex items-center gap-4 mb-4">
         <button
           onClick={handleFilterToggle}
-          className="filter-button flex items-center gap-2 p-2 bg-blue-600 text-white rounded-lg"
+          className="flex items-center gap-2 p-2 bg-blue-600 text-white rounded-lg"
         >
           <FaFilter /> Filtro
         </button>
+
+        <button
+          onClick={() => setAddTicket(true)}
+          className="flex items-center gap-2 p-2 bg-blue-600 text-white rounded-lg"
+        >
+          <IoMdAddCircleOutline /> {t("dashboard.add_ticket")}
+        </button>
       </div>
+
       <Modal
         title="📝 Filtros"
         isVisible={showModalFilter}
@@ -401,7 +611,6 @@ const Ticket = () => {
           </div>
         </div>
       </Modal>
-
 
       <div className="ticket-container">
         {filteredTickets.length > 0 ? (
@@ -546,6 +755,128 @@ const Ticket = () => {
           )}
         </Modal>
       )}
+      <Modal
+        title="📝 Adicionar Ticket"
+        isVisible={addTicket}
+        onClose={() => setAddTicket(false)}
+      >
+        {loadingPost ? (
+          <div className="flex flex-col items-center justify-center w-full gap-4">
+            <Spin />
+          </div>
+        ) : (
+          <div className="flex flex-col gap-4 text-sm text-gray-800 max-h-[80vh] overflow-y-auto pr-1">
+            {/* Detalhes do Ticket */}
+            <div className="bg-white p-4 rounded-xl shadow-md space-y-2">
+              <h3 className="text-lg font-semibold flex items-center gap-2 text-blue-600">
+                <FaClipboardList /> Detalhes do Ticket
+              </h3>
+
+              <div className="grid grid-cols-2 gap-4">
+                <div className="flex flex-col">
+                  <label className="text-sm font-medium text-gray-700 mb-1">Nome</label>
+                  <Input
+                    text="Nome"
+                    type="text"
+                    required
+                    onChange={(e) => setClientName(e.target.value)}
+                    value={clientName}
+                  />
+                </div>
+
+                <div className="flex flex-col">
+                  <label className="text-sm font-medium text-gray-700 mb-1">Tipo</label>
+                  <Input
+                    text="Tipo"
+                    type="text"
+                    required
+                    onChange={(e) => setTypeName(e.target.value)}
+                    value={typeName}
+                  />
+                </div>
+
+                <div className="col-span-2">
+                  <label className="block text-sm font-medium text-gray-700 mb-1">
+                    <strong>Status</strong>
+                  </label>
+                  <div className="wrapper">
+                    {statusTickets.map((status) => (
+                      <div className="option" key={status.name}>
+                        <input
+                          value={status.name}
+                          name="btn"
+                          type="radio"
+                          className="input"
+                          onClick={(e) =>
+                            setStatusTicket((e.target as HTMLInputElement).value)
+                          }
+                        />
+                        <div className="btn">
+                          <span className="span">{status.title}</span>
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            {/* Seleção de Cliente e Operador */}
+            <div className="bg-white p-4 rounded-xl shadow-md">
+              <h3 className="text-lg font-semibold flex items-center gap-2 text-green-600">
+                <FaTags /> Cliente e Operador
+              </h3>
+              <div className="flex flex-wrap gap-2 mt-2">
+                <div className="flex flex-col w-full sm:w-1/2 mb-2">
+                  <label className="text-sm font-medium text-gray-700">Cliente</label>
+                  <Select
+                    options={optionsClient}
+                    value={selected}
+                    onChange={handleSelectChange}
+                    placeholder="Selecione o Cliente"
+                    width="320px"
+                  />
+                </div>
+                <div className="flex flex-col w-full sm:w-1/2 mb-2">
+                  <label className="text-sm font-medium text-gray-700">Operador</label>
+                  <Select
+                    options={optionsAdmin}
+                    value={selectedAdmin}
+                    onChange={handleSelectChangeAdmin}
+                    placeholder="Selecione o Operador"
+                    width="320px"
+                  />
+                </div>
+              </div>
+            </div>
+
+            {/* Tags e Observações */}
+            <div className="bg-white p-4 rounded-xl shadow-md">
+              <h3 className="text-lg font-semibold flex items-center gap-2 text-yellow-600">
+                <FaRegStickyNote /> Tags e Observações
+              </h3>
+              <div className="flex flex-col gap-2 mt-2">
+                <label className="text-sm font-medium text-gray-700">Tags</label>
+                <TagInput tags={tags} setTags={setTags} placeholder="Adicione tags e pressione Enter" />
+              </div>
+              <div className="flex flex-col gap-2 mt-2">
+                <label className="text-sm font-medium text-gray-700">Observações</label>
+                <Input
+                  text="Observação"
+                  type="text"
+                  onChange={(e) => setObservation(e.target.value)}
+                  value={observation}
+                />
+              </div>
+            </div>
+
+            {/* Botão de Ação */}
+            <div className="flex flex-col items-end justify-end w-full gap-4 mt-4">
+              <Button text="Criar Ticket" onClick={handleAddTicket} />
+            </div>
+          </div>
+        )}
+      </Modal>
     </div>
   );
 };
