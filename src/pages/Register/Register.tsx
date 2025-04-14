@@ -83,7 +83,6 @@ const Register = () => {
         </h1>
 
         <div className="flex flex-col items-center gap-6">
-          {/* Linha: Nome completo e E-mail */}
           <div className="w-full flex flex-col md:flex-row gap-6">
             <Input
               type="text"
@@ -102,8 +101,6 @@ const Register = () => {
               styles={{ width: "100%" }}
             />
           </div>
-
-          {/* Linha: CPF/CNPJ e Telefone */}
           <div className="w-full flex flex-col md:flex-row gap-6">
             <Input
               type="text"
@@ -122,8 +119,6 @@ const Register = () => {
               styles={{ width: "100%" }}
             />
           </div>
-
-          {/* Subtítulo */}
           <h2 className="text-white text-xl font-light text-center">
             Dados de acesso
           </h2>
@@ -136,8 +131,6 @@ const Register = () => {
               onChange={(e) => setUsername(e.target.value)}
               styles={{ width: "100%" }}
             />
-
-          {/* Linha: Senha e Confirmação */}
           <div className="w-full flex flex-col md:flex-row gap-6">
             <Input
               type="password"
@@ -156,13 +149,11 @@ const Register = () => {
               styles={{ width: "100%" }}
             />
           </div>
-
-          {/* Linha: Nome de usuário e botão */}
           <div className="w-full flex flex-col gap-4">
             
             <button
               onClick={handleRegister}
-              className="w-full py-3 bg-blue-600 text-white rounded-xl font-semibold text-lg shadow-md transition duration-200 hover:bg-blue-800"
+              className="w-full bg-blue-700 hover:bg-blue-800 text-white font-semibold py-2 rounded-lg shadow-md transition-all duration-200"
             >
               Cadastrar
             </button>

@@ -75,9 +75,7 @@ const Login = () => {
         <h1 className="text-3xl font-bold text-center text-blue-800">
           {t("login_page.title")}
         </h1>
-
         <div className="space-y-5">
-          {/* Email */}
           <div>
             <label className="block text-sm font-medium text-blue-900 mb-1">
               {t("login_page.email_label")}
@@ -85,30 +83,25 @@ const Login = () => {
             <Input
               ref={inputRef}
               type="text"
-              required
+              required={true}
               value={user}
               onChange={(e) => setUser(e.target.value)}
               onKeyDown={handleKeyDown}
-             
+
             />
           </div>
-
-          {/* Senha */}
           <div>
             <label className="block text-sm font-medium text-blue-900 mb-1">
               {t("login_page.password_label")}
             </label>
             <Input
               type="password"
-              required
+              required={true}
               value={password}
               onChange={(e) => setPassword(e.target.value)}
               onKeyDown={handleKeyDown}
-              
             />
           </div>
-
-          {/* Esqueci a senha */}
           <div className="text-center">
             <button
               onClick={handleResetPassword}
@@ -117,8 +110,6 @@ const Login = () => {
               {t("login_page.forgot_password")}
             </button>
           </div>
-
-          {/* Botão de login */}
           <button
             onClick={handleLogin}
             className="w-full bg-blue-700 hover:bg-blue-800 text-white font-semibold py-2 rounded-lg shadow-md transition-all duration-200"
@@ -126,8 +117,6 @@ const Login = () => {
             {t("login_page.login_button")}
           </button>
         </div>
-
-        {/* Link para cadastro */}
         <div className="text-center text-sm text-blue-900">
           <p>
             {t("login_page.no_account")}{" "}

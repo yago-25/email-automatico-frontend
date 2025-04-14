@@ -3,7 +3,7 @@ import { useNavigate, useLocation } from "react-router-dom";
 import { useTranslation } from "react-i18next";
 import "./EmailVerification.css";
 import Input from "../../components/Input/Input";
-import Button from "../../components/Button/Button";
+// import Button from "../../components/Button/Button";
 import Spin from "../../components/Spin/Spin";
 import { api } from '../../api/api';
 import { messageAlert } from "../../utils/messageAlert";
@@ -70,7 +70,6 @@ const EmailVerification = () => {
         </h1>
 
         <div className="space-y-5">
-          {/* Email Input */}
           <div>
             <label className="block text-sm font-medium text-blue-900 mb-1">
               {t("password_reset_email.email_input")}
@@ -80,23 +79,19 @@ const EmailVerification = () => {
               required
               value={email}
               onChange={(e) => setEmail(e.target.value)}
-              
+
             />
           </div>
-
-          {/* Verificar Email Button */}
           <div>
-            <Button
-              text={t("password_reset_email.verify_email_button")}
+            <button
               onClick={handleVerify}
-             
-            />
+              className="w-full bg-blue-700 hover:bg-blue-800 text-white font-semibold py-2 rounded-lg shadow-md transition-all duration-200"
+              >
+              {t("password_reset_email.verify_email_button")}
+            </button>
           </div>
-
-          {/* Spacer */}
           <div className="p"></div>
 
-          {/* Back to Login Button */}
           <div className="text-center">
             <p
               onClick={handleLogin}
