@@ -76,20 +76,22 @@ const Register = () => {
   };
 
   return (
-    <div className="mt-[5%] h-screen flex items-center justify-center">
-      <div className="w-2/5 bg-white bg-opacity-50 rounded-xl border border-white p-6">
-        <h1 className="text-white font-light text-4xl text-center mb-8">
+    <div className="min-h-screen flex items-center justify-center bg-gradient-to-r from-blue-700 to-blue-900 px-4">
+      <div className="w-full max-w-3xl bg-white bg-opacity-25 border border-white rounded-2xl shadow-lg backdrop-blur-lg p-10">
+        <h1 className="text-white text-4xl font-light text-center mb-8">
           Solicitação de Cadastro
         </h1>
-        <div className="flex flex-col items-center justify-start gap-5">
-          <div className="w-full flex gap-5 justify-between">
+
+        <div className="flex flex-col items-center gap-6">
+          {/* Linha: Nome completo e E-mail */}
+          <div className="w-full flex flex-col md:flex-row gap-6">
             <Input
               type="text"
               text={t("register_page.full_name")}
               required
               value={fullName}
               onChange={(e) => setFullName(e.target.value)}
-              styles={{ width: '50%' }}
+              styles={{ width: "100%" }}
             />
             <Input
               type="email"
@@ -97,17 +99,19 @@ const Register = () => {
               required
               value={email}
               onChange={(e) => setEmail(e.target.value)}
-              styles={{ width: '50%' }}
+              styles={{ width: "100%" }}
             />
           </div>
-          <div className="w-full flex gap-5 justify-between">
+
+          {/* Linha: CPF/CNPJ e Telefone */}
+          <div className="w-full flex flex-col md:flex-row gap-6">
             <Input
               type="text"
               text={t("register_page.cpf_cnpj")}
               required
               value={cpfCnpj}
               onChange={(e) => setCpfCnpj(e.target.value)}
-              styles={{ width: '50%' }}
+              styles={{ width: "100%" }}
             />
             <Input
               type="text"
@@ -115,20 +119,33 @@ const Register = () => {
               required
               value={phone}
               onChange={(e) => setPhone(e.target.value)}
-              styles={{ width: '50%' }}
+              styles={{ width: "100%" }}
             />
           </div>
-          <h1 className="text-white font-light text-xl mt-5 text-center">
+
+          {/* Subtítulo */}
+          <h2 className="text-white text-xl font-light text-center">
             Dados de acesso
-          </h1>
-          <div className="w-full flex gap-5 justify-between">
+          </h2>
+
+          <Input
+              type="text"
+              text={t("register_page.username")}
+              required
+              value={username}
+              onChange={(e) => setUsername(e.target.value)}
+              styles={{ width: "100%" }}
+            />
+
+          {/* Linha: Senha e Confirmação */}
+          <div className="w-full flex flex-col md:flex-row gap-6">
             <Input
               type="password"
               text={t("register_page.password")}
               required
               value={password}
               onChange={(e) => setPassword(e.target.value)}
-              styles={{ width: '50%' }}
+              styles={{ width: "100%" }}
             />
             <Input
               type="password"
@@ -136,34 +153,31 @@ const Register = () => {
               required
               value={confirmPassword}
               onChange={(e) => setConfirmPassword(e.target.value)}
-              styles={{ width: '50%' }}
+              styles={{ width: "100%" }}
             />
           </div>
-          <div className="w-full flex gap-5 justify-between">
-            <Input
-              type="text"
-              text={t("register_page.username")}
-              required
-              value={username}
-              onChange={(e) => setUsername(e.target.value)}
-              styles={{ width: '110%' }}
-            />
+
+          {/* Linha: Nome de usuário e botão */}
+          <div className="w-full flex flex-col gap-4">
+            
             <button
-              className="h-12 w-full rounded-xl border-none outline-none bg-blue-500 text-white text-lg cursor-pointer flex items-center justify-center transition-all duration-200 p-4 hover:bg-blue-800"
               onClick={handleRegister}
+              className="w-full py-3 bg-blue-600 text-white rounded-xl font-semibold text-lg shadow-md transition duration-200 hover:bg-blue-800"
             >
               Cadastrar
             </button>
           </div>
+
           <p
             onClick={handleLogin}
-            className="cursor-pointer text-white text-center mt-4"
+            className="text-white mt-4 cursor-pointer hover:underline text-center"
           >
             Voltar
           </p>
         </div>
       </div>
     </div>
+
   );
 };
 

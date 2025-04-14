@@ -1,7 +1,7 @@
 import { useRef, useState } from 'react';
 import './style.css';
 import Input from '../../components/Input/Input';
-import Button from '../../components/Button/Button';
+// import Button from '../../components/Button/Button';
 import { useTranslation } from 'react-i18next';
 import { useNavigate } from 'react-router-dom';
 import { messageAlert } from '../../utils/messageAlert';
@@ -30,7 +30,7 @@ const Login = () => {
     }
 
     setLoading(true);
-    
+
     try {
       await login(user, password);
 
@@ -70,48 +70,73 @@ const Login = () => {
   }
 
   return (
-    <div className="container">
-      <h1 className="title">{t("login_page.title")}</h1>
-      <div className="form-token">
-        <div className="card-content">
-          <div className="card-content-area-login">
+    <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-blue-700 to-blue-900 px-4">
+      <div className="w-full max-w-md bg-blue-100 rounded-2xl shadow-xl p-10 space-y-6 bg-opacity-75">
+        <h1 className="text-3xl font-bold text-center text-blue-800">
+          {t("login_page.title")}
+        </h1>
+
+        <div className="space-y-5">
+          {/* Email */}
+          <div>
+            <label className="block text-sm font-medium text-blue-900 mb-1">
+              {t("login_page.email_label")}
+            </label>
             <Input
               ref={inputRef}
               type="text"
-              text={t("login_page.email_label")}
-              required={true}
+              required
               value={user}
               onChange={(e) => setUser(e.target.value)}
               onKeyDown={handleKeyDown}
+             
             />
+          </div>
+
+          {/* Senha */}
+          <div>
+            <label className="block text-sm font-medium text-blue-900 mb-1">
+              {t("login_page.password_label")}
+            </label>
             <Input
               type="password"
-              text={t("login_page.password_label")}
-              required={true}
+              required
               value={password}
               onChange={(e) => setPassword(e.target.value)}
               onKeyDown={handleKeyDown}
+              
             />
           </div>
-        </div>
-        <div className="card-footere">
-          <p className="password">
-            <a  href="#"
-              onClick={handleResetPassword}>{t("login_page.forgot_password")}</a>
-          </p>
+
+          {/* Esqueci a senha */}
+          <div className="text-center">
+            <button
+              onClick={handleResetPassword}
+              className="text-sm text-blue-700 hover:underline"
+            >
+              {t("login_page.forgot_password")}
+            </button>
+          </div>
+
+          {/* Botão de login */}
+          <button
+            onClick={handleLogin}
+            className="w-full bg-blue-700 hover:bg-blue-800 text-white font-semibold py-2 rounded-lg shadow-md transition-all duration-200"
+          >
+            {t("login_page.login_button")}
+          </button>
         </div>
 
-        <Button text={t("login_page.login_button")} onClick={handleLogin} />
-        <div className="card-footer-not">
-          <p style={{ color: "white", fontSize: "13px" }}>
-            {/* {t("login_page.no_account")}{" "} */}
-            <a
-              href="#"
+        {/* Link para cadastro */}
+        <div className="text-center text-sm text-blue-900">
+          <p>
+            {t("login_page.no_account")}{" "}
+            <button
               onClick={handleRegister}
-              style={{ color: "#007BFF", cursor: "pointer", textDecoration: "underline" }}
+              className="text-blue-800 font-semibold hover:underline"
             >
               {t("login_page.signup")}
-            </a>
+            </button>
           </p>
         </div>
       </div>
