@@ -186,9 +186,8 @@ const Ticket = () => {
   const authUser: User | null = storedUser ? JSON.parse(storedUser) : null;
   const { t } = useTranslation();
 
-  const [clients, setClients] = useState<Clients[]>([]);
-  const [filteredTxt, setFilteredTxt] = useState("");
-  const [currentPage, setCurrentPage] = useState(1);
+  // const [filteredTxt, setFilteredTxt] = useState("");
+  // const [currentPage, setCurrentPage] = useState(1);
   const [selectedTicket, setSelectedTicket] = useState<Ticket | null>(null);
   const [showModal, setShowModal] = useState(false);
   const [showModalFilter, setShowModalFilter] = useState(false);
@@ -204,10 +203,9 @@ const Ticket = () => {
   const [loadingPost, setLoadingPost] = useState(false);
   const [clientName, setClientName] = useState("");
   const [typeName, setTypeName] = useState("");
-  const [clientPhone, setClientPhone] = useState("");
-  const [clientMail, setClientMail] = useState("");
+  // const [clientPhone, setClientPhone] = useState("");
+  // const [clientMail, setClientMail] = useState("");
   const [statusTicket, setStatusTicket] = useState("");
-  const [loading, setLoading] = useState(false);
   const [selected, setSelected] = useState<string>("");
   const [selectedAdmin, setSelectedAdmin] = useState<string>("");
   const [tags, setTags] = useState<string[]>([]);
@@ -302,6 +300,7 @@ const Ticket = () => {
         type: "error",
         message: "Erro ao atualizar status",
       });
+      console.log(error, 'error');
     }
   };
 
@@ -382,7 +381,7 @@ const Ticket = () => {
     label: ticket.name,
   }));
 
-  if (loading || loadingClients || loadingAdmins) {
+  if (loadingClients || loadingAdmins) {
     return (
       <div className="flex items-center justify-center h-full w-full">
         <Spin />
@@ -445,28 +444,6 @@ const Ticket = () => {
       setLoadingPost(false);
     }
   };
-
-  const getClients = async () => {
-    setLoading(true);
-    try {
-      const response = await api.get("/clients", {
-        headers: {
-          Authorization: `Bearer ${localStorage.getItem("accessToken")}`,
-        },
-      });
-      setClients(response.data);
-    } catch (e) {
-      console.log("Erro ao listar clientes: ", e);
-      messageAlert({ type: "error", message: t("dashboard.fetch_error") });
-    } finally {
-      setLoading(false);
-    }
-  };
-
-   useEffect(() => {
-      getClients();
-    }, [loadingPost]);
-
 
   return (
     <div>
