@@ -39,17 +39,23 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
         { email, password },
         { withCredentials: true }
       );
-
+  
       setAccessToken(res.data.accessToken);
       setUser(res.data.user);
       localStorage.setItem("accessToken", res.data.accessToken);
       localStorage.setItem("user", JSON.stringify(res.data.user));
-
+  
       navigate("/dashboard");
-    } catch (error) {
-      console.error("Erro ao realizar login:", error);
+    } catch (error: any) {
+      
+      if (error.response && error.response.status === 401) {
+        throw new Error(error.response.data.message || 'Credenciais inválidas');
+      }
+      
+      throw new Error('Erro ao realizar login');
     }
   };
+  
 
   const logout = () => {
     setAccessToken(null);

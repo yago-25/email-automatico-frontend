@@ -3,7 +3,7 @@ import { useNavigate, useLocation } from "react-router-dom";
 import { useTranslation } from "react-i18next";
 import "./TokenEmail.css";
 import Input from "../../components/Input/Input";
-import Button from "../../components/Button/Button";
+// import Button from "../../components/Button/Button";
 import Spin from "../../components/Spin/Spin";
 import { api } from '../../api/api';
 import { messageAlert } from "../../utils/messageAlert";
@@ -87,41 +87,68 @@ const TokenEmail = () => {
   }
 
   return (
-    <div className="container">
-      <h1 className="title">{t("email_verification.title")}</h1>
-      <div className="form-token">
-        <div className="card-contente">
-          <div className="card-content-area-login">
+    <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-blue-700 to-blue-900 px-4">
+      <div className="w-full max-w-md bg-blue-100 rounded-2xl shadow-xl p-10 space-y-6 bg-opacity-75">
+        <h1 className="text-3xl font-bold text-center text-blue-800">
+          {t("email_verification.title")}
+        </h1>
+
+        <div className="space-y-5">
+          {/* Código de Verificação */}
+          <div>
+            <label className="block text-sm font-medium text-blue-900 mb-1">
+              {t("email_verification.verification_code")}
+            </label>
             <Input
-              text={t("email_verification.verification_code")}
               type="text"
-              required={true}
+              required
               value={code}
               onChange={(e) => setCode(e.target.value)}
+
             />
           </div>
-        </div>
-        <div className="btn-tokene">
-          <Button text={t("email_verification.verify_button")} onClick={handleVerify} />
-        </div>
-        <div className="card-footer-note">
-          <p style={{ color: "white", fontSize: "12px" }}>
-            {t("email_verification.didnt_receive_code")}{" "}
-            <a
-              href="#"
-              onClick={handleResend}
-              style={{ color: "blue", cursor: "pointer", textDecoration: "underline" }}
-            >
-              {t("email_verification.resend_button")}
-            </a>
-          </p>
-        </div>
-        <div className="p"></div>
-        {/* <Button text={t("email_verification.back_button")} onClick={handleLogin} /> */}
-        <p onClick={handleLogin} className="btn-back-homee">Voltar</p>
 
+          {/* Botão de Verificação */}
+          <div>
+          <button
+            onClick={handleVerify}
+            className="w-full bg-blue-700 hover:bg-blue-800 text-white font-semibold py-2 rounded-lg shadow-md transition-all duration-200"
+          >
+            {t("email_verification.verify_button")}
+          </button>
+
+          </div>
+
+          {/* Aviso de reenvio do código */}
+          <div className="text-center">
+            <p style={{ color: "white", fontSize: "12px" }}>
+              {t("email_verification.didnt_receive_code")}{" "}
+              <a
+                href="#"
+                onClick={handleResend}
+                className="text-blue-600 hover:underline cursor-pointer"
+              >
+                {t("email_verification.resend_button")}
+              </a>
+            </p>
+          </div>
+
+          {/* Spacer */}
+          <div className="p"></div>
+
+          {/* Voltar ao Login */}
+          <div className="text-center">
+            <p
+              onClick={handleLogin}
+              className="text-sm text-blue-700 hover:underline cursor-pointer"
+            >
+              {t("email_verification.back_button")}
+            </p>
+          </div>
+        </div>
       </div>
     </div>
+
   );
 };
 

@@ -58,6 +58,11 @@ function App() {
                 <Approve />
               </AuthenticatedLayout>
             } />
+            <Route path="/ticket/:id" element={
+              <AuthenticatedLayout>
+                <Ticket />
+              </AuthenticatedLayout>
+            } />
           </Route>
         </Routes>
         <TraductionButton />
