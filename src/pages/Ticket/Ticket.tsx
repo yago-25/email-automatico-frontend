@@ -143,6 +143,15 @@ const Ticket = () => {
         },
       });
 
+      setSelectedTicket((prev) => {
+        if (!prev) return prev;
+      
+        return {
+          ...prev,
+          status: data.status
+        };
+      });
+
       setSelectedTicket({
         ...data,
         tags:
