@@ -7,6 +7,8 @@ import { messageAlert } from "../../utils/messageAlert";
 import Spin from "../../components/Spin/Spin";
 import useSwr from "swr";
 import { FaFilter } from "react-icons/fa";
+import { useParams } from "react-router-dom";
+
 
 import {
   FaCalendarAlt,
@@ -66,7 +68,11 @@ const updateTicketStatus = async (ticketId: number, newStatus: string) => {
 };
 
 const Ticket = () => {
+
+  const { id } = useParams<{ id: string }>();
+
   const { data: rawTickets = [], isLoading } = useSwr<Ticket[]>('/tickets', {
+    
     fetcher: (url) => api.get(url, {
       headers: {
         Authorization: `Bearer ${localStorage.getItem("accessToken")}`,
@@ -74,6 +80,17 @@ const Ticket = () => {
     }).then((res) => res.data),
 
   });
+
+  useEffect(() => {
+    if (id && rawTickets.length > 0) {
+      const found = rawTickets.find((ticket) => ticket.id === Number(id));
+      if (found) {
+        setSelectedTicket(found);
+        setShowModal(true);
+        fetchHistory(found.id);
+      }
+    }
+  }, [id, rawTickets]);
 
   const allTags = Array.from(
     new Set(
