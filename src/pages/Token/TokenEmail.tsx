@@ -68,11 +68,12 @@ const TokenEmail = () => {
 
     try {
       const response = await api.post("/resend-token", { email });
-    
+      if (response.status === 201) {
       messageAlert({
         type: 'success',
         message: "Novo código enviado para seu e-mail!"
       });
+    }
     } catch (error: unknown) {
       console.error("Erro ao reenviar token:", error);
     
