@@ -23,32 +23,32 @@ const Login = () => {
     if (!user || !password) {
       messageAlert({
         type: 'error',
-        message: 'Por favor, preencha todos os dados de login.'
+        message: t('login_page.fill_all_fields')
       });
       if (inputRef && inputRef.current) inputRef.current.focus();
       return;
     }
-
+  
     setLoading(true);
-
+  
     try {
       await login(user, password);
-
+  
       messageAlert({
         type: 'success',
-        message: 'Login realizado com sucesso!'
+        message: t('login_page.success')
       });
-
+  
     } catch (e) {
       messageAlert({
         type: 'error',
-        message: 'Erro ao fazer login'
+        message: t('login_page.error')
       });
-      console.log('Erro ao realizar login: ', e);
     } finally {
       setLoading(false);
     }
   };
+  
 
   const handleRegister = () => {
     navigate("/register");

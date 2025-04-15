@@ -11,7 +11,10 @@
       "register_text": "Don't have an account?",
       "register_button": "Sign Up",
       "no_account": "Don't have an account?",
-      "signup": "Sign up"
+      "signup": "Sign up",
+      "fill_all_fields": "Please fill in all login details.",
+      "success": "Login successful!",
+      "error": "Error while logging in"
     },
   "register_page": {
     "title": "Register",
@@ -23,7 +26,14 @@
     "password": "Password",
     "confirm_password": "Confirm Password",
     "button_text": "Register",
-    "password_mismatch_error": "Passwords do not match!"
+    "password_mismatch_error": "Passwords do not match!",
+    "fill_all_fields": "Please fill in all fields!",
+    "password_mismatch": "Passwords do not match!",
+    "success": "Registration successful! Please check your email.",
+    "error": "Error during registration. Please try again.",
+    "server_error": "Failed to connect to the server.",
+    "data_access": " Data of Access",
+    "back_button": "BACK"
   },
     "email_verification": {
       "title": "Verify Your Email",

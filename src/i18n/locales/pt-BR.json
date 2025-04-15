@@ -11,7 +11,10 @@
       "register_text": "Não tem uma conta?",
       "register_button": "Cadastre-se",
       "no_account": "Não tem uma conta?",
-      "signup": "Solicitar Cadastro"
+      "signup": "Solicitar Cadastro",
+      "fill_all_fields": "Por favor, preencha todos os dados de login.",
+      "success": "Login realizado com sucesso!",
+      "error": "Erro ao fazer login"
     },
   "register_page": {
       "title": "Cadastro",
@@ -23,7 +26,14 @@
       "password": "Senha",
       "confirm_password": "Confirmar Senha",
       "button_text": "Registrar",
-      "password_mismatch_error": "As senhas não coincidem!"
+      "password_mismatch_error": "As senhas não coincidem!",
+      "fill_all_fields": "Preencha todos os campos!",
+      "password_mismatch": "As senhas não coincidem!",
+      "success": "Cadastro realizado com sucesso! Verifique seu e-mail.",
+      "error": "Erro ao cadastrar. Tente novamente.",
+      "server_error": "Erro ao conectar ao servidor.",
+      "data_access": " Dados de acesso",
+      "back_button": "VOLTAR"
     },
   "email_verification": {
       "title": "Verifique Seu Email",

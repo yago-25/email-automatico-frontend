@@ -11,7 +11,10 @@
       "register_text": "¿No tienes una cuenta?",
       "register_button": "Regístrate",
       "no_account": "¿No tienes una cuenta?",
-      "signup": "Regístrate"
+      "signup": "Regístrate",
+      "fill_all_fields": "Por favor, complete todos los datos de inicio de sesión.",
+      "success": "¡Inicio de sesión exitoso!",
+      "error": "Error al iniciar sesión"
     },
   "register_page": {
     "title": "Registro",
@@ -23,7 +26,14 @@
     "password": "Contraseña",
     "confirm_password": "Confirmar Contraseña",
     "button_text": "Registrar",
-    "password_mismatch_error": "¡Las contraseñas no coinciden!"
+    "password_mismatch_error": "¡Las contraseñas no coinciden!",
+    "data_access": " Datos de Acceso ",
+    "fill_all_fields": "¡Complete todos los campos!",
+    "password_mismatch": "¡Las contraseñas no coinciden!",
+    "success": "¡Registro exitoso! Verifique su correo electrónico.",
+    "error": "Error al registrarse. Inténtelo de nuevo.",
+    "server_error": "No se pudo conectar al servidor.",
+    "back_button": "VOLVER"
   },
     "email_verification": {
       "title": "Verifica Tu Correo Electrónico",

@@ -22,18 +22,18 @@ const Register = () => {
 
   const handleRegister = async () => {
     if (!fullName || !email || !cpfCnpj || !phone || !username || !password) {
-      messageAlert({ type: "error", message: "Preencha todos os campos!" });
+      messageAlert({ type: "error", message: t("register_page.fill_all_fields") });
       return;
     }
-
+  
     if (password !== confirmPassword) {
-      messageAlert({ type: "error", message: "As senhas não coincidem!" });
+      messageAlert({ type: "error", message: t("register_page.password_mismatch") });
       setLoading(false);
       return;
     }
-
+  
     setLoading(true);
-
+  
     const userData = {
       nome_completo: fullName,
       email,
@@ -42,30 +42,30 @@ const Register = () => {
       nome_usuario: username,
       senha: password,
     };
-
+  
     try {
       const response = await api.post("/register", userData);
-
+  
       if (response.status === 201) {
         messageAlert({
           type: "success",
-          message: "Cadastro realizado com sucesso! Verifique seu e-mail.",
+          message: t("register_page.success"),
         });
         navigate("/token", { state: { email } });
       } else {
         messageAlert({
           type: "error",
-          message:
-            response.data.message || "Erro ao cadastrar. Tente novamente.",
+          message: response.data.message || t("register_page.error"),
         });
       }
     } catch (error) {
       console.error("Erro ao cadastrar:", error);
-      messageAlert({ type: "error", message: "Erro ao conectar ao servidor." });
+      messageAlert({ type: "error", message: t("register_page.server_error") });
     } finally {
       setLoading(false);
     }
   };
+  
 
   if (!i18n.isInitialized || loading) {
     return <Spin />;
@@ -79,7 +79,7 @@ const Register = () => {
     <div className="min-h-screen flex items-center justify-center bg-gradient-to-r from-blue-700 to-blue-900 px-4">
       <div className="w-full max-w-3xl bg-white bg-opacity-25 border border-white rounded-2xl shadow-lg backdrop-blur-lg p-10">
         <h1 className="text-white text-4xl font-light text-center mb-8">
-          Solicitação de Cadastro
+          {t("register_page.title")}
         </h1>
 
         <div className="flex flex-col items-center gap-6">
@@ -120,7 +120,7 @@ const Register = () => {
             />
           </div>
           <h2 className="text-white text-xl font-light text-center">
-            Dados de acesso
+            {t("register_page.data_access")}
           </h2>
 
           <Input
@@ -150,20 +150,18 @@ const Register = () => {
             />
           </div>
           <div className="w-full flex flex-col gap-4">
-            
             <button
               onClick={handleRegister}
               className="w-full bg-blue-700 hover:bg-blue-800 text-white font-semibold py-2 rounded-lg shadow-md transition-all duration-200"
             >
-              Cadastrar
+             {t("register_page.button_text")}
             </button>
           </div>
-
           <p
             onClick={handleLogin}
             className="text-white mt-4 cursor-pointer hover:underline text-center"
           >
-            Voltar
+            {t("register_page.back_button")}
           </p>
         </div>
       </div>
