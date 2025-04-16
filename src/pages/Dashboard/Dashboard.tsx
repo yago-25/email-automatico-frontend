@@ -381,9 +381,10 @@ const Dashboard = () => {
           </div>
         )}
       </Modal>
-      
+
       <Modal
-        title="📝 Adicionar Ticket"
+      title={`📝 ${t('modal.add_ticket')}`}
+
         isVisible={addTicket}
         onClose={() => setAddTicket(false)}
       >
@@ -393,17 +394,16 @@ const Dashboard = () => {
           </div>
         ) : (
           <div className="flex flex-col gap-4 text-sm text-gray-800 max-h-[80vh] overflow-y-auto pr-1">
-            {/* Detalhes do Ticket */}
             <div className="bg-white p-4 rounded-xl shadow-md space-y-2">
               <h3 className="text-lg font-semibold flex items-center gap-2 text-blue-600">
-                <FaClipboardList /> Detalhes do Ticket
+                <FaClipboardList /> {t('modal.ticket_details')}
               </h3>
 
               <div className="grid grid-cols-2 gap-4">
                 <div className="flex flex-col">
-                  <label className="text-sm font-medium text-gray-700 mb-1">Nome</label>
+                  <label className="text-sm font-medium text-gray-700 mb-1">{t('modal.name')}</label>
                   <Input
-                    text="Nome"
+                    text={t('modal.name')}
                     type="text"
                     required
                     onChange={(e) => setClientName(e.target.value)}
@@ -412,9 +412,9 @@ const Dashboard = () => {
                 </div>
 
                 <div className="flex flex-col">
-                  <label className="text-sm font-medium text-gray-700 mb-1">Tipo</label>
+                  <label className="text-sm font-medium text-gray-700 mb-1">{t('modal.type')}</label>
                   <Input
-                    text="Tipo"
+                    text={t('modal.type')}
                     type="text"
                     required
                     onChange={(e) => setTypeName(e.target.value)}
@@ -424,7 +424,7 @@ const Dashboard = () => {
 
                 <div className="col-span-2">
                   <label className="block text-sm font-medium text-gray-700 mb-1">
-                    <strong>Status</strong>
+                    <strong>{t('modal.status')}</strong>
                   </label>
                   <div className="wrapper">
                     {statusTickets.map((status) => (
@@ -448,48 +448,46 @@ const Dashboard = () => {
               </div>
             </div>
 
-            {/* Seleção de Cliente e Operador */}
             <div className="bg-white p-4 rounded-xl shadow-md">
               <h3 className="text-lg font-semibold flex items-center gap-2 text-green-600">
-                <FaTags /> Cliente e Operador
+                <FaTags /> {t('modal.client_operator')}
               </h3>
               <div className="flex flex-wrap gap-2 mt-2">
                 <div className="flex flex-col w-full sm:w-1/2 mb-2">
-                  <label className="text-sm font-medium text-gray-700">Cliente</label>
+                  <label className="text-sm font-medium text-gray-700">{t('modal.client')}</label>
                   <Select
                     options={optionsClient}
                     value={selected}
                     onChange={handleSelectChange}
-                    placeholder="Selecione o Cliente"
+                    placeholder={t('modal.select_client')}
                     width="320px"
                   />
                 </div>
                 <div className="flex flex-col w-full sm:w-1/2 mb-2">
-                  <label className="text-sm font-medium text-gray-700">Operador</label>
+                  <label className="text-sm font-medium text-gray-700">{t('modal.operator')}</label>
                   <Select
                     options={optionsAdmin}
                     value={selectedAdmin}
                     onChange={handleSelectChangeAdmin}
-                    placeholder="Selecione o Operador"
+                    placeholder={t('modal.select_operator')}
                     width="320px"
                   />
                 </div>
               </div>
             </div>
 
-            {/* Tags e Observações */}
             <div className="bg-white p-4 rounded-xl shadow-md">
               <h3 className="text-lg font-semibold flex items-center gap-2 text-yellow-600">
-                <FaRegStickyNote /> Tags e Observações
+                <FaRegStickyNote /> {t('modal.tags_notes')}
               </h3>
               <div className="flex flex-col gap-2 mt-2">
-                <label className="text-sm font-medium text-gray-700">Tags</label>
-                <TagInput tags={tags} setTags={setTags} placeholder="Adicione tags e pressione Enter" />
+                <label className="text-sm font-medium text-gray-700">{t('modal.tags')}</label>
+                <TagInput tags={tags} setTags={setTags} placeholder={t('modal.add_tags')} />
               </div>
               <div className="flex flex-col gap-2 mt-2">
-                <label className="text-sm font-medium text-gray-700">Observações</label>
+                <label className="text-sm font-medium text-gray-700">{t('modal.notes')}</label>
                 <Input
-                  text="Observação"
+                  text={t('modal.notes')}
                   type="text"
                   onChange={(e) => setObservation(e.target.value)}
                   value={observation}
@@ -497,13 +495,13 @@ const Dashboard = () => {
               </div>
             </div>
 
-            {/* Botão de Ação */}
             <div className="flex flex-col items-end justify-end w-full gap-4 mt-4">
-              <Button text="Criar Ticket" onClick={handleAddTicket} />
+              <Button text={t('modal.create_ticket')} onClick={handleAddTicket} />
             </div>
           </div>
         )}
       </Modal>
+
 
     </div>
   );
