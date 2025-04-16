@@ -78,6 +78,7 @@
     "invalid_email": "Correo electrónico no válido. Inténtelo de nuevo más tarde."
   },
   "clients": {
+    "clients": "Clientes",
     "fetch_error": "Error al obtener los clientes.",
     "fill_all_fields": "Por favor, completa todos los campos.",
     "created_successfully": "Cliente creado con éxito.",

@@ -78,6 +78,7 @@
     "invalid_email": "Invalid email. Please try again later."
   },
   "clients": {
+    "clients": "Clients",
     "fetch_error": "Error fetching clients.",
     "fill_all_fields": "Please fill in all fields.",
     "created_successfully": "Client created successfully.",

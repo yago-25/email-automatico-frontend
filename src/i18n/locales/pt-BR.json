@@ -78,6 +78,7 @@
     "invalid_email": "E-mail inválido. Tente novamente mais tarde."
   },
   "clients": {
+    "clients": "Clientes",
     "fetch_error": "Erro ao listar clientes",
     "fill_all_fields": "Por favor, preencha todos os campos.",
     "created_successfully": "Cliente cadastrado com sucesso!",
