@@ -25,7 +25,7 @@ const TokenEmail = () => {
     if (!code) {
       messageAlert({
         type: 'error',
-        message: "Por favor, insira o código de verificação."
+        message: t("email_verification.missing_code_email")
       });
       setLoading(false);
       return;
@@ -36,19 +36,19 @@ const TokenEmail = () => {
       if (response.status === 200) {
         messageAlert({
           type: 'success',
-          message: "Token verificado com sucesso! Aguarde a aprovação do administrador."
+          message: t("email_verification.console_success")
         });
         navigate("/");
       } else {
         messageAlert({
           type: 'error',
-          message: "Código inválido. Tente novamente."
+          message: t("email_verification.invalid_code")
         });
       }
     } catch (error) {
       messageAlert({
         type: 'error',
-        message: "Erro ao conectar ao servidor."
+        message: t("email_verification.server_error")
       });
     } finally {
       setLoading(false);
@@ -59,7 +59,7 @@ const TokenEmail = () => {
     if (!email) {
       messageAlert({
         type: 'error',
-        message: "E-mail não encontrado. Tente se cadastrar novamente."
+        message: t("password_reset_email.invalid_email")
       });
       return;
     }
@@ -71,23 +71,23 @@ const TokenEmail = () => {
       if (response.status === 201) {
       messageAlert({
         type: 'success',
-        message: "Novo código enviado para seu e-mail!"
+        message: t("email_verification.token_resent")
       });
     }
     } catch (error: unknown) {
-      console.error("Erro ao reenviar token:", error);
+      console.error(t("email_verification.resend_error"));
     
       if (axios.isAxiosError(error)) {
-        // É um erro do Axios
+      
         messageAlert({
           type: 'error',
-          message: error.response?.data?.message || "Erro ao reenviar código."
+          message: error.response?.data?.message ||t("email_verification.resend_error")
         });
       } else {
-        // Outro tipo de erro (ex: erro de JS)
+        
         messageAlert({
           type: 'error',
-          message: "Erro ao conectar ao servidor."
+          message: t("email_verification.server_error")
         });
       }
     } finally {

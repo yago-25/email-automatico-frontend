@@ -161,8 +161,24 @@ const Ticket = () => {
     { name: "finished", title: "Completa" },
   ];
 
-  const { data: rawClients = [], isLoading: loadingClients } = useSwr<Clients[]>('/clients');
-  const { data: rawAdmins = [], isLoading: loadingAdmins } = useSwr<Admins[]>('/admins');
+  const { data: rawClients = [], isLoading: loadingClients } = useSwr<Clients[]>('/clients', {
+    fetcher: (url) =>
+      api.get(url, {
+        headers: {
+          Authorization: `Bearer ${localStorage.getItem("accessToken")}`,
+        },
+      }).then((res) => res.data),
+  });
+  
+  const { data: rawAdmins = [], isLoading: loadingAdmins } = useSwr<Admins[]>('/admins', {
+    fetcher: (url) =>
+      api.get(url, {
+        headers: {
+          Authorization: `Bearer ${localStorage.getItem("accessToken")}`,
+        },
+      }).then((res) => res.data),
+  });
+  
 
   const optionsClient: Option[] = rawClients.map((client: Clients) => ({
     value: String(client.id),
@@ -204,34 +220,25 @@ const Ticket = () => {
   const [loadingPost, setLoadingPost] = useState(false);
   const [clientName, setClientName] = useState("");
   const [typeName, setTypeName] = useState("");
-  const [clientPhone, setClientPhone] = useState("");
-  const [clientMail, setClientMail] = useState("");
   const [statusTicket, setStatusTicket] = useState("");
   const [loading, setLoading] = useState(false);
   const [selected, setSelected] = useState<string>("");
   const [selectedAdmin, setSelectedAdmin] = useState<string>("");
   const [tags, setTags] = useState<string[]>([]);
   const [observation, setObservation] = useState("");
-  // const itemsPerPage = 5;
+  const itemsPerPage = 5;
 
-  // const filteredClients = clients.filter(
-  //   (client: Clients) =>
-  //     client.name.toLowerCase().includes(filteredTxt.toLowerCase()) ||
-  //     client.mail.toLowerCase().includes(filteredTxt.toLowerCase())
-  // );
-  // const totalPages = Math.ceil(filteredClients.length / itemsPerPage);
-  // const startIndex = (currentPage - 1) * itemsPerPage;
-  // const currentClients = filteredClients.slice(
-  //   startIndex,
-  //   startIndex + itemsPerPage
-  // );
-
-  // const goToPage = (page: number) => {
-  //   if (page >= 1 && page <= totalPages) {
-  //     setCurrentPage(page);
-  //   }
-  // };
-
+  const filteredClients = clients.filter(
+    (client: Clients) =>
+      client.name.toLowerCase().includes(filteredTxt.toLowerCase()) ||
+      client.mail.toLowerCase().includes(filteredTxt.toLowerCase())
+  );
+  const totalPages = Math.ceil(filteredClients.length / itemsPerPage);
+  const startIndex = (currentPage - 1) * itemsPerPage;
+  const currentClients = filteredClients.slice(
+    startIndex,
+    startIndex + itemsPerPage
+  );
 
   const formatDate = (dateString: string) => {
     const date = new Date(dateString);
@@ -382,13 +389,9 @@ const Ticket = () => {
     label: ticket.name,
   }));
 
-  if (loading || loadingClients || loadingAdmins) {
-    return (
-      <div className="flex items-center justify-center h-full w-full">
-        <Spin />
-      </div>
-    );
-  }
+  console.log({ loading, loadingClients, loadingAdmins });
+
+  
 
   const handleAddTicket = async () => {
     setLoadingPost(true);
@@ -850,7 +853,6 @@ const Ticket = () => {
               </div>
             </div>
 
-            {/* Tags e Observações */}
             <div className="bg-white p-4 rounded-xl shadow-md">
               <h3 className="text-lg font-semibold flex items-center gap-2 text-yellow-600">
                 <FaRegStickyNote /> Tags e Observações
