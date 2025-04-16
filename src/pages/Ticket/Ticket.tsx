@@ -445,11 +445,19 @@ const Ticket = () => {
     }
   };
 
+  if (!filteredTickets || isLoading) {
+    return (
+      <div className="flex items-center justify-center h-full w-full">
+        <Spin />
+      </div>
+    );
+  }
+
   return (
     <div>
       <Header name={authUser?.nome_completo} />
 
-      <div className="filter-button-container flex items-center gap-4 mb-4">
+      <div className="filter-button-container flex items-center gap-4 mb-4 p-4">
         <button
           onClick={handleFilterToggle}
           className="flex items-center gap-2 p-2 bg-blue-600 text-white rounded-lg"
@@ -610,7 +618,7 @@ const Ticket = () => {
               <div className="ticket-tags">
                 {Array.isArray(ticket.tags) &&
                   ticket.tags.map((tag, index) => (
-                    <span key={index} className={`ticket-tag color-${index % 6}`}>
+                    <span key={index} className={`ticket-tag color-0`}>
                       {tag}
                     </span>
                   ))}
@@ -679,7 +687,7 @@ const Ticket = () => {
                     ? selectedTicket.tags
                     : JSON.parse(selectedTicket.tags || "[]")
                   ).map((tag: string, index: number) => (
-                    <span key={index} className={`ticket-tag color-${index % 6}`}>
+                    <span key={index} className={`ticket-tag color-0`}>
                       {tag}
                     </span>
                   ))}

@@ -32,7 +32,27 @@
     width: 13.6px;
     height: 32px;
   }
+
+  .jimu-primary-loading-blue:before,
+  .jimu-primary-loading-blue:after,
+  .jimu-primary-loading-blue {
+    background: #007BFF;
+    -webkit-animation: loading-keys-app-loading 0.8s infinite ease-in-out;
+    animation: loading-keys-app-loading 0.8s infinite ease-in-out;
+    width: 13.6px;
+    height: 32px;
+  }
   
+  .jimu-primary-loading {
+    text-indent: -9999em;
+    margin: auto;
+    position: absolute;
+    right: calc(50% - 6.8px);
+    top: calc(50% - 16px);
+    -webkit-animation-delay: 0.16s !important;
+    animation-delay: 0.16s !important;
+  }
+
   .jimu-primary-loading {
     text-indent: -9999em;
     margin: auto;
