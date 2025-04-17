@@ -203,5 +203,11 @@
   "date": {
     "today": "Hoje",
     "yesterday": "Ontem"
+  },
+  "auth": {
+    "forgot": {
+      "email_required": "Por favor, insira o e-mail para verificação.",
+      "invalid_email": "E-mail inválido. Tente novamente mais tarde."
+    }
   }
 }

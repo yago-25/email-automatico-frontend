@@ -203,6 +203,12 @@
       "to": "a"
     },
     "modified_by": "Modificado por"
+  },
+  "auth": {
+    "forgot": {
+      "email_required": "Por favor, introduce tu correo electrónico para la verificación.",
+      "invalid_email": "Correo electrónico inválido. Inténtalo de nuevo más tarde."
+    }
   }
  
 }

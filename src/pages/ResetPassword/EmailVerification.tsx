@@ -26,7 +26,7 @@ const EmailVerification = () => {
     if (!email) {
       messageAlert({
         type: 'error',
-        message: 'Por favor, insira o e-mail para verificação.',
+        message: t('auth.forgot.email_required'),
       });
       return;
     }
@@ -46,7 +46,7 @@ const EmailVerification = () => {
     } catch (error) {
       messageAlert({
         type: 'error',
-        message: "E-mail invalido. Tente novamente mais tarde.",
+        message: t('auth.forgot.invalid_email'),
       });
     } finally {
       setLoading(false);

@@ -203,5 +203,11 @@
       "to": "to"
     },
     "modified_by": "Modified by"
+  },
+  "auth": {
+    "forgot": {
+      "email_required": "Please enter your email for verification.",
+      "invalid_email": "Invalid email. Please try again later."
+    }
   }
 }
