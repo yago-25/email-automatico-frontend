@@ -1,5 +1,5 @@
 /* eslint-disable react-hooks/exhaustive-deps */
-import { useEffect, useState } from "react";
+import { useState } from "react";
 import { useTranslation } from "react-i18next";
 import Header from "../../components/Header/Header";
 import { User } from "../../models/User";
@@ -106,7 +106,6 @@ const Dashboard = () => {
   const navigate = useNavigate();
   const [filteredTxt, setFilteredTxt] = useState("");
   const [currentPage, setCurrentPage] = useState(1);
-  const [clients, setClients] = useState<Clients[]>([]);
   const [addClient, setAddClient] = useState(false);
   const [addTicket, setAddTicket] = useState(false);
   const [clientName, setClientName] = useState("");
@@ -114,7 +113,6 @@ const Dashboard = () => {
   const [clientPhone, setClientPhone] = useState("");
   const [clientMail, setClientMail] = useState("");
   const [statusTicket, setStatusTicket] = useState("");
-  const [loading, setLoading] = useState(false);
   const [loadingPost, setLoadingPost] = useState(false);
   const [selected, setSelected] = useState<string>("");
   const [selectedAdmin, setSelectedAdmin] = useState<string>("");
@@ -122,7 +120,7 @@ const Dashboard = () => {
   const [observation, setObservation] = useState("");
   const itemsPerPage = 5;
 
-  const filteredClients = clients.filter(
+  const filteredClients = rawClients.filter(
     (client: Clients) =>
       client.name.toLowerCase().includes(filteredTxt.toLowerCase()) ||
       client.mail.toLowerCase().includes(filteredTxt.toLowerCase())
@@ -156,23 +154,6 @@ const Dashboard = () => {
   const goToPage = (page: number) => {
     if (page >= 1 && page <= totalPages) {
       setCurrentPage(page);
-    }
-  };
-
-  const getClients = async () => {
-    setLoading(true);
-    try {
-      const response = await api.get("/clients", {
-        headers: {
-          Authorization: `Bearer ${localStorage.getItem("accessToken")}`,
-        },
-      });
-      setClients(response.data);
-    } catch (e) {
-      console.log("Erro ao listar clientes: ", e);
-      messageAlert({ type: "error", message: t("dashboard.fetch_error") });
-    } finally {
-      setLoading(false);
     }
   };
 
@@ -264,16 +245,11 @@ const Dashboard = () => {
     }
   };
 
-
-  useEffect(() => {
-    getClients();
-  }, [loadingPost]);
-
   const handleTicket = () => {
     navigate("/ticket");
   };
 
-  if (loading || loadingClients || loadingAdmins) {
+  if (loadingClients || loadingAdmins) {
     return (
       <div className="flex items-center justify-center h-full w-full">
         <Spin />
