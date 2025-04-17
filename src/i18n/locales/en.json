@@ -159,5 +159,49 @@
       "discarded": "Discarded",
       "completed": "Completed"
     }
+  },
+  "filters": {
+    "title": "📝 Filters",
+    "titleup": "Filters",
+    "user": "User",
+    "client": "Client",
+    "status": "Status",
+    "tag": "Tag",
+    "date": "Creation Date",
+    "ticket": "Ticket",
+    "apply": "Apply Filter",
+    "clear": "Clear Filters",
+    "all": "All"
+  },
+  "status": {
+    "open": "Open",
+    "in_progress": "In Progress",
+    "resolved": "Resolved",
+    "closed": "Closed"
+  },
+  "date": {
+    "today": "Today",
+    "yesterday": "Yesterday"
+  },
+  "ticket": {
+    "title": "📝 Ticket: {{name}}",
+    "details_title": "Ticket Details",
+    "name": "Name",
+    "type": "Type",
+    "status": "Status",
+    "creation_date": "Creation Date",
+    "client": "Client",
+    "operator": "Operator",
+    "tags_title": "Tags",
+    "notes_title": "Notes",
+    "no_notes": "No notes available",
+    "history_title": "Modification History",
+    "no_observation": "No observations",
+    "changed": {
+      "set_to": "set to",
+      "from": "from",
+      "to": "to"
+    },
+    "modified_by": "Modified by"
   }
 }

@@ -377,7 +377,6 @@ const Clients = () => {
           )}
         </Modal>
 
-        {/* Modal de cadastro */}
         <Modal
           title={t("clients.add_client")}
           isVisible={addClient}

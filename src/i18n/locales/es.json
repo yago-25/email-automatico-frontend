@@ -159,5 +159,50 @@
       "discarded": "Descartado",
       "completed": "Completo"
     }
+  },
+  "filters": {
+    "title": "📝 Filtros",
+    "titleup": "Filtros",
+    "user": "Usuario",
+    "client": "Cliente",
+    "status": "Estado",
+    "tag": "Etiqueta",
+    "date": "Fecha de Creación",
+    "ticket": "Ticket",
+    "apply": "Aplicar Filtro",
+    "clear": "Limpiar Filtros",
+    "all": "Todos"
+  },
+  "status": {
+    "open": "Abierto",
+    "in_progress": "En Proceso",
+    "resolved": "Resuelto",
+    "closed": "Cerrado"
+  },
+  "date":{
+  "today": "Hoy",
+  "yesterday": "Ayer"
+  },
+  "ticket": {
+    "title": "📝 Ticket: {{name}}",
+    "details_title": "Detalles del Ticket",
+    "name": "Nombre",
+    "type": "Tipo",
+    "status": "Estado",
+    "creation_date": "Fecha de Creación",
+    "client": "Cliente",
+    "operator": "Operador",
+    "tags_title": "Etiquetas",
+    "notes_title": "Notas",
+    "no_notes": "Sin notas disponibles",
+    "history_title": "Historial de Modificaciones",
+    "no_observation": "Sin observaciones",
+    "changed": {
+      "set_to": "establecido como",
+      "from": "de",
+      "to": "a"
+    },
+    "modified_by": "Modificado por"
   }
+ 
 }

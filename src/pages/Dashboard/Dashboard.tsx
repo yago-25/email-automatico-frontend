@@ -125,6 +125,7 @@ const Dashboard = () => {
       client.name.toLowerCase().includes(filteredTxt.toLowerCase()) ||
       client.mail.toLowerCase().includes(filteredTxt.toLowerCase())
   );
+  
 
   const totalPages = Math.ceil(filteredClients.length / itemsPerPage);
   const startIndex = (currentPage - 1) * itemsPerPage;
@@ -245,8 +246,9 @@ const Dashboard = () => {
     }
   };
 
-  const handleTicket = () => {
-    navigate("/ticket");
+
+  const handleTicket = (ticketName: string) => {
+    navigate(`/ticket/${ticketName}`);
   };
 
   if (loadingClients || loadingAdmins) {
@@ -256,6 +258,7 @@ const Dashboard = () => {
       </div>
     );
   }
+  
 
   return (
     <div className="container-dash">
@@ -297,12 +300,13 @@ const Dashboard = () => {
             </p>
             <p className="id-center flex justify-end items-center gap-4">
 
-              <button
-                onClick={handleTicket}
-                className="text-red-500 hover:text-red-700"
-              >
-                <IoTicketOutline className="h-5 w-5" />
-              </button>
+
+             <button
+                  onClick={() => handleTicket(client.name)}
+                  className="text-red-500 hover:text-red-700"
+                >
+                  <IoTicketOutline className="h-5 w-5" />
+                </button>
 
             </p>
           </div>
