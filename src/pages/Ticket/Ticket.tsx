@@ -233,14 +233,6 @@ const Ticket = () => {
     fetchHistory(ticket.id);
   };
 
-  // const fetchHistory = async (ticketId: number) => {
-  //   const { data } = await api.get(`/tickets/${ticketId}/history`, {
-  //     headers: {
-  //       Authorization: `Bearer ${localStorage.getItem("accessToken")}`,
-  //     },
-  //   });
-  //   setHistory(data);
-  // };
   const fetchHistory = async (ticketId: number) => {
     try {
       setLoadingModal(true);
@@ -282,7 +274,7 @@ const Ticket = () => {
           status: data.status
         };
       });
-      
+
       await fetchHistory(selectedTicket.id);
 
       setSelectedTicket({
