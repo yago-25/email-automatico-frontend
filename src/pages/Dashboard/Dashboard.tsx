@@ -76,8 +76,10 @@ export const Button: React.FC<ButtonProps> = ({ text, onClick }) => {
 };
 
 const Dashboard = () => {
-  const { data: rawClients = [], loading: loadingClients } = useSwr<Clients[]>('/clients');
-  const { data: rawAdmins = [], loading: loadingAdmins } = useSwr<Admins[]>('/admins');
+  const { t } = useTranslation();
+  
+  const { data: rawClients = [], loading: loadingClients, mutate: mutateClients } = useSwr<Clients[]>('/clients');
+  const { data: rawAdmins = [], loading: loadingAdmins, mutate: mutateAdmins } = useSwr<Admins[]>('/admins');
 
   const optionsClient: Option[] = rawClients.map((client: Clients) => ({
     value: String(client.id),
@@ -90,14 +92,13 @@ const Dashboard = () => {
   }));
 
   const statusTickets = [
-    { name: "not_started", title: "Não iniciada" },
-    { name: "waiting", title: "Esperando" },
-    { name: "in_progress", title: "Em progresso" },
-    { name: "discarded", title: "Descartada" },
-    { name: "finished", title: "Completa" },
+    { name: "not_started", title: t("tickets.types.not_started") },
+    { name: "waiting", title: t("tickets.types.waiting") },
+    { name: "in_progress", title: t("tickets.types.in_progress") },
+    { name: "discarded", title: t("tickets.types.discarded") },
+    { name: "finished", title: t("tickets.types.completed") },
   ];
 
-  const { t } = useTranslation();
 
   const storedUser = localStorage.getItem("user");
   const authUser: User | null = storedUser ? JSON.parse(storedUser) : null;
@@ -190,6 +191,8 @@ const Dashboard = () => {
       });
 
       messageAlert({ type: "success", message: t("dashboard.created_successfully") });
+      mutateClients();
+      mutateAdmins();
       setAddClient(false);
       setClientName('');
       setClientPhone('');
@@ -316,7 +319,7 @@ const Dashboard = () => {
             <p className="id-center" title={client.phone}>
               {formatPhone(client.phone)}
             </p>
-            <div className="flex justify-end gap-4">
+            <p className="flex justify-end gap-4">
 
               <button
                 onClick={handleTicket}
@@ -325,7 +328,7 @@ const Dashboard = () => {
                 <IoTicketOutline className="h-5 w-5" />
               </button>
 
-            </div>
+            </p>
           </div>
         ))}
       </div>
@@ -452,7 +455,7 @@ const Dashboard = () => {
               <h3 className="text-lg font-semibold flex items-center gap-2 text-green-600">
                 <FaTags /> {t('modal.client_operator')}
               </h3>
-              <div className="flex flex-wrap gap-2 mt-2">
+              <div className="flex gap-5 mt-2">
                 <div className="flex flex-col w-full sm:w-1/2 mb-2">
                   <label className="text-sm font-medium text-gray-700">{t('modal.client')}</label>
                   <Select
@@ -460,7 +463,6 @@ const Dashboard = () => {
                     value={selected}
                     onChange={handleSelectChange}
                     placeholder={t('modal.select_client')}
-                    width="320px"
                   />
                 </div>
                 <div className="flex flex-col w-full sm:w-1/2 mb-2">
@@ -470,7 +472,6 @@ const Dashboard = () => {
                     value={selectedAdmin}
                     onChange={handleSelectChangeAdmin}
                     placeholder={t('modal.select_operator')}
-                    width="320px"
                   />
                 </div>
               </div>

@@ -150,5 +150,14 @@
     "approve_error": "Error approving request",
     "rejected": "Request rejected.",
     "reject_error": "Error rejecting request"
+  },
+  "tickets": {
+    "types": {
+      "not_started": "Not started",
+      "waiting": "Waiting",
+      "in_progress": "In progress",
+      "discarded": "Discarded",
+      "completed": "Completed"
+    }
   }
 }

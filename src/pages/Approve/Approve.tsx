@@ -103,7 +103,7 @@ const Approve = () => {
       <Header name={authUser?.nome_completo} />
 
       <div className="p-6 max-w-5xl mx-auto">
-        <h1 className="text-3xl font-bold text-gray-800 mb-6">📋 {t("approve_page.title")}</h1>
+        <h1 className="text-3xl font-bold text-white mb-6">📋 {t("approve_page.title")}</h1>
 
         {solicitacoes.length === 0 ? (
           <div className="bg-yellow-50 border-l-4 border-yellow-400 text-yellow-800 p-4 rounded">

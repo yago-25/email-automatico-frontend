@@ -5,7 +5,6 @@ import Header from "../../components/Header/Header";
 import "./clients.css";
 import { Pencil, Trash } from "lucide-react";
 import { messageAlert } from "../../utils/messageAlert";
-import { useNavigate } from "react-router-dom";
 import Spin from "../../components/Spin/Spin";
 import { api } from "../../api/api";
 import Modal from "../../components/Modal/Modal";
@@ -20,7 +19,7 @@ import { FaGear } from "react-icons/fa6";
 import { HiOutlineUser } from "react-icons/hi";
 import { IoMdAddCircleOutline } from "react-icons/io";
 import { IoTicketOutline } from "react-icons/io5";
-import useSwr from "swr";
+import { useNavigate } from "react-router-dom";
 
 interface Client {
   id: number;
@@ -35,22 +34,6 @@ interface ButtonProps {
   onClick: () => void;
   className?: string;
 }
-interface Ticket {
-  id: number;
-  name: string;
-  type: string;
-  status: string;
-  tags: string[] | string;
-  client: {
-    id: number;
-    name: string;
-  };
-  user: User;
-  create: User;
-  message: string;
-  created_at: string;
-  observation?: string;
-}
 
 const Button: React.FC<ButtonProps> = ({ text, onClick }) => {
   return (
@@ -63,8 +46,8 @@ const Button: React.FC<ButtonProps> = ({ text, onClick }) => {
 };
 
 const Clients = () => {
-  const { t } = useTranslation();
   const navigate = useNavigate();
+  const { t } = useTranslation();
 
   const storedUser = localStorage.getItem("user");
   const authUser: User | null = storedUser ? JSON.parse(storedUser) : null;
@@ -91,14 +74,6 @@ const Clients = () => {
     }
     return phone;
   };
-
-  const { data: tickets } = useSwr<Ticket[]>('/tickets', {
-    fetcher: (url) => api.get(url, {
-      headers: {
-        Authorization: `Bearer ${localStorage.getItem("accessToken")}`,
-      },
-    }).then(res => res.data),
-  });
 
   const filteredClients = clients.filter(
     (client: Client) =>
@@ -238,9 +213,8 @@ const Clients = () => {
     }
   };
 
-  const handleTicket = (ticketId: number) => {
-    console.log(`Ticket selecionado com ID: ${ticketId}`);
-    navigate(`/ticket/${ticketId}`);
+  const handleTicket = (ticketName: string) => {
+    navigate(`/ticket/${ticketName}`);
   };
 
   if (loading) {
@@ -252,7 +226,7 @@ const Clients = () => {
       <div className="max-w-6xl mx-auto px-4 py-8">
 
         <div className="flex flex-col sm:flex-row justify-between items-center mb-6 gap-4">
-          <h1 className="text-3xl font-bold text-gray-800">{`📝 ${t('clients.clients')}`}</h1>
+          <h1 className="text-3xl font-bold text-white">{`📝 ${t('clients.clients')}`}</h1>
 
           <input
             placeholder={t("clients.search_placeholder")}
@@ -286,17 +260,12 @@ const Clients = () => {
               <p title={client.mail} className="max-w-96 overflow-hidden text-ellipsis truncate">{client.mail}</p>
               <p title={client.phone}>{formatPhone(client.phone)}</p>
               <div className="flex justify-center gap-4">
-                {tickets
-                  ?.filter((ticket) => ticket.client?.id === client.id) 
-                  .map((ticket) => (
-                    <button
-                      onClick={() => handleTicket(ticket.id)}
-                      className="text-indigo-500 hover:text-indigo-700"
-                      key={ticket.id}
-                    >
-                      <IoTicketOutline className="h-5 w-5" />
-                    </button>
-                  ))}
+                <button
+                  onClick={() => handleTicket(client.name)}
+                  className="text-indigo-500 hover:text-indigo-700"
+                >
+                  <IoTicketOutline className="h-5 w-5" />
+                </button>
 
                 <button
                   onClick={() => {

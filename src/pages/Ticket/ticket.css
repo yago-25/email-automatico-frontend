@@ -82,10 +82,25 @@
     background: #eef2fb;
     border-radius: 12px;
     padding: 1rem;
-    width: 300px;
+    width: 335px;
+    height: 200px;
     box-shadow: 0 2px 4px rgba(0,0,0,0.1);
     cursor: pointer;
     transition: 0.3s;
+    position: relative;
+    overflow: hidden;
+  }
+
+  .ticket-card::after {
+    content: "";
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    height: 26px;
+    width: 100%;
+    background-color: #00448d;
+    border-bottom-left-radius: 12px;
+    border-bottom-right-radius: 12px;
   }
   
   .ticket-card:hover {
@@ -156,3 +171,11 @@
     align-items: center;
     justify-content: center;
   }
+
+  /* .ticket-observation {
+    display: -webkit-box;
+    -webkit-line-clamp: 3;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  } */

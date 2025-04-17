@@ -44,10 +44,6 @@ const Sidebar = () => {
             className={`icon ${isActiveRoute("/clients") ? "active-icon" : ""}`}
             onClick={() => handleNavigation("/clients")}
           />
-          <FaCheckCircle 
-            className={`icon ${isActiveRoute("/approve") ? "active-icon" : ""}`}
-            onClick={() => handleNavigation("/approve")}
-          />
           <IoTicketSharp
             className={`icon ${isActiveRoute("/ticket") ? "active-icon" : ""}`}
             onClick={() => handleNavigation("/ticket")}
@@ -67,6 +63,10 @@ const Sidebar = () => {
           <FaCalendar
             className={`icon ${isActiveRoute("/calendar") ? "active-icon" : ""}`}
             onClick={() => handleNavigation("/calendar")}
+          />
+          <FaCheckCircle 
+            className={`icon ${isActiveRoute("/approve") ? "active-icon" : ""}`}
+            onClick={() => handleNavigation("/approve")}
           />
           <FaGear
             className={`icon ${isActiveRoute("/settings") ? "active-icon" : ""}`}

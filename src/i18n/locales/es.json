@@ -150,5 +150,14 @@
     "approve_error": "Error al aprobar",
     "rejected": "Solicitud rechazada.",
     "reject_error": "Error al rechazar"
+  },
+  "tickets": {
+    "types": {
+      "not_started": "No iniciado",
+      "waiting": "Espera",
+      "in_progress": "En curso",
+      "discarded": "Descartado",
+      "completed": "Completo"
+    }
   }
 }
