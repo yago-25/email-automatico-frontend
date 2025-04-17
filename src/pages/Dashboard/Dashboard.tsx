@@ -77,7 +77,7 @@ export const Button: React.FC<ButtonProps> = ({ text, onClick }) => {
 
 const Dashboard = () => {
   const { t } = useTranslation();
-  
+
   const { data: rawClients = [], loading: loadingClients, mutate: mutateClients } = useSwr<Clients[]>('/clients');
   const { data: rawAdmins = [], loading: loadingAdmins, mutate: mutateAdmins } = useSwr<Admins[]>('/admins');
 
@@ -319,7 +319,7 @@ const Dashboard = () => {
             <p className="id-center" title={client.phone}>
               {formatPhone(client.phone)}
             </p>
-            <p className="flex justify-end gap-4">
+            <p className="id-center flex justify-end items-center gap-4">
 
               <button
                 onClick={handleTicket}
