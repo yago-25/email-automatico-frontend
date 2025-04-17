@@ -251,10 +251,8 @@ const Clients = () => {
       <Header name={authUser?.nome_completo} />
       <div className="max-w-6xl mx-auto px-4 py-8">
 
-
-        {/* Título + Input */}
         <div className="flex flex-col sm:flex-row justify-between items-center mb-6 gap-4">
-          <h1 className="text-3xl font-bold text-white">📁 Clientes</h1>
+          <h1 className="text-3xl font-bold text-gray-800">{`📝 ${t('clients.clients')}`}</h1>
 
           <input
             placeholder={t("clients.search_placeholder")}
@@ -269,7 +267,6 @@ const Clients = () => {
           />
         </div>
 
-        {/* Tabela */}
         <div className="w-full rounded-xl overflow-hidden shadow-md">
           <div className="grid grid-cols-5 gap-x-6 items-center px-6 py-4 bg-blue-100 border-b text-blue-900 font-semibold text-sm">
             <p className="flex items-center gap-2"><MdOutlineFormatListNumbered /> ID</p>
