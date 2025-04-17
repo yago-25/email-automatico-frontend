@@ -23,7 +23,6 @@ import {
   FaUser,
 } from "react-icons/fa";
 import "./ticket.css";
-// import { mutate } from 'swr';
 
 interface TicketHistory {
   id: number;
@@ -216,15 +215,15 @@ const Ticket = () => {
     const today = new Date();
     const yesterday = new Date();
     yesterday.setDate(today.getDate() - 1);
-  
+
     const isSameDay = (a: Date, b: Date) =>
       a.getFullYear() === b.getFullYear() &&
       a.getMonth() === b.getMonth() &&
       a.getDate() === b.getDate();
-  
+
     if (isSameDay(date, today)) return t("date.today");
     if (isSameDay(date, yesterday)) return t("date.yesterday");
-  
+
     return date.toLocaleDateString();
   };
 
@@ -245,22 +244,22 @@ const Ticket = () => {
   const fetchHistory = async (ticketId: number) => {
     try {
       setLoadingModal(true);
-  
+
       const { data } = await api.get(`/tickets/${ticketId}/history`, {
         headers: {
           Authorization: `Bearer ${localStorage.getItem("accessToken")}`,
         },
       });
-  
+
       setHistory(data);
     } catch (error) {
       console.error("Erro ao buscar histórico:", error);
-      setHistory([]); 
+      setHistory([]);
     } finally {
-      setLoadingModal(false); 
+      setLoadingModal(false);
     }
   };
-  
+
 
   const handleChangeStatus = async (newStatus: string) => {
     setLoadingModal(true);
@@ -283,6 +282,8 @@ const Ticket = () => {
           status: data.status
         };
       });
+      
+      await fetchHistory(selectedTicket.id);
 
       setSelectedTicket({
         ...data,
@@ -436,7 +437,7 @@ const Ticket = () => {
       fetchHistory(selectedTicket.id);
     }
   }, [showModal, selectedTicket?.id]);
-  
+
 
   useEffect(() => {
     setFilteredTickets(rawTickets);
@@ -464,7 +465,7 @@ const Ticket = () => {
     );
   }
 
- 
+
 
   return (
     <div>
@@ -617,7 +618,7 @@ const Ticket = () => {
                   <p className="ticket-time">{formatDate(ticket.created_at, t)}</p>
                   <p className="ticket-name overflow-hidden text-ellipsis whitespace-nowrap">{ticket.name}</p>
                   <p className="ticket-observation text-ellipsis overflow-hidden whitespace-nowrap max-h-12">
-                  {ticket.observation || t("ticket.no_observation")}
+                    {ticket.observation || t("ticket.no_observation")}
                   </p>
                 </div>
               </div>
@@ -640,114 +641,115 @@ const Ticket = () => {
 
 
       {selectedTicket && (
-       <Modal
-         title={t('ticket.title', { name: selectedTicket.name })}
-         isVisible={showModal}
-         onClose={() => setShowModal(false)}
-       >
-         <div className="flex flex-col gap-4 text-sm text-gray-800 max-h-[80vh] overflow-y-auto pr-1">
-           {loadingModal ? (
-             <div className="flex items-center justify-center h-60">
-               <Spin color="blue" />
-             </div>
-           ) : (
-             <>
-               <div className="bg-white p-4 rounded-xl shadow-md space-y-2">
-                 <h3 className="text-lg font-semibold flex items-center gap-2 text-blue-600">
-                   <FaClipboardList /> {t('ticket.details_title')}
-                 </h3>
-       
-                 <div className="grid grid-cols-2 gap-4">
-                   <p><strong>{t('ticket.name')}:</strong> {selectedTicket.name}</p>
-                   <p><strong>{t('ticket.type')}:</strong> {selectedTicket.type}</p>
-       
-                   <div className="col-span-2">
-                     <label className="block text-sm font-medium text-gray-700 mb-1">
-                       <strong>{t('ticket.status')}:</strong>
-                     </label>
-                     <select
-                       value={selectedTicket.status}
-                       onChange={(e) => handleChangeStatus(e.target.value)}
-                       className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-400"
-                     >
-                       <option value="Aberto">{t('status.open')}</option>
-                       <option value="Em andamento">{t('status.in_progress')}</option>
-                       <option value="Resolvido">{t('status.resolved')}</option>
-                       <option value="Fechado">{t('status.closed')}</option>
-                     </select>
-                   </div>
-       
-                   <p><strong>{t('ticket.creation_date')}:</strong> {formatDate(selectedTicket.created_at, t)}</p>
-                   <p><strong>{t('ticket.client')}:</strong> {selectedTicket.client?.name}</p>
-                   <p><strong>{t('ticket.operator')}:</strong> {selectedTicket.user?.nome_completo}</p>
-                 </div>
-               </div>
-       
-               <div className="bg-white p-4 rounded-xl shadow-md">
-                 <h3 className="text-lg font-semibold flex items-center gap-2 text-green-600">
-                   <FaTags /> {t('ticket.tags_title')}
-                 </h3>
-                 <div className="flex flex-wrap gap-2 mt-2">
-                   {(Array.isArray(selectedTicket.tags)
-                     ? selectedTicket.tags
-                     : JSON.parse(selectedTicket.tags || "[]")
-                   ).map((tag: string, index: number) => (
-                     <span key={index} className={`ticket-tag color-0`}>
-                       {tag}
-                     </span>
-                   ))}
-                 </div>
-               </div>
-       
-               <div className="bg-white p-4 rounded-xl shadow-md">
-                 <h3 className="text-lg font-semibold flex items-center gap-2 text-yellow-600">
-                   <FaRegStickyNote /> {t('ticket.notes_title')}
-                 </h3>
-                 <p className="mt-2">{selectedTicket.observation || t('ticket.no_notes')}</p>
-               </div>
-       
-               {Array.isArray(history) && history.length > 0 && (
-                 <div className="bg-white p-4 rounded-xl shadow-md">
-                   <h3 className="text-lg font-semibold flex items-center gap-2 text-purple-600">
-                     <FaHistory /> {t('ticket.history_title')}
-                   </h3>
-       
-                   <div className="space-y-3 mt-3">
-                     {history.map((item, index) => (
-                       <div
-                         key={index}
-                         className="border-l-4 border-purple-400 pl-4 py-2 bg-gray-50 rounded-md hover:bg-gray-100 transition"
-                       >
-                         <p>
-                           <strong>{item.field_modified}:</strong>{" "}
-                           {item.old_value === null || item.old_value === "" ? (
-                             <>
-                               {t('ticket.changed.set_to')} <em>"{item.new_value || "vazio"}"</em>
-                             </>
-                           ) : (
-                             <>
-                               {t('ticket.changed.from')} <em>"{item.old_value}"</em> {t('ticket.changed.to')} <em>"{item.new_value}"</em>
-                             </>
-                           )}
-                         </p>
-                         <p className="text-xs text-gray-500 flex items-center gap-1">
-                           <FaCalendarAlt /> {new Date(item.created_at).toLocaleString()}
-                         </p>
-                         {item.user?.nome_completo && (
-                           <p className="text-xs text-gray-600 italic flex items-center gap-1">
-                             <FaUser /> {t('ticket.modified_by')}: <strong>{item.user.nome_completo}</strong>
-                           </p>
-                         )}
-                       </div>
-                     ))}
-                   </div>
-                 </div>
-               )}
-             </>
-           )}
-         </div>
-       </Modal>
-       
+        <Modal
+          title={t('ticket.title', { name: selectedTicket.name })}
+          isVisible={showModal}
+          onClose={() => setShowModal(false)}
+        >
+          <div className="flex flex-col gap-4 text-sm text-gray-800 max-h-[80vh] overflow-y-auto pr-1">
+            {loadingModal ? (
+              <div className="flex items-center justify-center h-60">
+                <Spin color="blue" />
+              </div>
+            ) : (
+              <>
+                <div className="bg-white p-4 rounded-xl shadow-md space-y-2">
+                  <h3 className="text-lg font-semibold flex items-center gap-2 text-blue-600">
+                    <FaClipboardList /> {t('ticket.details_title')}
+                  </h3>
+
+                  <div className="grid grid-cols-2 gap-4">
+                    <p><strong>{t('ticket.name')}:</strong> {selectedTicket.name}</p>
+                    <p><strong>{t('ticket.type')}:</strong> {selectedTicket.type}</p>
+
+                    <div className="col-span-2">
+                      <label className="block text-sm font-medium text-gray-700 mb-1">
+                        <strong>{t('ticket.status')}:</strong>
+                      </label>
+                      <select
+                        value={selectedTicket.status}
+                        onChange={(e) => handleChangeStatus(e.target.value)}
+                        className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-400"
+                      >
+                        <option value="Aberto">{t('status.open')}</option>
+                        <option value="Em andamento">{t('status.in_progress')}</option>
+                        <option value="Resolvido">{t('status.resolved')}</option>
+                        <option value="Fechado">{t('status.closed')}</option>
+                      </select>
+                    </div>
+
+                    <p><strong>{t('ticket.creation_date')}:</strong> {formatDate(selectedTicket.created_at, t)}</p>
+                    <p><strong>{t('ticket.client')}:</strong> {selectedTicket.client?.name}</p>
+                    <p><strong>{t('ticket.operator')}:</strong> {selectedTicket.user?.nome_completo}</p>
+                  </div>
+                </div>
+
+                <div className="bg-white p-4 rounded-xl shadow-md">
+                  <h3 className="text-lg font-semibold flex items-center gap-2 text-green-600">
+                    <FaTags /> {t('ticket.tags_title')}
+                  </h3>
+                  <div className="flex flex-wrap gap-2 mt-2">
+                    {(Array.isArray(selectedTicket.tags)
+                      ? selectedTicket.tags
+                      : JSON.parse(selectedTicket.tags || "[]")
+                    ).map((tag: string, index: number) => (
+                      <span key={index} className={`ticket-tag color-0`}>
+                        {tag}
+                      </span>
+                    ))}
+                  </div>
+                </div>
+
+                <div className="bg-white p-4 rounded-xl shadow-md">
+                  <h3 className="text-lg font-semibold flex items-center gap-2 text-yellow-600">
+                    <FaRegStickyNote /> {t('ticket.notes_title')}
+                  </h3>
+                  <p className="mt-2">{selectedTicket.observation || t('ticket.no_notes')}</p>
+                </div>
+
+
+                {Array.isArray(history) && history.length > 0 && (
+                  <div className="bg-white p-4 rounded-xl shadow-md">
+                    <h3 className="text-lg font-semibold flex items-center gap-2 text-purple-600">
+                      <FaHistory /> {t('ticket.history_title')}
+                    </h3>
+
+                    <div className="space-y-3 mt-3">
+                      {history.map((item, index) => (
+                        <div
+                          key={index}
+                          className="border-l-4 border-purple-400 pl-4 py-2 bg-gray-50 rounded-md hover:bg-gray-100 transition"
+                        >
+                          <p>
+                            <strong>{item.field_modified}:</strong>{" "}
+                            {item.old_value === null || item.old_value === "" ? (
+                              <>
+                                {t('ticket.changed.set_to')} <em>"{item.new_value || "vazio"}"</em>
+                              </>
+                            ) : (
+                              <>
+                                {t('ticket.changed.from')} <em>"{item.old_value}"</em> {t('ticket.changed.to')} <em>"{item.new_value}"</em>
+                              </>
+                            )}
+                          </p>
+                          <p className="text-xs text-gray-500 flex items-center gap-1">
+                            <FaCalendarAlt /> {new Date(item.created_at).toLocaleString()}
+                          </p>
+                          {item.user?.nome_completo && (
+                            <p className="text-xs text-gray-600 italic flex items-center gap-1">
+                              <FaUser /> {t('ticket.modified_by')}: <strong>{item.user.nome_completo}</strong>
+                            </p>
+                          )}
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+                )}
+              </>
+            )}
+          </div>
+        </Modal>
+
       )}
       <Modal
         title={`📝 ${t('modal.add_ticket')}`}
