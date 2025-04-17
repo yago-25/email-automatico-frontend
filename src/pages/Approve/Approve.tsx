@@ -25,7 +25,9 @@ const Approve = () => {
   const { t } = useTranslation();
   const [solicitacoes, setSolicitacoes] = useState<Solicitacao[]>([]);
   const [cargos, setCargos] = useState<Cargo[]>([]);
-  const [selectedCargos, setSelectedCargos] = useState<{ [id: number]: number }>({});
+  const [selectedCargos, setSelectedCargos] = useState<{
+    [id: number]: number;
+  }>({});
   const [loading, setLoading] = useState(true);
   const storedUser = localStorage.getItem("user");
   const authUser: User | null = storedUser ? JSON.parse(storedUser) : null;
@@ -47,6 +49,7 @@ const Approve = () => {
         type: "error",
         message: t("approve_page.fetch_error"),
       });
+      console.log(err, 'Error');
     } finally {
       setLoading(false);
     }
@@ -65,6 +68,7 @@ const Approve = () => {
         type: "error",
         message: t("approve_page.approve_error"),
       });
+      console.log(err, 'Error');
     }
   };
 
@@ -81,6 +85,7 @@ const Approve = () => {
         type: "error",
         message: t("approve_page.reject_error"),
       });
+      console.log(err, 'Error');
     }
   };
 
@@ -124,7 +129,6 @@ const Approve = () => {
                   onChange={(e) => handleCargoChange(solicitacao.id, Number(e.target.value))}
                   className="border border-gray-300 px-3 py-2 rounded-lg text-sm shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-400"
                 >
-                  <option value="" disabled>{t("approve_page.select_role")}</option>
                   {cargos.map((cargo) => (
                     <option key={cargo.id} value={cargo.id}>
                       {cargo.nome}

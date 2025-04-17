@@ -248,8 +248,8 @@ const Clients = () => {
   }
   return (
     <div className="body">
+      <Header name={authUser?.nome_completo} />
       <div className="max-w-6xl mx-auto px-4 py-8">
-        <Header name={authUser?.nome_completo} />
 
         <div className="flex flex-col sm:flex-row justify-between items-center mb-6 gap-4">
           <h1 className="text-3xl font-bold text-gray-800">{`📝 ${t('clients.clients')}`}</h1>
@@ -283,20 +283,19 @@ const Clients = () => {
             >
               <p>{client.id}</p>
               <p title={client.name}>{client.name}</p>
-              <p title={client.mail}>{client.mail}</p>
+              <p title={client.mail} className="max-w-96 overflow-hidden text-ellipsis truncate">{client.mail}</p>
               <p title={client.phone}>{formatPhone(client.phone)}</p>
               <div className="flex justify-center gap-4">
                 {tickets
                   ?.filter((ticket) => ticket.client?.id === client.id) 
                   .map((ticket) => (
-                    <div key={ticket.id}>
-                      <button
-                        onClick={() => handleTicket(ticket.id)}
-                        className="text-indigo-500 hover:text-indigo-700"
-                      >
-                        <IoTicketOutline className="h-5 w-5" />
-                      </button>
-                    </div>
+                    <button
+                      onClick={() => handleTicket(ticket.id)}
+                      className="text-indigo-500 hover:text-indigo-700"
+                      key={ticket.id}
+                    >
+                      <IoTicketOutline className="h-5 w-5" />
+                    </button>
                   ))}
 
                 <button

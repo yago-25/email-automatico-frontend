@@ -202,9 +202,8 @@ const Ticket = () => {
   const authUser: User | null = storedUser ? JSON.parse(storedUser) : null;
   const { t } = useTranslation();
 
-  const [clients, setClients] = useState<Clients[]>([]);
-  const [filteredTxt, setFilteredTxt] = useState("");
-  const [currentPage, setCurrentPage] = useState(1);
+  // const [filteredTxt, setFilteredTxt] = useState("");
+  // const [currentPage, setCurrentPage] = useState(1);
   const [selectedTicket, setSelectedTicket] = useState<Ticket | null>(null);
   const [showModal, setShowModal] = useState(false);
   const [showModalFilter, setShowModalFilter] = useState(false);
@@ -221,7 +220,6 @@ const Ticket = () => {
   const [clientName, setClientName] = useState("");
   const [typeName, setTypeName] = useState("");
   const [statusTicket, setStatusTicket] = useState("");
-  const [loading, setLoading] = useState(false);
   const [selected, setSelected] = useState<string>("");
   const [selectedAdmin, setSelectedAdmin] = useState<string>("");
   const [tags, setTags] = useState<string[]>([]);
@@ -309,6 +307,7 @@ const Ticket = () => {
         type: "error",
         message: "Erro ao atualizar status",
       });
+      console.log(error, 'error');
     }
   };
 
@@ -389,9 +388,13 @@ const Ticket = () => {
     label: ticket.name,
   }));
 
-  console.log({ loading, loadingClients, loadingAdmins });
-
-  
+  if (loadingClients || loadingAdmins) {
+    return (
+      <div className="flex items-center justify-center h-full w-full">
+        <Spin />
+      </div>
+    );
+  }
 
   const handleAddTicket = async () => {
     setLoadingPost(true);
@@ -449,33 +452,19 @@ const Ticket = () => {
     }
   };
 
-  const getClients = async () => {
-    setLoading(true);
-    try {
-      const response = await api.get("/clients", {
-        headers: {
-          Authorization: `Bearer ${localStorage.getItem("accessToken")}`,
-        },
-      });
-      setClients(response.data);
-    } catch (e) {
-      console.log("Erro ao listar clientes: ", e);
-      messageAlert({ type: "error", message: t("dashboard.fetch_error") });
-    } finally {
-      setLoading(false);
-    }
-  };
-
-   useEffect(() => {
-      getClients();
-    }, [loadingPost]);
-
+  if (!filteredTickets || isLoading) {
+    return (
+      <div className="flex items-center justify-center h-full w-full">
+        <Spin />
+      </div>
+    );
+  }
 
   return (
     <div>
       <Header name={authUser?.nome_completo} />
 
-      <div className="filter-button-container flex items-center gap-4 mb-4">
+      <div className="filter-button-container flex items-center gap-4 mb-4 p-4">
         <button
           onClick={handleFilterToggle}
           className="flex items-center gap-2 p-2 bg-blue-600 text-white rounded-lg"
@@ -636,7 +625,7 @@ const Ticket = () => {
               <div className="ticket-tags">
                 {Array.isArray(ticket.tags) &&
                   ticket.tags.map((tag, index) => (
-                    <span key={index} className={`ticket-tag color-${index % 6}`}>
+                    <span key={index} className={`ticket-tag color-0`}>
                       {tag}
                     </span>
                   ))}
@@ -705,7 +694,7 @@ const Ticket = () => {
                     ? selectedTicket.tags
                     : JSON.parse(selectedTicket.tags || "[]")
                   ).map((tag: string, index: number) => (
-                    <span key={index} className={`ticket-tag color-${index % 6}`}>
+                    <span key={index} className={`ticket-tag color-0`}>
                       {tag}
                     </span>
                   ))}
