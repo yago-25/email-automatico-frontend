@@ -1,4 +1,3 @@
-/* eslint-disable react-hooks/exhaustive-deps */
 import { useState } from "react";
 import { useTranslation } from "react-i18next";
 import Header from "../../components/Header/Header";

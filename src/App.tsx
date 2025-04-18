@@ -18,6 +18,7 @@ import Approve from './pages/Approve/Approve';
 
 import Clients from './pages/Clients/Clients';
 import Profile from './pages/Profile/Profile';
+import Calendar from './pages/Calendar/Calendar';
 
 function App() {
   return (
@@ -61,6 +62,11 @@ function App() {
             <Route path="/ticket/:id" element={
               <AuthenticatedLayout>
                 <Ticket />
+              </AuthenticatedLayout>
+            } />
+            <Route path="/calendar" element={
+              <AuthenticatedLayout>
+                <Calendar />
               </AuthenticatedLayout>
             } />
           </Route>
