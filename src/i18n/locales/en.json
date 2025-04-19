@@ -219,5 +219,12 @@
   "fields": {
     "status": "Status",
     "observation": "Observation"
+  },
+ "buttons": {
+    "backToActive": "Back to active",
+    "showFinished": "Show finished"
+  },
+  "messages": {
+    "noTicketsFound": "No tickets found"
   }
 }

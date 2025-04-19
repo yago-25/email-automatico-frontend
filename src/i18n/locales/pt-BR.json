@@ -219,5 +219,12 @@
   "fields": {
   "status": "Status",
   "observation": "Observação"
-}
+},
+"buttons": {
+    "backToActive": "Voltar para ativos",
+    "showFinished": "Mostrar finalizados"
+  },
+  "messages": {
+    "noTicketsFound": "Nenhum ticket encontrado"
+  }
 }

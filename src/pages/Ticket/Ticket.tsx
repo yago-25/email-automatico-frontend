@@ -115,8 +115,8 @@ const Ticket = () => {
     { name: "not_started", title: t("tickets.types.not_started") },
     { name: "waiting", title: t("tickets.types.waiting") },
     { name: "in_progress", title: t("tickets.types.in_progress") },
-    { name: "discarded", title: t("tickets.types.discarded") },
     { name: "finished", title: t("tickets.types.completed") },
+    { name: "discarded", title: t("tickets.types.discarded") },
   ];
 
   const storedUser = localStorage.getItem("user");
@@ -143,6 +143,8 @@ const Ticket = () => {
   const [tags, setTags] = useState<string[]>([]);
   const [observation, setObservation] = useState("");
   const [loadingModal, setLoadingModal] = useState(false);
+  const [showOnlyFinished, setShowOnlyFinished] = useState(false);
+
 
   const { data: rawClients = [], isLoading: loadingClients } = useSwr<Clients[]>('/clients', {
     fetcher: (url) =>
@@ -162,7 +164,7 @@ const Ticket = () => {
       }).then((res) => res.data),
   });
 
-  const { data: rawTickets = [], isLoading,  mutate } = useSwr<Ticket[]>('/tickets', {
+  const { data: rawTickets = [], isLoading, mutate } = useSwr<Ticket[]>('/tickets', {
 
     fetcher: (url) => api.get(url, {
       headers: {
@@ -257,33 +259,35 @@ const Ticket = () => {
   const handleChangeStatus = async (newStatus: string) => {
     setLoadingModal(true);
     if (!selectedTicket) return;
-
+  
     try {
       await updateTicketStatus(selectedTicket.id, newStatus);
-
+  
       const { data } = await api.get<Ticket>(`/tickets/${selectedTicket.id}`, {
         headers: {
           Authorization: `Bearer ${localStorage.getItem("accessToken")}`,
         },
       });
-
+  
       setSelectedTicket((prev) => {
         if (!prev) return prev;
-
+  
         return {
           ...prev,
           status: data.status
         };
       });
-
+  
       await fetchHistory(selectedTicket.id);
-
+  
       setSelectedTicket({
         ...data,
         tags:
           typeof data.tags === "string" ? JSON.parse(data.tags) : data.tags,
       });
-
+  
+      mutate();
+  
       messageAlert({
         type: "success",
         message: "Status atualizado com sucesso!",
@@ -298,12 +302,17 @@ const Ticket = () => {
       setLoadingModal(false);
     }
   };
+  
 
   const handleFilterToggle = () => {
+    mutate();
     setShowModalFilter(true);
   };
 
   const handleFilterChange = () => {
+
+    mutate();
+
     const filtered = rawTickets.filter((ticket) => {
       const matchesStatus = filterStatus ? ticket.status === filterStatus : true;
 
@@ -366,7 +375,7 @@ const Ticket = () => {
         });
         return;
       }
-      
+
       await api.post('/tickets', {
         name: clientName,
         type: typeName,
@@ -382,7 +391,8 @@ const Ticket = () => {
         }
       });
 
-      mutate();
+      mutate()
+
 
       messageAlert({
         type: "success",
@@ -460,6 +470,15 @@ const Ticket = () => {
     );
   }
 
+  const statusToShow = showOnlyFinished
+    ? ["discarded"]
+    : ["in_progress", "not_started", "waiting", "resolved", "finished"];
+
+  // const toggleShowOnlyFinished = () => {
+  //   setShowOnlyFinished((prev) => !prev);
+  //   mutate(); // Atualiza a lista após trocar
+  // };
+
   return (
     <div>
       <Header name={authUser?.nome_completo} />
@@ -478,12 +497,66 @@ const Ticket = () => {
         >
           <IoMdAddCircleOutline /> {t("dashboard.add_ticket")}
         </button>
+        <button
+          onClick={() => setShowOnlyFinished(prev => !prev)}
+          className="my-4 px-4 py-2 bg-blue-600 text-white rounded-lg"
+        >
+          {showOnlyFinished ? t("buttons.backToActive") : t("buttons.showFinished")}
+        </button>
+      </div>
+
+      <div className="ticket-container">
+        {isLoading ? (
+          <div className="loading-message text-center text-gray-500 p-4">
+            {t("messages.loadingTickets")}
+          </div>
+        ) : filteredTickets.length > 0 ? (
+          filteredTickets
+            .filter(ticket => statusToShow.includes(ticket.status.toLowerCase()))
+            .map((ticket) => (
+              <div
+                key={ticket.id}
+                className="ticket-card"
+                onClick={() => handleCardClick(ticket)}
+              >
+                <div className="ticket-header-no-avatar">
+                  <div className="w-full h-full">
+                    <p className="ticket-user overflow-hidden ellipsis">
+                      {ticket.client?.name}
+                    </p>
+                    <p className="ticket-time">{formatDate(ticket.created_at, t)}</p>
+                    <p className="ticket-name overflow-hidden text-ellipsis whitespace-nowrap">
+                      {ticket.name}
+                    </p>
+                    <p className="ticket-observation text-ellipsis overflow-hidden whitespace-nowrap max-h-12">
+                      {ticket.observation || t("ticket.no_observation")}
+                    </p>
+                  </div>
+                </div>
+                <div className="ticket-tags">
+                  {Array.isArray(ticket.tags) &&
+                    ticket.tags.map((tag, index) => (
+                      <span key={index} className={`ticket-tag color-0`}>
+                        {tag}
+                      </span>
+                    ))}
+                </div>
+              </div>
+            ))
+        ) : (
+          <div className="no-tickets">
+            <p>{t("messages.noTicketsFound")}</p>
+          </div>
+        )}
       </div>
 
       <Modal
         title={t('filters.title')}
         isVisible={showModalFilter}
-        onClose={() => setShowModalFilter(false)}
+        onClose={() => {
+          setShowModalFilter(false);
+          mutate(undefined, true);
+        }}
       >
         <div className="bg-white p-6 shadow-lg rounded-xl mt-2 max-w-md mx-auto">
           <h3 className="font-semibold text-xl text-blue-600 mb-4">{t('filters.title')}</h3>
@@ -528,10 +601,9 @@ const Ticket = () => {
               className="w-full border border-gray-300 rounded-lg px-4 py-3 text-sm shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-400"
             >
               <option value="">{t('filters.all')}</option>
-              <option value="not_started">{t('status.open')}</option>
+              <option value="not_started">{t('status.not_started')}</option>
               <option value="in_progress">{t('status.in_progress')}</option>
-              <option value="finished">{t('status.resolved')}</option>
-              <option value="discarded">{t('status.closed')}</option>
+              <option value="resolved">{t('status.finished')}</option>
             </select>
           </div>
 
@@ -597,50 +669,6 @@ const Ticket = () => {
         </div>
       </Modal>
 
-      <div className="ticket-container">
-        {filteredTickets.filter(ticket =>
-          ["resolvido", "em analise", "aberto", "pendente", "in_progress", "discarded", "finished", "not_started", "waiting", "resolved"].includes(ticket.status.toLowerCase())
-        ).length > 0 ? (
-          filteredTickets
-            .filter(ticket =>
-              ["resolvido", "em analise", "aberto", "pendente", "in_progress", "discarded", "finished", "not_started", "waiting", "resolved"].includes(ticket.status.toLowerCase())
-            )
-            .map((ticket) => (
-              <div
-                key={ticket.id}
-                className="ticket-card"
-                onClick={() => handleCardClick(ticket)}
-              >
-
-                <div className="ticket-header-no-avatar">
-                  <div className="w-full h-full">
-                    <p className="ticket-user overflow-hidden ellipsis">{ticket.client?.name}</p>
-                    <p className="ticket-time">{formatDate(ticket.created_at, t)}</p>
-                    <p className="ticket-name overflow-hidden text-ellipsis whitespace-nowrap">{ticket.name}</p>
-                    <p className="ticket-observation text-ellipsis overflow-hidden whitespace-nowrap max-h-12">
-                      {ticket.observation || t("ticket.no_observation")}
-                    </p>
-                  </div>
-                </div>
-                <div className="ticket-tags">
-                  {Array.isArray(ticket.tags) &&
-                    ticket.tags.map((tag, index) => (
-                      <span key={index} className={`ticket-tag color-0`}>
-                        {tag}
-                      </span>
-                    ))}
-                </div>
-              </div>
-            ))
-        ) : (
-          <div className="no-tickets">
-            <p>Nenhum ticket encontrado</p>
-          </div>
-        )}
-      </div>
-
-
-
       {selectedTicket && (
         <Modal
           title={t('ticket.title', { name: selectedTicket.name })}
@@ -674,7 +702,7 @@ const Ticket = () => {
                       >
                         <option value="not_started">{t('status.open')}</option>
                         <option value="in_progress">{t('status.in_progress')}</option>
-                        <option value="finished">{t('status.resolved')}</option>
+                        <option value="resolved">{t('status.resolved')}</option>
                         <option value="discarded">{t('status.closed')}</option>
                       </select>
                     </div>
