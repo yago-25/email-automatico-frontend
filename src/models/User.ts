@@ -9,4 +9,5 @@ export interface User {
   nome_usuario: string;
   telefone: string;
   updated_at: string;
+  url: string;
 }

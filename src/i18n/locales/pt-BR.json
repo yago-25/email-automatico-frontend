@@ -177,7 +177,12 @@
     "open": "Aberto",
     "in_progress": "Em andamento",
     "resolved": "Resolvido",
-    "closed": "Fechado"
+    "closed": "Fechado",
+    "not_started": "Aberto",
+    "waiting": "Pendente",
+    "in_progress": "Em andamento",
+    "discarded": "Fechado",
+    "finished": "Resolvido"
   },
   "ticket": {
     "title": "📝 Ticket: {{name}}",
@@ -198,7 +203,8 @@
       "from": "de",
       "to": "para"
     },
-    "modified_by": "Modificado por"
+    "modified_by": "Modificado por",
+    "created": "Ticket Criado"
   },
   "date": {
     "today": "Hoje",
@@ -209,5 +215,9 @@
       "email_required": "Por favor, insira o e-mail para verificação.",
       "invalid_email": "E-mail inválido. Tente novamente mais tarde."
     }
-  }
+  },
+  "fields": {
+  "status": "Status",
+  "observation": "Observação"
+}
 }

@@ -6,7 +6,8 @@ import { Button } from "../Dashboard/Dashboard";
 import { FaEdit } from "react-icons/fa";
 import Modal from "../../components/Modal/Modal";
 import './profile.css';
-import { api } from "../../api/api";
+// import axios from "axios";
+// import { api } from "../../api/api";
 import Spin from "../../components/Spin/Spin";
 import { messageAlert } from "../../utils/messageAlert";
 
@@ -27,6 +28,15 @@ const Profile = () => {
   const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (file) {
+      const isImage = file.type.startsWith('image/');
+      if (!isImage) {
+        messageAlert({
+          type: 'error',
+          message: 'Por favor, selecione um arquivo de imagem.',
+        });
+        return;
+      }
+
       setProfileFile(file);
       setProfilePreview(URL.createObjectURL(file));
     }
@@ -44,44 +54,97 @@ const Profile = () => {
   };
 
   const handleUploadPhoto = async () => {
+    console.log('[Upload] Iniciando processo de upload da imagem...');
     setLoading(true);
+  
     if (!profileFile || !authUser) {
+      console.log('[Upload] Falha: arquivo ou usuário não definidos.');
       messageAlert({
         type: 'error',
-        message: 'por favor, selecione um arquivo.'
+        message: 'Por favor, selecione um arquivo.',
       });
       setLoading(false);
       return;
-    };
-  
-    const formData = new FormData();
-    formData.append("image", profileFile);
-    console.log(profileFile, 'profileFile');
-    for (const pair of formData.entries()) {
-      console.log(pair[0] + ':', pair[1]);
     }
+  
+    if (!(profileFile instanceof File)) {
+      console.log('[Upload] Falha: profileFile não é uma instância de File.');
+      messageAlert({
+        type: 'error',
+        message: 'O arquivo selecionado é inválido.',
+      });
+      setLoading(false);
+      return;
+    }
+  
+    console.log('[Upload] Arquivo válido:', profileFile);
+    console.log('[Upload] Usuário autenticado:', authUser);
   
     try {
-      const response = await api.post(`/users/${authUser.id}/photo`, formData, {
+      const formData = new FormData();
+      formData.append('image', profileFile);
+  
+      console.log('[Upload] FormData montado. Conteúdo:');
+      for (const [key, value] of formData.entries()) {
+        console.log(`- ${key}:`, value);
+      }
+  
+      const accessToken = localStorage.getItem('accessToken');
+      console.log('[Upload] Token de acesso:', accessToken);
+  
+      console.log(`[Upload] Enviando POST para /users/${authUser.id}/photo...`);
+  
+      const response = await fetch(`${import.meta.env.VITE_API_URL}/api/users/${authUser.id}/photo`, {
+        method: "POST",
         headers: {
-          Authorization: `Bearer ${localStorage.getItem("accessToken")}`
+          Authorization: `Bearer ${accessToken}`,
         },
+        body: formData, 
       });
   
-      const data = response.data;
+      console.log('[Upload] Resposta recebida da API:', response);
+  
+      const data = await response.json(); 
+  
+      if (!response.ok) {
+        console.error('[Upload] Erro na resposta da API:', data);
+        throw new Error(data?.message || 'Erro ao enviar imagem.');
+      }
   
       const updatedUser = { ...authUser, url: data.url };
-      localStorage.setItem("user", JSON.stringify(updatedUser));
+      localStorage.setItem('user', JSON.stringify(updatedUser));
       setProfilePreview(data.url);
       setOpenModalPhoto(false);
+  
+      console.log('[Upload] Upload concluído com sucesso. Foto atualizada.');
+  
+      messageAlert({
+        type: 'success',
+        message: 'Imagem de perfil atualizada com sucesso!',
+      });
+  
     } catch (error) {
-      console.error("Erro ao enviar imagem:", error);
-      alert("Erro ao enviar imagem");
+      console.log('[Upload] Erro capturado no catch:');
+  
+      if (error instanceof Error) {
+        console.error('Erro:', error.message);
+        messageAlert({
+          type: 'error',
+          message: error.message,
+        });
+      } else {
+        console.error('Erro inesperado:', error);
+        messageAlert({
+          type: 'error',
+          message: 'Erro inesperado. Tente novamente.',
+        });
+      }
     } finally {
       setLoading(false);
+      console.log('[Upload] Processo finalizado (finally).');
     }
   };
-
+  
   useEffect(() => {
     if (authUser) {
       setName(authUser?.nome_completo);
@@ -106,7 +169,7 @@ const Profile = () => {
           <img
             className="w-32 h-32 rounded-full transition-opacity duration-300 group-hover:opacity-70 cursor-pointer"
             src={
-              profilePreview ||
+              profilePreview || authUser?.url ||
               `https://ui-avatars.com/api/?name=${authUser?.nome_completo}&background=0D8ABC&color=fff&size=128&rounded=true`
             }
             alt="Avatar"

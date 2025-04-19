@@ -24,6 +24,7 @@ import {
 } from "react-icons/fa";
 import "./ticket.css";
 
+
 interface TicketHistory {
   id: number;
   ticket_id: number;
@@ -161,7 +162,7 @@ const Ticket = () => {
       }).then((res) => res.data),
   });
 
-  const { data: rawTickets = [], isLoading } = useSwr<Ticket[]>('/tickets', {
+  const { data: rawTickets = [], isLoading,  mutate } = useSwr<Ticket[]>('/tickets', {
 
     fetcher: (url) => api.get(url, {
       headers: {
@@ -365,7 +366,7 @@ const Ticket = () => {
         });
         return;
       }
-
+      
       await api.post('/tickets', {
         name: clientName,
         type: typeName,
@@ -380,6 +381,8 @@ const Ticket = () => {
           Authorization: `Bearer ${localStorage.getItem("accessToken")}`
         }
       });
+
+      mutate();
 
       messageAlert({
         type: "success",
@@ -457,8 +460,6 @@ const Ticket = () => {
     );
   }
 
-
-
   return (
     <div>
       <Header name={authUser?.nome_completo} />
@@ -527,10 +528,10 @@ const Ticket = () => {
               className="w-full border border-gray-300 rounded-lg px-4 py-3 text-sm shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-400"
             >
               <option value="">{t('filters.all')}</option>
-              <option value="Aberto">{t('status.open')}</option>
-              <option value="Em andamento">{t('status.in_progress')}</option>
-              <option value="Resolvido">{t('status.resolved')}</option>
-              <option value="Fechado">{t('status.closed')}</option>
+              <option value="not_started">{t('status.open')}</option>
+              <option value="in_progress">{t('status.in_progress')}</option>
+              <option value="finished">{t('status.resolved')}</option>
+              <option value="discarded">{t('status.closed')}</option>
             </select>
           </div>
 
@@ -597,39 +598,47 @@ const Ticket = () => {
       </Modal>
 
       <div className="ticket-container">
-        {filteredTickets.length > 0 ? (
-          filteredTickets.map((ticket) => (
-            <div
-              key={ticket.id}
-              className="ticket-card"
-              onClick={() => handleCardClick(ticket)}
-            >
-              <div className="ticket-header-no-avatar">
-                <div className="w-full h-full">
-                  <p className="ticket-user overflow-hidden ellipsis">{ticket.client?.name}</p>
-                  <p className="ticket-time">{formatDate(ticket.created_at, t)}</p>
-                  <p className="ticket-name overflow-hidden text-ellipsis whitespace-nowrap">{ticket.name}</p>
-                  <p className="ticket-observation text-ellipsis overflow-hidden whitespace-nowrap max-h-12">
-                    {ticket.observation || t("ticket.no_observation")}
-                  </p>
+        {filteredTickets.filter(ticket =>
+          ["resolvido", "em analise", "aberto", "pendente", "in_progress", "discarded", "finished", "not_started", "waiting", "resolved"].includes(ticket.status.toLowerCase())
+        ).length > 0 ? (
+          filteredTickets
+            .filter(ticket =>
+              ["resolvido", "em analise", "aberto", "pendente", "in_progress", "discarded", "finished", "not_started", "waiting", "resolved"].includes(ticket.status.toLowerCase())
+            )
+            .map((ticket) => (
+              <div
+                key={ticket.id}
+                className="ticket-card"
+                onClick={() => handleCardClick(ticket)}
+              >
+
+                <div className="ticket-header-no-avatar">
+                  <div className="w-full h-full">
+                    <p className="ticket-user overflow-hidden ellipsis">{ticket.client?.name}</p>
+                    <p className="ticket-time">{formatDate(ticket.created_at, t)}</p>
+                    <p className="ticket-name overflow-hidden text-ellipsis whitespace-nowrap">{ticket.name}</p>
+                    <p className="ticket-observation text-ellipsis overflow-hidden whitespace-nowrap max-h-12">
+                      {ticket.observation || t("ticket.no_observation")}
+                    </p>
+                  </div>
+                </div>
+                <div className="ticket-tags">
+                  {Array.isArray(ticket.tags) &&
+                    ticket.tags.map((tag, index) => (
+                      <span key={index} className={`ticket-tag color-0`}>
+                        {tag}
+                      </span>
+                    ))}
                 </div>
               </div>
-              <div className="ticket-tags">
-                {Array.isArray(ticket.tags) &&
-                  ticket.tags.map((tag, index) => (
-                    <span key={index} className={`ticket-tag color-0`}>
-                      {tag}
-                    </span>
-                  ))}
-              </div>
-            </div>
-          ))
+            ))
         ) : (
           <div className="no-tickets">
             <p>Nenhum ticket encontrado</p>
           </div>
         )}
       </div>
+
 
 
       {selectedTicket && (
@@ -663,10 +672,10 @@ const Ticket = () => {
                         onChange={(e) => handleChangeStatus(e.target.value)}
                         className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-400"
                       >
-                        <option value="Aberto">{t('status.open')}</option>
-                        <option value="Em andamento">{t('status.in_progress')}</option>
-                        <option value="Resolvido">{t('status.resolved')}</option>
-                        <option value="Fechado">{t('status.closed')}</option>
+                        <option value="not_started">{t('status.open')}</option>
+                        <option value="in_progress">{t('status.in_progress')}</option>
+                        <option value="finished">{t('status.resolved')}</option>
+                        <option value="discarded">{t('status.closed')}</option>
                       </select>
                     </div>
 
@@ -707,33 +716,60 @@ const Ticket = () => {
                     </h3>
 
                     <div className="space-y-3 mt-3">
-                      {history.map((item, index) => (
-                        <div
-                          key={index}
-                          className="border-l-4 border-purple-400 pl-4 py-2 bg-gray-50 rounded-md hover:bg-gray-100 transition"
-                        >
-                          <p>
-                            <strong>{item.field_modified}:</strong>{" "}
-                            {item.old_value === null || item.old_value === "" ? (
-                              <>
-                                {t('ticket.changed.set_to')} <em>"{item.new_value || "vazio"}"</em>
-                              </>
-                            ) : (
-                              <>
-                                {t('ticket.changed.from')} <em>"{item.old_value}"</em> {t('ticket.changed.to')} <em>"{item.new_value}"</em>
-                              </>
-                            )}
-                          </p>
-                          <p className="text-xs text-gray-500 flex items-center gap-1">
-                            <FaCalendarAlt /> {new Date(item.created_at).toLocaleString()}
-                          </p>
-                          {item.user?.nome_completo && (
-                            <p className="text-xs text-gray-600 italic flex items-center gap-1">
-                              <FaUser /> {t('ticket.modified_by')}: <strong>{item.user.nome_completo}</strong>
+                      {history.map((item, index) => {
+                        const isStatus = item.field_modified === "status";
+
+                        const oldValue =
+                          isStatus && item.old_value
+                            ? t(`status.${item.old_value.toLowerCase()}`)
+                            : item.old_value;
+
+                        const newValue =
+                          isStatus && item.new_value
+                            ? t(`status.${item.new_value.toLowerCase()}`)
+                            : item.new_value;
+
+                        const isCreated =
+                          isStatus &&
+                          (!item.old_value || item.old_value === "") &&
+                          item.new_value === "not_started";
+
+                        const isTicketCreated =
+                          item.field_modified === "ticket" &&
+                          item.new_value === "created";
+
+                        return (
+                          <div
+                            key={index}
+                            className="border-l-4 border-purple-400 pl-4 py-2 bg-gray-50 rounded-md hover:bg-gray-100 transition"
+                          >
+                            <p>
+                              <strong>{t(`fields.${item.field_modified}`, item.field_modified)}:</strong>{" "}
+                              {isTicketCreated ? (
+                                <>{t('ticket.created')}</>
+                              ) : isCreated ? (
+                                <>{t('ticket.created')}</>
+                              ) : item.old_value === null || item.old_value === "" ? (
+                                <>
+                                  {t('ticket.changed.set_to')} <em>"{newValue || "vazio"}"</em>
+                                </>
+                              ) : (
+                                <>
+                                  {t('ticket.changed.from')} <em>"{oldValue}"</em> {t('ticket.changed.to')} <em>"{newValue}"</em>
+                                </>
+                              )}
                             </p>
-                          )}
-                        </div>
-                      ))}
+                            <p className="text-xs text-gray-500 flex items-center gap-1">
+                              <FaCalendarAlt /> {new Date(item.created_at).toLocaleString()}
+                            </p>
+                            {item.user?.nome_completo && (
+                              <p className="text-xs text-gray-600 italic flex items-center gap-1">
+                                <FaUser /> {t('ticket.modified_by')}: <strong>{item.user.nome_completo}</strong>
+                              </p>
+                            )}
+                          </div>
+                        );
+                      })}
                     </div>
                   </div>
                 )}
