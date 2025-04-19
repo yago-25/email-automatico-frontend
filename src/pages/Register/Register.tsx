@@ -11,41 +11,38 @@ const Register = () => {
   const { t, i18n } = useTranslation();
   const [loading, setLoading] = useState(false);
 
-  // Campos do formulário
   const [fullName, setFullName] = useState("");
   const [email, setEmail] = useState("");
-  const [cpfCnpj, setCpfCnpj] = useState("");
   const [phone, setPhone] = useState("");
   const [username, setUsername] = useState("");
   const [password, setPassword] = useState("");
   const [confirmPassword, setConfirmPassword] = useState("");
 
   const handleRegister = async () => {
-    if (!fullName || !email || !cpfCnpj || !phone || !username || !password) {
+    if (!fullName || !email || !phone || !username || !password) {
       messageAlert({ type: "error", message: t("register_page.fill_all_fields") });
       return;
     }
-  
+
     if (password !== confirmPassword) {
       messageAlert({ type: "error", message: t("register_page.password_mismatch") });
       setLoading(false);
       return;
     }
-  
+
     setLoading(true);
-  
+
     const userData = {
       nome_completo: fullName,
       email,
-      cpf: cpfCnpj,
       telefone: phone,
       nome_usuario: username,
       senha: password,
     };
-  
+
     try {
       const response = await api.post("/register", userData);
-  
+
       if (response.status === 201) {
         messageAlert({
           type: "success",
@@ -65,7 +62,7 @@ const Register = () => {
       setLoading(false);
     }
   };
-  
+
 
   if (!i18n.isInitialized || loading) {
     return <Spin />;
@@ -93,24 +90,6 @@ const Register = () => {
               styles={{ width: "100%" }}
             />
             <Input
-              type="email"
-              text={t("register_page.email")}
-              required
-              value={email}
-              onChange={(e) => setEmail(e.target.value)}
-              styles={{ width: "100%" }}
-            />
-          </div>
-          <div className="w-full flex flex-col md:flex-row gap-6">
-            <Input
-              type="text"
-              text={t("register_page.cpf_cnpj")}
-              required
-              value={cpfCnpj}
-              onChange={(e) => setCpfCnpj(e.target.value)}
-              styles={{ width: "100%" }}
-            />
-            <Input
               type="text"
               text={t("register_page.phone")}
               required
@@ -119,18 +98,28 @@ const Register = () => {
               styles={{ width: "100%" }}
             />
           </div>
+          <div className="w-full flex flex-col md:flex-row gap-6">
+            <Input
+              type="email"
+              text={t("register_page.email")}
+              required
+              value={email}
+              onChange={(e) => setEmail(e.target.value)}
+              styles={{ width: "100%" }}
+            />
+          </div>
           <h2 className="text-white text-xl font-light text-center">
             {t("register_page.data_access")}
           </h2>
 
           <Input
-              type="text"
-              text={t("register_page.username")}
-              required
-              value={username}
-              onChange={(e) => setUsername(e.target.value)}
-              styles={{ width: "100%" }}
-            />
+            type="text"
+            text={t("register_page.username")}
+            required
+            value={username}
+            onChange={(e) => setUsername(e.target.value)}
+            styles={{ width: "100%" }}
+          />
           <div className="w-full flex flex-col md:flex-row gap-6">
             <Input
               type="password"
@@ -154,12 +143,12 @@ const Register = () => {
               onClick={handleRegister}
               className="w-full bg-blue-700 hover:bg-blue-800 text-white font-semibold py-2 rounded-lg shadow-md transition-all duration-200"
             >
-             {t("register_page.button_text")}
+              {t("register_page.button_text")}
             </button>
           </div>
           <p
             onClick={handleLogin}
-            className="text-white mt-4 cursor-pointer hover:underline text-center"
+            className="text-white cursor-pointer hover:underline text-center"
           >
             {t("register_page.back_button")}
           </p>
