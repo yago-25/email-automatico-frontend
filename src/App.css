@@ -23,3 +23,40 @@ body {
   z-index: 9999 !important;
   position: fixed !important;
 }
+
+.fc .fc-button {
+  background-color: #007BFF;
+  color: white;
+  border: none;
+  border-radius: 0.5rem;
+  padding: 0.5rem 1rem;
+}
+
+.fc .fc-button:hover {
+  background-color: #1d4ed8;
+}
+
+.fc .fc-button-active {
+  background-color: #00448d !important;
+  color: white !important;
+  border-color: #00448d !important;
+}
+
+.fc .fc-daygrid-day-number {
+  color: #00448d !important;
+  font-weight: bold !important;
+}
+
+.fc-col-header-cell-cushion {
+  color: #00448d !important;
+  font-weight: bold !important;
+}
+
+.fc-toolbar-title {
+  color: #00448d !important;
+  font-weight: bold !important;
+}
+
+.fc .fc-day-today {
+  background-color: #b2d7ff !important;
+}
