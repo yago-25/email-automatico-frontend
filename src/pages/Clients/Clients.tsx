@@ -20,13 +20,14 @@ import { HiOutlineUser } from "react-icons/hi";
 import { IoMdAddCircleOutline } from "react-icons/io";
 import { IoTicketOutline } from "react-icons/io5";
 import { useNavigate } from "react-router-dom";
+import { DeleteConfirmModal } from "../../components/DeleteConfirm/DeleteConfirmModal";
+
 
 interface Client {
   id: number;
   name: string;
   phone: string;
   mail: string;
-  
 }
 
 interface ButtonProps {
@@ -58,11 +59,13 @@ const Clients = () => {
   const [clientMail, setClientMail] = useState('');
   const [editingClient, setEditingClient] = useState<Client | null>(null);
   const [isModalOpen, setIsModalOpen] = useState(false);
+  const [isModalCrashOpen, setIsModalCrashOpen] = useState(false);
   const [loading, setLoading] = useState(false);
   const [filteredTxt, setFilteredTxt] = useState("");
   const itemsPerPage = 5;
   const [currentPage, setCurrentPage] = useState(1);
   const [loadingPost, setLoadingPost] = useState(false);
+  const [clientIdToDelete, setClientIdToDelete] = useState<number | null>(null);
 
   const formatPhone = (phone: string): string => {
     if (!phone) return "";
@@ -159,31 +162,42 @@ const Clients = () => {
     }
   };
 
-  const handleDelete = async (id: number) => {
+  const handleDelete = async () => {
+    if (clientIdToDelete === null) return;
+
     setLoading(true);
     try {
-      await api.delete(`/clients/${id}`, {
+      await api.delete(`/clients/${clientIdToDelete}`, {
         headers: {
-          Authorization: `Bearer ${localStorage.getItem("accessToken")}`
-        }
+          Authorization: `Bearer ${localStorage.getItem("accessToken")}`,
+        },
       });
 
-      setClients(clients.filter((client) => client.id !== id));
+      setClients(clients.filter((client) => client.id !== clientIdToDelete));
       messageAlert({
         type: "success",
-        message: t("clients.deleted_successfully")
+        message: t("clients.deleted_successfully"),
       });
     } catch (error) {
       messageAlert({
         type: "error",
-        message: t("clients.delete_error")
+        message: t("clients.delete_error"),
       });
-      console.log(error, 'Error');
+      console.log(error, "Error");
     } finally {
       setLoading(false);
+      setIsModalCrashOpen(false);
+      setClientIdToDelete(null);
     }
   };
 
+  const openDeleteModal = (id: number) => {
+    setClientIdToDelete(id);
+    setIsModalCrashOpen(true);
+  };
+  if (loading) {
+    return <Spin />;
+  }
 
   const handleEdit = async () => {
     if (!editingClient) return;
@@ -220,6 +234,8 @@ const Clients = () => {
   if (loading) {
     return <Spin />;
   }
+
+
   return (
     <div className="body">
       <Header name={authUser?.nome_completo} />
@@ -276,8 +292,9 @@ const Clients = () => {
                 >
                   <Pencil className="h-5 w-5" />
                 </button>
+
                 <button
-                  onClick={() => handleDelete(client.id)}
+                  onClick={() => openDeleteModal(client.id)}
                   className="text-red-500 hover:text-red-700"
                 >
                   <Trash className="h-5 w-5" />
@@ -286,6 +303,16 @@ const Clients = () => {
             </div>
           ))}
         </div>
+
+        <DeleteConfirmModal
+          isOpen={isModalCrashOpen}
+          onClose={() => {
+            setIsModalCrashOpen(false);
+            setClientIdToDelete(null);
+          }}
+          onConfirm={handleDelete}
+          loading={loading}
+        />
 
         {/* Paginação */}
         <div className="flex justify-center items-center gap-4 mt-8">
