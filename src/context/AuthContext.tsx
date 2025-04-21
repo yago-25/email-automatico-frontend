@@ -10,6 +10,7 @@ interface AuthContextType {
   user: User | null;
   isAuthenticated: boolean;
   login: (email: string, password: string) => Promise<void>;
+  loginWithGoogle: (googleJwt: string) => Promise<void>;
   logout: () => void;
   refreshToken: () => Promise<void>;
 }
@@ -56,6 +57,27 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
     }
   };
   
+  const loginWithGoogle = async (googleJwt: string) => {
+    try {
+      const res = await api.post("/auth/google/token",
+        { token: googleJwt },
+        { withCredentials: true },
+      );
+      const { accessToken: token, user: googleUser } = res.data;
+
+      setAccessToken(token);
+      setUser(googleUser);
+      localStorage.setItem("accessToken", token);
+      localStorage.setItem("user", JSON.stringify(googleUser));
+
+      setTimeout(() => {
+        navigate("/dashboard");
+      }, 300);
+    } catch (error: any) {
+      console.error("Erro no login com Google:", error);
+      throw new Error('Erro ao autenticar com Google');
+    }
+  };
 
   const logout = () => {
     setAccessToken(null);
@@ -94,7 +116,7 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
   }, []);
 
   return (
-    <AuthContext.Provider value={{ accessToken, user, isAuthenticated, login, logout, refreshToken }}>
+    <AuthContext.Provider value={{ accessToken, user, isAuthenticated, login, loginWithGoogle, logout, refreshToken }}>
       {children}
     </AuthContext.Provider>
   );

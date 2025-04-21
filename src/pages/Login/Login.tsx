@@ -7,10 +7,11 @@ import { useNavigate } from 'react-router-dom';
 import { messageAlert } from '../../utils/messageAlert';
 import Spin from '../../components/Spin/Spin';
 import { useAuth } from '../../context/AuthContext';
+import { GoogleLogin, CredentialResponse } from '@react-oauth/google';
 
 const Login = () => {
   const { t, i18n } = useTranslation();
-  const { login } = useAuth();
+  const { loginWithGoogle, login } = useAuth();
   const navigate = useNavigate();
 
   const inputRef = useRef<HTMLInputElement | null>(null);
@@ -49,6 +50,23 @@ const Login = () => {
     }
   };
   
+  const handleGoogleSuccess = async (credentialResponse: CredentialResponse) => {
+    if (credentialResponse.credential) {
+      setLoading(true);
+      try {
+        await loginWithGoogle(credentialResponse.credential);
+        messageAlert({ type: 'success', message: t('login_page.success_google') });
+      } catch {
+        messageAlert({ type: 'error', message: t('login_page.error_google') });
+      } finally {
+        setLoading(false);
+      }
+    }
+  };
+
+  const handleGoogleError = () => {
+    messageAlert({ type: 'error', message: t('login_page.error_google') });
+  };
 
   const handleRegister = () => {
     navigate("/register");
@@ -116,6 +134,13 @@ const Login = () => {
           >
             {t("login_page.login_button")}
           </button>
+          <div className="flex justify-center mt-4">
+            <GoogleLogin
+              onSuccess={handleGoogleSuccess}
+              onError={handleGoogleError}
+              useOneTap
+            />
+          </div>
         </div>
         <div className="text-center text-sm text-blue-900">
           <p>
