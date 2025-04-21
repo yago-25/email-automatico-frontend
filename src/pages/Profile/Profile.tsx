@@ -17,7 +17,6 @@ const Profile = () => {
 
   const [name, setName] = useState("");
   const [mail, setMail] = useState("");
-  const [cpf, setCpf] = useState("");
   const [phone, setPhone] = useState("");
   const [username, setUsername] = useState("");
   const [profileFile, setProfileFile] = useState<File | null>(null);
@@ -149,7 +148,6 @@ const Profile = () => {
     if (authUser) {
       setName(authUser?.nome_completo);
       setMail(authUser?.email);
-      setCpf(authUser?.cpf);
       setPhone(authUser?.telefone);
       setUsername(authUser?.nome_usuario);
     }
@@ -194,15 +192,6 @@ const Profile = () => {
             placeholder="E-mail"
             value={mail ?? ""}
             onChange={(e) => setMail(e.target.value)}
-          />
-        </div>
-        <div className="">
-          <input
-            type="text"
-            className="relative bg-gray-50ring-0 outline-none border border-neutral-500 text-neutral-900 placeholder-violet-700 text-sm rounded-lg focus:ring-violet-500  focus:border-violet-500 block w-64 p-2.5 checked:bg-emerald-500"
-            placeholder="CPF"
-            value={cpf ?? ""}
-            onChange={(e) => setCpf(e.target.value)}
           />
         </div>
         <div className="">

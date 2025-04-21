@@ -10,7 +10,6 @@ interface Solicitacao {
   id: number;
   nome_completo: string;
   email: string;
-  cpf: string;
   telefone: string;
   nome_usuario: string;
   status: "pendente" | "aprovado" | "rejeitado";
@@ -118,7 +117,6 @@ const Approve = () => {
               <div className="grid grid-cols-2 gap-4 text-sm text-gray-700 mb-4">
                 <p><strong>👤 {t("approve_page.name")}:</strong> {solicitacao.nome_completo}</p>
                 <p><strong>📧 {t("approve_page.email")}:</strong> {solicitacao.email}</p>
-                <p><strong>🆔 {t("approve_page.cpf")}:</strong> {solicitacao.cpf}</p>
                 <p><strong>📞 {t("approve_page.phone")}:</strong> {solicitacao.telefone}</p>
                 <p><strong>💻 {t("approve_page.username")}:</strong> {solicitacao.nome_usuario}</p>
               </div>

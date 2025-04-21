@@ -14,6 +14,7 @@ import TokenReset from './pages/ResetPassword/TokenReset';
 import EmailVerification from './pages/ResetPassword/EmailVerification';
 import ResetPassword from './pages/ResetPassword/ResetPassword';
 import Approve from './pages/Approve/Approve';
+import Settings from './pages/Settings/UserTable';
 
 
 import Clients from './pages/Clients/Clients';
@@ -67,6 +68,11 @@ function App() {
             <Route path="/calendar" element={
               <AuthenticatedLayout>
                 <Calendar />
+              </AuthenticatedLayout>
+            } />
+             <Route path="/settings" element={
+              <AuthenticatedLayout>
+                <Settings />
               </AuthenticatedLayout>
             } />
           </Route>

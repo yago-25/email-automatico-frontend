@@ -1,6 +1,5 @@
 export interface User {
   cargo_id: number;
-  cpf: string;
   created_at: string;
   email: string;
   email_verificado_at: string | null;

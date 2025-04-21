@@ -39,7 +39,6 @@ interface Admins {
   id: number;
   nome_completo: string;
   email: string;
-  cpf: string;
   telefone: string;
   nome_usuario: string;
   cargo_id: number;
