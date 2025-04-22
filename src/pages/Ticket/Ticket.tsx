@@ -111,11 +111,11 @@ const Ticket = () => {
   const { t } = useTranslation();
 
   const statusTickets = [
-    { name: "not_started", title: t("tickets.types.not_started") },
-    { name: "waiting", title: t("tickets.types.waiting") },
-    { name: "in_progress", title: t("tickets.types.in_progress") },
-    { name: "finished", title: t("tickets.types.completed") },
-    { name: "discarded", title: t("tickets.types.discarded") },
+    { name: "Não iniciada", title: t("tickets.types.not_started") },
+    { name: "Esperando", title: t("tickets.types.waiting") },
+    { name: "Em progresso", title: t("tickets.types.in_progress") },
+    { name: "Completa", title: t("tickets.types.completed") },
+    { name: "Descartada", title: t("tickets.types.discarded") },
   ];
 
   const storedUser = localStorage.getItem("user");
@@ -470,9 +470,9 @@ const Ticket = () => {
   }
 
   const statusToShow = showOnlyFinished
-    ? ["discarded"]
-    : ["in_progress", "not_started", "waiting", "resolved", "finished"];
-
+  ? ["Completa"]
+  : ["Em progresso", "Não iniciada", "Esperando", "Descartada"];
+  
   // const toggleShowOnlyFinished = () => {
   //   setShowOnlyFinished((prev) => !prev);
   //   mutate(); // Atualiza a lista após trocar
@@ -511,7 +511,7 @@ const Ticket = () => {
           </div>
         ) : filteredTickets.length > 0 ? (
           filteredTickets
-            .filter(ticket => statusToShow.includes(ticket.status.toLowerCase()))
+            .filter(ticket => statusToShow.includes(ticket.status))
             .map((ticket) => (
               <div
                 key={ticket.id}
@@ -699,10 +699,11 @@ const Ticket = () => {
                         onChange={(e) => handleChangeStatus(e.target.value)}
                         className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-400"
                       >
-                        <option value="not_started">{t('status.open')}</option>
-                        <option value="in_progress">{t('status.in_progress')}</option>
-                        <option value="resolved">{t('status.resolved')}</option>
-                        <option value="discarded">{t('status.closed')}</option>
+                        <option value="Não iniciada">{t('status.open')}</option>
+                        <option value="Esperando">{t('status.waiting')}</option>
+                        <option value="Em progresso">{t('status.in_progress')}</option>
+                        <option value="Completa">{t('status.resolved')}</option>
+                        <option value="Descartada">{t('status.closed')}</option>
                       </select>
                     </div>
 
@@ -746,15 +747,20 @@ const Ticket = () => {
                       {history.map((item, index) => {
                         const isStatus = item.field_modified === "status";
 
-                        const oldValue =
-                          isStatus && item.old_value
-                            ? t(`status.${item.old_value.toLowerCase()}`)
-                            : item.old_value;
+                        const values = [
+                          { name: 'not_started', translate: 'Não iniciada' },
+                          { name: 'waiting', translate: 'Esperando' },
+                          { name: 'in_progress', translate: 'Em progresso' },
+                          { name: 'completed', translate: 'Completa' },
+                          { name: 'discarded', translate: 'Descartada' },
+                        ];
 
-                        const newValue =
-                          isStatus && item.new_value
-                            ? t(`status.${item.new_value.toLowerCase()}`)
-                            : item.new_value;
+                        const getTranslatedStatus = (value: any) => {
+                          return values.find((v) => v.translate.toLowerCase() === value?.toLowerCase())?.name;
+                        };
+                        
+                        const oldValue = getTranslatedStatus(item.old_value);
+                        const newValue = getTranslatedStatus(item.new_value);
 
                         const isCreated =
                           isStatus &&
@@ -778,11 +784,11 @@ const Ticket = () => {
                                 <>{t('ticket.created')}</>
                               ) : item.old_value === null || item.old_value === "" ? (
                                 <>
-                                  {t('ticket.changed.set_to')} <em>"{newValue || "vazio"}"</em>
+                                  {t('ticket.changed.set_to')} <em>"{t(`status.${newValue}`)}"</em>
                                 </>
                               ) : (
                                 <>
-                                  {t('ticket.changed.from')} <em>"{oldValue}"</em> {t('ticket.changed.to')} <em>"{newValue}"</em>
+                                  {t('ticket.changed.from')} <em>"{t(`status.${oldValue}`)}"</em> {t('ticket.changed.to')} <em>"{t(`status.${newValue}`)}"</em>
                                 </>
                               )}
                             </p>

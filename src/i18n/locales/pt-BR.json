@@ -174,13 +174,12 @@
     "all": "Todos"
   },
   "status": {
-    "open": "Aberto",
-    "in_progress": "Em andamento",
-    "resolved": "Resolvido",
-    "closed": "Fechado",
+    "open": "Não iniciada",
+    "resolved": "Completa",
+    "closed": "Descartada",
     "not_started": "Aberto",
-    "waiting": "Pendente",
-    "in_progress": "Em andamento",
+    "waiting": "Esperando",
+    "in_progress": "Em progresso",
     "discarded": "Fechado",
     "finished": "Resolvido"
   },
@@ -226,5 +225,47 @@
   },
   "messages": {
     "noTicketsFound": "Nenhum ticket encontrado"
+  },
+  "calendar": {
+    "error_event": "Erro ao buscar dados do evento",
+    "success_create": "Evento criado com sucesso!",
+    "error_create": "Erro ao criar evento. Verifique os dados e tente novamente.",
+    "today": "Hoje",
+    "month": "Mês",
+    "week": "Semana",
+    "day": "Dia",
+    "list": "Lista",
+    "event": "Evento",
+    "events": "Eventos",
+    "ticket": "Ticket",
+    "modal_details": {
+      "title_modal": "📅 Detalhes do Evento",
+      "title": "Título",
+      "type": "Tipo",
+      "description": "Descrição",
+      "initial": "Início",
+      "final": "Fim",
+      "status": "Status",
+      "color": "Cor de fundo",
+      "repeat": "Repetição",
+      "tags": "Tags",
+      "all_day": "Evento o dia todo",
+      "remove": "Excluir"
+    },
+    "modal_create": {
+      "title_modal": "🆕 Novo Evento",
+      "title": "Título",
+      "placeholder_title": "Digite o título do evento",
+      "description": "Descrição",
+      "placeholder_description": "Adicione uma descrição (opcional)",
+      "date_initial": "Data de Início",
+      "date_final": "Data de Fim",
+      "all_day": "Dia inteiro",
+      "repeat": "Repetir",
+      "color": "Cor do evento",
+      "status": "Status",
+      "cancel": "Cancelar",
+      "create": "Criar Evento"
+    }
   }
 }

@@ -174,14 +174,13 @@
     "all": "All"
   },
   "status": {
-    "open": "Open",
-    "in_progress": "In Progress",
-    "resolved": "Resolved",
-    "closed": "Closed",
-    "not_started": "Open",
-    "waiting": "Pending",
+    "open": "Not started",
+    "resolved": "Completed",
+    "closed": "Descarded",
+    "not_started": "Opened",
+    "waiting": "Waiting",
     "in_progress": "In progress",
-    "discarded": "Closed",
+    "discarded": "Descarded",
     "finished": "Resolved"
   },
   "date": {
@@ -226,5 +225,47 @@
   },
   "messages": {
     "noTicketsFound": "No tickets found"
+  },
+  "calendar": {
+  "error_event": "Error fetching event data",
+  "success_create": "Event created successfully!",
+  "error_create": "Error creating event. Please check the details and try again.",
+  "today": "Today",
+  "month": "Month",
+  "week": "Week",
+  "day": "Day",
+  "list": "List",
+  "event": "Event",
+  "events": "Events",
+  "ticket": "Ticket",
+  "modal_details": {
+    "title_modal": "📅 Event Details",
+    "title": "Title",
+    "type": "Type",
+    "description": "Description",
+    "initial": "Start",
+    "final": "End",
+    "status": "Status",
+    "color": "Background color",
+    "repeat": "Repeat",
+    "tags": "Tags",
+    "all_day": "All-day event",
+    "remove": "Delete"
+  },
+  "modal_create": {
+    "title_modal": "🆕 New Event",
+    "title": "Title",
+    "placeholder_title": "Enter the event title",
+    "description": "Description",
+    "placeholder_description": "Add a description (optional)",
+    "date_initial": "Start Date",
+    "date_final": "End Date",
+    "all_day": "All day",
+    "repeat": "Repeat",
+    "color": "Event color",
+    "status": "Status",
+    "cancel": "Cancel",
+    "create": "Create Event"
   }
+}
 }
