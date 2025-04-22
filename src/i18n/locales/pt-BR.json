@@ -180,7 +180,6 @@
     "closed": "Fechado",
     "not_started": "Aberto",
     "waiting": "Pendente",
-    "in_progress": "Em andamento",
     "discarded": "Fechado",
     "finished": "Resolvido"
   },
@@ -246,6 +245,7 @@
     "updated_successfully": "Usuário atualizado com sucesso.",
     "update_error": "Erro ao atualizar o usuário. Tente novamente.",
     "deleted_successfully": "Usuário excluído com sucesso.",
-    "delete_error": "Erro ao excluir o usuário. Tente novamente."
+    "delete_error": "Erro ao excluir o usuário. Tente novamente.",
+    "cargo_id": "Cargo"
   }
 }

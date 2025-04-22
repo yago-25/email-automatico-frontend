@@ -13,11 +13,15 @@ import { MdOutlineFormatListNumbered } from "react-icons/md";
 import { CiPhone, CiMail } from "react-icons/ci";
 import { FaGear } from "react-icons/fa6";
 import { HiOutlineUser } from "react-icons/hi";
-import { IoMdAddCircleOutline } from "react-icons/io";
 import DeleteConfirmModal from "../../components/DeleteConfirm/DeleteConfirmModal";
 
+interface Cargo {
+    id: number;
+    nome: string;
+}
 interface User {
-    cargo_id: number;
+    cargo?: Cargo;
+    cargo_id?: number;
     created_at: string;
     email: string;
     email_verificado_at: string | null;
@@ -59,15 +63,12 @@ const Users = () => {
     const [users, setUsers] = useState<User[]>([]);
     const [filteredTxt, setFilteredTxt] = useState("");
     const [loading, setLoading] = useState(false);
-    const [addUser, setAddUser] = useState(false);
-    const [editingUser, setEditingUser] = useState<User | null>(null);
     const [isModalOpen, setIsModalOpen] = useState(false);
     const [isModalCrashOpen, setIsModalCrashOpen] = useState(false);
     const [userIdToDelete, setUserIdToDelete] = useState<number | null>(null);
-    const [newUserName, setNewUserName] = useState("");
-    const [newUserPhone, setNewUserPhone] = useState("");
-    const [newUserMail, setNewUserMail] = useState("");
     const [currentPage, setCurrentPage] = useState(1);
+    const [cargos, setCargos] = useState<Cargo[]>([]); 
+    const [editingUser, setEditingUser] = useState<User | null>(null);
     const itemsPerPage = 5;
 
     const formatPhone = (phone: string): string => {
@@ -113,51 +114,55 @@ const Users = () => {
             setLoading(false);
         }
     };
-
-    const handleAddUser = async () => {
-        if (!newUserName || !newUserPhone || !newUserMail) {
-            return messageAlert({ type: "error", message: t("users.fill_all_fields") });
-        }
-        setLoading(true);
+    const getCargos = async () => {
         try {
-            await api.post(
-                "/usersTable",
-                { nome_completo: newUserName, telefone: newUserPhone, email: newUserMail },
-                { headers: { Authorization: `Bearer ${localStorage.getItem("accessToken")}` } }
-            );
-            messageAlert({ type: "success", message: t("users.created_successfully") });
-            setAddUser(false);
-            setNewUserName("");
-            setNewUserPhone("");
-            setNewUserMail("");
-            getUsers();
+            const response = await api.get("/cargos", {
+                headers: {
+                    Authorization: `Bearer ${localStorage.getItem("accessToken")}`,
+                },
+            });
+            setCargos(response.data);
         } catch (e) {
-            messageAlert({ type: "error", message: t("users.create_error") });
-        } finally {
-            setLoading(false);
+            messageAlert({ type: "error", message: t("users.fetch_cargos_error") });
         }
     };
+
+    useEffect(() => {
+        getCargos();
+    }, []);
+
+   
 
     const handleEdit = async () => {
         if (!editingUser) return;
         setLoading(true);
         try {
-            await api.put(`/usersTable/${editingUser.id}`, editingUser, {
-                headers: { Authorization: `Bearer ${localStorage.getItem("accessToken")}` },
-            });
-            messageAlert({ type: "success", message: t("users.updated_successfully") });
-            setIsModalOpen(false);
-            getUsers();
+          await api.put(
+            `/usersTable/${editingUser.id}`,
+            {
+              ...editingUser,
+              cargo_id: editingUser.cargo_id, 
+            },
+            {
+              headers: {
+                Authorization: `Bearer ${localStorage.getItem("accessToken")}`,
+              },
+            }
+          );
+          messageAlert({ type: "success", message: t("users.updated_successfully") });
+          setIsModalOpen(false);
+          getUsers();
         } catch (error) {
-            messageAlert({ type: "error", message: t("users.update_error") });
+          messageAlert({ type: "error", message: t("users.update_error") });
         } finally {
-            setLoading(false);
+          setLoading(false);
         }
-    };
+      };
+      
 
     const handleDelete = async () => {
         if (userIdToDelete === null) return;
-    
+
         setLoading(true);
         try {
             await api.delete(`/usersTable/${userIdToDelete}`, {
@@ -165,9 +170,9 @@ const Users = () => {
                     Authorization: `Bearer ${localStorage.getItem("accessToken")}`,
                 },
             });
-    
+
             setUsers(users.filter((user) => user.id !== userIdToDelete));
-    
+
             messageAlert({
                 type: "success",
                 message: t("users.deleted_successfully"),
@@ -180,11 +185,11 @@ const Users = () => {
             console.log(error, "Error");
         } finally {
             setLoading(false);
-            setIsModalCrashOpen(false);  
-            setUserIdToDelete(null);  
+            setIsModalCrashOpen(false);
+            setUserIdToDelete(null);
         }
     };
-    
+
 
     useEffect(() => {
         getUsers();
@@ -211,20 +216,22 @@ const Users = () => {
                 </div>
 
                 <div className="w-full rounded-xl overflow-hidden shadow-md">
-                    <div className="grid grid-cols-5 gap-x-6 items-center px-6 py-4 bg-blue-100 border-b text-blue-900 font-semibold text-sm">
+                    <div className="grid grid-cols-6 gap-x-6 items-center px-6 py-4 bg-blue-100 border-b text-blue-900 font-semibold text-sm">
                         <p className="flex items-center gap-2"><MdOutlineFormatListNumbered /> ID</p>
                         <p className="flex items-center gap-2"><HiOutlineUser /> {t("users.name")}</p>
                         <p className="flex items-center gap-2"><CiMail /> {t("users.email")}</p>
                         <p className="flex items-center gap-2"><CiPhone /> {t("users.phone")}</p>
+                        <p className="flex items-center gap-2"><FaGear /> {t("users.cargo_id")}</p> {/* Cargo */}
                         <p className="flex items-center justify-center gap-2"><FaGear /> {t("users.actions")}</p>
                     </div>
 
                     {currentUsers.map((user) => (
-                        <div key={user.id} className="grid grid-cols-5 gap-x-6 items-center px-6 py-4 bg-white border-b hover:bg-gray-50 text-sm">
+                        <div key={user.id} className="grid grid-cols-6 gap-x-6 items-center px-6 py-4 bg-white border-b hover:bg-gray-50 text-sm">
                             <p>{user.id}</p>
                             <p title={user.nome_completo}>{user.nome_completo}</p>
                             <p title={user.email} className="max-w-96 overflow-hidden text-ellipsis truncate">{user.email}</p>
                             <p title={user.telefone}>{formatPhone(user.telefone)}</p>
+                            <p title={user.cargo?.nome}>{user.cargo?.nome || "-"}</p>
                             <div className="flex justify-center gap-4">
                                 <button onClick={() => { setEditingUser(user); setIsModalOpen(true); }} className="text-blue-500 hover:text-blue-700">
                                     <Pencil className="h-5 w-5" />
@@ -238,7 +245,7 @@ const Users = () => {
                 </div>
 
                 <DeleteConfirmModal
-                    isVisible={isModalCrashOpen} 
+                    isVisible={isModalCrashOpen}
                     onClose={() => { setIsModalCrashOpen(false); setUserIdToDelete(null); }}
                     onConfirm={handleDelete}
                     loading={loading}
@@ -257,59 +264,62 @@ const Users = () => {
                 </div>
 
                 <div className="flex justify-end mt-10">
-                    <Button
-                        text={
-                            <span className="inline-flex items-center gap-2">
-                                <IoMdAddCircleOutline className="w-5 h-5" />
-                                {t("users.add_user")}
-                            </span>
-                        }
-                        onClick={() => setAddUser(true)}
-                        className="bg-blue-600 hover:bg-blue-700 text-white px-6 py-2 rounded-2xl shadow-md transition duration-200"
-                    />
+                    
                 </div>
 
-                <Modal title={t("users.edit_user")}
-                    isVisible={isModalOpen}
-                    onClose={() => setIsModalOpen(false)}>
+                <Modal title={t("users.edit_user")} isVisible={isModalOpen} onClose={() => setIsModalOpen(false)}>
                     {editingUser ? (
                         <div className="flex flex-col items-center justify-center w-full gap-4">
-                            <div>
+                            <div className="w-full">
                                 <p>{t("users.name")}</p>
-                                <Input type="text" required onChange={(e) => setEditingUser({ ...editingUser, nome_completo: e.target.value })} value={editingUser.nome_completo} />
+                                <Input
+                                    type="text"
+                                    required
+                                    onChange={(e) => setEditingUser({ ...editingUser, nome_completo: e.target.value })}
+                                    value={editingUser.nome_completo}
+                                />
                             </div>
-                            <div>
+                            <div className="w-full">
                                 <p>{t("users.phone")}</p>
-                                <Input type="text" required onChange={(e) => setEditingUser({ ...editingUser, telefone: e.target.value })} value={editingUser.telefone} />
+                                <Input
+                                    type="text"
+                                    required
+                                    onChange={(e) => setEditingUser({ ...editingUser, telefone: e.target.value })}
+                                    value={editingUser.telefone}
+                                />
                             </div>
-                            <div>
+                            <div className="w-full">
                                 <p>{t("users.email")}</p>
-                                <Input type="email" required onChange={(e) => setEditingUser({ ...editingUser, email: e.target.value })} value={editingUser.email} />
+                                <Input
+                                    type="email"
+                                    required
+                                    onChange={(e) => setEditingUser({ ...editingUser, email: e.target.value })}
+                                    value={editingUser.email}
+                                />
+                            </div>
+                            <div className="w-full">
+                                <p>{t("users.cargo_id")}</p>
+                                <select
+                                    value={editingUser.cargo_id || ""}
+                                    onChange={(e) => setEditingUser({ ...editingUser, cargo_id: parseInt(e.target.value) })}
+                                    className="w-full px-4 py-2 border border-gray-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-400"
+                                >
+                                    {cargos.map((cargo) => (
+                                        <option key={cargo.id} value={cargo.id}>
+                                            {cargo.nome}
+                                        </option>
+                                    ))}
+                                </select>
                             </div>
                             <Button text={t("users.save_changes") as string} onClick={handleEdit} />
                         </div>
-                    ) : <Spin />}
+                    ) : (
+                        <Spin />
+                    )}
                 </Modal>
 
-                <Modal title={t("users.add_user")}
-                    isVisible={addUser}
-                    onClose={() => setAddUser(false)}>
-                    <div className="flex flex-col items-center justify-center w-full gap-4">
-                        <div>
-                            <p>{t("users.name")}</p>
-                            <Input type="text" required onChange={(e) => setNewUserName(e.target.value)} value={newUserName} />
-                        </div>
-                        <div>
-                            <p>{t("users.phone")}</p>
-                            <Input type="text" required onChange={(e) => setNewUserPhone(e.target.value)} value={newUserPhone} />
-                        </div>
-                        <div>
-                            <p>{t("users.email")}</p>
-                            <Input type="email" required onChange={(e) => setNewUserMail(e.target.value)} value={newUserMail} />
-                        </div>
-                        <Button text={t("users.register_user") as string} onClick={handleAddUser} />
-                    </div>
-                </Modal>
+
+                
             </div>
         </div>
     );

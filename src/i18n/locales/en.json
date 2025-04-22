@@ -180,7 +180,6 @@
     "closed": "Closed",
     "not_started": "Open",
     "waiting": "Pending",
-    "in_progress": "In progress",
     "discarded": "Closed",
     "finished": "Resolved"
   },
@@ -246,6 +245,7 @@
     "updated_successfully": "User updated successfully.",
     "update_error": "Error updating user. Please try again.",
     "deleted_successfully": "User successfully deleted.",
-    "delete_error": "Error deleting user. Please try again."
+    "delete_error": "Error deleting user. Please try again.",
+    "cargo_id": "Role"
   }
 }

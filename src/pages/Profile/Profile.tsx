@@ -1,4 +1,3 @@
-/* eslint-disable react-hooks/exhaustive-deps */
 import { useEffect, useState } from "react";
 import Header from "../../components/Header/Header";
 import { User } from "../../models/User";
@@ -35,7 +34,6 @@ const Profile = () => {
         });
         return;
       }
-
       setProfileFile(file);
       setProfilePreview(URL.createObjectURL(file));
     }

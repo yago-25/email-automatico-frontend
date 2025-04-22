@@ -158,7 +158,6 @@ const Approve = () => {
                 </button>
 
                 <button
-                  // onClick={() => rejeitar(solicitacao.id)}
                   onClick={() => openDeleteModal(solicitacao.id)}
                   className="bg-red-500 hover:bg-red-600 text-white px-4 py-2 rounded-lg text-sm font-medium transition"
                 >
