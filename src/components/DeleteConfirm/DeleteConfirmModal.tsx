@@ -1,52 +1,68 @@
-import { Fragment } from "react";
-import { Dialog, Transition } from "@headlessui/react";
+import { motion, AnimatePresence } from "framer-motion";
 
 interface DeleteConfirmModalProps {
-  isOpen: boolean;
+  isVisible: boolean;
   onClose: () => void;
   onConfirm: () => void;
   loading?: boolean;
 }
 
-export function DeleteConfirmModal({
-  isOpen,
+const DeleteConfirmModal = ({
+  isVisible,
   onClose,
   onConfirm,
-  loading
-}: DeleteConfirmModalProps) {
+  loading,
+}: DeleteConfirmModalProps) => {
   return (
-    <Transition appear show={isOpen} as={Fragment}>
-      <Dialog as="div" className="relative z-10" onClose={onClose}>
-        <div className="fixed inset-0 bg-black bg-opacity-25" />
-        <div className="fixed inset-0 overflow-y-auto">
-          <div className="flex min-h-full items-center justify-center p-4">
-            <Dialog.Panel className="w-full max-w-md transform overflow-hidden rounded-2xl bg-white p-6 shadow-xl transition-all">
-              <Dialog.Title className="text-lg font-medium text-gray-900">
-                Excluir registro
-              </Dialog.Title>
-              <Dialog.Description className="mt-2 text-sm text-gray-500">
-                Deseja realmente excluir esse registro definitivamente?
-              </Dialog.Description>
+    <AnimatePresence>
+      {isVisible && (
+        <motion.div
+          className="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-40 backdrop-blur-sm"
+          initial={{ opacity: 0 }}
+          animate={{ opacity: 1 }}
+          exit={{ opacity: 0 }}
+        >
+          <motion.div
+            className="bg-white rounded-2xl shadow-2xl max-w-md w-full p-6 sm:p-8 mx-4 relative"
+            initial={{ scale: 0.9, opacity: 0 }}
+            animate={{ scale: 1, opacity: 1 }}
+            exit={{ scale: 0.95, opacity: 0 }}
+            transition={{ type: "spring", stiffness: 300, damping: 25 }}
+          >
+            <button
+              onClick={onClose}
+              className="absolute top-3 right-3 text-gray-400 hover:text-gray-600 transition"
+            >
+              ✖️
+            </button>
 
-              <div className="mt-4 flex justify-end gap-3">
-                <button
-                  onClick={onClose}
-                  className="px-4 py-2 rounded-md text-gray-700 hover:bg-gray-100"
-                >
-                  Cancelar
-                </button>
-                <button
-                  onClick={onConfirm}
-                  disabled={loading}
-                  className="px-4 py-2 rounded-md bg-red-600 text-white hover:bg-red-700 disabled:opacity-50"
-                >
-                  Sim, desejo excluir!
-                </button>
-              </div>
-            </Dialog.Panel>
-          </div>
-        </div>
-      </Dialog>
-    </Transition>
+            <h2 className="text-xl sm:text-2xl font-bold text-gray-800 mb-2">
+              Excluir registro
+            </h2>
+            <p className="text-gray-600 text-sm sm:text-base mb-6">
+              Deseja realmente excluir esse registro <strong>definitivamente</strong>?
+            </p>
+
+            <div className="flex justify-end gap-3">
+              <button
+                onClick={onClose}
+                className="px-4 py-2 rounded-md text-gray-700 hover:bg-gray-100 transition"
+              >
+                Cancelar
+              </button>
+              <button
+                onClick={onConfirm}
+                disabled={loading}
+                className="px-4 py-2 rounded-md bg-red-600 text-white hover:bg-red-700 disabled:opacity-50 transition"
+              >
+                Sim, desejo excluir!
+              </button>
+            </div>
+          </motion.div>
+        </motion.div>
+      )}
+    </AnimatePresence>
   );
-}
+};
+
+export default DeleteConfirmModal;

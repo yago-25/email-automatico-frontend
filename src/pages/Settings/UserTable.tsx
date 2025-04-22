@@ -14,7 +14,7 @@ import { CiPhone, CiMail } from "react-icons/ci";
 import { FaGear } from "react-icons/fa6";
 import { HiOutlineUser } from "react-icons/hi";
 import { IoMdAddCircleOutline } from "react-icons/io";
-import { DeleteConfirmModal } from "../../components/DeleteConfirm/DeleteConfirmModal";
+import DeleteConfirmModal from "../../components/DeleteConfirm/DeleteConfirmModal";
 
 interface User {
     cargo_id: number;
@@ -27,24 +27,30 @@ interface User {
     telefone: string;
     updated_at: string;
     url: string;
-  }
+}
 
 interface ButtonProps {
     text: any;
     onClick: () => void;
     className?: string;
-  }
-  
+}
+
+interface DeleteConfirmModal {
+    isOpen: boolean;
+    onClose: () => void;
+    onConfirm: () => void;
+    loading?: boolean;
+}
 
 const Button: React.FC<ButtonProps> = ({ text, onClick }) => {
     return (
-      <button onClick={onClick} className="cursor-pointer w-44 h-12 bg-blue-600 text-white rounded-lg hover:bg-blue-700 hover:shadow-lg transition-all group active:w-11 active:h-11 active:rounded-full active:duration-300 ease-in-out">
-        <svg className="animate-spin hidden group-active:block mx-auto" width="33" height="32" viewBox="0 0 33 32" fill="none" xmlns="http://www.w3.org/2000/svg">
-        </svg>
-        <span className="group-active:hidden">{text}</span>
-      </button>
+        <button onClick={onClick} className="cursor-pointer w-44 h-12 bg-blue-600 text-white rounded-lg hover:bg-blue-700 hover:shadow-lg transition-all group active:w-11 active:h-11 active:rounded-full active:duration-300 ease-in-out">
+            <svg className="animate-spin hidden group-active:block mx-auto" width="33" height="32" viewBox="0 0 33 32" fill="none" xmlns="http://www.w3.org/2000/svg">
+            </svg>
+            <span className="group-active:hidden">{text}</span>
+        </button>
     );
-  };
+};
 
 const Users = () => {
     const { t } = useTranslation();
@@ -97,7 +103,8 @@ const Users = () => {
         try {
             const response = await api.get("/usersTable", {
                 headers: {
-                    Authorization: `Bearer ${localStorage.getItem("accessToken")}` },
+                    Authorization: `Bearer ${localStorage.getItem("accessToken")}`
+                },
             });
             setUsers(response.data);
         } catch (e) {
@@ -150,21 +157,34 @@ const Users = () => {
 
     const handleDelete = async () => {
         if (userIdToDelete === null) return;
+    
         setLoading(true);
         try {
             await api.delete(`/usersTable/${userIdToDelete}`, {
-                headers: { Authorization: `Bearer ${localStorage.getItem("accessToken")}` },
+                headers: {
+                    Authorization: `Bearer ${localStorage.getItem("accessToken")}`,
+                },
             });
-            messageAlert({ type: "success", message: t("users.deleted_successfully") });
-            getUsers();
+    
+            setUsers(users.filter((user) => user.id !== userIdToDelete));
+    
+            messageAlert({
+                type: "success",
+                message: t("users.deleted_successfully"),
+            });
         } catch (error) {
-            messageAlert({ type: "error", message: t("users.delete_error") });
+            messageAlert({
+                type: "error",
+                message: t("users.delete_error"),
+            });
+            console.log(error, "Error");
         } finally {
-            setIsModalCrashOpen(false);
-            setUserIdToDelete(null);
             setLoading(false);
+            setIsModalCrashOpen(false);  
+            setUserIdToDelete(null);  
         }
     };
+    
 
     useEffect(() => {
         getUsers();
@@ -218,7 +238,7 @@ const Users = () => {
                 </div>
 
                 <DeleteConfirmModal
-                    isOpen={isModalCrashOpen}
+                    isVisible={isModalCrashOpen} 
                     onClose={() => { setIsModalCrashOpen(false); setUserIdToDelete(null); }}
                     onConfirm={handleDelete}
                     loading={loading}
@@ -246,7 +266,7 @@ const Users = () => {
                         }
                         onClick={() => setAddUser(true)}
                         className="bg-blue-600 hover:bg-blue-700 text-white px-6 py-2 rounded-2xl shadow-md transition duration-200"
-                        />
+                    />
                 </div>
 
                 <Modal title={t("users.edit_user")}
