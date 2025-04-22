@@ -5,6 +5,7 @@ import { messageAlert } from "../../utils/messageAlert";
 import Spin from "../../components/Spin/Spin";
 import Header from "../../components/Header/Header";
 import { User } from "../../models/User";
+import  DeleteConfirmModal from "../../components/DeleteConfirm/DeleteConfirmModal";
 
 interface Solicitacao {
   id: number;
@@ -24,12 +25,12 @@ const Approve = () => {
   const { t } = useTranslation();
   const [solicitacoes, setSolicitacoes] = useState<Solicitacao[]>([]);
   const [cargos, setCargos] = useState<Cargo[]>([]);
-  const [selectedCargos, setSelectedCargos] = useState<{
-    [id: number]: number;
-  }>({});
+  const [selectedCargos, setSelectedCargos] = useState<{ [id: number]: number; }>({});
   const [loading, setLoading] = useState(true);
   const storedUser = localStorage.getItem("user");
   const authUser: User | null = storedUser ? JSON.parse(storedUser) : null;
+  const [solicitacoesToDelete, setSolicitacoesToDelete] = useState<number | null>(null);
+  const [isModalCrashOpen, setModalCrashOpen] = useState(false);
 
   useEffect(() => {
     fetchData();
@@ -71,9 +72,11 @@ const Approve = () => {
     }
   };
 
-  const rejeitar = async (id: number) => {
+  const rejeitar = async () => {
+    if (solicitacoesToDelete === null) return;
+    setLoading(true);
     try {
-      await api.post(`/solicitacoes/rejeitar/${id}`);
+      await api.post(`/solicitacoes/rejeitar/${solicitacoesToDelete}`);
       messageAlert({
         type: "info",
         message: t("approve_page.rejected"),
@@ -85,8 +88,16 @@ const Approve = () => {
         message: t("approve_page.reject_error"),
       });
       console.log(err, 'Error');
+    } finally{
+      setLoading(false);
+      setModalCrashOpen(false);
+      setSolicitacoesToDelete(null);
     }
   };
+  const openDeleteModal = (id: number) => {
+    setSolicitacoesToDelete(id);
+    setModalCrashOpen(true);
+  }
 
   const handleCargoChange = (solicitacaoId: number, cargoId: number) => {
     setSelectedCargos((prev) => ({
@@ -147,11 +158,21 @@ const Approve = () => {
                 </button>
 
                 <button
-                  onClick={() => rejeitar(solicitacao.id)}
+                  // onClick={() => rejeitar(solicitacao.id)}
+                  onClick={() => openDeleteModal(solicitacao.id)}
                   className="bg-red-500 hover:bg-red-600 text-white px-4 py-2 rounded-lg text-sm font-medium transition"
                 >
                   ❌ {t("approve_page.reject")}
                 </button>
+                <DeleteConfirmModal
+                          isVisible={isModalCrashOpen}
+                          onClose={() => {
+                            setModalCrashOpen(false);
+                            setSolicitacoesToDelete(null);
+                          }}
+                          onConfirm={rejeitar}
+                          loading={loading}
+                        />
               </div>
             </div>
           ))

@@ -20,7 +20,6 @@ import { IoTicketOutline } from "react-icons/io5";
 import { useNavigate } from "react-router-dom";
 import  DeleteConfirmModal from "../../components/DeleteConfirm/DeleteConfirmModal";
 
-
 interface Client {
   id: number;
   name: string;
@@ -313,9 +312,9 @@ const Clients = () => {
           onClose={() => {
             setIsModalCrashOpen(false);
             setClientIdToDelete(null);
-          }}
+          }} 
           onConfirm={handleDelete}
-          loading={loading}
+          loading={loading} 
         />
 
         {/* Paginação */}
