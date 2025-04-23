@@ -67,7 +67,7 @@ const Users = () => {
     const [isModalCrashOpen, setIsModalCrashOpen] = useState(false);
     const [userIdToDelete, setUserIdToDelete] = useState<number | null>(null);
     const [currentPage, setCurrentPage] = useState(1);
-    const [cargos, setCargos] = useState<Cargo[]>([]); 
+    const [cargos, setCargos] = useState<Cargo[]>([]);
     const [editingUser, setEditingUser] = useState<User | null>(null);
     const itemsPerPage = 5;
 
@@ -131,34 +131,34 @@ const Users = () => {
         getCargos();
     }, []);
 
-   
+
 
     const handleEdit = async () => {
         if (!editingUser) return;
         setLoading(true);
         try {
-          await api.put(
-            `/usersTable/${editingUser.id}`,
-            {
-              ...editingUser,
-              cargo_id: editingUser.cargo_id, 
-            },
-            {
-              headers: {
-                Authorization: `Bearer ${localStorage.getItem("accessToken")}`,
-              },
-            }
-          );
-          messageAlert({ type: "success", message: t("users.updated_successfully") });
-          setIsModalOpen(false);
-          getUsers();
+            await api.put(
+                `/usersTable/${editingUser.id}`,
+                {
+                    ...editingUser,
+                    cargo_id: editingUser.cargo_id,
+                },
+                {
+                    headers: {
+                        Authorization: `Bearer ${localStorage.getItem("accessToken")}`,
+                    },
+                }
+            );
+            messageAlert({ type: "success", message: t("users.updated_successfully") });
+            setIsModalOpen(false);
+            getUsers();
         } catch (error) {
-          messageAlert({ type: "error", message: t("users.update_error") });
+            messageAlert({ type: "error", message: t("users.update_error") });
         } finally {
-          setLoading(false);
+            setLoading(false);
         }
-      };
-      
+    };
+
 
     const handleDelete = async () => {
         if (userIdToDelete === null) return;
@@ -264,7 +264,7 @@ const Users = () => {
                 </div>
 
                 <div className="flex justify-end mt-10">
-                    
+
                 </div>
 
                 <Modal title={t("users.edit_user")} isVisible={isModalOpen} onClose={() => setIsModalOpen(false)}>
@@ -319,7 +319,7 @@ const Users = () => {
                 </Modal>
 
 
-                
+
             </div>
         </div>
     );
