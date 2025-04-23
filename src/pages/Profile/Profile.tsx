@@ -90,7 +90,7 @@ const Profile = () => {
   const [openModalPhoto, setOpenModalPhoto] = useState(false);
   const [loading, setLoading] = useState(false);
   const [editingUser, setEditingUser] = useState<User | null>(null);
-  const [users, setUsers] = useState<User[]>([]);
+  const [_users, setUsers] = useState<User[]>([]);
   const [loadingPost, setLoadingPost] = useState(false);
   const [loadingUser, setLoadingUser] = useState(true);
 
@@ -185,7 +185,7 @@ const Profile = () => {
       setProfilePreview(data.url);
       setOpenModalPhoto(false);
       setLoading(false);
-      
+
       console.log('[Upload] Upload concluído com sucesso. Foto atualizada.');
 
       messageAlert({
