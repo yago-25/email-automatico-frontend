@@ -9,7 +9,7 @@ interface AuthContextType {
   accessToken: string | null;
   user: User | null;
   isAuthenticated: boolean;
-  login: (email: string, password: string) => Promise<void>;
+  login: (email: string, password: string) => Promise<{ accessToken: string; cargo: any }>; // Alterar tipo do retorno
   loginWithGoogle: (googleJwt: string) => Promise<void>;
   logout: () => void;
   refreshToken: () => Promise<void>;
@@ -40,22 +40,30 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
         { email, password },
         { withCredentials: true }
       );
+      
+      const { accessToken, user } = res.data; // Extraindo diretamente da resposta da API
   
-      setAccessToken(res.data.accessToken);
-      setUser(res.data.user);
-      localStorage.setItem("accessToken", res.data.accessToken);
-      localStorage.setItem("user", JSON.stringify(res.data.user));
+      // Atualiza o estado
+      setAccessToken(accessToken);
+      setUser(user);
   
+      // Armazena no localStorage
+      localStorage.setItem("accessToken", accessToken);
+      localStorage.setItem("user", JSON.stringify(user));
+  
+      // Retorna os dados necessários diretamente da resposta da API
+      return { accessToken, cargo: user.cargo };
+  
+      // Navega para o dashboard
       navigate("/dashboard");
     } catch (error: any) {
-      
       if (error.response && error.response.status === 401) {
         throw new Error(error.response.data.message || 'Credenciais inválidas');
       }
-      
       throw new Error('Erro ao realizar login');
     }
   };
+  
   
   const loginWithGoogle = async (googleJwt: string) => {
     try {

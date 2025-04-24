@@ -257,7 +257,6 @@ const Dashboard = () => {
     );
   }
   
-
   return (
     <div className="container-dash">
       <Header name={authUser?.nome_completo} />

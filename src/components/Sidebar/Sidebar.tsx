@@ -14,6 +14,11 @@ const Sidebar = () => {
   const navigate = useNavigate();
   const location = useLocation();
 
+  const user = JSON.parse(localStorage.getItem("user") || "{}");
+  const cargo = user.cargo && user.cargo.nome ? user.cargo.nome.toLowerCase() : ""; 
+
+  console.log("Cargo do usuário:", cargo);
+
   const logout = () => {
     navigate("/");
     localStorage.removeItem("user");
@@ -30,12 +35,12 @@ const Sidebar = () => {
     navigate(path);
   };
 
-
   return (
     <div className="sidebar-container">
       <div className="first-lay">
         <img src={mailIcon} width={52} height={52} className="img-mail" />
         <div className="pages">
+          {/* Itens visíveis para todos os usuários */}
           <IoMdHome
             className={`icon ${isActiveRoute("/dashboard") ? "active-icon" : ""}`}
             onClick={() => handleNavigation("/dashboard")}
@@ -48,37 +53,36 @@ const Sidebar = () => {
             className={`icon ${isActiveRoute("/ticket") ? "active-icon" : ""}`}
             onClick={() => handleNavigation("/ticket")}
           />
-          <IoMail
-            className={`icon ${isActiveRoute("/mails") ? "active-icon" : ""}`}
-            onClick={() => handleNavigation("/mails")}
-          />
-          <MdSms
-            className={`icon ${isActiveRoute("/sms") ? "active-icon" : ""}`}
-            onClick={() => handleNavigation("/sms")}
-          />
-          <IoLogoWhatsapp
-            className={`icon ${isActiveRoute("/whatsapp") ? "active-icon" : ""}`}
-            onClick={() => handleNavigation("/whatsapp")}
-          />
           <FaCalendar
             className={`icon ${isActiveRoute("/calendar") ? "active-icon" : ""}`}
             onClick={() => handleNavigation("/calendar")}
           />
-          <FaCheckCircle 
-            className={`icon ${isActiveRoute("/approve") ? "active-icon" : ""}`}
-            onClick={() => handleNavigation("/approve")}
-          />
-          <FaGear
-            className={`icon ${isActiveRoute("/settings") ? "active-icon" : ""}`}
-            onClick={() => handleNavigation("/settings")}
-          />
-          {/* <SidebarIconWithBadge
-            icon={IoTicketSharp}
-            count={ticketCount}
-            isActive={isActiveRoute("/ticket")}
-            onClick={() => handleNavigation("/ticket")}
-          /> */}
-          
+
+          {/* Itens visíveis apenas para "admin" */}
+          {(cargo === "acesso total" || cargo === "admin") && (
+            <>
+              <IoMail
+                className={`icon ${isActiveRoute("/mails") ? "active-icon" : ""}`}
+                onClick={() => handleNavigation("/mails")}
+              />
+              <MdSms
+                className={`icon ${isActiveRoute("/sms") ? "active-icon" : ""}`}
+                onClick={() => handleNavigation("/sms")}
+              />
+              <IoLogoWhatsapp
+                className={`icon ${isActiveRoute("/whatsapp") ? "active-icon" : ""}`}
+                onClick={() => handleNavigation("/whatsapp")}
+              />
+              <FaCheckCircle
+                className={`icon ${isActiveRoute("/approve") ? "active-icon" : ""}`}
+                onClick={() => handleNavigation("/approve")}
+              />
+              <FaGear
+                className={`icon ${isActiveRoute("/settings") ? "active-icon" : ""}`}
+                onClick={() => handleNavigation("/settings")}
+              />
+            </>
+          )}
         </div>
       </div>
       <div className="logout">
