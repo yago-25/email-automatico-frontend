@@ -1,4 +1,3 @@
-/* eslint-disable react-refresh/only-export-components */
 import { ReactNode, createContext, useContext, useEffect, useState } from "react";
 import axios from "axios";
 import { useNavigate } from "react-router-dom";
@@ -9,7 +8,7 @@ interface AuthContextType {
   accessToken: string | null;
   user: User | null;
   isAuthenticated: boolean;
-  login: (email: string, password: string) => Promise<{ accessToken: string; cargo: any }>; // Alterar tipo do retorno
+  login: (email: string, password: string) => Promise<{ accessToken: string; cargo: any }>; 
   loginWithGoogle: (googleJwt: string) => Promise<void>;
   logout: () => void;
   refreshToken: () => Promise<void>;
@@ -41,20 +40,16 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
         { withCredentials: true }
       );
       
-      const { accessToken, user } = res.data; // Extraindo diretamente da resposta da API
+      const { accessToken, user } = res.data; 
   
-      // Atualiza o estado
       setAccessToken(accessToken);
       setUser(user);
   
-      // Armazena no localStorage
       localStorage.setItem("accessToken", accessToken);
       localStorage.setItem("user", JSON.stringify(user));
   
-      // Retorna os dados necessários diretamente da resposta da API
       return { accessToken, cargo: user.cargo };
   
-      // Navega para o dashboard
       navigate("/dashboard");
     } catch (error: any) {
       if (error.response && error.response.status === 401) {

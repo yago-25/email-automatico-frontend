@@ -40,7 +40,7 @@ const Sidebar = () => {
       <div className="first-lay">
         <img src={mailIcon} width={52} height={52} className="img-mail" />
         <div className="pages">
-          {/* Itens visíveis para todos os usuários */}
+          
           <IoMdHome
             className={`icon ${isActiveRoute("/dashboard") ? "active-icon" : ""}`}
             onClick={() => handleNavigation("/dashboard")}
@@ -58,7 +58,6 @@ const Sidebar = () => {
             onClick={() => handleNavigation("/calendar")}
           />
 
-          {/* Itens visíveis apenas para "admin" */}
           {(cargo === "acesso total" || cargo === "admin") && (
             <>
               <IoMail
