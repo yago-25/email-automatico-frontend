@@ -20,7 +20,7 @@ const Header: React.FC<HeaderProps> = ({ name }) => {
         <img
             src={
               authUser?.url ||
-              `https://ui-avatars.com/api/?name=${authUser?.nome_completo}&background=0D8ABC&color=fff&size=128&rounded=true`
+              `https://ui-avatars.com/api/?name=${authUser?.nome_completo || authUser?.nome_usuario || 'Usuário'}&background=0D8ABC&color=fff&size=128&rounded=true`
             }
             alt="Avatar"
             style={{ width: '34px', height: '34px', borderRadius: '50%' }}

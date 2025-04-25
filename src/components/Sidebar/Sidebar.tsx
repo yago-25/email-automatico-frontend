@@ -1,6 +1,7 @@
 import "./sidebar.css";
 import mailIcon from "./../../../public/mail-svgrepo-com.svg";
-import { IoIosLogOut, IoMdHome, IoLogoWhatsapp } from "react-icons/io";
+import { IoMdHome, IoLogoWhatsapp } from "react-icons/io";
+import { IoLogOut } from "react-icons/io5";
 import { FaCalendar, FaUser } from "react-icons/fa";
 import { IoTicketSharp, IoMail } from "react-icons/io5";
 import { FaGear } from "react-icons/fa6";
@@ -15,14 +16,15 @@ const Sidebar = () => {
   const location = useLocation();
 
   const user = JSON.parse(localStorage.getItem("user") || "{}");
-  const cargo = user.cargo && user.cargo.nome ? user.cargo.nome.toLowerCase() : ""; 
-
-  console.log("Cargo do usuário:", cargo);
+  // const cargo = user.cargo && user.cargo.nome ? user.cargo.nome.toLowerCase() : ""; 
+  const cargo = user.cargo_id; 
 
   const logout = () => {
     navigate("/");
     localStorage.removeItem("user");
     localStorage.removeItem("accessToken");
+    localStorage.removeItem("cargo");
+    localStorage.removeItem("token");
     messageAlert({
       type: "success",
       message: "Logout realizado com sucesso.",
@@ -58,7 +60,7 @@ const Sidebar = () => {
             onClick={() => handleNavigation("/calendar")}
           />
 
-          {(cargo === "acesso total" || cargo === "admin") && (
+          {(cargo === 1 || cargo === 2) && (
             <>
               <IoMail
                 className={`icon ${isActiveRoute("/mails") ? "active-icon" : ""}`}
@@ -85,7 +87,7 @@ const Sidebar = () => {
         </div>
       </div>
       <div className="logout">
-        <IoIosLogOut className="icon-logout" width={26} onClick={logout} />
+        <IoLogOut className="icon-logout" width={26} onClick={logout} />
       </div>
     </div>
   );

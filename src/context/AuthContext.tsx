@@ -105,7 +105,6 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
   useEffect(() => {
     const token = localStorage.getItem("accessToken");
     const storedUser = localStorage.getItem("user");
-    console.log(storedUser, 'storedUser');
   
     if (token && storedUser) {
       try {

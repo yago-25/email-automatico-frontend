@@ -14,6 +14,7 @@
     "signup": "Solicitar Cadastro",
     "fill_all_fields": "Por favor, preencha todos os dados de login.",
     "success": "Login realizado com sucesso!",
+    "success_google": "Login pelo Google realizado com sucesso!",
     "error": "Erro ao fazer login"
   },
   "register_page": {

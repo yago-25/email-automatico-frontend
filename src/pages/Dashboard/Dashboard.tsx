@@ -185,9 +185,6 @@ const Dashboard = () => {
     }
   };
 
-  console.log("authUser:", authUser);
-  console.log("authUser.id:", authUser?.id);
-
   const handleAddTicket = async () => {
     setLoadingPost(true);
     try {

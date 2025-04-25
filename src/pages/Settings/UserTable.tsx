@@ -72,7 +72,7 @@ const Users = () => {
     const itemsPerPage = 5;
 
     const formatPhone = (phone: string): string => {
-        const cleaned = phone.replace(/\D/g, "");
+        const cleaned = phone?.replace(/\D/g, "");
         if (cleaned.length === 11) {
             return cleaned.replace(/(\d{2})(\d{5})(\d{4})/, "($1) $2-$3");
         } else if (cleaned.length === 10) {
@@ -230,7 +230,7 @@ const Users = () => {
                             <p>{user.id}</p>
                             <p title={user.nome_completo}>{user.nome_completo}</p>
                             <p title={user.email} className="max-w-96 overflow-hidden text-ellipsis truncate">{user.email}</p>
-                            <p title={user.telefone}>{formatPhone(user.telefone)}</p>
+                            <p title={user.telefone}>{formatPhone(user.telefone || '') || ''}</p>
                             <p title={user.cargo?.nome}>{user.cargo?.nome || "-"}</p>
                             <div className="flex justify-center gap-4">
                                 <button onClick={() => { setEditingUser(user); setIsModalOpen(true); }} className="text-blue-500 hover:text-blue-700">

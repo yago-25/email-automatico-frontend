@@ -196,22 +196,6 @@ const Ticket = () => {
     label: ticket.name,
   }));
 
-  const allUsers = Array.from(
-    new Map(
-      rawTickets
-        .filter((ticket) => ticket.user)
-        .map((ticket) => [ticket.user.id, ticket.user])
-    ).values()
-  );
-
-  const allClients = Array.from(
-    new Map(
-      rawTickets
-        .filter((ticket) => ticket.client)
-        .map((ticket) => [ticket.client.name, ticket.client])
-    ).values()
-  );
-
   const formatDate = (dateString: string, t: (key: string) => string) => {
     const date = new Date(dateString);
     const today = new Date();
@@ -568,7 +552,7 @@ const Ticket = () => {
               className="w-full border border-gray-300 rounded-lg px-4 py-3 text-sm shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-400"
             >
               <option value="">{t('filters.all')}</option>
-              {allUsers.map((user) => (
+              {rawAdmins.map((user) => (
                 <option key={user.id} value={user.id}>
                   {user.nome_completo}
                 </option>
@@ -584,7 +568,7 @@ const Ticket = () => {
               className="w-full border border-gray-300 rounded-lg px-4 py-3 text-sm shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-400"
             >
               <option value="">{t('filters.all')}</option>
-              {allClients.map((client) => (
+              {rawClients.map((client) => (
                 <option key={client.name} value={client.name}>
                   {client.name}
                 </option>
@@ -600,9 +584,11 @@ const Ticket = () => {
               className="w-full border border-gray-300 rounded-lg px-4 py-3 text-sm shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-400"
             >
               <option value="">{t('filters.all')}</option>
-              <option value="not_started">{t('status.not_started')}</option>
-              <option value="in_progress">{t('status.in_progress')}</option>
-              <option value="resolved">{t('status.finished')}</option>
+              <option value="Não iniciada">{t('status.not_started')}</option>
+              <option value="Esperando">{t('status.waiting')}</option>
+              <option value="Em progresso">{t('status.in_progress')}</option>
+              <option value="Completa">{t('status.resolved')}</option>
+              <option value="Descartada">{t('status.discarded')}</option>
             </select>
           </div>
 

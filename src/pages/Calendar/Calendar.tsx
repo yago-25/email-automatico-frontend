@@ -27,6 +27,8 @@ const localeMap = {
   en: enGb,
   es: es,
 };
+import { useGoogleLogin } from "@react-oauth/google";
+import { FcGoogle } from "react-icons/fc";
 
 interface CalendarEvent {
   id: string;
@@ -87,6 +89,7 @@ const Calendar = () => {
   const [isRepeating, setIsRepeating] = useState(false);
   const [statusEvent, setStatusEvent] = useState('');
   const [locale, setLocale] = useState(ptBr);
+  const [loadingGoogle, setLoadingGoogle] = useState(false);
 
   const { data, loading, mutate } = useSwr<CalendarInfo>(`/calendar/infos?user_id=${authUser?.id}`);
   const eventSources: EventSourceInput[] = [];
@@ -162,7 +165,6 @@ const Calendar = () => {
           },
         });
         const event = res?.data?.data;
-        console.log(event, "event");
 
         const calendarEvent: CalendarEvent = {
           id: event?.id?.toString(),
@@ -193,6 +195,7 @@ const Calendar = () => {
 
   const renderEventContent = (arg: EventContentArg) => {
     const isTicket = arg.event.id.startsWith("t-");
+    const isGoogle = arg.backgroundColor === '#66A9FF';
 
     return (
       <div
@@ -204,7 +207,7 @@ const Calendar = () => {
           text-xs font-medium
           px-1 py-0.5
           truncate
-          ${isTicket ? "bg-[#ff8c00] text-white" : `text-white bg-[${arg.backgroundColor}] border-transparent`}
+          ${isTicket ? "bg-[#ff8c00] text-white" : isGoogle ? 'bg-[#66A9FF] text-white' : `text-white bg-[${arg.backgroundColor}] border-transparent`}
         `}
       >
         {arg.event.title}
@@ -262,12 +265,42 @@ const Calendar = () => {
     const newLocale = localeMap[i18n.language as keyof typeof localeMap] || ptBr;
     setLocale(newLocale);
   }, [i18n.language]);
+  
+  const handleGoogleSync = useGoogleLogin({
+    scope: 'https://www.googleapis.com/auth/calendar.readonly',
+    prompt: 'consent',
+    onSuccess: async (tokenResponse) => {
+      setLoadingGoogle(true);
+      const accessToken = tokenResponse.access_token;
+  
+      const res = await api.post("/calendar/google-sync", { access_token: accessToken }, {
+        headers: {
+          Authorization: `Bearer ${localStorage.getItem("accessToken")}`
+        }
+      });
+  
+      const googleEvents = res.data.events;
+      eventSources.push({
+        events: googleEvents,
+        color: "#66A9FF",
+        textColor: "white",
+        borderColor: "transparent",
+      });
+
+      messageAlert({ type: "success", message: "Eventos sincronizados com sucesso!" });
+      setLoadingGoogle(false);
+    },
+    onError: () => {
+      messageAlert({ type: "error", message: "Falha ao autenticar com o Google." });
+      setLoadingGoogle(false);
+    }
+  });
 
   return (
     <div className="flex flex-col items-center justify-center w-full">
       <Header name={authUser?.nome_completo} />
       <div className="max-w-7xl mx-auto rounded-2xl shadow-lg bg-white w-full mt-5">
-        {loading ? (
+        {loading || loadingGoogle ? (
           <Spin />
         ) : (
           <div className="p-4 h-full w-full">
@@ -321,15 +354,35 @@ const Calendar = () => {
                 "transition duration-300 cursor-pointer hover:bg-gray-100"
               }
             />
-            <div className="flex gap-4 mt-4 text-sm px-2">
-              <div className="flex items-center gap-1">
-                <span className="inline-block w-3 h-3 rounded-full bg-blue-500"></span>
-                {t("calendar.event")}
+            <div className="flex gap-4 mt-4 text-sm px-2 justify-between w-full">
+              <div className="flex items-start justify-start gap-4">
+                <div className="flex items-center gap-1">
+                  <span className="inline-block w-3 h-3 rounded-full bg-[#ff8c00]"></span>
+                  {t("calendar.ticket")}
+                </div>
+                <div className="flex items-center gap-1">
+                  <span className="inline-block w-3 h-3 rounded-full bg-[#66A9FF]"></span>
+                  Google
+                </div>
               </div>
-              <div className="flex items-center gap-1">
-                <span className="inline-block w-3 h-3 rounded-full bg-[#ff8c00]"></span>
-                {t("calendar.ticket")}
-              </div>
+              <button
+                onClick={() => handleGoogleSync()}
+                className="
+                  flex items-center gap-2
+                  px-4 py-2
+                  bg-white
+                  border border-gray-300
+                  rounded-lg
+                  shadow-sm
+                  hover:shadow-md
+                  hover:bg-gray-50
+                  transition-all
+                  text-sm font-medium
+                "
+              >
+                <FcGoogle size={20} />
+                Sincronizar com Google Calendar
+              </button>
             </div>
           </div>
         )}
@@ -622,7 +675,7 @@ const Calendar = () => {
               value={statusEvent}
               onChange={(e) => setStatusEvent(e.target.value)}
               className="mt-1 w-full rounded-lg border border-gray-300 px-3 py-2 text-sm focus:border-blue-500 focus:outline-none focus:ring-1 focus:ring-blue-500"
-              defaultValue="not_started"
+              defaultValue="Não iniciada"
             >
               <option value="Não iniciada">{t("status.not_started")}</option>
               <option value="Esperando">{t("status.waiting")}</option>
