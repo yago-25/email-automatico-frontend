@@ -227,6 +227,28 @@
   "messages": {
     "noTicketsFound": "No se encontraron tickets"
   },
+  "users": {
+    "users": "Usuarios",
+    "search_placeholder": "Buscar usuario...",
+    "name": "Nombre",
+    "email": "Correo electrónico",
+    "phone": "Teléfono",
+    "actions": "Acciones",
+    "add_user": "Agregar Usuario",
+    "edit_user": "Editar Usuario",
+    "save_changes": "Guardar Cambios",
+    "register_user": "Registrar Usuario",
+    "of": "de",
+    "fetch_error": "Error al obtener los usuarios. Inténtalo de nuevo.",
+    "fill_all_fields": "Por favor, complete todos los campos.",
+    "created_successfully": "Usuario creado con éxito.",
+    "create_error": "Error al crear el usuario. Inténtalo de nuevo.",
+    "updated_successfully": "Usuario actualizado con éxito.",
+    "update_error": "Error al actualizar el usuario. Inténtalo de nuevo.",
+    "deleted_successfully": "Usuario eliminado con éxito.",
+    "delete_error": "Error al eliminar el usuario. Inténtalo de nuevo.",
+    "cargo_id": "Puesto "
+  },
  "calendar": {
   "error_event": "Error al obtener los datos del evento",
   "success_create": "¡Evento creado con éxito!",

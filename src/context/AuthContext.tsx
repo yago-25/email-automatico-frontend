@@ -1,4 +1,3 @@
-/* eslint-disable react-refresh/only-export-components */
 import { ReactNode, createContext, useContext, useEffect, useState } from "react";
 import axios from "axios";
 import { useNavigate } from "react-router-dom";
@@ -9,7 +8,7 @@ interface AuthContextType {
   accessToken: string | null;
   user: User | null;
   isAuthenticated: boolean;
-  login: (email: string, password: string) => Promise<void>;
+  login: (email: string, password: string) => Promise<{ accessToken: string; cargo: any }>; 
   loginWithGoogle: (googleJwt: string) => Promise<void>;
   logout: () => void;
   refreshToken: () => Promise<void>;
@@ -40,22 +39,26 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
         { email, password },
         { withCredentials: true }
       );
+      
+      const { accessToken, user } = res.data; 
   
-      setAccessToken(res.data.accessToken);
-      setUser(res.data.user);
-      localStorage.setItem("accessToken", res.data.accessToken);
-      localStorage.setItem("user", JSON.stringify(res.data.user));
+      setAccessToken(accessToken);
+      setUser(user);
+  
+      localStorage.setItem("accessToken", accessToken);
+      localStorage.setItem("user", JSON.stringify(user));
+  
+      return { accessToken, cargo: user.cargo };
   
       navigate("/dashboard");
     } catch (error: any) {
-      
       if (error.response && error.response.status === 401) {
         throw new Error(error.response.data.message || 'Credenciais inválidas');
       }
-      
       throw new Error('Erro ao realizar login');
     }
   };
+  
   
   const loginWithGoogle = async (googleJwt: string) => {
     try {

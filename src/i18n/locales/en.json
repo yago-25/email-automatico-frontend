@@ -226,6 +226,28 @@
   "messages": {
     "noTicketsFound": "No tickets found"
   },
+  "users": {
+    "users": "Users",
+    "search_placeholder": "Search user...",
+    "name": "Name",
+    "email": "Email",
+    "phone": "Phone",
+    "actions": "Actions",
+    "add_user": "Add User",
+    "edit_user": "Edit User",
+    "save_changes": "Save Changes",
+    "register_user": "Register User",
+    "of": "of",
+    "fetch_error": "Error fetching users. Please try again.",
+    "fill_all_fields": "Please fill in all fields.",
+    "created_successfully": "User created successfully.",
+    "create_error": "Error creating user. Please try again.",
+    "updated_successfully": "User updated successfully.",
+    "update_error": "Error updating user. Please try again.",
+    "deleted_successfully": "User successfully deleted.",
+    "delete_error": "Error deleting user. Please try again.",
+    "cargo_id": "Role"
+}
   "calendar": {
   "error_event": "Error fetching event data",
   "success_create": "Event created successfully!",

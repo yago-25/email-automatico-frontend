@@ -1,19 +1,85 @@
-/* eslint-disable react-hooks/exhaustive-deps */
 import { useEffect, useState } from "react";
 import Header from "../../components/Header/Header";
-import { User } from "../../models/User";
-import { Button } from "../Dashboard/Dashboard";
 import { FaEdit } from "react-icons/fa";
+import { api } from "../../api/api";
+import { useTranslation } from "react-i18next";
 import Modal from "../../components/Modal/Modal";
 import './profile.css';
 // import axios from "axios";
-// import { api } from "../../api/api";
 import Spin from "../../components/Spin/Spin";
 import { messageAlert } from "../../utils/messageAlert";
+import { useSwr } from "../../api/useSwr";
+
+interface Cargo {
+  id: number;
+  nome: string;
+}
+interface User {
+  cargo?: Cargo;
+  cargo_id?: number;
+  created_at: string;
+  email: string;
+  email_verificado_at: string | null;
+  id: number;
+  nome_completo: string;
+  nome_usuario: string;
+  telefone: string;
+  updated_at: string;
+  url: string;
+}
+interface ButtonProps {
+  text: any;
+  onClick: () => void;
+  className?: string;
+}
+
+const Button: React.FC<ButtonProps> = ({ text, onClick }) => {
+  return (
+    <button onClick={onClick} className="cursor-pointer w-44 h-12 bg-blue-600 text-white rounded-lg hover:bg-blue-700 hover:shadow-lg transition-all group active:w-11 active:h-11 active:rounded-full active:duration-300 ease-in-out">
+      <svg className="animate-spin hidden group-active:block mx-auto" width="33" height="32" viewBox="0 0 33 32" fill="none" xmlns="http://www.w3.org/2000/svg">
+      </svg>
+      <span className="group-active:hidden">{text}</span>
+    </button>
+  );
+};
+
 
 const Profile = () => {
+
+  useEffect(() => {
+    const fetchUser = async () => {
+      try {
+        const response = await api.get(`/usersTable/${authUser?.id}`, {
+          headers: {
+            Authorization: `Bearer ${localStorage.getItem("accessToken")}`
+          }
+        });
+
+        setEditingUser(response.data);
+        setName(response.data.nome_completo);
+        setMail(response.data.email);
+        setPhone(response.data.telefone);
+        setUsername(response.data.nome_usuario);
+      } catch (error) {
+        console.error("Erro ao buscar usuário:", error);
+      } finally {
+        setLoadingUser(false);
+      }
+    };
+
+    if (authUser?.id) {
+      fetchUser();
+    }
+  }, []);
+
+  const { mutate: mutateUsers } = useSwr('/usersTable');
+
+
+  const { t } = useTranslation();
   const storedUser = localStorage.getItem("user");
   const authUser: User | null = storedUser ? JSON.parse(storedUser) : null;
+
+
 
   const [name, setName] = useState("");
   const [mail, setMail] = useState("");
@@ -23,6 +89,10 @@ const Profile = () => {
   const [profilePreview, setProfilePreview] = useState<string>("");
   const [openModalPhoto, setOpenModalPhoto] = useState(false);
   const [loading, setLoading] = useState(false);
+  const [editingUser, setEditingUser] = useState<User | null>(null);
+  const [_users, setUsers] = useState<User[]>([]);
+  const [loadingPost, setLoadingPost] = useState(false);
+  const [loadingUser, setLoadingUser] = useState(true);
 
   const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
@@ -35,7 +105,6 @@ const Profile = () => {
         });
         return;
       }
-
       setProfileFile(file);
       setProfilePreview(URL.createObjectURL(file));
     }
@@ -52,10 +121,11 @@ const Profile = () => {
     return phone;
   };
 
+
   const handleUploadPhoto = async () => {
     console.log('[Upload] Iniciando processo de upload da imagem...');
     setLoading(true);
-  
+
     if (!profileFile || !authUser) {
       console.log('[Upload] Falha: arquivo ou usuário não definidos.');
       messageAlert({
@@ -65,7 +135,7 @@ const Profile = () => {
       setLoading(false);
       return;
     }
-  
+
     if (!(profileFile instanceof File)) {
       console.log('[Upload] Falha: profileFile não é uma instância de File.');
       messageAlert({
@@ -75,56 +145,57 @@ const Profile = () => {
       setLoading(false);
       return;
     }
-  
+
     console.log('[Upload] Arquivo válido:', profileFile);
     console.log('[Upload] Usuário autenticado:', authUser);
-  
+
     try {
       const formData = new FormData();
       formData.append('image', profileFile);
-  
+
       console.log('[Upload] FormData montado. Conteúdo:');
       for (const [key, value] of formData.entries()) {
         console.log(`- ${key}:`, value);
       }
-  
+
       const accessToken = localStorage.getItem('accessToken');
       console.log('[Upload] Token de acesso:', accessToken);
-  
+
       console.log(`[Upload] Enviando POST para /users/${authUser.id}/photo...`);
-  
+
       const response = await fetch(`${import.meta.env.VITE_API_URL}/api/users/${authUser.id}/photo`, {
         method: "POST",
         headers: {
           Authorization: `Bearer ${accessToken}`,
         },
-        body: formData, 
+        body: formData,
       });
-  
+
       console.log('[Upload] Resposta recebida da API:', response);
-  
-      const data = await response.json(); 
-  
+
+      const data = await response.json();
+
       if (!response.ok) {
         console.error('[Upload] Erro na resposta da API:', data);
         throw new Error(data?.message || 'Erro ao enviar imagem.');
       }
-  
+
       const updatedUser = { ...authUser, url: data.url };
       localStorage.setItem('user', JSON.stringify(updatedUser));
       setProfilePreview(data.url);
       setOpenModalPhoto(false);
-  
+      setLoading(false);
+
       console.log('[Upload] Upload concluído com sucesso. Foto atualizada.');
-  
+
       messageAlert({
         type: 'success',
         message: 'Imagem de perfil atualizada com sucesso!',
       });
-  
+
     } catch (error) {
       console.log('[Upload] Erro capturado no catch:');
-  
+
       if (error instanceof Error) {
         console.error('Erro:', error.message);
         messageAlert({
@@ -143,9 +214,69 @@ const Profile = () => {
       console.log('[Upload] Processo finalizado (finally).');
     }
   };
-  
+
+  const getUsers = async () => {
+    setLoading(true);
+    try {
+      const response = await api.get("/usersTable", {
+        headers: {
+          Authorization: `Bearer ${localStorage.getItem("accessToken")}`
+        },
+      });
+      setUsers(response.data);
+    } catch (e) {
+      messageAlert({ type: "error", message: t("users.fetch_error") });
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const handleEdit = async () => {
+    console.log("clicou em Salvar");
+    setLoadingPost(true);
+
+    if (!editingUser) {
+      console.log("Nenhum usuário em edição.");
+      setLoadingPost(false);
+      return;
+    }
+
+    setLoading(true);
+    try {
+      await api.put(
+        `/usersTable/${editingUser.id}`,
+        {
+          nome_completo: name,
+          email: mail,
+          telefone: phone,
+          username: username,
+          cargo_id: editingUser.cargo_id,
+          nome_usuario: username,
+        },
+        {
+          headers: {
+            Authorization: `Bearer ${localStorage.getItem("accessToken")}`,
+          },
+        }
+
+      );
+
+      messageAlert({ type: "success", message: t("users.updated_successfully") });
+      getUsers();
+      mutateUsers();
+    } catch (error) {
+      console.log("Erro ao salvar:", error);
+      messageAlert({ type: "error", message: t("users.update_error") });
+    } finally {
+      setLoading(false);
+      setLoadingPost(false);
+    }
+  };
+
+
   useEffect(() => {
     if (authUser) {
+      setEditingUser(authUser);
       setName(authUser?.nome_completo);
       setMail(authUser?.email);
       setPhone(authUser?.telefone);
@@ -156,64 +287,73 @@ const Profile = () => {
   return (
     <div className="flex flex-col items-center justify-center w-full">
       <Header name={authUser?.nome_completo} />
-      <div
-        style={{ width: "500px", height: "600px", backgroundColor: "#00448d" }}
-        className="flex items-center justify-center flex-col gap-4 rounded-xl border border-white"
-      >
+      {loadingPost || loadingUser ? (
+        <div className="flex flex-col items-center justify-center w-full gap-4">
+          <Spin />
+        </div>
+      ) : (
         <div
-          className="relative group cursor-pointer"
-          onClick={() => setOpenModalPhoto(true)}
+          style={{ width: "500px", height: "600px", backgroundColor: "#00448d" }}
+          className="flex items-center justify-center flex-col gap-4 rounded-xl border border-white"
         >
-          <img
-            className="w-32 h-32 rounded-full transition-opacity duration-300 group-hover:opacity-70 cursor-pointer"
-            src={
-              profilePreview || authUser?.url ||
-              `https://ui-avatars.com/api/?name=${authUser?.nome_completo}&background=0D8ABC&color=fff&size=128&rounded=true`
-            }
-            alt="Avatar"
-          />
-          <div className="absolute inset-0 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity duration-300">
-            <FaEdit className="text-white text-3xl bg-black bg-opacity-50 p-2 rounded-full" />
+          <div
+            className="relative group cursor-pointer"
+            onClick={() => setOpenModalPhoto(true)}
+          >
+            <img
+              className="w-32 h-32 rounded-full transition-opacity duration-300 group-hover:opacity-70 cursor-pointer"
+              src={
+                profilePreview || authUser?.url ||
+                `https://ui-avatars.com/api/?name=${authUser?.nome_completo}&background=0D8ABC&color=fff&size=128&rounded=true`
+              }
+              alt="Avatar"
+            />
+            <div className="absolute inset-0 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity duration-300">
+              <FaEdit className="text-white text-3xl bg-black bg-opacity-50 p-2 rounded-full" />
+            </div>
           </div>
+          <div className="">
+            <input
+              type="text"
+              className="relative bg-gray-50ring-0 outline-none border border-neutral-500 text-neutral-900 placeholder-violet-700 text-sm rounded-lg focus:ring-violet-500  focus:border-violet-500 block w-64 p-2.5 checked:bg-emerald-500"
+              placeholder="Nome Completo"
+              value={name ?? ""}
+              onChange={(e) => setName(e.target.value)}
+            />
+          </div>
+          <div className="">
+            <input
+              type="text"
+              className="relative bg-gray-50ring-0 outline-none border border-neutral-500 text-neutral-900 placeholder-violet-700 text-sm rounded-lg focus:ring-violet-500  focus:border-violet-500 block w-64 p-2.5 checked:bg-emerald-500"
+              placeholder="E-mail"
+              value={mail ?? ""}
+              onChange={(e) => setMail(e.target.value)}
+            />
+          </div>
+          <div className="">
+            <input
+              type="text"
+              className="relative bg-gray-50ring-0 outline-none border border-neutral-500 text-neutral-900 placeholder-violet-700 text-sm rounded-lg focus:ring-violet-500  focus:border-violet-500 block w-64 p-2.5 checked:bg-emerald-500"
+              placeholder="Telefone"
+              value={formatPhone(phone) ?? ""}
+              onChange={(e) => setPhone(formatPhone(e.target.value))}
+            />
+          </div>
+          <div className="">
+            <input
+              type="text"
+              className="relative bg-gray-50ring-0 outline-none border border-neutral-500 text-neutral-900 placeholder-violet-700 text-sm rounded-lg focus:ring-violet-500  focus:border-violet-500 block w-64 p-2.5 checked:bg-emerald-500"
+              placeholder="Nome de usuário"
+              value={username ?? ""}
+              onChange={(e) => setUsername(e.target.value)}
+            />
+          </div>
+          <Button text="Salvar" onClick={() => {
+            console.log("Botão clicado");
+            handleEdit();
+          }} />
         </div>
-        <div className="">
-          <input
-            type="text"
-            className="relative bg-gray-50ring-0 outline-none border border-neutral-500 text-neutral-900 placeholder-violet-700 text-sm rounded-lg focus:ring-violet-500  focus:border-violet-500 block w-64 p-2.5 checked:bg-emerald-500"
-            placeholder="Nome Completo"
-            value={name ?? ""}
-            onChange={(e) => setName(e.target.value)}
-          />
-        </div>
-        <div className="">
-          <input
-            type="text"
-            className="relative bg-gray-50ring-0 outline-none border border-neutral-500 text-neutral-900 placeholder-violet-700 text-sm rounded-lg focus:ring-violet-500  focus:border-violet-500 block w-64 p-2.5 checked:bg-emerald-500"
-            placeholder="E-mail"
-            value={mail ?? ""}
-            onChange={(e) => setMail(e.target.value)}
-          />
-        </div>
-        <div className="">
-          <input
-            type="text"
-            className="relative bg-gray-50ring-0 outline-none border border-neutral-500 text-neutral-900 placeholder-violet-700 text-sm rounded-lg focus:ring-violet-500  focus:border-violet-500 block w-64 p-2.5 checked:bg-emerald-500"
-            placeholder="Telefone"
-            value={formatPhone(phone) ?? ""}
-            onChange={(e) => setPhone(formatPhone(e.target.value))}
-          />
-        </div>
-        <div className="">
-          <input
-            type="text"
-            className="relative bg-gray-50ring-0 outline-none border border-neutral-500 text-neutral-900 placeholder-violet-700 text-sm rounded-lg focus:ring-violet-500  focus:border-violet-500 block w-64 p-2.5 checked:bg-emerald-500"
-            placeholder="Nome de usuário"
-            value={username ?? ""}
-            onChange={(e) => setUsername(e.target.value)}
-          />
-        </div>
-        <Button text="Salvar" onClick={() => alert("salvar")} />
-      </div>
+      )}
       <Modal
         isVisible={openModalPhoto}
         onClose={() => setOpenModalPhoto(false)}

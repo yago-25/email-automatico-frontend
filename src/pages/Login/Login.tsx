@@ -1,7 +1,6 @@
 import { useRef, useState } from 'react';
 import './style.css';
 import Input from '../../components/Input/Input';
-// import Button from '../../components/Button/Button';
 import { useTranslation } from 'react-i18next';
 import { useNavigate } from 'react-router-dom';
 import { messageAlert } from '../../utils/messageAlert';
@@ -33,13 +32,19 @@ const Login = () => {
     setLoading(true);
   
     try {
-      await login(user, password);
+      const { accessToken, cargo } = await login(user, password);  // Ajustado para acessar 'accessToken' em vez de 'token'
+      
+      // Salvar o accessToken e o cargo no localStorage
+      localStorage.setItem('token', accessToken);  // Usando accessToken
+      localStorage.setItem('cargo', cargo);  // Salvando o cargo
   
       messageAlert({
         type: 'success',
         message: t('login_page.success')
       });
   
+      // Navegar para a dashboard ou página principal
+      navigate('/dashboard');
     } catch (e) {
       messageAlert({
         type: 'error',

@@ -18,8 +18,7 @@ import { HiOutlineUser } from "react-icons/hi";
 import { IoMdAddCircleOutline } from "react-icons/io";
 import { IoTicketOutline } from "react-icons/io5";
 import { useNavigate } from "react-router-dom";
-import { DeleteConfirmModal } from "../../components/DeleteConfirm/DeleteConfirmModal";
-
+import  DeleteConfirmModal from "../../components/DeleteConfirm/DeleteConfirmModal";
 
 interface Client {
   id: number;
@@ -32,6 +31,12 @@ interface ButtonProps {
   text: any;
   onClick: () => void;
   className?: string;
+}
+interface DeleteConfirmModal {
+  isOpen: boolean;
+  onClose: () => void;
+  onConfirm: () => void;
+  loading?: boolean;
 }
 
 const Button: React.FC<ButtonProps> = ({ text, onClick }) => {
@@ -303,13 +308,13 @@ const Clients = () => {
         </div>
 
         <DeleteConfirmModal
-          isOpen={isModalCrashOpen}
+          isVisible={isModalCrashOpen}
           onClose={() => {
             setIsModalCrashOpen(false);
             setClientIdToDelete(null);
-          }}
+          }} 
           onConfirm={handleDelete}
-          loading={loading}
+          loading={loading} 
         />
 
         {/* Paginação */}
