@@ -12,10 +12,21 @@ import {
 } from "@fullcalendar/core";
 import { useSwr } from "../../api/useSwr";
 import Spin from "../../components/Spin/Spin";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import ModalCalendar from "./ModalCalendar";
 import { messageAlert } from "../../utils/messageAlert";
-import CreateEventModal from "./CreateEventModal";
+import { FiCalendar } from "react-icons/fi";
+import { api } from "../../api/api";
+import { useTranslation } from "react-i18next";
+import ptBr from '@fullcalendar/core/locales/pt-br';
+import enGb from '@fullcalendar/core/locales/en-gb';
+import es from '@fullcalendar/core/locales/es';
+
+const localeMap = {
+  'pt-BR': ptBr,
+  en: enGb,
+  es: es,
+};
 
 interface CalendarEvent {
   id: string;
@@ -27,6 +38,10 @@ interface CalendarEvent {
   allDay: boolean;
   backgroundColor?: string;
   status?: string;
+  type?: string;
+  tags?: string[];
+  repeat?: boolean;
+  type_selected?: string;
 }
 
 interface TicketEvent {
@@ -54,19 +69,26 @@ interface CalendarInfo {
 }
 
 const Calendar = () => {
+  const { t, i18n } = useTranslation();
+
   const storedUser = localStorage.getItem("user");
   const authUser: User | null = storedUser ? JSON.parse(storedUser) : null;
 
   const [selectedEvent, setSelectedEvent] = useState<CalendarEvent>();
-  const [isCalendarEventModalOpen, setIsCalendarEventModalOpen] =
-    useState<boolean>(false);
+  const [isCalendarEventModalOpen, setIsCalendarEventModalOpen] = useState<boolean>(false);
   const [selectedDate, setSelectedDate] = useState<string>();
-  const [isCreateCalendarEventModalOpen, setIsCreateCalendarEventModalOpen] =
-    useState<boolean>(false);
+  const [isCreateCalendarEventModalOpen, setIsCreateCalendarEventModalOpen] = useState<boolean>(false);
+  const [titleEvent, setTitleEvent] = useState('');
+  const [descriptionEvent, setDescriptionEvent] = useState('');
+  const [dateInitial, setDateInitial] = useState('');
+  const [dateFinal, setDateFinal] = useState('');
+  const [color, setColor] = useState('');
+  const [isAllDay, setIsAllDay] = useState(false);
+  const [isRepeating, setIsRepeating] = useState(false);
+  const [statusEvent, setStatusEvent] = useState('');
+  const [locale, setLocale] = useState(ptBr);
 
-  const { data, loading } = useSwr<CalendarInfo>(
-    `/calendar/infos?user_id=${authUser?.id}`
-  );
+  const { data, loading, mutate } = useSwr<CalendarInfo>(`/calendar/infos?user_id=${authUser?.id}`);
   const eventSources: EventSourceInput[] = [];
 
   if (data) {
@@ -88,34 +110,85 @@ const Calendar = () => {
 
     eventSources.push({
       events: eventsSource,
+      borderColor: "transparent",
     });
 
     eventSources.push({
       events: ticketsSource,
       color: "#ff8c00",
       textColor: "white",
+      borderColor: "transparent",
     });
   }
 
   const handleDateClick = (info: { dateStr: string }) => {
     setSelectedDate(info.dateStr);
-    console.log(selectedDate, 'selectedDate');
     setIsCreateCalendarEventModalOpen(true);
   };
 
-  const handleEventClick = (info: EventClickArg) => {
-    const calendarEvent: CalendarEvent = {
-      id: info.event.extendedProps.real_id,
-      user_id: Number(info.event.extendedProps.user_id),
-      title: info.event.title || "",
-      start: info.event.start?.toISOString() || "",
-      end: info.event.end?.toISOString(),
-      description: info.event.extendedProps.description,
-      status: info.event.extendedProps.status,
-      allDay: info.event.allDay,
-    };
-    setSelectedEvent(calendarEvent);
-    setIsCalendarEventModalOpen(true);
+  const handleEventClick = async (info: EventClickArg) => {
+    const id = info.event.id;
+
+    const isTicket = id.startsWith("t-");
+
+    try {
+      if (isTicket) {
+        const ticketId = id.replace("t-", "");
+        const res = await api.get(`/tickets/${ticketId}`, {
+          headers: {
+            Authorization: `Bearer ${localStorage.getItem("accessToken")}`,
+          },
+        });
+        const ticket = res?.data;
+
+        const ticketEvent: CalendarEvent = {
+          id: ticket.id.toString(),
+          title: ticket.name,
+          type: ticket.type,
+          start: ticket.created_at,
+          tags: ticket.tags || [],
+          status: ticket.status,
+          allDay: true,
+          user_id: ticket.user_id,
+          description: ticket.observation,
+          type_selected: "ticket",
+        };
+
+        setSelectedEvent(ticketEvent);
+      } else {
+        const res = await api.get(`/calendar/event/${id}`, {
+          headers: {
+            Authorization: `Bearer ${localStorage.getItem("accessToken")}`,
+          },
+        });
+        const event = res?.data?.data;
+        console.log(event, "event");
+
+        const calendarEvent: CalendarEvent = {
+          id: event?.id?.toString(),
+          title: event.label,
+          start: event.start_date,
+          end: event.end_date,
+          allDay: event.all_day,
+          user_id: event.user_id,
+          description: event.description,
+          backgroundColor: event.background_color,
+          status: event.status,
+          repeat: event.repeat,
+          type_selected: "event",
+        };
+
+        setSelectedEvent(calendarEvent);
+      }
+
+      setIsCalendarEventModalOpen(true);
+    } catch (error) {
+      console.error("Erro ao buscar evento/ticket por ID:", error);
+      messageAlert({
+        type: "error",
+        message: t("calendar.error_event"),
+      });
+    }
   };
 
   const renderEventContent = (arg: EventContentArg) => {
@@ -124,11 +197,14 @@ const Calendar = () => {
     return (
       <div
         title={arg.event.title}
+        style={{
+          border: "none",
+        }}
         className={`
           text-xs font-medium
           px-1 py-0.5
           truncate
-          ${isTicket ? "bg-[#ff8c00] text-white" : "bg-blue-500 text-white"}
+          ${isTicket ? "bg-[#ff8c00] text-white" : `text-white bg-[${arg.backgroundColor}] border-transparent`}
         `}
       >
         {arg.event.title}
@@ -138,16 +214,54 @@ const Calendar = () => {
 
   const handleCreateEvent = async () => {
     try {
-      alert("vsf");
-    } catch (e) {
-      console.log("Erro ao criar evento: ", e);
+      const payload = {
+        label: titleEvent,
+        description: descriptionEvent,
+        start_date: selectedDate,
+        end_date: dateFinal || null,
+        all_day: isAllDay,
+        repeat: isRepeating,
+        background_color: color,
+        user_id: authUser?.id,
+        status: statusEvent
+      };
+
+      await api.post("/calendar/events", payload, {
+        headers: {
+          Authorization: `Bearer ${localStorage.getItem("accessToken")}`
+        }
+      });
+
+      messageAlert({
+        type: "success",
+        message: t("calendar.success_create"),
+      });
+
+      setIsCreateCalendarEventModalOpen(false);
+      setTitleEvent("");
+      setDescriptionEvent("");
+      setDateInitial("");
+      setDateFinal("");
+      setColor("#3b82f6");
+      setIsAllDay(false);
+      setIsRepeating(false);
+
+      mutate();
+    } catch (err: any) {
+      console.error(err);
       messageAlert({
         type: "error",
-        message: "Erro ao criar evento",
+        message:
+          err.response?.data?.error ||
+          t("calendar.error_create"),
       });
-    } finally {
     }
   };
+
+  useEffect(() => {
+    const newLocale = localeMap[i18n.language as keyof typeof localeMap] || ptBr;
+    setLocale(newLocale);
+  }, [i18n.language]);
 
   return (
     <div className="flex flex-col items-center justify-center w-full">
@@ -165,16 +279,17 @@ const Calendar = () => {
                 listPlugin,
               ]}
               initialView="dayGridMonth"
-              locale="pt-br"
+              locale={locale}
+              key={i18n.language}
               height="700px"
               dayMaxEvents={3}
               dayMaxEventRows={3}
               buttonText={{
-                today: "Hoje",
-                month: "Mês",
-                week: "Semana",
-                day: "Dia",
-                list: "Lista",
+                today: t("calendar.today"),
+                month: t("calendar.month"),
+                week: t("calendar.week"),
+                day: t("calendar.day"),
+                list: t("calendar.list"),
               }}
               eventSources={eventSources}
               eventContent={renderEventContent}
@@ -209,11 +324,11 @@ const Calendar = () => {
             <div className="flex gap-4 mt-4 text-sm px-2">
               <div className="flex items-center gap-1">
                 <span className="inline-block w-3 h-3 rounded-full bg-blue-500"></span>
-                Evento
+                {t("calendar.event")}
               </div>
               <div className="flex items-center gap-1">
                 <span className="inline-block w-3 h-3 rounded-full bg-[#ff8c00]"></span>
-                Ticket
+                {t("calendar.ticket")}
               </div>
             </div>
           </div>
@@ -222,62 +337,318 @@ const Calendar = () => {
       <ModalCalendar
         isVisible={isCalendarEventModalOpen}
         onClose={() => setIsCalendarEventModalOpen(false)}
-        title="📅 Detalhes do Evento"
+        title={t("calendar.modal_details.title_modal")}
       >
-        <div className="space-y-3">
-          <div>
-            <p className="text-sm text-gray-500">Título</p>
-            <p className="text-base font-medium text-blue-600">
-              {selectedEvent?.title}
-            </p>
-          </div>
-
-          {selectedEvent?.description && (
-            <div>
-              <p className="text-sm text-gray-500">Descrição</p>
-              <p className="text-base text-gray-700">
-                {selectedEvent.description}
+        {selectedEvent?.type_selected === "ticket" ? (
+          <div className="space-y-5 text-gray-800">
+            <div className="space-y-1">
+              <p className="text-xs text-gray-500">{t("calendar.modal_details.title")}</p>
+              <p className="text-lg font-semibold text-blue-600">
+                {selectedEvent?.title}
               </p>
             </div>
-          )}
 
-          <div className="grid grid-cols-2 gap-4">
-            <div>
-              <p className="text-sm text-gray-500">Início</p>
-              <p className="text-base text-gray-700">
-                {selectedEvent?.start &&
-                  new Date(selectedEvent.start).toLocaleString("pt-BR")}
-              </p>
+            <div className="space-y-1">
+              <p className="text-xs text-gray-500">{t("calendar.modal_details.type")}</p>
+              <p className="text-sm font-medium">{selectedEvent?.type}</p>
             </div>
-            {selectedEvent?.end && (
-              <div>
-                <p className="text-sm text-gray-500">Fim</p>
-                <p className="text-base text-gray-700">
-                  {new Date(selectedEvent.end).toLocaleString("pt-BR")}
+
+            {selectedEvent?.description && (
+              <div className="space-y-1">
+                <p className="text-xs text-gray-500">{t("calendar.modal_details.description")}</p>
+                <p
+                  className="text-sm text-gray-700 line-clamp-5"
+                  title={selectedEvent.description}
+                >
+                  {selectedEvent.description}
                 </p>
               </div>
             )}
+
+            <div className="space-y-1">
+              <p className="text-xs text-gray-500">{t("calendar.modal_details.initial")}</p>
+              <div className="flex items-center gap-2 px-3 py-2 border rounded-lg bg-gray-50 shadow-sm text-sm text-gray-700">
+                <FiCalendar className="text-blue-500" />
+                <span>
+                  {selectedEvent?.start &&
+                    new Date(selectedEvent.start).toLocaleString("pt-BR")}
+                </span>
+              </div>
+            </div>
+
+            <div className="space-y-1">
+              <p className="text-xs text-gray-500">{t("calendar.modal_details.status")}</p>
+              <p className="inline-block rounded-full px-3 py-1 text-xs font-medium bg-purple-100 text-purple-700">
+                {selectedEvent?.status ?? "Não definido"}
+              </p>
+            </div>
+
+            {selectedEvent?.tags && selectedEvent?.tags?.length > 0 && (
+              <div className="space-y-1">
+                <p className="text-xs text-gray-500">{t("calendar.modal_details.tags")}</p>
+                <div className="flex flex-wrap gap-2">
+                  {selectedEvent.tags.map((tag) => (
+                    <span
+                      key={tag}
+                      className="bg-blue-100 text-blue-700 text-xs px-2 py-1 rounded-full font-medium"
+                    >
+                      {tag}
+                    </span>
+                  ))}
+                </div>
+              </div>
+            )}
+
+            <div className="flex items-center space-x-2 pt-2">
+              <input
+                type="checkbox"
+                checked={selectedEvent.allDay}
+                readOnly
+                className="form-checkbox rounded text-blue-600"
+              />
+              <label className="text-sm">{t("calendar.modal_details.all_day")}</label>
+            </div>
+          </div>
+        ) : (
+          <div className="space-y-5 text-gray-800">
+            <div className="space-y-1">
+              <p className="text-xs text-gray-500">{t("calendar.modal_details.title")}</p>
+              <p className="text-lg font-semibold text-blue-600">
+                {selectedEvent?.title}
+              </p>
+            </div>
+
+            {selectedEvent?.description && (
+              <div className="space-y-1">
+                <p className="text-xs text-gray-500">{t("calendar.modal_details.description")}</p>
+                <p className="text-sm text-gray-700">
+                  {selectedEvent.description}
+                </p>
+              </div>
+            )}
+
+            <div className="grid grid-cols-2 gap-4">
+              <div className="space-y-1">
+                <p className="text-xs text-gray-500">{t("calendar.modal_details.initial")}</p>
+                <div className="flex items-center gap-2 px-3 py-2 border rounded-lg bg-gray-50 shadow-sm text-sm text-gray-700">
+                  <FiCalendar className="text-blue-500" />
+                  <span>
+                    {selectedEvent?.start &&
+                      new Date(selectedEvent.start).toLocaleString("pt-BR", {
+                        dateStyle: "short",
+                        timeStyle: "short",
+                      })}
+                  </span>
+                </div>
+              </div>
+
+              {selectedEvent?.end && (
+                <div className="space-y-1">
+                  <p className="text-xs text-gray-500">{t("calendar.modal_details.final")}</p>
+                  <div className="flex items-center gap-2 px-3 py-2 border rounded-lg bg-gray-50 shadow-sm text-sm text-gray-700">
+                    <FiCalendar className="text-blue-500" />
+                    <span>
+                      {new Date(selectedEvent.end).toLocaleString("pt-BR", {
+                        dateStyle: "short",
+                        timeStyle: "short",
+                      })}
+                    </span>
+                  </div>
+                </div>
+              )}
+            </div>
+
+            <div className="space-y-1">
+              <p className="text-xs text-gray-500">{t("calendar.modal_details.status")}</p>
+              <p className="inline-block rounded-full px-3 py-1 text-xs font-medium bg-purple-100 text-purple-700">
+                {selectedEvent?.status ?? "Não definido"}
+              </p>
+            </div>
+
+            <div className="space-y-1">
+              <p className="text-xs text-gray-500">{t("calendar.modal_details.color")}</p>
+              <div className="flex items-center gap-2">
+                <div
+                  className="w-4 h-4 rounded-full border"
+                  style={{ backgroundColor: selectedEvent?.backgroundColor }}
+                />
+                <p className="text-sm">{selectedEvent?.backgroundColor}</p>
+              </div>
+            </div>
+
+            {selectedEvent?.repeat && (
+              <div className="space-y-1">
+                <p className="text-xs text-gray-500">{t("calendar.modal_details.repeat")}</p>
+                <p className="text-sm text-gray-700">{selectedEvent.repeat}</p>
+              </div>
+            )}
+
+            <div className="flex items-center space-x-2 pt-2">
+              <input
+                type="checkbox"
+                checked={selectedEvent?.allDay}
+                readOnly
+                className="form-checkbox rounded text-blue-600"
+              />
+              <label className="text-sm">{t("calendar.modal_details.all_day")}</label>
+            </div>
+
+            <div className="flex justify-end gap-2 pt-6">
+              <button className="px-4 py-2 rounded-lg text-sm bg-red-500 text-white hover:bg-red-600 transition">
+                {t("calendar.modal_details.remove")}
+              </button>
+            </div>
+          </div>
+        )}
+      </ModalCalendar>
+      <ModalCalendar
+        isVisible={isCreateCalendarEventModalOpen}
+        onClose={() => setIsCreateCalendarEventModalOpen(false)}
+        title={t("calendar.modal_create.title_modal")}
+      >
+        <form
+          className="space-y-4 p-2"
+          onSubmit={(e) => {
+            e.preventDefault();
+            handleCreateEvent();
+          }}
+        >
+          <div>
+            <label className="text-sm font-medium text-gray-700">{t("calendar.modal_create.title")}</label>
+            <input
+              value={titleEvent}
+              onChange={(e) => setTitleEvent(e.target.value)}
+              type="text"
+              className="mt-1 w-full rounded-lg border border-gray-300 px-3 py-2 text-sm shadow-sm focus:border-blue-500 focus:outline-none focus:ring-1 focus:ring-blue-500"
+              placeholder={t("calendar.modal_create.placeholder_title")}
+            />
           </div>
 
           <div>
-            <p className="text-sm text-gray-500">Status</p>
-            <p className="text-base text-purple-600">
-              {selectedEvent?.status ?? "Não definido"}
-            </p>
+            <label className="text-sm font-medium text-gray-700">
+              {t("calendar.modal_create.description")}
+            </label>
+            <textarea
+              value={descriptionEvent}
+              onChange={(e) => setDescriptionEvent(e.target.value)}
+              rows={6}
+              className="mt-1 w-full rounded-lg border border-gray-300 px-3 py-2 text-sm shadow-sm resize-none focus:border-blue-500 focus:outline-none focus:ring-1 focus:ring-blue-500"
+              placeholder={t("calendar.modal_create.placeholder_description")}
+            />
           </div>
 
-          <div className="flex justify-end gap-2 pt-4">
-            <button className="px-4 py-2 rounded-lg text-sm bg-red-500 text-white hover:bg-red-600 transition">
-              Excluir
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+            <div>
+              <label className="text-sm font-medium text-gray-700">
+                {t("calendar.modal_create.date_initial")}
+              </label>
+              <input
+                value={dateInitial}
+                onChange={(e) => setDateInitial(e.target.value)}
+                type="datetime-local"
+                className="mt-1 w-full rounded-lg border border-gray-300 px-3 py-2 text-sm focus:border-blue-500 focus:outline-none focus:ring-1 focus:ring-blue-500"
+              />
+            </div>
+            <div>
+              <label className="text-sm font-medium text-gray-700">
+                {t("calendar.modal_create.date_final")}
+              </label>
+              <input
+                value={dateFinal}
+                onChange={(e) => setDateFinal(e.target.value)}
+                type="datetime-local"
+                className="mt-1 w-full rounded-lg border border-gray-300 px-3 py-2 text-sm focus:border-blue-500 focus:outline-none focus:ring-1 focus:ring-blue-500"
+              />
+            </div>
+          </div>
+
+          <div className="flex items-center gap-6">
+            <label className="flex items-center gap-2 cursor-pointer">
+              <div
+                className={`relative inline-block w-10 h-6 transition duration-200 ease-in-out rounded-full ${
+                  isAllDay ? "bg-blue-500" : "bg-gray-300"
+                }`}
+                onClick={() => setIsAllDay(!isAllDay)}
+              >
+                <span
+                  className={`inline-block w-4 h-4 transform bg-white rounded-full shadow-md transition duration-200 ease-in-out ${
+                    isAllDay ? "translate-x-5" : "translate-x-1"
+                  }`}
+                />
+              </div>
+              <span className="text-sm text-gray-700">{t("calendar.modal_create.all_day")}</span>
+            </label>
+
+            <label className="flex items-center gap-2 cursor-pointer">
+              <div
+                className={`relative inline-block w-10 h-6 transition duration-200 ease-in-out rounded-full ${
+                  isRepeating ? "bg-blue-500" : "bg-gray-300"
+                }`}
+                onClick={() => setIsRepeating(!isRepeating)}
+              >
+                <span
+                  className={`inline-block w-4 h-4 transform bg-white rounded-full shadow-md transition duration-200 ease-in-out ${
+                    isRepeating ? "translate-x-5" : "translate-x-1"
+                  }`}
+                />
+              </div>
+              <span className="text-sm text-gray-700">{t("calendar.modal_create.repeat")}</span>
+            </label>
+          </div>
+
+          <div className="flex flex-col items-start justify-start gap-2">
+            <label className="text-sm font-medium text-gray-700">
+              {t("calendar.modal_create.color")}
+            </label>
+
+            <div className="relative">
+              <input
+                value={color}
+                onChange={(e) => setColor(e.target.value)}
+                type="color"
+                defaultValue="#007BFF"
+                className="absolute left-0 top-0 h-10 w-10 opacity-0 cursor-pointer"
+              />
+              <div
+                className="w-10 h-10 rounded-full border border-gray-300"
+                style={{ backgroundColor: color }}
+              ></div>
+            </div>
+          </div>
+
+          <div>
+            <label className="text-sm font-medium text-gray-700">{t("calendar.modal_create.status")}</label>
+            <select
+              value={statusEvent}
+              onChange={(e) => setStatusEvent(e.target.value)}
+              className="mt-1 w-full rounded-lg border border-gray-300 px-3 py-2 text-sm focus:border-blue-500 focus:outline-none focus:ring-1 focus:ring-blue-500"
+              defaultValue="not_started"
+            >
+              <option value="Não iniciada">{t("status.not_started")}</option>
+              <option value="Esperando">{t("status.waiting")}</option>
+              <option value="Em progresso">{t("status.in_progress")}</option>
+              <option value="Completa">{t("status.resolved")}</option>
+              <option value="Descartada">{t("status.closed")}</option>
+            </select>
+          </div>
+
+          <div className="flex justify-end pt-4 gap-2">
+            <button
+              type="button"
+              className="rounded-lg bg-gray-100 px-4 py-2 text-sm text-gray-700 hover:bg-gray-200 transition"
+              onClick={() => setIsCreateCalendarEventModalOpen(false)}
+            >
+              {t("calendar.modal_create.cancel")}
+            </button>
+            <button
+              type="submit"
+              className="rounded-lg bg-blue-500 px-4 py-2 text-sm text-white hover:bg-blue-700 transition"
+            >
+              {t("calendar.modal_create.create")}
             </button>
           </div>
-        </div>
+        </form>
       </ModalCalendar>
-      <CreateEventModal
-        isOpen={isCreateCalendarEventModalOpen}
-        onClose={() => setIsCreateCalendarEventModalOpen(false)}
-        onSubmit={handleCreateEvent}
-      />
     </div>
   );
 };
