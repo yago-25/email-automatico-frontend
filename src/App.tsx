@@ -20,6 +20,8 @@ import Settings from './pages/Settings/UserTable';
 import Clients from './pages/Clients/Clients';
 import Profile from './pages/Profile/Profile';
 import Calendar from './pages/Calendar/Calendar';
+import SmsPage from './pages/Sms/SmsPage';
+import SmsCreatePage from './pages/Sms/SmsCreatePage';
 
 function App() {
   return (
@@ -73,6 +75,16 @@ function App() {
              <Route path="/settings" element={
               <AuthenticatedLayout>
                 <Settings />
+              </AuthenticatedLayout>
+            } />
+             <Route path="/sms" element={
+              <AuthenticatedLayout>
+                <SmsPage />
+              </AuthenticatedLayout>
+            } />
+             <Route path="/sms/create" element={
+              <AuthenticatedLayout>
+                <SmsCreatePage />
               </AuthenticatedLayout>
             } />
           </Route>

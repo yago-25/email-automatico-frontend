@@ -9,15 +9,17 @@ import { MdSms } from "react-icons/md";
 import { FaCheckCircle } from "react-icons/fa";
 import { messageAlert } from "../../utils/messageAlert";
 import { useLocation, useNavigate } from "react-router-dom";
-
+import { useState } from "react";
+import { Tooltip } from 'antd';
 
 const Sidebar = () => {
   const navigate = useNavigate();
   const location = useLocation();
 
   const user = JSON.parse(localStorage.getItem("user") || "{}");
-  // const cargo = user.cargo && user.cargo.nome ? user.cargo.nome.toLowerCase() : ""; 
-  const cargo = user.cargo_id; 
+  const cargo = user.cargo_id;
+
+  const [optionsSms, setOptionsSms] = useState(false);
 
   const logout = () => {
     navigate("/");
@@ -38,15 +40,22 @@ const Sidebar = () => {
   };
 
   return (
-    <div className="sidebar-container">
+    <div
+      className={`sidebar-container transition-all duration-300 ${
+        optionsSms ? "w-[170px]" : "w-[50px]"
+      }`}
+    >
       <div className="first-lay">
         <img src={mailIcon} width={52} height={52} className="img-mail" />
         <div className="pages">
-          
-          <IoMdHome
-            className={`icon ${isActiveRoute("/dashboard") ? "active-icon" : ""}`}
-            onClick={() => handleNavigation("/dashboard")}
-          />
+          <Tooltip title="teste">
+            <IoMdHome
+              className={`icon ${
+                isActiveRoute("/dashboard") ? "active-icon" : ""
+              }`}
+              onClick={() => handleNavigation("/dashboard")}
+            />
+          </Tooltip>
           <FaUser
             className={`icon ${isActiveRoute("/clients") ? "active-icon" : ""}`}
             onClick={() => handleNavigation("/clients")}
@@ -56,30 +65,64 @@ const Sidebar = () => {
             onClick={() => handleNavigation("/ticket")}
           />
           <FaCalendar
-            className={`icon ${isActiveRoute("/calendar") ? "active-icon" : ""}`}
+            className={`icon ${
+              isActiveRoute("/calendar") ? "active-icon" : ""
+            }`}
             onClick={() => handleNavigation("/calendar")}
           />
 
           {(cargo === 1 || cargo === 2) && (
             <>
               <IoMail
-                className={`icon ${isActiveRoute("/mails") ? "active-icon" : ""}`}
+                className={`icon ${
+                  isActiveRoute("/mails") ? "active-icon" : ""
+                }`}
                 onClick={() => handleNavigation("/mails")}
               />
-              <MdSms
-                className={`icon ${isActiveRoute("/sms") ? "active-icon" : ""}`}
-                onClick={() => handleNavigation("/sms")}
-              />
+              <div className="flex flex-col items-center w-full">
+                <MdSms
+                  className={`icon ${isActiveRoute("/sms") ? "active-icon" : ""}`}
+                  onClick={() => setOptionsSms(!optionsSms)}
+                />
+                {optionsSms && (
+                  <button
+                    className="text-[13px] text-white bg-blue-700 w-full text-left px-4 py-1 rounded hover:bg-blue-800 transition mt-1"
+                    onClick={() => {
+                      handleNavigation("/sms");
+                      setOptionsSms(false);
+                    }}
+                  >
+                    Listagem de SMS
+                  </button>
+                )}
+                {optionsSms && (
+                  <button
+                    className="text-[13px] text-white bg-blue-700 w-full text-left px-4 py-1 rounded hover:bg-blue-800 transition mt-3"
+                    onClick={() => {
+                      handleNavigation("/sms/create");
+                      setOptionsSms(false);
+                    }}
+                  >
+                    Criação de SMS
+                  </button>
+                )}
+              </div>
               <IoLogoWhatsapp
-                className={`icon ${isActiveRoute("/whatsapp") ? "active-icon" : ""}`}
+                className={`icon ${
+                  isActiveRoute("/whatsapp") ? "active-icon" : ""
+                }`}
                 onClick={() => handleNavigation("/whatsapp")}
               />
               <FaCheckCircle
-                className={`icon ${isActiveRoute("/approve") ? "active-icon" : ""}`}
+                className={`icon ${
+                  isActiveRoute("/approve") ? "active-icon" : ""
+                }`}
                 onClick={() => handleNavigation("/approve")}
               />
               <FaGear
-                className={`icon ${isActiveRoute("/settings") ? "active-icon" : ""}`}
+                className={`icon ${
+                  isActiveRoute("/settings") ? "active-icon" : ""
+                }`}
                 onClick={() => handleNavigation("/settings")}
               />
             </>
