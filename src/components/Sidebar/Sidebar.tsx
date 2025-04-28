@@ -41,18 +41,16 @@ const Sidebar = () => {
 
   return (
     <div
-      className={`sidebar-container transition-all duration-300 ${
-        optionsSms ? "w-[170px]" : "w-[50px]"
-      }`}
+      className={`sidebar-container transition-all duration-300 ${optionsSms ? "w-[170px]" : "w-[50px]"
+        }`}
     >
       <div className="first-lay">
         <img src={mailIcon} width={52} height={52} className="img-mail" />
         <div className="pages">
           <Tooltip title="teste">
             <IoMdHome
-              className={`icon ${
-                isActiveRoute("/dashboard") ? "active-icon" : ""
-              }`}
+              className={`icon ${isActiveRoute("/dashboard") ? "active-icon" : ""
+                }`}
               onClick={() => handleNavigation("/dashboard")}
             />
           </Tooltip>
@@ -65,20 +63,31 @@ const Sidebar = () => {
             onClick={() => handleNavigation("/ticket")}
           />
           <FaCalendar
-            className={`icon ${
-              isActiveRoute("/calendar") ? "active-icon" : ""
-            }`}
+            className={`icon ${isActiveRoute("/calendar") ? "active-icon" : ""
+              }`}
             onClick={() => handleNavigation("/calendar")}
           />
 
           {(cargo === 1 || cargo === 2) && (
             <>
-              <IoMail
-                className={`icon ${
-                  isActiveRoute("/mails") ? "active-icon" : ""
-                }`}
-                onClick={() => handleNavigation("/mails")}
-              />
+              <div className="flex flex-col items-center w-full">
+                <IoMail
+                  className={`icon ${isActiveRoute("/mails") ? "active-icon" : ""
+                    }`}
+                    onClick={() => setOptionsSms(!optionsSms)}
+                />
+                {optionsSms && (
+                  <button
+                    className="text-[13px] text-white bg-blue-700 w-full text-left px-4 py-1 rounded hover:bg-blue-800 transition mt-3"
+                    onClick={() => {
+                      handleNavigation("/mails/create");
+                      setOptionsSms(false);
+                    }}
+                  >
+                    Criação de Email
+                  </button>
+                )}
+              </div>
               <div className="flex flex-col items-center w-full">
                 <MdSms
                   className={`icon ${isActiveRoute("/sms") ? "active-icon" : ""}`}
@@ -108,21 +117,18 @@ const Sidebar = () => {
                 )}
               </div>
               <IoLogoWhatsapp
-                className={`icon ${
-                  isActiveRoute("/whatsapp") ? "active-icon" : ""
-                }`}
+                className={`icon ${isActiveRoute("/whatsapp") ? "active-icon" : ""
+                  }`}
                 onClick={() => handleNavigation("/whatsapp")}
               />
               <FaCheckCircle
-                className={`icon ${
-                  isActiveRoute("/approve") ? "active-icon" : ""
-                }`}
+                className={`icon ${isActiveRoute("/approve") ? "active-icon" : ""
+                  }`}
                 onClick={() => handleNavigation("/approve")}
               />
               <FaGear
-                className={`icon ${
-                  isActiveRoute("/settings") ? "active-icon" : ""
-                }`}
+                className={`icon ${isActiveRoute("/settings") ? "active-icon" : ""
+                  }`}
                 onClick={() => handleNavigation("/settings")}
               />
             </>
