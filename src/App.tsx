@@ -16,12 +16,13 @@ import ResetPassword from './pages/ResetPassword/ResetPassword';
 import Approve from './pages/Approve/Approve';
 import Settings from './pages/Settings/UserTable';
 
-
 import Clients from './pages/Clients/Clients';
 import Profile from './pages/Profile/Profile';
 import Calendar from './pages/Calendar/Calendar';
 import SmsPage from './pages/Sms/SmsPage';
 import SmsCreatePage from './pages/Sms/SmsCreatePage';
+import Mails from './pages/Mails/Mails';
+import MailsCreate from './pages/Mails/MailsCreate';
 
 function App() {
   return (
@@ -85,6 +86,16 @@ function App() {
              <Route path="/sms/create" element={
               <AuthenticatedLayout>
                 <SmsCreatePage />
+              </AuthenticatedLayout>
+            } />
+            <Route path="/mails" element={
+              <AuthenticatedLayout>
+                <Mails />
+              </AuthenticatedLayout>
+            } />
+            <Route path="/mails/create" element={
+              <AuthenticatedLayout>
+                <MailsCreate />
               </AuthenticatedLayout>
             } />
           </Route>
