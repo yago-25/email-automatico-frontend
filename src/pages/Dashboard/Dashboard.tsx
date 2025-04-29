@@ -267,7 +267,10 @@ const Dashboard = () => {
           value={filteredTxt}
         />
       </div>
-
+      <div className="flex gap-5 mt-8">
+        <Button text={t("dashboard.add_client")} onClick={() => setAddClient(true)} />
+        <Button text={t("dashboard.add_ticket")} onClick={() => setAddTicket(true)} />
+      </div>
       <div className="tbe w-full max-w-3xl mt-8 rounded-2xl overflow-hidden shadow-lg">
         <div className="tablee grid grid-cols-5 gap-x-6 items-center p-4 bg-blue-100 border-b font-medium text-blue-900">
 
@@ -315,11 +318,6 @@ const Dashboard = () => {
         <button onClick={() => goToPage(currentPage + 1)} disabled={currentPage === totalPages} className="p-2 bg-blue-700 rounded-lg hover:bg-blue-800 disabled:bg-gray-400 disabled:cursor-not-allowed">
           <MdArrowForwardIos />
         </button>
-      </div>
-
-      <div className="flex gap-5 mt-56">
-        <Button text={t("dashboard.add_client")} onClick={() => setAddClient(true)} />
-        <Button text={t("dashboard.add_ticket")} onClick={() => setAddTicket(true)} />
       </div>
 
       <Modal title={t("dashboard.add_client")} isVisible={addClient} onClose={() => setAddClient(false)}>

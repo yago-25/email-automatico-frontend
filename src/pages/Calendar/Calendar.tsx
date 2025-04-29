@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 import Header from "../../components/Header/Header";
 import { User } from "../../models/User";
 import FullCalendar from "@fullcalendar/react";

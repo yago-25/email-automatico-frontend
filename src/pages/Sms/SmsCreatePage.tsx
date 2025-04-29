@@ -14,6 +14,8 @@ import { useSwr } from "../../api/useSwr";
 import Spin from "../../components/Spin/Spin";
 import { useState } from "react";
 import { messageAlert } from "../../utils/messageAlert";
+import { api } from "../../api/api";
+import dayjs from 'dayjs';
 
 interface Message {
   id?: number;
@@ -59,6 +61,7 @@ const SmsCreatePage = () => {
   const [hourMessage, setHourMessage] = useState<string | null>(null);
   const [textMessage, setTextMessage] = useState<string | null>(null);
   const [messagesToShow, setMessagesToShow] = useState<Message[]>([]);
+  const [loading, setLoading] = useState<boolean>(false);
 
   const { data: rawClients = [], loading: loadingClients } =
     useSwr<Clients[]>("/clients");
@@ -91,7 +94,7 @@ const SmsCreatePage = () => {
             />
             <div className="flex justify-center items-center gap-2">
               <button onClick={() => alert("teste")}>
-                {false ? (
+                {authUser ? (
                   <PauseIcon className="size-5 text-secondary" />
                 ) : (
                   <PlayIcon className="size-5 text-secondary" />
@@ -126,7 +129,7 @@ const SmsCreatePage = () => {
                 <button
                   onClick={() => alert("sodlgkhnsdf")}
                   disabled={false}
-                  className={false ? "cursor-not-allowed" : "cursor-pointer"}
+                  className="cursor-pointer"
                 >
                   <ArrowDownCircleIcon className="size-9 text-gray-500" />
                 </button>
@@ -179,14 +182,64 @@ const SmsCreatePage = () => {
     }
   };
 
+  console.log(selected, 'selected');
+
+  const handleSaveSms = async () => {
+    setLoading(true);
+    try {
+      if (
+        !dateMessage ||
+        !hourMessage ||
+        !selected ||
+        !textMessage
+      ) {
+        messageAlert({
+          type: 'error',
+          message: 'Por favor, preencha todos os campos.'
+        });
+        return;
+      };
+
+      const nameSelected = rawClients.find((c) => c.id === Number(selected));
+      const scheduledAt = dayjs(`${dateMessage} ${hourMessage}`).format('YYYY-MM-DD HH:mm:ss');
+
+      await api.post('/sms', {
+        user_id: authUser?.id,
+        names: [nameSelected?.name],
+        phones: [nameSelected?.phone],
+        message: textMessage,
+        scheduled_at: scheduledAt,
+        file_path: null,
+        status: 'pending'
+      }, {
+        headers: {
+          Authorization: `Bearer ${localStorage.getItem("accessToken")}`
+        }
+      });
+
+      messageAlert({
+        type: 'success',
+        message: 'Mensagem programada criada com sucesso!'
+      });
+    } catch(e) {
+      console.log('Erro ao cadastrar mensagem SMS: ', e);
+      messageAlert({
+        type: 'error',
+        message: 'Erro ao cadastrar mensagem SMS'
+      });
+    } finally {
+      setLoading(false);
+    }
+  };
+
   return (
     <div className="p-4">
       <Header name={authUser?.nome_completo} />
-      {loadingClients ? (
+      {loadingClients || loading ? (
         <Spin />
       ) : (
         <div>
-          <h1 className="text-3xl font-semibold text-white mb-10">
+          <h1 className="text-3xl font-semibold text-white">
             Crie sua Mensagem de Texto
           </h1>
 
@@ -197,7 +250,7 @@ const SmsCreatePage = () => {
                 <input
                   type="date"
                   placeholder="Dia da Mensagem"
-                  className="bg-white border rounded-md p-2 rounded-md outline-none"
+                  className="bg-white border rounded-md p-2 outline-none"
                   value={dateMessage || ""}
                   onChange={(e) => setDateMessage(e.target.value)}
                 />
@@ -210,7 +263,7 @@ const SmsCreatePage = () => {
                 <input
                   type="time"
                   placeholder="Hora da Mensagem"
-                  className="bg-white border rounded-md p-2 rounded-md outline-none"
+                  className="bg-white border rounded-md p-2 outline-none"
                   value={hourMessage || ""}
                   onChange={(e) => setHourMessage(e.target.value)}
                 />
@@ -234,7 +287,7 @@ const SmsCreatePage = () => {
                 </label>
                 <textarea
                   placeholder="Digite sua mensagem..."
-                  className="bg-white border rounded-md p-4 rounded-md h-32 resize-none outline-none"
+                  className="bg-white border rounded-md p-4 h-32 resize-none outline-none"
                   value={textMessage || ""}
                   onChange={(e) => setTextMessage(e.target.value)}
                 />
@@ -264,10 +317,10 @@ const SmsCreatePage = () => {
                     };
 
                     setMessagesToShow((prev) => [...prev, newMessage]);
-                    setSelected('');
-                    setDateMessage(null);
-                    setHourMessage(null);
-                    setTextMessage(null);
+                    // setSelected('');
+                    // setDateMessage(null);
+                    // setHourMessage(null);
+                    // setTextMessage(null);
                   }}
                 />
               </div>
@@ -288,7 +341,7 @@ const SmsCreatePage = () => {
           </div>
 
           <div className="flex justify-center mt-5">
-            <Button text="Salvar" onClick={() => alert("teste")} />
+            <Button text="Salvar" onClick={handleSaveSms} />
           </div>
         </div>
       )}
