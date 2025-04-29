@@ -71,7 +71,7 @@ const Mails = () => {
                                             >
                                                 <div>{mail.id}</div>
                                                 <div className="truncate max-w-[200px]" title={mail.subject}>{mail.subject}</div>
-                                                <div className="truncate">{mail.clients?.map(c => c.name).join(", ")}</div>
+                                                <div className="truncate" title={mail.clients?.map(c => c.name).join(", ")}>{mail.clients?.map(c => c.name).join(", ")}</div>
                                                 <div>{mail.send_date} às {mail.send_time}</div>
                                                 <div className="flex items-center justify-center gap-1">
                                                     {mail.status === "pending" && (
