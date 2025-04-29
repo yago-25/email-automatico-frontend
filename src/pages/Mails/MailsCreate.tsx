@@ -4,6 +4,7 @@ import Spin from "../../components/Spin/Spin";
 import { useSwr } from "../../api/useSwr";
 import { messageAlert } from "../../utils/messageAlert";
 import { api } from "../../api/api";
+import { useNavigate } from 'react-router-dom';
 
 interface Clients {
     id: number;
@@ -26,6 +27,7 @@ interface EmailAttachment {
 }
 
 const MailsCreate = () => {
+    const navigate = useNavigate();
     const [subject, setSubject] = useState("");
     const [body, setBody] = useState("");
     const [selectedClients, setSelectedClients] = useState<string[]>([]);
@@ -58,7 +60,7 @@ const MailsCreate = () => {
 
     const handlePreview = (e: React.FormEvent) => {
         e.preventDefault();
-        setShowPreview(true); // Exibe a prévia quando o usuário clica em "Visualizar"
+        setShowPreview(true); 
     };
 
     const handleSend = async () => {
@@ -86,6 +88,7 @@ const MailsCreate = () => {
                     type: "success",
                     message: "E-mail agendado com sucesso!",
                 });
+                navigate('/mails');
             } else {
                 messageAlert({
                     type: "error",
@@ -104,8 +107,7 @@ const MailsCreate = () => {
     return (
         <div className="flex flex-col p-8 gap-8">
             <h1 className="text-2xl text-blue-50 font-semibold ml-2">Crie seu Email</h1>
-            <div className="flex gap-12"> {/* Contêiner flex para alinhar o formulário e preview lado a lado */}
-                {/* Formulário */}
+            <div className="flex gap-12"> 
                 <form onSubmit={handlePreview} className="p-6 rounded-2xl shadow-md bg-white w-[800px] flex flex-col gap-6">
                     <div className="grid grid-cols-2 gap-6">
                         <div>
@@ -193,7 +195,6 @@ const MailsCreate = () => {
                     </div>
                 </form>
 
-                {/* Preview */}
                 {showPreview && (
                     <div className="p-6 rounded-2xl shadow-md bg-white w-[800px]">
                         <h2 className="text-xl font-semibold text-blue-500">Prévia do E-mail</h2>

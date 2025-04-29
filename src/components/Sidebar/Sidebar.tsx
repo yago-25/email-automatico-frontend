@@ -87,6 +87,18 @@ const Sidebar = () => {
                     Criação de Email
                   </button>
                 )}
+
+                {optionsSms && (
+                  <button
+                    className="text-[13px] text-white bg-blue-700 w-full text-left px-4 py-1 rounded hover:bg-blue-800 transition mt-3"
+                    onClick={() => {
+                      handleNavigation("/mails");
+                      setOptionsSms(false);
+                    }}
+                  >
+                    Listagem de Mail
+                  </button>
+                )}
               </div>
               <div className="flex flex-col items-center w-full">
                 <MdSms
