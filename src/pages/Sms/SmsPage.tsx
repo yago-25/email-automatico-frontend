@@ -18,8 +18,8 @@ import { useNavigate } from "react-router-dom";
 interface Sms {
   id: number;
   user_name: string;
-  names: string;
-  phones: string;
+  names: string[];
+  phones: string[];
   message: string;
   scheduled_at: string;
   file_path: string | null;
@@ -40,11 +40,13 @@ const SmsPage = () => {
 
   const now = new Date();
 
-  const openModal = (phones: string, names: string) => {
-    setModalPhones(JSON.parse(phones));
-    setModalNames(JSON.parse(names));
+  const openModal = (phones: string[], names: string[]) => {
+    setModalPhones(phones);
+    setModalNames(names);
     setIsModalOpen(true);
   };
+
+  console.log(isModalOpen, 'isModalOpen');
 
   const closeModal = () => {
     setIsModalOpen(false);

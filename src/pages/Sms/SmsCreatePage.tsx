@@ -9,13 +9,14 @@ import { SmsMessage } from "../../components/PhoneComponent/SmsMessage";
 import SmsPhone from "../../components/PhoneComponent/SmsPhone";
 import { User } from "../../models/User";
 import { Button } from "../Ticket/Ticket";
-import Select from "../../components/Select/Select";
 import { useSwr } from "../../api/useSwr";
 import Spin from "../../components/Spin/Spin";
 import { useState } from "react";
 import { messageAlert } from "../../utils/messageAlert";
 import { api } from "../../api/api";
-import dayjs from 'dayjs';
+import dayjs from "dayjs";
+import { DatePicker, TimePicker } from "antd";
+import MultiSelectClient from "../../components/Select/MultiSelectClient";
 
 interface Message {
   id?: number;
@@ -52,17 +53,32 @@ interface Option {
   value: string;
 }
 
+interface SmsValue {
+  selected: string[] | null;
+  dateMessage: string | null;
+  hourMessage: string | null;
+  textMessage: string | null;
+}
+
 const SmsCreatePage = () => {
+  const format = 'HH:mm';
+
   const storedUser = localStorage.getItem("user");
   const authUser: User | null = storedUser ? JSON.parse(storedUser) : null;
 
-  const [selected, setSelected] = useState<string>("");
+  const [selected, setSelected] = useState<string[]>([]);
   const [dateMessage, setDateMessage] = useState<string | null>(null);
   const [hourMessage, setHourMessage] = useState<string | null>(null);
   const [textMessage, setTextMessage] = useState<string | null>(null);
   const [messagesToShow, setMessagesToShow] = useState<Message[]>([]);
   const [loading, setLoading] = useState<boolean>(false);
-
+  const [payload, setPayload] = useState<SmsValue>({
+    selected: [],
+    dateMessage: null,
+    hourMessage: null,
+    textMessage: null,
+  });
+ 
   const { data: rawClients = [], loading: loadingClients } =
     useSwr<Clients[]>("/clients");
 
@@ -71,8 +87,8 @@ const SmsCreatePage = () => {
     label: client.name,
   }));
 
-  const handleSelectChange = (value: string | number) => {
-    setSelected(value.toString());
+  const handleSelectChange = (value: string[]) => {
+    setSelected(value);
   };
 
   const renderMessagePreview = (message: Message) => {
@@ -182,50 +198,49 @@ const SmsCreatePage = () => {
     }
   };
 
-  console.log(selected, 'selected');
-
   const handleSaveSms = async () => {
     setLoading(true);
     try {
-      if (
-        !dateMessage ||
-        !hourMessage ||
-        !selected ||
-        !textMessage
-      ) {
+      if (!payload.dateMessage || !payload.hourMessage || !payload.selected || !payload.textMessage) {
         messageAlert({
-          type: 'error',
-          message: 'Por favor, preencha todos os campos.'
+          type: "error",
+          message: "Por favor, preencha todos os campos.",
         });
         return;
-      };
+      }
 
       const nameSelected = rawClients.find((c) => c.id === Number(selected));
-      const scheduledAt = dayjs(`${dateMessage} ${hourMessage}`).format('YYYY-MM-DD HH:mm:ss');
+      const scheduledAt = dayjs(`${dateMessage} ${hourMessage}`).format(
+        "YYYY-MM-DD HH:mm:ss"
+      );
 
-      await api.post('/sms', {
-        user_id: authUser?.id,
-        names: [nameSelected?.name],
-        phones: [nameSelected?.phone],
-        message: textMessage,
-        scheduled_at: scheduledAt,
-        file_path: null,
-        status: 'pending'
-      }, {
-        headers: {
-          Authorization: `Bearer ${localStorage.getItem("accessToken")}`
+      await api.post(
+        "/sms",
+        {
+          user_id: authUser?.id,
+          names: [nameSelected?.name],
+          phones: [nameSelected?.phone],
+          message: textMessage,
+          scheduled_at: scheduledAt,
+          file_path: null,
+          status: "pending",
+        },
+        {
+          headers: {
+            Authorization: `Bearer ${localStorage.getItem("accessToken")}`,
+          },
         }
-      });
+      );
 
       messageAlert({
-        type: 'success',
-        message: 'Mensagem programada criada com sucesso!'
+        type: "success",
+        message: "Mensagem programada criada com sucesso!",
       });
-    } catch(e) {
-      console.log('Erro ao cadastrar mensagem SMS: ', e);
+    } catch (e) {
+      console.log("Erro ao cadastrar mensagem SMS: ", e);
       messageAlert({
-        type: 'error',
-        message: 'Erro ao cadastrar mensagem SMS'
+        type: "error",
+        message: "Erro ao cadastrar mensagem SMS",
       });
     } finally {
       setLoading(false);
@@ -242,17 +257,16 @@ const SmsCreatePage = () => {
           <h1 className="text-3xl font-semibold text-white">
             Crie sua Mensagem de Texto
           </h1>
-
           <div className="flex gap-10 items-center justify-between w-full">
             <div className="bg-white p-6 rounded-lg shadow-md w-2/3 flex flex-col gap-6">
               <div className="flex flex-col gap-2">
                 <label className="text-blue-600 text-sm">Dia da Mensagem</label>
-                <input
-                  type="date"
+                <DatePicker
                   placeholder="Dia da Mensagem"
+                  value={dateMessage ? dayjs(dateMessage) : null}
+                  onChange={(date) => setDateMessage(date ? date.toISOString() : null)}
+                  picker="week"
                   className="bg-white border rounded-md p-2 outline-none"
-                  value={dateMessage || ""}
-                  onChange={(e) => setDateMessage(e.target.value)}
                 />
               </div>
 
@@ -260,12 +274,12 @@ const SmsCreatePage = () => {
                 <label className="text-blue-600 text-sm">
                   Hora da Mensagem
                 </label>
-                <input
-                  type="time"
-                  placeholder="Hora da Mensagem"
+                <TimePicker
                   className="bg-white border rounded-md p-2 outline-none"
-                  value={hourMessage || ""}
-                  onChange={(e) => setHourMessage(e.target.value)}
+                  value={hourMessage ? dayjs(hourMessage) : null}
+                  onChange={(date) => setHourMessage(date ? date.toISOString() : null)}
+                  defaultValue={dayjs('00:00', format)}
+                  format={format}
                 />
               </div>
 
@@ -273,11 +287,12 @@ const SmsCreatePage = () => {
                 <label className="text-blue-600 text-sm">
                   Cliente que receberá a Mensagem
                 </label>
-                <Select
+                <MultiSelectClient
                   options={optionsClient}
                   value={selected}
-                  onChange={handleSelectChange}
                   placeholder="Selecione o Cliente"
+                  onChange={handleSelectChange}
+                  showSearch={false}
                 />
               </div>
 
@@ -304,11 +319,11 @@ const SmsCreatePage = () => {
                       !textMessage
                     ) {
                       messageAlert({
-                        type: 'error',
-                        message: 'Por favor, preencha todos os campos.'
+                        type: "error",
+                        message: "Por favor, preencha todos os campos.",
                       });
                       return;
-                    };
+                    }
 
                     const newMessage: Message = {
                       id: Date.now(),
@@ -317,15 +332,24 @@ const SmsCreatePage = () => {
                     };
 
                     setMessagesToShow((prev) => [...prev, newMessage]);
-                    // setSelected('');
-                    // setDateMessage(null);
-                    // setHourMessage(null);
-                    // setTextMessage(null);
+                    setPayload({
+                      selected,
+                      dateMessage,
+                      hourMessage,
+                      textMessage,
+                    });
+                    setSelected([]);
+                    setDateMessage(null);
+                    setHourMessage(null);
+                    setTextMessage(null);
                   }}
                 />
               </div>
             </div>
-            <div className="flex justify-center items-center gap-6">
+            <div className="flex flex-col justify-center items-center gap-6">
+              <div className="flex justify-center">
+                <Button text="Salvar" onClick={handleSaveSms} />
+              </div>
               <SmsPhone>
                 {messagesToShow.map((message) => (
                   <SmsMessage
@@ -338,10 +362,6 @@ const SmsCreatePage = () => {
                 ))}
               </SmsPhone>
             </div>
-          </div>
-
-          <div className="flex justify-center mt-5">
-            <Button text="Salvar" onClick={handleSaveSms} />
           </div>
         </div>
       )}

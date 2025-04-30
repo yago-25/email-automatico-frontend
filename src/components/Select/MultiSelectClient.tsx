@@ -7,27 +7,31 @@ interface Option {
 }
 
 interface MultiSelectClientProps {
-  options: Option[];               // Aceitar a lista de opções
-  value: string[];                 // O valor agora será um array de strings (IDs dos clientes)
-  onChange: (value: string[]) => void;  // onChange vai retornar um array de strings
+  options: Option[];
+  value: string[];
+  onChange: (value: string[]) => void;
   placeholder: string;
+  showSearch?: boolean;
 }
 
 const MultiSelectClient: React.FC<MultiSelectClientProps> = ({ 
   options, 
   value, 
   onChange, 
-  placeholder 
+  placeholder,
+  showSearch = true
 }) => {
   return (
     <div>
       <Select
-        mode="multiple"           // Permite a seleção múltipla
-        options={options}         // Passa as opções para o Select
-        value={value}             // Passa os clientes selecionados
-        onChange={onChange}       // Passa a função para atualizar os clientes selecionados
-        placeholder={placeholder} // Placeholder do Select
-        style={{ width: '100%' }}  // Garante que o Select ocupe toda a largura disponível
+        mode="multiple"
+        options={options}
+        value={value}
+        onChange={onChange}
+        placeholder={placeholder}
+        style={{ width: '100%', height: '40px', display: 'flex',  }}
+        allowClear
+        showSearch={showSearch}
       />
     </div>
   );
