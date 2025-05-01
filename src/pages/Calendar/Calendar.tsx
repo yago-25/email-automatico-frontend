@@ -45,6 +45,7 @@ interface CalendarEvent {
   tags?: string[];
   repeat?: boolean;
   type_selected?: string;
+  user_name?: string;
 }
 
 interface TicketEvent {
@@ -79,7 +80,6 @@ const Calendar = () => {
 
   const [selectedEvent, setSelectedEvent] = useState<CalendarEvent>();
   const [isCalendarEventModalOpen, setIsCalendarEventModalOpen] = useState<boolean>(false);
-  const [selectedDate, setSelectedDate] = useState<string>();
   const [isCreateCalendarEventModalOpen, setIsCreateCalendarEventModalOpen] = useState<boolean>(false);
   const [titleEvent, setTitleEvent] = useState('');
   const [descriptionEvent, setDescriptionEvent] = useState('');
@@ -126,7 +126,7 @@ const Calendar = () => {
   }
 
   const handleDateClick = (info: { dateStr: string }) => {
-    setSelectedDate(info.dateStr);
+    setDateInitial(info.dateStr);
     setIsCreateCalendarEventModalOpen(true);
   };
 
@@ -138,7 +138,7 @@ const Calendar = () => {
     try {
       if (isTicket) {
         const ticketId = id.replace("t-", "");
-        const res = await api.get(`/tickets/${ticketId}`, {
+        const res = await api.get(`/tickets/showToCalendar/${ticketId}`, {
           headers: {
             Authorization: `Bearer ${localStorage.getItem("accessToken")}`,
           },
@@ -146,16 +146,17 @@ const Calendar = () => {
         const ticket = res?.data;
 
         const ticketEvent: CalendarEvent = {
-          id: ticket.id.toString(),
-          title: ticket.name,
-          type: ticket.type,
-          start: ticket.created_at,
-          tags: ticket.tags || [],
-          status: ticket.status,
+          id: ticket.ticket.id.toString(),
+          title: ticket.ticket.name,
+          type: ticket.ticket.type,
+          start: ticket.ticket.created_at,
+          tags: ticket.ticket.tags || [],
+          status: ticket.ticket.status,
           allDay: true,
-          user_id: ticket.user_id,
-          description: ticket.observation,
+          user_id: ticket.ticket.user_id,
+          description: ticket.ticket.observation,
           type_selected: "ticket",
+          user_name: ticket.user_name
         };
 
         setSelectedEvent(ticketEvent);
@@ -221,7 +222,7 @@ const Calendar = () => {
       const payload = {
         label: titleEvent,
         description: descriptionEvent,
-        start_date: selectedDate,
+        start_date: dateInitial || null,
         end_date: dateFinal || null,
         all_day: isAllDay,
         repeat: isRepeating,
@@ -268,7 +269,7 @@ const Calendar = () => {
   }, [i18n.language]);
   
   const handleGoogleSync = useGoogleLogin({
-    scope: 'https://www.googleapis.com/auth/calendar.readonly',
+    scope: 'https://www.googleapis.com/auth/calendar',
     prompt: 'consent',
     onSuccess: async (tokenResponse) => {
       setLoadingGoogle(true);
@@ -405,6 +406,11 @@ const Calendar = () => {
             <div className="space-y-1">
               <p className="text-xs text-gray-500">{t("calendar.modal_details.type")}</p>
               <p className="text-sm font-medium">{selectedEvent?.type}</p>
+            </div>
+
+            <div className="space-y-1">
+              <p className="text-xs text-gray-500">Usuário</p>
+              <p className="text-sm font-medium">{selectedEvent?.user_name}</p>
             </div>
 
             {selectedEvent?.description && (

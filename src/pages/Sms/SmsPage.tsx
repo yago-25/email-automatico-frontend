@@ -6,7 +6,6 @@ import { CiMail, CiPhone } from "react-icons/ci";
 import { FaGear, FaPlus } from "react-icons/fa6";
 import { MdSchedule, MdScheduleSend } from "react-icons/md";
 import { FaRegTrashAlt } from "react-icons/fa";
-import { RxPencil2 } from "react-icons/rx";
 import { IoIosInformationCircleOutline } from "react-icons/io";
 import { AiOutlineEye } from "react-icons/ai";
 import { useSwr } from "../../api/useSwr";
@@ -14,6 +13,8 @@ import Spin from "../../components/Spin/Spin";
 import { useState } from "react";
 import Modal from "../../components/Modal/Modal";
 import { useNavigate } from "react-router-dom";
+import { api } from "../../api/api";
+import { messageAlert } from "../../utils/messageAlert";
 
 interface Sms {
   id: number;
@@ -32,11 +33,12 @@ const SmsPage = () => {
   const storedUser = localStorage.getItem("user");
   const authUser: User | null = storedUser ? JSON.parse(storedUser) : null;
 
-  const { data, loading } = useSwr<Sms[]>("/sms");
+  const { data, loading, mutate } = useSwr<Sms[]>("/sms");
 
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [modalPhones, setModalPhones] = useState<string[]>([]);
   const [modalNames, setModalNames] = useState<string[]>([]);
+  const [loadingPost, setLoadingPost] = useState<boolean>(false);
 
   const now = new Date();
 
@@ -46,7 +48,7 @@ const SmsPage = () => {
     setIsModalOpen(true);
   };
 
-  console.log(isModalOpen, 'isModalOpen');
+  console.log(isModalOpen, "isModalOpen");
 
   const closeModal = () => {
     setIsModalOpen(false);
@@ -61,16 +63,57 @@ const SmsPage = () => {
     return phone;
   };
 
+  const handleSendNow = async (id: number) => {
+    setLoadingPost(true);
+    try {
+      await api.post(`/sms/send?id=${id}`, {
+        headers: {
+          Authorization: `Bearer ${localStorage.getItem("accessToken")}`,
+        },
+      });
+
+      messageAlert({
+        type: "success",
+        message: "Mensagem enviada com sucesso!",
+      });
+      mutate();
+    } catch (e) {
+      messageAlert({
+        type: "error",
+        message: "Erro ao enviar mensagem.",
+      });
+      console.log("Erro ao enviar mensagem: ", e);
+    } finally {
+      setLoadingPost(false);
+    }
+  };
+
   return (
     <div className="p-4">
       <Header name={authUser?.nome_completo} />
       <div className="max-w-6xl mx-auto px-4 py-8">
-        {loading ? (
+        {loading || loadingPost ? (
           <Spin />
         ) : (
           <>
             <div className="flex flex-col sm:flex-row justify-between items-center mb-6 gap-4">
-              <h1 className="text-3xl font-bold text-white">Listagem de SMS</h1>
+              <div className="flex items-center justify-center gap-5">
+                <h1 className="text-3xl font-bold text-white">
+                  Listagem de SMS
+                </h1>
+                <div className="flex items-center gap-1 text-white">
+                  <span className="inline-block w-3 h-3 rounded-full bg-green-200"></span>
+                  Enviados
+                </div>
+                <div className="flex items-center gap-1 text-white">
+                  <span className="inline-block w-3 h-3 rounded-full bg-red-200"></span>
+                  Falhas
+                </div>
+                <div className="flex items-center gap-1 text-white">
+                  <span className="inline-block w-3 h-3 rounded-full bg-white"></span>
+                  Pendentes
+                </div>
+              </div>
               <FaPlus
                 className="cursor-pointer w-6 h-6 text-white"
                 onClick={() => navigate("/sms/create")}
@@ -105,11 +148,16 @@ const SmsPage = () => {
                 {data &&
                   data.map((sms, i) => {
                     const isPast = new Date(sms.scheduled_at) < now;
+                    const isSend = sms.status === "sent";
                     return (
                       <div
                         key={sms.id}
                         className={`grid grid-cols-7 gap-4 px-6 py-4 text-sm text-blue-900 border-b ${
-                          isPast ? "bg-red-100" : "bg-white"
+                          isPast
+                            ? "bg-red-200"
+                            : isSend
+                            ? "bg-green-200"
+                            : "bg-white"
                         } ${i === data.length - 1 ? "rounded-b-lg" : ""}`}
                       >
                         <div className="flex justify-center items-center truncate">
@@ -143,14 +191,13 @@ const SmsPage = () => {
                             : "Falha"}
                         </div>
                         <div className="flex justify-center items-center w-full gap-2">
-                          <MdScheduleSend
-                            className="cursor-pointer w-5 h-5"
-                            title="Enviar agora"
-                          />
-                          <RxPencil2
-                            className="cursor-pointer w-5 h-5"
-                            title="Editar"
-                          />
+                          {sms.status !== "sent" && (
+                            <MdScheduleSend
+                              className="cursor-pointer w-5 h-5"
+                              title="Enviar agora"
+                              onClick={() => handleSendNow(sms.id)}
+                            />
+                          )}
                           <FaRegTrashAlt
                             className="cursor-pointer w-5 h-5"
                             title="Deletar"
