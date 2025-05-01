@@ -81,17 +81,29 @@ interface Admins {
 
 interface ButtonProps {
   text: string;
-  onClick: () => void;
+   onClick?: (e: React.MouseEvent<HTMLButtonElement>) => void;
+  disabled?: boolean;
 }
 
-export const Button: React.FC<ButtonProps> = ({ text, onClick }) => {
+export const Button: React.FC<ButtonProps> = ({ text, onClick, disabled }) => {
   return (
     <button
-      onClick={onClick}
-      className="cursor-pointer w-44 h-12 bg-blue-600 text-white rounded-lg hover:bg-blue-700 hover:shadow-lg transition-all group active:w-11 active:h-11 active:rounded-full active:duration-300 ease-in-out"
+      disabled={disabled}
+      onClick={(e) => {
+        if (!disabled) {
+          onClick?.(e);
+        }
+      }}
+      className={`w-44 h-12 text-white rounded-lg transition-all ease-in-out ${
+        disabled
+          ? "bg-blue-400 cursor-not-allowed opacity-50"
+          : "bg-blue-600 hover:bg-blue-700 hover:shadow-lg cursor-pointer active:w-11 active:h-11 active:rounded-full active:duration-300"
+      } group`}
     >
       <svg
-        className="animate-spin hidden group-active:block mx-auto"
+        className={`animate-spin mx-auto ${
+          disabled ? "hidden" : "group-active:block hidden"
+        }`}
         width="33"
         height="32"
         viewBox="0 0 33 32"
@@ -100,7 +112,7 @@ export const Button: React.FC<ButtonProps> = ({ text, onClick }) => {
       >
         <path d="..." fill="white" />
       </svg>
-      <span className="group-active:hidden">{text}</span>
+      <span className={`${disabled ? "" : "group-active:hidden"}`}>{text}</span>
     </button>
   );
 };

@@ -14,7 +14,7 @@ interface MultiSelectClientProps {
   value: string[];
   onChange: (value: string[]) => void;
   placeholder: string;
-  onSearch: (e: string) => void;
+  onSearch?: (e: string) => void;
 }
 
 const MultiSelectClient: React.FC<MultiSelectClientProps> = ({

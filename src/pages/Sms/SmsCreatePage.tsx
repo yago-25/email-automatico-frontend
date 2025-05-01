@@ -11,12 +11,26 @@ import { User } from "../../models/User";
 import { Button } from "../Ticket/Ticket";
 import { useSwr } from "../../api/useSwr";
 import Spin from "../../components/Spin/Spin";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { messageAlert } from "../../utils/messageAlert";
 import { api } from "../../api/api";
 import dayjs from "dayjs";
-import { DatePicker, TimePicker } from "antd";
+import { ConfigProvider, DatePicker, TimePicker } from "antd";
 import MultiSelectClient from "../../components/Select/MultiSelectClient";
+import ptBR from "antd/lib/locale/pt_BR";
+import enUS from "antd/lib/locale/en_US";
+import esES from "antd/lib/locale/es_ES";
+import "dayjs/locale/pt-br";
+import "dayjs/locale/en";
+import "dayjs/locale/es";
+import { useTranslation } from "react-i18next";
+import { useNavigate } from "react-router-dom";
+
+const localeMap = {
+  pt: ptBR,
+  en: enUS,
+  es: esES,
+};
 
 interface Message {
   id?: number;
@@ -58,14 +72,22 @@ interface SmsValue {
   dateMessage: string | null;
   hourMessage: string | null;
   textMessage: string | null;
+  names: string[] | null;
+  phones?: string[] | null;
 }
 
 const SmsCreatePage = () => {
-  const format = 'HH:mm';
+  const format = "HH:mm";
+  const navigate = useNavigate();
+
+  const { i18n } = useTranslation();
 
   const storedUser = localStorage.getItem("user");
   const authUser: User | null = storedUser ? JSON.parse(storedUser) : null;
 
+  const [antdLocale, setAntdLocale] = useState(
+    localeMap[i18n.language as "pt" | "en" | "es"] || ptBR
+  );
   const [selected, setSelected] = useState<string[]>([]);
   const [dateMessage, setDateMessage] = useState<string | null>(null);
   const [hourMessage, setHourMessage] = useState<string | null>(null);
@@ -77,8 +99,10 @@ const SmsCreatePage = () => {
     dateMessage: null,
     hourMessage: null,
     textMessage: null,
+    names: [],
+    phones: [],
   });
- 
+
   const { data: rawClients = [], loading: loadingClients } =
     useSwr<Clients[]>("/clients");
 
@@ -198,10 +222,20 @@ const SmsCreatePage = () => {
     }
   };
 
+  const formatPhoneNumber = (phone: string, countryCode = "55") => {
+    const digitsOnly = phone.replace(/\D/g, "");
+    return `+${countryCode}${digitsOnly}`;
+  };
+
   const handleSaveSms = async () => {
     setLoading(true);
     try {
-      if (!payload.dateMessage || !payload.hourMessage || !payload.selected || !payload.textMessage) {
+      if (
+        !payload.dateMessage ||
+        !payload.hourMessage ||
+        !payload.selected ||
+        !payload.textMessage
+      ) {
         messageAlert({
           type: "error",
           message: "Por favor, preencha todos os campos.",
@@ -209,18 +243,21 @@ const SmsCreatePage = () => {
         return;
       }
 
-      const nameSelected = rawClients.find((c) => c.id === Number(selected));
-      const scheduledAt = dayjs(`${dateMessage} ${hourMessage}`).format(
-        "YYYY-MM-DD HH:mm:ss"
+      const selectedDate = dayjs(payload.dateMessage);
+      const selectedTime = dayjs(payload.hourMessage).format("HH:mm");
+      const selectedDateTime = dayjs(
+        `${selectedDate.format("YYYY-MM-DD")}T${selectedTime}`
       );
+
+      const scheduledAt = selectedDateTime.format("YYYY-MM-DD HH:mm:ss");
 
       await api.post(
         "/sms",
         {
           user_id: authUser?.id,
-          names: [nameSelected?.name],
-          phones: [nameSelected?.phone],
-          message: textMessage,
+          names: payload.names,
+          phones: payload.phones?.map((phone) => formatPhoneNumber(phone, "55")),
+          message: payload.textMessage,
           scheduled_at: scheduledAt,
           file_path: null,
           status: "pending",
@@ -236,6 +273,7 @@ const SmsCreatePage = () => {
         type: "success",
         message: "Mensagem programada criada com sucesso!",
       });
+      navigate("/sms");
     } catch (e) {
       console.log("Erro ao cadastrar mensagem SMS: ", e);
       messageAlert({
@@ -246,6 +284,16 @@ const SmsCreatePage = () => {
       setLoading(false);
     }
   };
+
+  const handleDeleteMessage = (id: number) => {
+    setMessagesToShow((prev) => prev.filter((message) => message.id !== id));
+  };
+
+  useEffect(() => {
+    const lang = i18n.language as "pt" | "en" | "es";
+    dayjs.locale(lang);
+    setAntdLocale(localeMap[lang] || ptBR);
+  }, [i18n.language]);
 
   return (
     <div className="p-4">
@@ -261,26 +309,38 @@ const SmsCreatePage = () => {
             <div className="bg-white p-6 rounded-lg shadow-md w-2/3 flex flex-col gap-6">
               <div className="flex flex-col gap-2">
                 <label className="text-blue-600 text-sm">Dia da Mensagem</label>
-                <DatePicker
-                  placeholder="Dia da Mensagem"
-                  value={dateMessage ? dayjs(dateMessage) : null}
-                  onChange={(date) => setDateMessage(date ? date.toISOString() : null)}
-                  picker="week"
-                  className="bg-white border rounded-md p-2 outline-none"
-                />
+                <ConfigProvider locale={antdLocale}>
+                  <DatePicker
+                    format={
+                      i18n.language === "en" ? "MM/DD/YYYY" : "DD/MM/YYYY"
+                    }
+                    placeholder={
+                      i18n.language === "en"
+                        ? "Date of Message"
+                        : "Dia da Mensagem"
+                    }
+                    value={dateMessage ? dayjs(dateMessage) : null}
+                    onChange={(d) => setDateMessage(d ? d.toISOString() : null)}
+                    className="bg-white border rounded-md p-2 outline-none"
+                  />
+                </ConfigProvider>
               </div>
 
               <div className="flex flex-col gap-2">
                 <label className="text-blue-600 text-sm">
                   Hora da Mensagem
                 </label>
-                <TimePicker
-                  className="bg-white border rounded-md p-2 outline-none"
-                  value={hourMessage ? dayjs(hourMessage) : null}
-                  onChange={(date) => setHourMessage(date ? date.toISOString() : null)}
-                  defaultValue={dayjs('00:00', format)}
-                  format={format}
-                />
+                <ConfigProvider locale={antdLocale}>
+                  <TimePicker
+                    className="bg-white border rounded-md p-2 outline-none"
+                    value={hourMessage ? dayjs(hourMessage) : null}
+                    onChange={(date) =>
+                      setHourMessage(date ? date.toISOString() : null)
+                    }
+                    defaultValue={dayjs("00:00", format)}
+                    format={format}
+                  />
+                </ConfigProvider>
               </div>
 
               <div className="flex flex-col gap-2">
@@ -311,6 +371,7 @@ const SmsCreatePage = () => {
               <div className="flex justify-end">
                 <Button
                   text="Enviar Preview"
+                  disabled={messagesToShow.length >= 1}
                   onClick={() => {
                     if (
                       !dateMessage ||
@@ -325,11 +386,58 @@ const SmsCreatePage = () => {
                       return;
                     }
 
+                    const now = dayjs();
+                    const selectedDate = dayjs(dateMessage);
+                    const selectedDateTime = dayjs(
+                      `${selectedDate.format("YYYY-MM-DD")}T${dayjs(
+                        hourMessage
+                      ).format("HH:mm")}`
+                    );
+
+                    if (selectedDate.isBefore(now, "day")) {
+                      messageAlert({
+                        type: "error",
+                        message:
+                          "Por favor, selecione uma data maior que a data atual.",
+                      });
+                      return;
+                    }
+
+                    if (
+                      selectedDate.isSame(now, "day") &&
+                      selectedDateTime.isBefore(now.add(5, "minute"))
+                    ) {
+                      messageAlert({
+                        type: "error",
+                        message:
+                          "Por favor, selecione uma hora com no mínimo 5 minutos à frente do horário atual.",
+                      });
+                      return;
+                    }
+
                     const newMessage: Message = {
                       id: Date.now(),
                       mediatype: "text",
                       message: textMessage,
                     };
+
+                    const phones = selected
+                    .map((id) => {
+                      const client = rawClients.find(
+                        (c) => c.id === Number(id)
+                      );
+                      return client ? client.phone : null;
+                    })
+                    .filter((phone): phone is string => phone !== null);
+
+                    const names = selected
+                    .map((id) => {
+                      const client = rawClients.find(
+                        (c) => c.id === Number(id)
+                      );
+                      return client ? client.name : null;
+                    })
+                    .filter((name): name is string => name !== null);
 
                     setMessagesToShow((prev) => [...prev, newMessage]);
                     setPayload({
@@ -337,6 +445,8 @@ const SmsCreatePage = () => {
                       dateMessage,
                       hourMessage,
                       textMessage,
+                      names: names,
+                      phones: phones,
                     });
                     setSelected([]);
                     setDateMessage(null);
@@ -355,7 +465,7 @@ const SmsCreatePage = () => {
                   <SmsMessage
                     key={message.id}
                     isEditable={true}
-                    onDelete={() => console.log("oiiii")}
+                    onDelete={() => handleDeleteMessage(Number(message.id))}
                   >
                     {renderMessagePreview(message)}
                   </SmsMessage>

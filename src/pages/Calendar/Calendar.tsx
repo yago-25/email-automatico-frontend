@@ -91,6 +91,7 @@ const Calendar = () => {
   const [statusEvent, setStatusEvent] = useState('');
   const [locale, setLocale] = useState(ptBr);
   const [loadingGoogle, setLoadingGoogle] = useState(false);
+  const [loadingRemove, setLoadingRemove] = useState(false);
 
   const { data, loading, mutate } = useSwr<CalendarInfo>(`/calendar/infos?user_id=${authUser?.id}`);
   const eventSources: EventSourceInput[] = [];
@@ -263,6 +264,32 @@ const Calendar = () => {
     }
   };
 
+  const handleRemoveEvent = async (id: number) => {
+    setIsCalendarEventModalOpen(false);
+    setLoadingRemove(true);
+    try {
+      await api.delete(`calendar/events/${id}`, {
+        headers: {
+          Authorization: `Bearer ${localStorage.getItem("accessToken")}`
+        },
+      });
+
+      mutate();
+      messageAlert({
+        type: "success",
+        message: "Evento removido com sucesso!",
+      });
+    } catch(e) {
+      console.error(e);
+      messageAlert({
+        type: "error",
+        message: "Erro ao remover o evento.",
+      });
+    } finally {
+      setLoadingRemove(false);
+    }
+  };
+
   useEffect(() => {
     const newLocale = localeMap[i18n.language as keyof typeof localeMap] || ptBr;
     setLocale(newLocale);
@@ -302,7 +329,7 @@ const Calendar = () => {
     <div className="flex flex-col items-center justify-center w-full">
       <Header name={authUser?.nome_completo} />
       <div className="max-w-7xl mx-auto rounded-2xl shadow-lg bg-white w-full mt-5">
-        {loading || loadingGoogle ? (
+        {loading || loadingGoogle || loadingRemove ? (
           <Spin />
         ) : (
           <div className="p-4 h-full w-full">
@@ -554,7 +581,7 @@ const Calendar = () => {
             </div>
 
             <div className="flex justify-end gap-2 pt-6">
-              <button className="px-4 py-2 rounded-lg text-sm bg-red-500 text-white hover:bg-red-600 transition">
+              <button className="px-4 py-2 rounded-lg text-sm bg-red-500 text-white hover:bg-red-600 transition" onClick={() => handleRemoveEvent(Number(selectedEvent?.id))}>
                 {t("calendar.modal_details.remove")}
               </button>
             </div>

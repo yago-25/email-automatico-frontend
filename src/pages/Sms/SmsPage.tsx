@@ -13,6 +13,11 @@ import Spin from "../../components/Spin/Spin";
 import { useState } from "react";
 import Modal from "../../components/Modal/Modal";
 import { useNavigate } from "react-router-dom";
+import dayjs from "dayjs";
+import { useTranslation } from "react-i18next";
+import 'dayjs/locale/pt-br';
+import 'dayjs/locale/en';
+import 'dayjs/locale/es';
 import { api } from "../../api/api";
 import { messageAlert } from "../../utils/messageAlert";
 
@@ -35,9 +40,19 @@ const SmsPage = () => {
 
   const { data, loading, mutate } = useSwr<Sms[]>("/sms");
 
+  const { i18n } = useTranslation();
+  const lang = i18n.language as "pt" | "en" | "es";
+
+  const dateFormatMap: Record<string, string> = {
+    'pt-BR': 'DD/MM/YYYY HH:mm',
+    en: 'MM/DD/YYYY hh:mm A',
+    es: 'DD/MM/YYYY HH:mm',
+  };
+
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [modalPhones, setModalPhones] = useState<string[]>([]);
   const [modalNames, setModalNames] = useState<string[]>([]);
+  const [loadingDelete, setLoadingDelete] = useState(false);
   const [loadingPost, setLoadingPost] = useState<boolean>(false);
 
   const now = new Date();
@@ -47,8 +62,6 @@ const SmsPage = () => {
     setModalNames(names);
     setIsModalOpen(true);
   };
-
-  console.log(isModalOpen, "isModalOpen");
 
   const closeModal = () => {
     setIsModalOpen(false);
@@ -66,7 +79,7 @@ const SmsPage = () => {
   const handleSendNow = async (id: number) => {
     setLoadingPost(true);
     try {
-      await api.post(`/sms/send?id=${id}`, {
+      await api.post(`/sms/send?id=${id}`, null, {
         headers: {
           Authorization: `Bearer ${localStorage.getItem("accessToken")}`,
         },
@@ -88,11 +101,37 @@ const SmsPage = () => {
     }
   };
 
+  const handleDeleteSms = async (id: number) => {
+    setLoadingDelete(true);
+    try {
+      await api.delete(`/sms/${id}`, {
+        headers: {
+          Authorization: `Bearer ${localStorage.getItem("accessToken")}`,
+        },
+      });
+
+      messageAlert({
+        type: "success",
+        message: "SMS deletado com sucesso!",
+      });
+
+      mutate();
+    } catch(e) {
+      messageAlert({
+        type: "error",
+        message: "Erro ao deletar SMS",
+      });
+      console.log('Erro ao deletar SMS: ', e);
+    } finally {
+      setLoadingDelete(false);
+    }
+  };
+
   return (
     <div className="p-4">
       <Header name={authUser?.nome_completo} />
       <div className="max-w-6xl mx-auto px-4 py-8">
-        {loading || loadingPost ? (
+        {loading || loadingPost || loadingDelete ? (
           <Spin />
         ) : (
           <>
@@ -180,8 +219,10 @@ const SmsPage = () => {
                             className="text-blue-500 cursor-pointer w-5 h-5"
                           />
                         </div>
-                        <div className="flex justify-center items-center truncate">
-                          {sms.scheduled_at}
+                        <div className="flex justify-center items-center truncate min-w-[150px]">
+                          {dayjs(sms.scheduled_at)
+                            .locale(lang)
+                            .format(dateFormatMap[lang])}
                         </div>
                         <div className="flex justify-center items-center truncate">
                           {sms.status === "pending"
@@ -201,6 +242,7 @@ const SmsPage = () => {
                           <FaRegTrashAlt
                             className="cursor-pointer w-5 h-5"
                             title="Deletar"
+                            onClick={() => handleDeleteSms(sms.id)}
                           />
                         </div>
                       </div>
