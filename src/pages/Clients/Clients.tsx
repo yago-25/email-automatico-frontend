@@ -316,8 +316,7 @@ const Clients = () => {
           onConfirm={handleDelete}
           loading={loading} 
         />
-
-        {/* Paginação */}
+        
         <div className="flex justify-center items-center gap-4 mt-8">
           <button
             onClick={() => goToPage(currentPage - 1)}
@@ -338,7 +337,6 @@ const Clients = () => {
           </button>
         </div>
 
-        {/* Botão de adicionar */}
         <div className="flex justify-end mt-10">
           <Button
             text={
