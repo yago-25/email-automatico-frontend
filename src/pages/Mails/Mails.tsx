@@ -1,7 +1,7 @@
 import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
-import { useSwr } from "../../api/useSwr";
-import { FaRegTrashAlt } from "react-icons/fa";
+// import { useSwr } from "../../api/useSwr";
+// import { FaRegTrashAlt } from "react-icons/fa";
 import { Pencil, Trash } from "lucide-react";
 import { FaPlus } from "react-icons/fa6";
 import { MdOutlineFormatListNumbered, MdSchedule } from "react-icons/md";
@@ -15,6 +15,7 @@ import { api } from "../../api/api";
 import EmailPreviewModal from "../../components/Modal/EmailPreviewModal";
 import Header from "../../components/Header/Header";
 import { User } from "../../models/User";
+import EditEmailModal from "../../components/Modal/EditEmailModal";
 
 interface EmailClient {
     id: number;
@@ -160,8 +161,8 @@ const Mails = () => {
                                     let rowBg = "bg-white";
                                     if (isSent) {
                                         rowBg = "bg-green-200";
-                                    } else if(isPending){
-                                        rowBg = "bg-white"; 
+                                    } else if (isPending) {
+                                        rowBg = "bg-white";
                                     }
                                     else if (isFailed && isPast) {
                                         rowBg = "bg-red-200";
@@ -221,6 +222,14 @@ const Mails = () => {
                                                     }}
                                                 />
                                                 <button
+                                                    onClick={() => {
+                                                        setPreviewEmail(mail); // `email` deve ser o objeto com subject, body, etc
+                                                        setPreviewModalOpen(true);
+                                                    }}
+                                                >
+                                                    <Pencil className="h-5 w-5 text-blue-500 hover:text-blue-700" />
+                                                </button>
+                                                <button
                                                     onClick={() => openDeleteModal(mail.id)}
                                                     className="text-red-500 hover:text-red-700"
                                                 >
@@ -253,33 +262,53 @@ const Mails = () => {
                     }}
                     email={previewEmail}
                 />
-        </div>
+                <EditEmailModal
+                    isVisible={isPreviewModalOpen}
+                    onClose={() => {
+                        setPreviewModalOpen(false);
+                        setPreviewEmail(null);
+                    }}
+                    email={previewEmail}
+                    onUpdate={(updatedData) => {
+                        if (!previewEmail) return;
+                        setPreviewEmail({ ...previewEmail, ...updatedData });
+                    }}
+                    onRemoveAttachment={(index) => {
+                        if (!previewEmail) return;
+                        const updated = {
+                            ...previewEmail,
+                            attachments: previewEmail.attachments.filter((_, i) => i !== index),
+                        };
+                        setPreviewEmail(updated);
+                    }}
+                />
+            </div>
 
 
             {
-        isModalOpen && (
-            <div className="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-40">
-                <div className="bg-white rounded-lg shadow-lg max-w-md w-full p-6 relative">
-                    <h3 className="text-lg font-bold text-blue-800 mb-4">Destinatários</h3>
-                    <ul className="space-y-2 max-h-60 overflow-y-auto">
-                        {modalNames.map((name, index) => (
-                            <li key={index} className="border-b pb-2">
-                                <p className="font-medium text-gray-800">{name}</p>
-                                <p className="text-sm text-gray-600">{modalMails[index]}</p>
-                            </li>
-                        ))}
-                    </ul>
-                    <button
-                        className="absolute top-2 right-2 text-gray-500 hover:text-red-500"
-                        onClick={() => setIsModalOpen(false)}
-                        title="Fechar"
-                    >
-                        ✖
-                    </button>
-                </div>
-            </div>
-        )
-    }
+                isModalOpen && (
+                    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-40">
+                        <div className="bg-white rounded-lg shadow-lg max-w-md w-full p-6 relative">
+                            <h3 className="text-lg font-bold text-blue-800 mb-4">Destinatários</h3>
+                            <ul className="space-y-2 max-h-60 overflow-y-auto">
+                                {modalNames.map((name, index) => (
+                                    <li key={index} className="border-b pb-2">
+                                        <p className="font-medium text-gray-800">{name}</p>
+                                        <p className="text-sm text-gray-600">{modalMails[index]}</p>
+                                    </li>
+                                ))}
+                            </ul>
+                            <button
+                                className="absolute top-2 right-2 text-gray-500 hover:text-red-500"
+                                onClick={() => setIsModalOpen(false)}
+                                title="Fechar"
+                            >
+                                ✖
+                            </button>
+                        </div>
+                    </div>
+                )
+            }
         </div >
     );
 };
