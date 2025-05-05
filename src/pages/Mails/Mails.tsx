@@ -13,6 +13,8 @@ import { MdCheckCircle, MdAccessTime, MdErrorOutline } from "react-icons/md";
 import DeleteConfirmModal from "../../components/DeleteConfirm/DeleteConfirmModal";
 import { api } from "../../api/api";
 import EmailPreviewModal from "../../components/Modal/EmailPreviewModal";
+import Header from "../../components/Header/Header";
+import { User } from "../../models/User";
 
 interface EmailClient {
     id: number;
@@ -36,6 +38,8 @@ interface Attachment {
 
 const Mails = () => {
     const navigate = useNavigate();
+    const storedUser = localStorage.getItem("user");
+    const authUser: User | null = storedUser ? JSON.parse(storedUser) : null;
     const now = new Date();
     const [modalNames, setModalNames] = useState<string[]>([]);
     const [modalMails, setModalMails] = useState<string[]>([]);
@@ -107,16 +111,30 @@ const Mails = () => {
 
     return (
         <div className="p-4">
-            <h1 className="text-3xl font-bold text-white">Listagem de Email</h1>
+            <Header name={authUser?.nome_completo} />
             <div className="max-w-6xl mx-auto px-4 py-8">
                 {loading ? (
                     <Spin />
                 ) : (
                     <>
                         <div className="flex flex-col sm:flex-row justify-between items-center mb-6 gap-4">
-                            <h2 className="text-xl font-semibold text-blue-900">E-mails Agendados</h2>
+                            <div className="flex items-center justify-center gap-5">
+                                <h1 className="text-3xl font-bold text-white">E-mails Agendados</h1>
+                                <div className="flex items-center gap-1 text-white">
+                                    <span className="inline-block w-3 h-3 rounded-full bg-green-200"></span>
+                                    Enviados
+                                </div>
+                                <div className="flex items-center gap-1 text-white">
+                                    <span className="inline-block w-3 h-3 rounded-full bg-red-200"></span>
+                                    Falhas
+                                </div>
+                                <div className="flex items-center gap-1 text-white">
+                                    <span className="inline-block w-3 h-3 rounded-full bg-white"></span>
+                                    Pendentes
+                                </div>
+                            </div>
                             <FaPlus
-                                className="cursor-pointer w-6 h-6 text-blue-700 hover:text-blue-900 transition"
+                                className="cursor-pointer w-6 h-6 text-white"
                                 onClick={() => navigate("/mails/create")}
                             />
                         </div>
@@ -135,11 +153,24 @@ const Mails = () => {
                                 {mails.map((mail, i) => {
                                     const agendamento = new Date(`${mail.send_date}T${mail.send_time}`);
                                     const isPast = agendamento < now;
+                                    const isSent = mail.status === "sent";
+                                    const isFailed = mail.status === "failed";
+                                    const isPending = mail.status === "pending";
+
+                                    let rowBg = "bg-white";
+                                    if (isSent) {
+                                        rowBg = "bg-green-200";
+                                    } else if(isPending){
+                                        rowBg = "bg-white"; 
+                                    }
+                                    else if (isFailed && isPast) {
+                                        rowBg = "bg-red-200";
+                                    }
 
                                     return (
                                         <div
                                             key={mail.id}
-                                            className={`grid grid-cols-6 gap-4 px-4 py-4 text-sm text-blue-900 text-center border-b ${isPast ? "bg-white" : "bg-white"} ${i === mails.length - 1 ? "rounded-b-xl" : ""}`}
+                                            className={`grid grid-cols-6 gap-4 px-4 py-4 text-sm text-blue-900 text-center border-b ${rowBg} ${i === mails.length - 1 ? "rounded-b-xl" : ""}`}
                                         >
                                             <div>{mail.id}</div>
                                             <div className="truncate max-w-[200px]" title={mail.subject}>{mail.subject}</div>
@@ -148,7 +179,6 @@ const Mails = () => {
                                                 <span className="truncate">
                                                     {mail.clients?.slice(0, 2).map(c => c.name).join(", ")}
                                                 </span>
-
                                                 {mail.clients.length > 2 && (
                                                     <AiOutlineEye
                                                         onClick={() => openModal(mail.clients)}
@@ -161,19 +191,19 @@ const Mails = () => {
                                             <div>{mail.send_date} às {mail.send_time}</div>
 
                                             <div className="flex items-center justify-center gap-1">
-                                                {mail.status === "pending" && (
+                                                {isPending && (
                                                     <>
                                                         <MdAccessTime className="text-yellow-500 w-4 h-4" />
                                                         <span>Pendente</span>
                                                     </>
                                                 )}
-                                                {mail.status === "sent" && (
+                                                {isSent && (
                                                     <>
                                                         <MdCheckCircle className="text-green-600 w-4 h-4" />
                                                         <span>Enviado</span>
                                                     </>
                                                 )}
-                                                {mail.status === "failed" && (
+                                                {isFailed && (
                                                     <>
                                                         <MdErrorOutline className="text-red-600 w-4 h-4" />
                                                         <span>Falha</span>
@@ -186,11 +216,10 @@ const Mails = () => {
                                                     className="cursor-pointer w-5 h-5 text-blue-700 hover:text-blue-900"
                                                     title="Visualizar"
                                                     onClick={() => {
-                                                        setPreviewEmail(mail); // `mail` é o objeto do e-mail no .map
+                                                        setPreviewEmail(mail);
                                                         setPreviewModalOpen(true);
                                                     }}
                                                 />
-
                                                 <button
                                                     onClick={() => openDeleteModal(mail.id)}
                                                     className="text-red-500 hover:text-red-700"
@@ -205,6 +234,7 @@ const Mails = () => {
                         </div>
                     </>
                 )}
+
                 <DeleteConfirmModal
                     isVisible={isModalCrashOpen}
                     onClose={() => {
@@ -214,6 +244,7 @@ const Mails = () => {
                     onConfirm={handleDelete}
                     loading={loading}
                 />
+
                 <EmailPreviewModal
                     isVisible={isPreviewModalOpen}
                     onClose={() => {
@@ -222,32 +253,34 @@ const Mails = () => {
                     }}
                     email={previewEmail}
                 />
-
-            </div>
-
-            {isModalOpen && (
-                <div className="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-40">
-                    <div className="bg-white rounded-lg shadow-lg max-w-md w-full p-6 relative">
-                        <h3 className="text-lg font-bold text-blue-800 mb-4">Destinatários</h3>
-                        <ul className="space-y-2 max-h-60 overflow-y-auto">
-                            {modalNames.map((name, index) => (
-                                <li key={index} className="border-b pb-2">
-                                    <p className="font-medium text-gray-800">{name}</p>
-                                    <p className="text-sm text-gray-600">{modalMails[index]}</p>
-                                </li>
-                            ))}
-                        </ul>
-                        <button
-                            className="absolute top-2 right-2 text-gray-500 hover:text-red-500"
-                            onClick={() => setIsModalOpen(false)}
-                            title="Fechar"
-                        >
-                            ✖
-                        </button>
-                    </div>
-                </div>
-            )}
         </div>
+
+
+            {
+        isModalOpen && (
+            <div className="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-40">
+                <div className="bg-white rounded-lg shadow-lg max-w-md w-full p-6 relative">
+                    <h3 className="text-lg font-bold text-blue-800 mb-4">Destinatários</h3>
+                    <ul className="space-y-2 max-h-60 overflow-y-auto">
+                        {modalNames.map((name, index) => (
+                            <li key={index} className="border-b pb-2">
+                                <p className="font-medium text-gray-800">{name}</p>
+                                <p className="text-sm text-gray-600">{modalMails[index]}</p>
+                            </li>
+                        ))}
+                    </ul>
+                    <button
+                        className="absolute top-2 right-2 text-gray-500 hover:text-red-500"
+                        onClick={() => setIsModalOpen(false)}
+                        title="Fechar"
+                    >
+                        ✖
+                    </button>
+                </div>
+            </div>
+        )
+    }
+        </div >
     );
 };
 export default Mails;
