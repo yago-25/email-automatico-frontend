@@ -20,7 +20,10 @@ import { HiOutlineUser } from "react-icons/hi";
 import { IoTicketOutline } from "react-icons/io5";
 import { useNavigate } from "react-router-dom";
 import { FaTags, FaClipboardList, FaRegStickyNote } from 'react-icons/fa';
-
+import { HiUserAdd } from "react-icons/hi";
+import { HiMail, HiPhone, HiUser } from "react-icons/hi";
+import PhoneInput from 'react-phone-input-2';
+import 'react-phone-input-2/lib/style.css';
 
 interface Option {
   label: string;
@@ -123,7 +126,7 @@ const Dashboard = () => {
       client.name.toLowerCase().includes(filteredTxt.toLowerCase()) ||
       client.mail.toLowerCase().includes(filteredTxt.toLowerCase())
   );
-  
+
 
   const totalPages = Math.ceil(filteredClients.length / itemsPerPage);
   const startIndex = (currentPage - 1) * itemsPerPage;
@@ -253,59 +256,101 @@ const Dashboard = () => {
       </div>
     );
   }
-  
+
   return (
     <div className="container-dash">
       <Header name={authUser?.nome_completo} />
       <div className="title-dash">
         <p>Martins Adviser</p>
-        <input
-          placeholder={t("dashboard.search_placeholder")}
-          type="text"
-          className="input-dash"
-          onChange={(e) => { setFilteredTxt(e.target.value); setCurrentPage(1); }}
-          value={filteredTxt}
-        />
       </div>
-      <div className="flex gap-5 mt-8">
-        <Button text={t("dashboard.add_client")} onClick={() => setAddClient(true)} />
-        <Button text={t("dashboard.add_ticket")} onClick={() => setAddTicket(true)} />
-      </div>
-      <div className="tbe w-full max-w-3xl mt-8 rounded-2xl overflow-hidden shadow-lg">
-        <div className="tablee grid grid-cols-5 gap-x-6 items-center p-4 bg-blue-100 border-b font-medium text-blue-900">
 
-          <p className="id-center"> <MdOutlineFormatListNumbered /> ID</p>
-          <p className="id-center"> <HiOutlineUser /> {t("clients.name")}</p>
-          <p className="id-center"> <CiMail /> {t("clients.email")}</p>
-          <p className="id-center"> <CiPhone /> {t("clients.phone")}</p>
-          <p className="text-centere"> <FaGear /> {t("clients.actions")}</p>
+      <div className="flex flex-col md:flex-row items-center justify-center gap-4 mt-6 w-full max-w-4xl mx-auto px-4">
+        {/* Barra de busca */}
+        <div className="relative w-full md:max-w-2xl"> {/* Aumentei para max-w-2xl */}
+          <span className="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none text-gray-400">
+            <svg className="w-5 h-5" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24">
+              <path strokeLinecap="round" strokeLinejoin="round" d="M21 21l-4.35-4.35M11 19a8 8 0 100-16 8 8 0 000 16z" />
+            </svg>
+          </span>
+          <input
+            type="text"
+            placeholder={t("dashboard.search_placeholder")}
+            className="w-full pl-12 pr-5 py-3 rounded-xl border border-gray-300 focus:outline-none focus:ring-2 focus:ring-blue-400 focus:border-blue-500 transition-all duration-200 shadow-sm text-base text-gray-800 placeholder-gray-400"
+            onChange={(e) => {
+              setFilteredTxt(e.target.value);
+              setCurrentPage(1);
+            }}
+            value={filteredTxt}
+          />
         </div>
-        {currentClients.map((client) => (
+
+
+        {/* Botões */}
+        <div className="flex gap-4 w-full max-w-md">
+          <button
+            onClick={() => setAddClient(true)}
+            className="flex items-center gap-2 bg-blue-600 text-white px-5 py-3 rounded-xl shadow-md hover:bg-blue-700 transition"
+          >
+            <HiUserAdd className="w-5 h-5" />
+            {t("dashboard.add_client")}
+          </button>
+          <button
+            onClick={() => setAddTicket(true)}
+            className="flex items-center gap-2 bg-purple-600 text-white px-5 py-3 rounded-xl shadow-md hover:bg-purple-700 transition"
+          >
+            <IoTicketOutline className="w-5 h-5" />
+            {t("dashboard.add_ticket")}
+          </button>
+        </div>
+
+      </div>
+
+      <div className="w-full max-w-[80rem] mx-auto mt-10 rounded-3xl overflow-hidden shadow-lg border border-gray-200 bg-white">
+        {/* Cabeçalho */}
+        <div className="grid grid-cols-5 gap-x-6 items-center justify-items-center px-6 py-4 bg-gradient-to-r from-blue-100 to-blue-200 border-b font-semibold text-blue-900 text-sm uppercase tracking-wide">
+          <p className="flex items-center gap-2 justify-center">
+            <MdOutlineFormatListNumbered className="text-blue-700" /> ID
+          </p>
+          <p className="flex items-center gap-2 justify-center">
+            <HiOutlineUser className="text-blue-700" /> {t("clients.name")}
+          </p>
+          <p className="flex items-center gap-2 justify-center">
+            <CiMail className="text-blue-700" /> {t("clients.email")}
+          </p>
+          <p className="flex items-center gap-2 justify-center">
+            <CiPhone className="text-blue-700" /> {t("clients.phone")}
+          </p>
+          <p className="flex items-center gap-2 justify-center">
+            <FaGear className="text-blue-700" /> {t("clients.actions")}
+          </p>
+        </div>
+
+        {/* Linhas */}
+        {currentClients.map((client, index) => (
           <div
             key={client.id}
-            className="tablee grid grid-cols-5 gap-x-6 items-center p-4 bg-white border-b hover:bg-gray-50 text-sm"
+            className={`grid grid-cols-5 gap-x-6 items-center justify-items-center px-6 py-4 text-sm border-b transition duration-200 ${index % 2 === 0 ? "bg-gray-50" : "bg-white"
+              } hover:bg-blue-50`}
           >
-            <p className="id-center">{client.id}</p>
-            <p className="id-center" title={client.name}>
+            <p className="text-center text-gray-800 font-medium">{client.id}</p>
+            <p className="text-center truncate text-gray-700" title={client.name}>
               {client.name}
             </p>
-            <p className="id-center" title={client.mail}>
+            <p className="text-center truncate text-gray-700" title={client.mail}>
               {client.mail}
             </p>
-            <p className="id-center" title={client.phone}>
+            <p className="text-center text-gray-700" title={client.phone}>
               {formatPhone(client.phone)}
             </p>
-            <p className="id-center flex justify-end items-center gap-4">
-
-
-             <button
-                  onClick={() => handleTicket(client.name)}
-                  className="text-red-500 hover:text-red-700"
-                >
-                  <IoTicketOutline className="h-5 w-5" />
-                </button>
-
-            </p>
+            <div className="flex justify-center items-center gap-3">
+              <button
+                onClick={() => handleTicket(client.name)}
+                className="text-blue-600 hover:text-blue-800 transition-colors duration-200"
+                title="Ver tickets"
+              >
+                <IoTicketOutline className="h-5 w-5" />
+              </button>
+            </div>
           </div>
         ))}
       </div>
@@ -320,45 +365,93 @@ const Dashboard = () => {
         </button>
       </div>
 
-      <Modal title={t("dashboard.add_client")} isVisible={addClient} onClose={() => setAddClient(false)}>
+      <Modal title={t("dashboard.add_client")}
+        isVisible={addClient}
+        onClose={() => setAddClient(false)}>
         {loadingPost ? (
           <div className="flex flex-col items-center justify-center w-full gap-4">
             <Spin />
           </div>
         ) : (
-          <div className="flex flex-col items-center justify-center w-full gap-4">
-            <div className="w-full">
-              <p>{t("dashboard.name")}</p>
-              <Input text={t("dashboard.name")}
+          <div className="flex flex-col items-center justify-center w-full gap-6 p-6 bg-white rounded-xl shadow-lg">
+            <div className="w-full space-y-4">
+              {/* Campo para Nome */}
+              <div className="flex items-center gap-2">
+                <HiUser className="w-5 h-5 text-gray-500" />
+                <p className="text-gray-700 text-sm font-semibold">{t("dashboard.name")}</p>
+              </div>
+              <input
+                placeholder={t("dashboard.name")}
                 type="text"
                 required
                 onChange={(e) => setClientName(e.target.value)}
                 value={clientName}
+                className="w-full mt-2 px-4 py-3 border border-gray-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-400 focus:border-blue-500 transition duration-200"
               />
-            </div>
-            <div className="w-full">
-              <p>{t("dashboard.phone")}</p>
-              <Input text={t("dashboard.phone")}
-                type="text"
-                required
-                onChange={(e) => setClientPhone(e.target.value)}
-                value={clientPhone} />
-            </div>
-            <div className="w-full">
-              <p>{t("dashboard.email")}</p>
-              <Input text={t("dashboard.email")}
+
+              {/* Campo para Telefone */}
+              <div className="w-full">
+                <div className="flex items-center gap-2 mb-2">
+                  <HiPhone className="w-5 h-5 text-gray-500" />
+                  <p className="text-gray-700 text-sm font-semibold">{t("dashboard.phone")}</p>
+                </div>
+                <PhoneInput
+                  country={'br'}
+                  value={clientPhone}
+                  onChange={setClientPhone}
+                  inputProps={{
+                    required: true,
+                    name: 'phone',
+                  }}
+                  containerStyle={{ width: '100%' }}
+                  inputStyle={{
+                    width: '100%',
+                    height: '48px',
+                    borderRadius: '0.75rem',
+                    border: '1px solid #D1D5DB',
+                    paddingLeft: '48px',
+                    fontSize: '16px',
+                  }}
+                  buttonStyle={{
+                    borderTopLeftRadius: '0.75rem',
+                    borderBottomLeftRadius: '0.75rem',
+                  }}
+                />
+              </div>
+
+              {/* Campo para Email */}
+              <div className="flex items-center gap-2">
+                <HiMail className="w-5 h-5 text-gray-500" />
+                <p className="text-gray-700 text-sm font-semibold">{t("dashboard.email")}</p>
+              </div>
+              <input
+                placeholder={t("dashboard.email")}
                 type="email"
                 required
                 onChange={(e) => setClientMail(e.target.value)}
-                value={clientMail} />
+                value={clientMail}
+                className="w-full mt-2 px-4 py-3 border border-gray-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-400 focus:border-blue-500 transition duration-200"
+              />
+
+              {/* Botão de Cadastro */}
+              <div className="w-full mt-6">
+                <button
+                  value="Cadastrar Cliente"
+                  onClick={handleAddClient}
+                  className="w-full py-3 bg-blue-600 text-white rounded-xl shadow-md hover:bg-blue-700 transition-all duration-200 flex items-center justify-center gap-2"
+                >
+                  <HiUserAdd className="w-5 h-5" />
+                  {t("dashboard.add_client")}
+                </button>
+              </div>
             </div>
-            <Button text="Cadastrar Cliente" onClick={handleAddClient} />
           </div>
         )}
       </Modal>
 
+
       <Modal
-      title={`📝 ${t('modal.add_ticket')}`}
+        title={`📝 ${t('modal.add_ticket')}`}
 
         isVisible={addTicket}
         onClose={() => setAddTicket(false)}

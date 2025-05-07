@@ -49,7 +49,7 @@ const SmsPage = () => {
     es: 'DD/MM/YYYY HH:mm',
   };
 
-  const [isModalOpen, setIsModalOpen] = useState(false);
+  const [isModalOpen, setIsModalOpen] = useState(false); 
   const [modalPhones, setModalPhones] = useState<string[]>([]);
   const [modalNames, setModalNames] = useState<string[]>([]);
   const [loadingDelete, setLoadingDelete] = useState(false);
@@ -61,7 +61,7 @@ const SmsPage = () => {
     setModalPhones(phones);
     setModalNames(names);
     setIsModalOpen(true);
-  };
+  }; 
 
   const closeModal = () => {
     setIsModalOpen(false);
@@ -214,7 +214,7 @@ const SmsPage = () => {
                           </div>
                         </div>
                         <div className="flex justify-center items-center">
-                          <AiOutlineEye
+                          <AiOutlineEye 
                             onClick={() => openModal(sms.phones, sms.names)}
                             className="text-blue-500 cursor-pointer w-5 h-5"
                           />

@@ -68,14 +68,14 @@
     box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
 }
 
-.tbe .tablee:first-child {
+/* .tbe .tablee:first-child {
     background-color: #00448d;
     color: white;
     font-weight: 600;
     font-size: 18px;
     border-top-left-radius: 12px;
     border-top-right-radius: 12px;
-}
+} */
 
 .input-dash {
     width: 100%;

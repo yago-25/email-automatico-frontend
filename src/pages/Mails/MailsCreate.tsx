@@ -10,6 +10,21 @@ import { User } from "../../models/User";
 import { Skeleton } from 'antd';
 import { Trash2 } from 'lucide-react';
 import { useRef } from "react";
+import { ConfigProvider, DatePicker, TimePicker } from "antd";
+import ptBR from "antd/lib/locale/pt_BR";
+import enUS from "antd/lib/locale/en_US";
+import esES from "antd/lib/locale/es_ES";
+import "dayjs/locale/pt-br";
+import "dayjs/locale/en";
+import "dayjs/locale/es";
+import { useTranslation } from "react-i18next";
+import dayjs from "dayjs";
+
+const localeMap = {
+    pt: ptBR,
+    en: enUS,
+    es: esES,
+};
 
 interface Clients {
     id: number;
@@ -32,6 +47,7 @@ interface EmailAttachment {
 }
 
 const MailsCreate = () => {
+    const { i18n } = useTranslation();
     const { data: rawClients = [], loading: loadingClients } = useSwr<Clients[]>("/clients");
     const storedUser = localStorage.getItem("user");
     const authUser: User | null = storedUser ? JSON.parse(storedUser) : null;
@@ -43,6 +59,10 @@ const MailsCreate = () => {
     const [sendDate, setSendDate] = useState<string>("");
     const [sendTime, setSendTime] = useState<string>("");
     // const isLoading = !subject || !body || selectedClients.length === 0;
+    const [antdLocale, setAntdLocale] = useState(
+        localeMap[i18n.language as "pt" | "en" | "es"] || ptBR
+    );
+    const timeFormat = 'HH:mm';
 
     const navigate = useNavigate();
 
@@ -150,6 +170,12 @@ const MailsCreate = () => {
         }
     }, [loadingClients, rawClients]);
 
+    useEffect(() => {
+        const lang = i18n.language as "pt" | "en" | "es";
+        dayjs.locale(lang);
+        setAntdLocale(localeMap[lang] || ptBR);
+    }, [i18n.language]);
+
     return (
         <>
             <Header name={authUser?.nome_completo} />
@@ -182,26 +208,32 @@ const MailsCreate = () => {
                                 />
                             )}
                         </div>
-
+                        <div className="flex flex-col">
+                            <label className="text-sm text-blue-500">Data do Email</label>
+                            <ConfigProvider locale={antdLocale}>
+                                <DatePicker
+                                    format={i18n.language === "en" ? "MM/DD/YYYY" : "DD/MM/YYYY"}
+                                    placeholder={i18n.language === "en" ? "Date of Message" : "Dia da Mensagem"}
+                                    value={sendDate ? dayjs(sendDate) : null}
+                                    onChange={(date) => setSendDate(date ? date.toISOString().split("T")[0] : "")}
+                                    className="bg-white border rounded-md p-2 outline-none"
+                                />
+                            </ConfigProvider>
+                        </div>
                         <div className="flex gap-6">
                             <div className="flex flex-col">
-                                <label className="text-sm text-blue-500">Data de Envio</label>
-                                <input
-                                    type="date"
-                                    value={sendDate}
-                                    onChange={(e) => setSendDate(e.target.value)}
-                                    className="w-full mt-1 p-2 rounded-md bg-gray-100 text-gray-700"
-                                />
-                            </div>
-
-                            <div className="flex flex-col">
                                 <label className="text-sm text-blue-500">Hora de Envio</label>
-                                <input
-                                    type="time"
-                                    value={sendTime}
-                                    onChange={(e) => setSendTime(e.target.value)}
-                                    className="w-full mt-1 p-2 rounded-md bg-gray-100 text-gray-700"
-                                />
+                                <ConfigProvider locale={antdLocale}>
+                                    <TimePicker
+                                        className="w-full mt-1 p-2 rounded-md bg-gray-100 text-gray-700"
+                                        value={sendTime ? dayjs(sendTime, timeFormat) : null}
+                                        onChange={(time) =>
+                                            setSendTime(time ? time.format(timeFormat) : "")
+                                        }
+                                        format={timeFormat}
+                                        placeholder="00:00"
+                                    />
+                                </ConfigProvider>
                             </div>
                         </div>
 
@@ -263,14 +295,24 @@ const MailsCreate = () => {
                                 )}
                             </p>
 
-                            <p className="mt-2 text-sm">
-                                <h4 className="font-medium">Data de envio:</h4>
-                                {sendDate && sendTime ? (
-                                    <> {sendDate} às {sendTime}</>
-                                ) : (
-                                    <Skeleton title={false} paragraph={{ rows: 1, width: '50%' }} active />
-                                )}
-                            </p>
+                            <div className="mt-2 text-sm">
+                                <div>
+                                    <span className="font-medium">Data do envio:</span>{' '}
+                                    {sendDate ? (
+                                        sendDate
+                                    ) : (
+                                        <Skeleton title={false} paragraph={{ rows: 1, width: '50%' }} active />
+                                    )}
+                                </div>
+                                <div className="mt-1">
+                                    <span className="font-medium">Horário do envio:</span>{' '}
+                                    {sendTime ? (
+                                        sendTime
+                                    ) : (
+                                        <Skeleton title={false} paragraph={{ rows: 1, width: '30%' }} active />
+                                    )}
+                                </div>
+                            </div>
 
                             <div className="mt-4">
                                 <h4 className="font-medium">Corpo do E-mail:</h4>

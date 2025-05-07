@@ -13,7 +13,9 @@ import Select from "../../components/Select/Select";
 // import { useSwre } from "../../api/useSwr";
 import TagInput from "../../components/TagInput/TagInput";
 import { useTranslation } from "react-i18next";
-import { IoMdAddCircleOutline } from "react-icons/io";
+import { IoTicketOutline } from "react-icons/io5";
+
+
 import {
   FaCalendarAlt,
   FaClipboardList,
@@ -81,7 +83,7 @@ interface Admins {
 
 interface ButtonProps {
   text: string;
-   onClick?: (e: React.MouseEvent<HTMLButtonElement>) => void;
+  onClick?: (e: React.MouseEvent<HTMLButtonElement>) => void;
   disabled?: boolean;
 }
 
@@ -94,16 +96,14 @@ export const Button: React.FC<ButtonProps> = ({ text, onClick, disabled }) => {
           onClick?.(e);
         }
       }}
-      className={`w-44 h-12 text-white rounded-lg transition-all ease-in-out ${
-        disabled
-          ? "bg-blue-400 cursor-not-allowed opacity-50"
-          : "bg-blue-600 hover:bg-blue-700 hover:shadow-lg cursor-pointer active:w-11 active:h-11 active:rounded-full active:duration-300"
-      } group`}
+      className={`w-44 h-12 text-white rounded-lg transition-all ease-in-out ${disabled
+        ? "bg-blue-400 cursor-not-allowed opacity-50"
+        : "bg-blue-600 hover:bg-blue-700 hover:shadow-lg cursor-pointer active:w-11 active:h-11 active:rounded-full active:duration-300"
+        } group`}
     >
       <svg
-        className={`animate-spin mx-auto ${
-          disabled ? "hidden" : "group-active:block hidden"
-        }`}
+        className={`animate-spin mx-auto ${disabled ? "hidden" : "group-active:block hidden"
+          }`}
         width="33"
         height="32"
         viewBox="0 0 33 32"
@@ -254,35 +254,35 @@ const Ticket = () => {
   const handleChangeStatus = async (newStatus: string) => {
     setLoadingModal(true);
     if (!selectedTicket) return;
-  
+
     try {
       await updateTicketStatus(selectedTicket.id, newStatus);
-  
+
       const { data } = await api.get<Ticket>(`/tickets/${selectedTicket.id}`, {
         headers: {
           Authorization: `Bearer ${localStorage.getItem("accessToken")}`,
         },
       });
-  
+
       setSelectedTicket((prev) => {
         if (!prev) return prev;
-  
+
         return {
           ...prev,
           status: data.status
         };
       });
-  
+
       await fetchHistory(selectedTicket.id);
-  
+
       setSelectedTicket({
         ...data,
         tags:
           typeof data.tags === "string" ? JSON.parse(data.tags) : data.tags,
       });
-  
+
       mutate();
-  
+
       messageAlert({
         type: "success",
         message: "Status atualizado com sucesso!",
@@ -297,7 +297,7 @@ const Ticket = () => {
       setLoadingModal(false);
     }
   };
-  
+
 
   const handleFilterToggle = () => {
     mutate();
@@ -466,9 +466,9 @@ const Ticket = () => {
   }
 
   const statusToShow = showOnlyFinished
-  ? ["Completa"]
-  : ["Em progresso", "Não iniciada", "Esperando", "Descartada"];
-  
+    ? ["Completa"]
+    : ["Em progresso", "Não iniciada", "Esperando", "Descartada"];
+
   // const toggleShowOnlyFinished = () => {
   //   setShowOnlyFinished((prev) => !prev);
   //   mutate(); // Atualiza a lista após trocar
@@ -479,25 +479,35 @@ const Ticket = () => {
       <Header name={authUser?.nome_completo} />
 
       <div className="filter-button-container flex items-center gap-4 mb-4 p-4">
+
+        {/* Botão de Filtro */}
         <button
           onClick={handleFilterToggle}
-          className="flex items-center gap-2 p-2 bg-blue-600 text-white rounded-lg"
+          className="flex items-center justify-center gap-2 min-w-[150px] px-4 py-2.5 bg-blue-600 text-white font-medium rounded-lg shadow-md hover:bg-blue-700 hover:shadow-lg transition-all duration-200"
         >
-          <FaFilter /> {t("filters.titleup")}
+          <FaFilter className="w-5 h-5" />
+          {t("filters.titleup")}
         </button>
 
+        {/* Botão de Adicionar Ticket */}
         <button
           onClick={() => setAddTicket(true)}
-          className="flex items-center gap-2 p-2 bg-blue-600 text-white rounded-lg"
+          className="flex items-center justify-center gap-2 min-w-[150px] px-4 py-2.5 bg-purple-600 text-white font-medium rounded-lg shadow-md hover:bg-purple-700 hover:shadow-lg transition-all duration-200"
         >
-          <IoMdAddCircleOutline /> {t("dashboard.add_ticket")}
+          <IoTicketOutline className="w-5 h-5" />
+          {t("dashboard.add_ticket")}
         </button>
+
+        {/* Botão de Mostrar Concluídos */}
         <button
           onClick={() => setShowOnlyFinished(prev => !prev)}
-          className="my-4 px-4 py-2 bg-blue-600 text-white rounded-lg"
+          className="flex items-center justify-center gap-2 min-w-[150px] px-4 py-2.5 bg-blue-600 text-white font-medium rounded-lg shadow-md hover:bg-blue-700 hover:shadow-lg transition-all duration-200"
         >
           {showOnlyFinished ? t("buttons.backToActive") : t("buttons.showFinished")}
         </button>
+
+
+
       </div>
 
       <div className="ticket-container">
@@ -756,7 +766,7 @@ const Ticket = () => {
                         const getTranslatedStatus = (value: any) => {
                           return values.find((v) => v.translate.toLowerCase() === value?.toLowerCase())?.name;
                         };
-                        
+
                         const oldValue = getTranslatedStatus(item.old_value);
                         const newValue = getTranslatedStatus(item.new_value);
 

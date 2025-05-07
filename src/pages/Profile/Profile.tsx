@@ -9,6 +9,8 @@ import './profile.css';
 import Spin from "../../components/Spin/Spin";
 import { messageAlert } from "../../utils/messageAlert";
 import { useSwr } from "../../api/useSwr";
+import { FaUser, FaPhone, FaUserCircle } from "react-icons/fa";
+import { MdEmail } from "react-icons/md";
 
 interface Cargo {
   id: number;
@@ -285,23 +287,23 @@ const Profile = () => {
   }, []);
 
   return (
-    <div className="flex flex-col items-center justify-center w-full">
+    <div className="flex flex-col items-center justify-center  to-blue-900 w-full p-4">
       <Header name={authUser?.nome_completo} />
+
       {loadingPost || loadingUser ? (
-        <div className="flex flex-col items-center justify-center w-full gap-4">
+        <div className="flex items-center justify-center w-full h-96">
           <Spin />
         </div>
       ) : (
-        <div
-          style={{ width: "500px", height: "600px", backgroundColor: "#00448d" }}
-          className="flex items-center justify-center flex-col gap-4 rounded-xl border border-white"
-        >
+        <div className="w-full max-w-md bg-white/10 backdrop-blur-md border border-white/30 rounded-2xl shadow-2xl p-8 flex flex-col items-center gap-6 mt-[6rem]">
+
+          {/* Avatar com botão editar */}
           <div
-            className="relative group cursor-pointer"
+            className="relative group"
             onClick={() => setOpenModalPhoto(true)}
           >
             <img
-              className="w-32 h-32 rounded-full transition-opacity duration-300 group-hover:opacity-70 cursor-pointer"
+              className="w-32 h-32 rounded-full border-4 border-white object-cover shadow-md transition-opacity duration-300 group-hover:opacity-80"
               src={
                 profilePreview || authUser?.url ||
                 `https://ui-avatars.com/api/?name=${authUser?.nome_completo}&background=0D8ABC&color=fff&size=128&rounded=true`
@@ -309,49 +311,66 @@ const Profile = () => {
               alt="Avatar"
             />
             <div className="absolute inset-0 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity duration-300">
-              <FaEdit className="text-white text-3xl bg-black bg-opacity-50 p-2 rounded-full" />
+              <FaEdit className="text-white text-2xl bg-black/50 p-2 rounded-full" />
             </div>
           </div>
-          <div className="">
+
+          {/* Input: Nome */}
+          <div className="relative w-full">
+            <FaUser className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400" />
             <input
               type="text"
-              className="relative bg-gray-50ring-0 outline-none border border-neutral-500 text-neutral-900 placeholder-violet-700 text-sm rounded-lg focus:ring-violet-500  focus:border-violet-500 block w-64 p-2.5 checked:bg-emerald-500"
+              className="pl-10 pr-4 py-2 w-full rounded-xl border border-gray-300 bg-white/90 text-sm text-gray-800 placeholder-gray-500 focus:ring-2 focus:ring-blue-500 focus:outline-none"
               placeholder="Nome Completo"
               value={name ?? ""}
               onChange={(e) => setName(e.target.value)}
             />
           </div>
-          <div className="">
+
+          {/* Input: Email */}
+          <div className="relative w-full">
+            <MdEmail className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400" />
             <input
               type="text"
-              className="relative bg-gray-50ring-0 outline-none border border-neutral-500 text-neutral-900 placeholder-violet-700 text-sm rounded-lg focus:ring-violet-500  focus:border-violet-500 block w-64 p-2.5 checked:bg-emerald-500"
+              className="pl-10 pr-4 py-2 w-full rounded-xl border border-gray-300 bg-white/90 text-sm text-gray-800 placeholder-gray-500 focus:ring-2 focus:ring-blue-500 focus:outline-none"
               placeholder="E-mail"
               value={mail ?? ""}
               onChange={(e) => setMail(e.target.value)}
             />
           </div>
-          <div className="">
+
+          {/* Input: Telefone */}
+          <div className="relative w-full">
+            <FaPhone className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400" />
             <input
               type="text"
-              className="relative bg-gray-50ring-0 outline-none border border-neutral-500 text-neutral-900 placeholder-violet-700 text-sm rounded-lg focus:ring-violet-500  focus:border-violet-500 block w-64 p-2.5 checked:bg-emerald-500"
+              className="pl-10 pr-4 py-2 w-full rounded-xl border border-gray-300 bg-white/90 text-sm text-gray-800 placeholder-gray-500 focus:ring-2 focus:ring-blue-500 focus:outline-none"
               placeholder="Telefone"
               value={formatPhone(phone) ?? ""}
               onChange={(e) => setPhone(formatPhone(e.target.value))}
             />
           </div>
-          <div className="">
+
+          {/* Input: Nome de usuário */}
+          <div className="relative w-full">
+            <FaUserCircle className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400" />
             <input
               type="text"
-              className="relative bg-gray-50ring-0 outline-none border border-neutral-500 text-neutral-900 placeholder-violet-700 text-sm rounded-lg focus:ring-violet-500  focus:border-violet-500 block w-64 p-2.5 checked:bg-emerald-500"
+              className="pl-10 pr-4 py-2 w-full rounded-xl border border-gray-300 bg-white/90 text-sm text-gray-800 placeholder-gray-500 focus:ring-2 focus:ring-blue-500 focus:outline-none"
               placeholder="Nome de usuário"
               value={username ?? ""}
               onChange={(e) => setUsername(e.target.value)}
             />
           </div>
-          <Button text="Salvar" onClick={() => {
-            console.log("Botão clicado");
-            handleEdit();
-          }} />
+
+          {/* Botão */}
+          <Button
+            text="Salvar"
+            onClick={() => {
+              console.log("Botão clicado");
+              handleEdit();
+            }}
+          />
         </div>
       )}
       <Modal
