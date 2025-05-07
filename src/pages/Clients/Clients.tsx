@@ -15,10 +15,14 @@ import { CiPhone } from "react-icons/ci";
 import { CiMail } from "react-icons/ci";
 import { FaGear } from "react-icons/fa6";
 import { HiOutlineUser } from "react-icons/hi";
-import { IoMdAddCircleOutline } from "react-icons/io";
+// import { IoMdAddCircleOutline } from "react-icons/io";
 import { IoTicketOutline } from "react-icons/io5";
 import { useNavigate } from "react-router-dom";
 import  DeleteConfirmModal from "../../components/DeleteConfirm/DeleteConfirmModal";
+import { HiMail, HiPhone, HiUser } from "react-icons/hi";
+import { HiUserAdd } from "react-icons/hi";
+import PhoneInput from 'react-phone-input-2';
+import 'react-phone-input-2/lib/style.css';
 
 interface Client {
   id: number;
@@ -338,16 +342,13 @@ const Clients = () => {
         </div>
 
         <div className="flex justify-end mt-10">
-          <Button
-            text={
-              <span className="inline-flex items-center gap-2">
-                <IoMdAddCircleOutline className="w-5 h-5" />
-                {t("clients.add_client")}
-              </span>
-            }
+        <button
             onClick={() => setAddClient(true)}
-            className="bg-blue-600 hover:bg-blue-700 text-white px-6 py-2 rounded-2xl shadow-md transition duration-200"
-          />
+            className="flex items-center gap-2 bg-blue-600 text-white px-5 py-3 rounded-xl shadow-md hover:bg-blue-700 transition"
+          >
+            <HiUserAdd className="w-5 h-5" />
+            {t("dashboard.add_client")}
+          </button>
         </div>
 
         {/* Modal de edição */}
@@ -405,51 +406,89 @@ const Clients = () => {
           )}
         </Modal>
 
-        <Modal
-          title={t("clients.add_client")}
-          isVisible={addClient}
-          onClose={() => setAddClient(false)}
-        >
-          {loadingPost ? (
-            <div className="flex flex-col items-center justify-center w-full gap-4">
-              <Spin />
-            </div>
-          ) : (
-            <div className="flex flex-col items-center justify-center w-full gap-4">
-              <div>
-                <p>{t("clients.name")}</p>
-                <Input
-                  text={t("clients.name")}
-                  type="text"
-                  required
-                  onChange={(e) => setClientName(e.target.value)}
-                  value={clientName}
-                />
+        <Modal title={t("dashboard.add_client")}
+        isVisible={addClient}
+        onClose={() => setAddClient(false)}>
+        {loadingPost ? (
+          <div className="flex flex-col items-center justify-center w-full gap-4">
+            <Spin />
+          </div>
+        ) : (
+          <div className="flex flex-col items-center justify-center w-full gap-6 p-6 bg-white rounded-xl shadow-lg">
+            <div className="w-full space-y-4">
+              {/* Campo para Nome */}
+              <div className="flex items-center gap-2">
+                <HiUser className="w-5 h-5 text-gray-500" />
+                <p className="text-gray-700 text-sm font-semibold">{t("dashboard.name")}</p>
               </div>
-              <div>
-                <p>{t("clients.phone")}</p>
-                <Input
-                  text={t("clients.phone")}
-                  type="text"
-                  required
-                  onChange={(e) => setClientPhone(e.target.value)}
+              <input
+                placeholder={t("dashboard.name")}
+                type="text"
+                required
+                onChange={(e) => setClientName(e.target.value)}
+                value={clientName}
+                className="w-full mt-2 px-4 py-3 border border-gray-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-400 focus:border-blue-500 transition duration-200"
+              />
+
+              {/* Campo para Telefone */}
+              <div className="w-full">
+                <div className="flex items-center gap-2 mb-2">
+                  <HiPhone className="w-5 h-5 text-gray-500" />
+                  <p className="text-gray-700 text-sm font-semibold">{t("dashboard.phone")}</p>
+                </div>
+                <PhoneInput
+                  country={'br'}
                   value={clientPhone}
+                  onChange={setClientPhone}
+                  inputProps={{
+                    required: true,
+                    name: 'phone',
+                  }}
+                  containerStyle={{ width: '100%' }}
+                  inputStyle={{
+                    width: '100%',
+                    height: '48px',
+                    borderRadius: '0.75rem',
+                    border: '1px solid #D1D5DB',
+                    paddingLeft: '48px',
+                    fontSize: '16px',
+                  }}
+                  buttonStyle={{
+                    borderTopLeftRadius: '0.75rem',
+                    borderBottomLeftRadius: '0.75rem',
+                  }}
                 />
               </div>
-              <div>
-                <p>{t("clients.email")}</p>
-                <Input
-                  text={t("clients.email")}
-                  type="email"
-                  required
-                  onChange={(e) => setClientMail(e.target.value)}
-                  value={clientMail}
-                />
+
+              {/* Campo para Email */}
+              <div className="flex items-center gap-2">
+                <HiMail className="w-5 h-5 text-gray-500" />
+                <p className="text-gray-700 text-sm font-semibold">{t("dashboard.email")}</p>
               </div>
-              <Button text={t("clients.register_client")} onClick={handleAddClient} />
+              <input
+                placeholder={t("dashboard.email")}
+                type="email"
+                required
+                onChange={(e) => setClientMail(e.target.value)}
+                value={clientMail}
+                className="w-full mt-2 px-4 py-3 border border-gray-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-400 focus:border-blue-500 transition duration-200"
+              />
+
+              {/* Botão de Cadastro */}
+              <div className="w-full mt-6">
+                <button
+                  value="Cadastrar Cliente"
+                  onClick={handleAddClient}
+                  className="w-full py-3 bg-blue-600 text-white rounded-xl shadow-md hover:bg-blue-700 transition-all duration-200 flex items-center justify-center gap-2"
+                >
+                  <HiUserAdd className="w-5 h-5" />
+                  {t("dashboard.add_client")}
+                </button>
+              </div>
             </div>
-          )}
-        </Modal>
+          </div>
+        )}
+      </Modal>
       </div>
     </div>
   );
