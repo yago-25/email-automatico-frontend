@@ -1,7 +1,5 @@
 import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
-// import { useSwr } from "../../api/useSwr";
-// import { FaRegTrashAlt } from "react-icons/fa";
 import { Pencil, Trash } from "lucide-react";
 import { FaPlus } from "react-icons/fa6";
 import { MdOutlineFormatListNumbered, MdSchedule } from "react-icons/md";
@@ -33,6 +31,7 @@ interface EmailItem {
     clients: EmailClient[];
     attachments: Attachment[];
 }
+
 interface Attachment {
     name: string;
 }
@@ -48,10 +47,20 @@ const Mails = () => {
     const [isModalCrashOpen, setIsModalCrashOpen] = useState(false);
     const [clientIdToDelete, setClientIdToDelete] = useState<number | null>(null);
     const [mails, setMails] = useState<EmailItem[]>([]);
+    const [filteredMails, setFilteredMails] = useState<EmailItem[]>([]);
     const [loading, setLoading] = useState(false);
     const [isPreviewModalOpen, setPreviewModalOpen] = useState(false);
     const [isPreviewModalOpenEdit, setPreviewModalOpenEdit] = useState(false);
     const [previewEmail, setPreviewEmail] = useState<EmailItem | null>(null);
+    const [subject, setSubject] = useState('');
+    const [recipients, setRecipients] = useState('');
+    const [status, setStatus] = useState({
+        sent: false,
+        pending: false,
+        failed: false,
+    });
+    const [date, setDate] = useState('');
+    const [id, setId] = useState('');
 
     const fetchEmails = async () => {
         setLoading(true);
@@ -62,6 +71,7 @@ const Mails = () => {
                 },
             });
             setMails(response.data);
+            setFilteredMails(response.data);
         } catch (error) {
             console.error("Erro ao carregar e-mails", error);
         } finally {
@@ -72,6 +82,73 @@ const Mails = () => {
     useEffect(() => {
         fetchEmails();
     }, []);
+
+    const applyFilters = () => {
+        let filtered = mails;
+
+        console.log('Aplicando filtros...');
+        console.log('Filtros Ativos:', { subject, recipients, status, date, id });
+
+        if (subject) {
+            filtered = filtered.filter((email) =>
+                email.subject.toLowerCase().includes(subject.toLowerCase())
+            );
+            console.log(`Filtrando por assunto: ${subject}`);
+        }
+
+        if (recipients) {
+            filtered = filtered.filter((email) =>
+                email.clients.some((client) =>
+                    client.mail.toLowerCase().includes(recipients.toLowerCase())
+                )
+            );
+            console.log(`Filtrando por destinatário: ${recipients}`);
+        }
+
+        if (status.sent) {
+            filtered = filtered.filter((email) => email.status === "sent");
+            console.log('Filtrando por status: Enviado');
+        }
+        if (status.pending) {
+            filtered = filtered.filter((email) => email.status === "pending");
+            console.log('Filtrando por status: Pendente');
+        }
+        if (status.failed) {
+            filtered = filtered.filter((email) => email.status === "failed");
+            console.log('Filtrando por status: Falha');
+        }
+
+        if (date) {
+            filtered = filtered.filter(
+                (email) => email.send_date === date
+            );
+            console.log(`Filtrando por data: ${date}`);
+        }
+
+        if (id) {
+            filtered = filtered.filter((email) => email.id === Number(id));
+            console.log(`Filtrando por ID: ${id}`);
+        }
+
+        console.log('Emails filtrados:', filtered);
+
+        setFilteredMails(filtered);
+    };
+
+    const clearFilters = () => {
+        console.log('Limpar filtros...');
+        setSubject('');
+        setRecipients('');
+        setStatus({
+            sent: false,
+            pending: false,
+            failed: false,
+        });
+        setDate('');
+        setId('');
+        setFilteredMails(mails);
+        console.log('Filtros limpos, mostrando todos os e-mails');
+    };
 
     const openModal = (clients: EmailClient[]) => {
         const names = clients.map((c) => c.name);
@@ -85,15 +162,12 @@ const Mails = () => {
         if (!clientIdToDelete) return;
         setLoading(true);
         try {
-
             await api.delete(`/emails/${clientIdToDelete}`, {
                 headers: {
                     Authorization: `Bearer ${localStorage.getItem("accessToken")}`,
                 },
             });
-
             await fetchEmails();
-
         } catch (error) {
             console.error("Erro ao deletar:", error);
             alert("Erro ao deletar o e-mail.");
@@ -103,10 +177,12 @@ const Mails = () => {
             setLoading(false);
         }
     };
+
     const openDeleteModal = (id: number) => {
         setClientIdToDelete(id);
         setIsModalCrashOpen(true);
     };
+
     if (loading) {
         return <Spin />;
     }
@@ -118,45 +194,110 @@ const Mails = () => {
                 <div className="flex flex-col lg:flex-row gap-6">
                     <div className="lg:w-1/5 w-full bg-white/80 text-blue-900 rounded-2xl shadow-xl p-6 h-fit animate-fade-in">
                         <h2 className="text-xl font-bold mb-4">Filtros</h2>
+
+                        {/* Filtro de ID */}
+                        <div className="mb-4">
+                            <label className="block text-sm font-semibold mb-1">ID</label>
+                            <input
+                                type="text"
+                                value={id}
+                                onChange={(e) => setId(e.target.value)}
+                                placeholder="Buscar por ID..."
+                                className="w-full px-3 py-2 rounded-lg border border-blue-300 focus:ring focus:ring-blue-200"
+                            />
+                        </div>
+
+                        {/* Filtro de Destinatários */}
+                        <div className="mb-4">
+                            <label className="block text-sm font-semibold mb-1">Destinatários</label>
+                            <input
+                                type="text"
+                                value={recipients}
+                                onChange={(e) => setRecipients(e.target.value)}
+                                placeholder="Buscar por destinatário..."
+                                className="w-full px-3 py-2 rounded-lg border border-blue-300 focus:ring focus:ring-blue-200"
+                            />
+                        </div>
+
+                        {/* Filtro de Assunto */}
                         <div className="mb-4">
                             <label className="block text-sm font-semibold mb-1">Assunto</label>
                             <input
                                 type="text"
+                                value={subject}
+                                onChange={(e) => setSubject(e.target.value)}
                                 placeholder="Buscar por assunto..."
                                 className="w-full px-3 py-2 rounded-lg border border-blue-300 focus:ring focus:ring-blue-200"
                             />
                         </div>
+
+                        {/* Filtro de Status */}
                         <div className="mb-4">
                             <label className="block text-sm font-semibold mb-1">Status</label>
                             <div className="space-y-2">
                                 <label className="flex items-center gap-2">
-                                    <input type="checkbox" className="accent-green-500" />
+                                    <input
+                                        type="checkbox"
+                                        checked={status.sent}
+                                        onChange={() => setStatus((prevStatus) => ({
+                                            ...prevStatus,
+                                            sent: !prevStatus.sent,
+                                        }))}
+                                        className="accent-green-500"
+                                    />
                                     Enviado
                                 </label>
                                 <label className="flex items-center gap-2">
-                                    <input type="checkbox" className="accent-yellow-500" />
+                                    <input
+                                        type="checkbox"
+                                        checked={status.pending}
+                                        onChange={() => setStatus((prevStatus) => ({
+                                            ...prevStatus,
+                                            pending: !prevStatus.pending,
+                                        }))}
+                                        className="accent-yellow-500"
+                                    />
                                     Pendente
                                 </label>
                                 <label className="flex items-center gap-2">
-                                    <input type="checkbox" className="accent-red-500" />
+                                    <input
+                                        type="checkbox"
+                                        checked={status.failed}
+                                        onChange={() => setStatus((prevStatus) => ({
+                                            ...prevStatus,
+                                            failed: !prevStatus.failed,
+                                        }))}
+                                        className="accent-red-500"
+                                    />
                                     Falha
                                 </label>
                             </div>
                         </div>
 
+
+                        {/* Filtro de Data de Envio */}
                         <div className="mb-4">
                             <label className="block text-sm font-semibold mb-1">Data de envio</label>
                             <input
                                 type="date"
+                                value={date}
+                                onChange={(e) => setDate(e.target.value)}
                                 className="w-full px-3 py-2 rounded-lg border border-blue-300 focus:ring focus:ring-blue-200"
                             />
                         </div>
 
+                        {/* Botões de Aplicar e Limpar */}
                         <div className="flex justify-between gap-2">
-                            <button className="bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700 transition">
+                            <button
+                                onClick={applyFilters}
+                                className="bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700 transition"
+                            >
                                 Aplicar
                             </button>
-                            <button className="bg-gray-300 text-blue-900 px-4 py-2 rounded-lg hover:bg-gray-400 transition">
+                            <button
+                                onClick={clearFilters}
+                                className="bg-gray-300 text-blue-900 px-4 py-2 rounded-lg hover:bg-gray-400 transition"
+                            >
                                 Limpar
                             </button>
                         </div>
@@ -204,12 +345,18 @@ const Mails = () => {
                                             <div className="flex justify-center items-center gap-1"><FaPlus /> Ações</div>
                                         </div>
 
-                                        {mails.map((mail, i) => {
+                                        {/* Renderizando os e-mails filtrados */}
+                                        {filteredMails.map((mail, i) => {
                                             const agendamento = new Date(`${mail.send_date}T${mail.send_time}`);
                                             const isPast = agendamento < now;
                                             const isSent = mail.status === "sent";
                                             const isFailed = mail.status === "failed";
                                             const isPending = mail.status === "pending";
+
+                                            let rowBg = "bg-white"; // Cor de fundo padrão
+                                            if (isSent) rowBg = "bg-green-200";
+                                            if (isFailed) rowBg = "bg-red-200";
+                                            if (isPending) rowBg = "bg-white";
 
                                             console.log(`ID: ${mail.id}`, {
                                                 status: mail.status,
@@ -218,13 +365,6 @@ const Mails = () => {
                                                 isSent,
                                                 isPending
                                             });
-
-                                            let rowBg = "bg-white";
-                                            if (isSent) rowBg = "bg-green-200";
-                                            if (isFailed) rowBg = "bg-red-200";
-                                            if (isPending) rowBg = "bg-white";
-
-
                                             return (
                                                 <div
                                                     key={mail.id}
