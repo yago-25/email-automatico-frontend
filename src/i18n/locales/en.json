@@ -290,5 +290,28 @@
     "cancel": "Cancel",
     "create": "Create Event"
   }
+},
+"sidebar": {
+  "logout_message": "Logout completed successfully.",
+  "tooltips": {
+    "dashboard": "Home Page",
+    "clients": "Clients",
+    "tickets": "Tickets",
+    "calendar": "Calendar",
+    "email": {
+      "tooltip": "Emails",
+      "create": "Create Email",
+      "list": "Email List"
+    },
+    "sms": {
+      "tooltip": "SMS",
+      "create": "Create SMS",
+      "list": "SMS List"
+    },
+    "wpp": "WhatsApp",
+    "approve": "Registration Requests",
+    "config": "Settings",
+    "logout": "Logout"
+  }
 }
 }
