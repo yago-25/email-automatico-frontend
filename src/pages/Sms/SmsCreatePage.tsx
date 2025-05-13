@@ -8,7 +8,7 @@ import Header from "../../components/Header/Header";
 import { SmsMessage } from "../../components/PhoneComponent/SmsMessage";
 import SmsPhone from "../../components/PhoneComponent/SmsPhone";
 import { User } from "../../models/User";
-import { Button } from "../Ticket/Ticket";
+// import { Button } from "../Ticket/Ticket";
 import { useSwr } from "../../api/useSwr";
 import Spin from "../../components/Spin/Spin";
 import { useEffect, useState } from "react";
@@ -25,6 +25,14 @@ import "dayjs/locale/en";
 import "dayjs/locale/es";
 import { useTranslation } from "react-i18next";
 import { useNavigate } from "react-router-dom";
+import {
+  Calendar,
+  Clock,
+  Users,
+  MessageCircle,
+  SendHorizonal,
+} from "lucide-react";
+import { Save } from "lucide-react";
 
 const localeMap = {
   pt: ptBR,
@@ -306,49 +314,54 @@ const SmsCreatePage = () => {
         <Spin />
       ) : (
         <div>
-          <h1 className="text-3xl font-semibold text-white">
+          <h1 className="text-4xl font-extrabold text-white mb-8 flex items-center gap-3">
+            <MessageCircle className="w-9 h-9 text-white animate-pulse" />
             Crie sua Mensagem de Texto
           </h1>
-          <div className="flex gap-10 items-center justify-between w-full">
-            <div className="bg-white p-6 rounded-lg shadow-md w-2/3 flex flex-col gap-6">
+
+          <div className="flex flex-col lg:flex-row gap-10 items-start justify-between w-full">
+            <div className="bg-white p-8 rounded-3xl shadow-2xl w-full lg:w-2/3 flex flex-col gap-8 border border-gray-100">
+
+              {/* Data */}
               <div className="flex flex-col gap-2">
-                <label className="text-blue-600 text-sm">Dia da Mensagem</label>
+                <label className="text-blue-700 text-sm font-semibold flex items-center gap-2">
+                  <Calendar className="w-4 h-4" />
+                  Dia da Mensagem
+                </label>
                 <ConfigProvider locale={antdLocale}>
                   <DatePicker
-                    format={
-                      i18n.language === "en" ? "MM/DD/YYYY" : "DD/MM/YYYY"
-                    }
+                    format={i18n.language === "en" ? "MM/DD/YYYY" : "DD/MM/YYYY"}
                     placeholder={
-                      i18n.language === "en"
-                        ? "Date of Message"
-                        : "Dia da Mensagem"
+                      i18n.language === "en" ? "Date of Message" : "Dia da Mensagem"
                     }
                     value={dateMessage ? dayjs(dateMessage) : null}
                     onChange={(d) => setDateMessage(d ? d.toISOString() : null)}
-                    className="bg-white border rounded-md p-2 outline-none"
+                    className="bg-white border border-gray-300 rounded-xl px-4 py-2 outline-none w-full shadow-sm focus:border-blue-500 transition"
                   />
                 </ConfigProvider>
               </div>
 
+              {/* Hora */}
               <div className="flex flex-col gap-2">
-                <label className="text-blue-600 text-sm">
+                <label className="text-blue-700 text-sm font-semibold flex items-center gap-2">
+                  <Clock className="w-4 h-4" />
                   Hora da Mensagem
                 </label>
                 <ConfigProvider locale={antdLocale}>
                   <TimePicker
-                    className="bg-white border rounded-md p-2 outline-none"
+                    className="bg-white border border-gray-300 rounded-xl px-4 py-2 outline-none w-full shadow-sm focus:border-blue-500 transition"
                     value={hourMessage ? dayjs(hourMessage) : null}
-                    onChange={(date) =>
-                      setHourMessage(date ? date.toISOString() : null)
-                    }
+                    onChange={(d) => setHourMessage(d ? d.toISOString() : null)}
                     defaultValue={dayjs("00:00", format)}
                     format={format}
                   />
                 </ConfigProvider>
               </div>
 
+              {/* Cliente */}
               <div className="flex flex-col gap-2">
-                <label className="text-blue-600 text-sm">
+                <label className="text-blue-700 text-sm font-semibold flex items-center gap-2">
+                  <Users className="w-4 h-4" />
                   Cliente que receberá a Mensagem
                 </label>
                 <MultiSelectClient
@@ -360,29 +373,25 @@ const SmsCreatePage = () => {
                 />
               </div>
 
+              {/* Mensagem */}
               <div className="flex flex-col gap-2">
-                <label className="text-blue-600 text-sm">
+                <label className="text-blue-700 text-sm font-semibold flex items-center gap-2">
+                  <MessageCircle className="w-4 h-4" />
                   Texto da Mensagem
                 </label>
                 <textarea
                   placeholder="Digite sua mensagem..."
-                  className="bg-white border rounded-md p-4 h-32 resize-none outline-none"
+                  className="bg-white border border-gray-300 rounded-xl px-4 py-3 h-32 resize-none outline-none shadow-sm focus:border-blue-500 transition"
                   value={textMessage || ""}
                   onChange={(e) => setTextMessage(e.target.value)}
                 />
               </div>
 
+              {/* Botão */}
               <div className="flex justify-end">
-                <Button
-                  text="Enviar Preview"
-                  disabled={messagesToShow.length >= 1}
+                <button
                   onClick={() => {
-                    if (
-                      !dateMessage ||
-                      !hourMessage ||
-                      !selected ||
-                      !textMessage
-                    ) {
+                    if (!dateMessage || !hourMessage || !selected || !textMessage) {
                       messageAlert({
                         type: "error",
                         message: "Por favor, preencha todos os campos.",
@@ -393,16 +402,13 @@ const SmsCreatePage = () => {
                     const now = dayjs();
                     const selectedDate = dayjs(dateMessage);
                     const selectedDateTime = dayjs(
-                      `${selectedDate.format("YYYY-MM-DD")}T${dayjs(
-                        hourMessage
-                      ).format("HH:mm")}`
+                      `${selectedDate.format("YYYY-MM-DD")}T${dayjs(hourMessage).format("HH:mm")}`
                     );
 
                     if (selectedDate.isBefore(now, "day")) {
                       messageAlert({
                         type: "error",
-                        message:
-                          "Por favor, selecione uma data maior que a data atual.",
+                        message: "Por favor, selecione uma data maior que a data atual.",
                       });
                       return;
                     }
@@ -426,6 +432,12 @@ const SmsCreatePage = () => {
                     };
 
                     const phones = selected
+                      .map((id) => rawClients.find((c) => c.id === Number(id))?.phone)
+                      .filter((phone): phone is string => !!phone);
+
+                    const names = selected
+                      .map((id) => rawClients.find((c) => c.id === Number(id))?.name)
+                      .filter((name): name is string => !!name);
                       .map((id) => {
                         const client = rawClients.find(
                           (c) => c.id === Number(id)
@@ -449,20 +461,32 @@ const SmsCreatePage = () => {
                       dateMessage,
                       hourMessage,
                       textMessage,
-                      names: names,
-                      phones: phones,
+                      names,
+                      phones,
                     });
                     setSelected([]);
                     setDateMessage(null);
                     setHourMessage(null);
                     setTextMessage(null);
                   }}
-                />
+                  disabled={messagesToShow.length >= 1}
+                  className="flex items-center gap-2 bg-gradient-to-r from-blue-600 to-blue-700 hover:from-blue-700 hover:to-blue-800 text-white font-semibold py-3 px-6 rounded-xl shadow-lg transition-all duration-300 disabled:opacity-50"
+                >
+                  <SendHorizonal className="w-4 h-4" />
+                  Enviar Preview
+                </button>
               </div>
             </div>
-            <div className="flex flex-col justify-center items-center gap-6">
+
+            <div className="flex flex-col justify-center items-center gap-4 -mt-16">
               <div className="flex justify-center">
-                <Button text="Salvar" onClick={handleSaveSms} />
+                <button
+                  onClick={handleSaveSms}
+                  className="flex items-center gap-2 bg-blue-600 text-white px-6 py-2 rounded-xl shadow hover:bg-blue-700 transition duration-200"
+                >
+                  <Save className="w-5 h-5" />
+                  Salvar
+                </button>
               </div>
               <SmsPhone>
                 {messagesToShow.map((message) => (

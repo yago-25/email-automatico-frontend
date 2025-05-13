@@ -5,13 +5,14 @@ import { HiOutlineUser } from "react-icons/hi";
 import { CiMail, CiPhone } from "react-icons/ci";
 import { FaGear, FaPlus } from "react-icons/fa6";
 import { MdSchedule, MdScheduleSend } from "react-icons/md";
-import { FaRegTrashAlt } from "react-icons/fa";
+// import { FaRegTrashAlt } from "react-icons/fa";
 import { IoIosInformationCircleOutline } from "react-icons/io";
 import { AiOutlineEye } from "react-icons/ai";
 import { useSwr } from "../../api/useSwr";
 import Spin from "../../components/Spin/Spin";
 import { useState } from "react";
 import Modal from "../../components/Modal/Modal";
+import MessageModal from "../../components/Modal/MessageModal";
 import { useNavigate } from "react-router-dom";
 import dayjs from "dayjs";
 import { useTranslation } from "react-i18next";
@@ -20,6 +21,9 @@ import "dayjs/locale/en";
 import "dayjs/locale/es";
 import { api } from "../../api/api";
 import { messageAlert } from "../../utils/messageAlert";
+import { FiMessageCircle } from "react-icons/fi";
+import {  Trash } from "lucide-react";
+import DeleteConfirmModal from "../../components/DeleteConfirm/DeleteConfirmModal";
 
 interface Sms {
   id: number;
@@ -54,6 +58,11 @@ const SmsPage = () => {
   const [modalNames, setModalNames] = useState<string[]>([]);
   const [loadingDelete, setLoadingDelete] = useState(false);
   const [loadingPost, setLoadingPost] = useState<boolean>(false);
+  const [showMessageModal, setShowMessageModal] = useState(false);
+  const [selectedMessage, setSelectedMessage] = useState("");
+  const [smsIdToDelete, setSmsIdToDelete] = useState<number | null>(null);
+  const [isModalCrashOpen, setIsModalCrashOpen] = useState(false);
+  const [loadingMessage, setLoading] = useState(false);
 
   const openModal = (phones: string[], names: string[]) => {
     setModalPhones(phones);
@@ -63,6 +72,11 @@ const SmsPage = () => {
 
   const closeModal = () => {
     setIsModalOpen(false);
+  };
+
+  const openModalMessage = (message: string) => {
+    setSelectedMessage(message);
+    setShowMessageModal(true);
   };
 
   const formatPhoneNumber = (phone: string) => {
@@ -99,31 +113,36 @@ const SmsPage = () => {
     }
   };
 
-  const handleDeleteSms = async (id: number) => {
-    setLoadingDelete(true);
+  const openDeleteModal = (id: number) => {
+    setSmsIdToDelete(id);
+    setIsModalCrashOpen(true);
+  };
+
+  const handleDelete = async (id: number) => {
+    setLoading(true); 
     try {
       await api.delete(`/sms/${id}`, {
         headers: {
-          Authorization: `Bearer ${localStorage.getItem("accessToken")}`,
+          Authorization: `Bearer ${localStorage.getItem("accessToken")}`!,
         },
       });
-
+  
       messageAlert({
         type: "success",
         message: "SMS deletado com sucesso!",
       });
-
-      mutate();
-    } catch (e) {
-      messageAlert({
-        type: "error",
-        message: "Erro ao deletar SMS",
-      });
-      console.log("Erro ao deletar SMS: ", e);
+  
+      mutate(); 
+    } catch (error) {
+      console.error("Erro ao deletar SMS:", error);
+      alert("Erro ao deletar o SMS.");
     } finally {
-      setLoadingDelete(false);
+      setIsModalCrashOpen(false);
+      setSmsIdToDelete(null);
+      setLoading(false); 
     }
   };
+  
 
   return (
     <div className="p-4">
@@ -135,7 +154,8 @@ const SmsPage = () => {
           <>
             <div className="flex flex-col sm:flex-row justify-between items-center mb-6 gap-4">
               <div className="flex items-center justify-center gap-5">
-                <h1 className="text-3xl font-bold text-white">
+                <h1 className="text-3xl font-bold text-white flex items-center gap-2">
+                  <FiMessageCircle className="text-white" />
                   Listagem de SMS
                 </h1>
                 <div className="flex items-center gap-1 text-white">
@@ -196,6 +216,7 @@ const SmsPage = () => {
                     return (
                       <div
                         key={sms.id}
+
                         className={`grid grid-cols-7 gap-4 px-6 py-4 text-sm text-blue-900 border-b ${rowBg} ${
                           i === data.length - 1 ? "rounded-b-lg" : ""
                         }`}
@@ -206,20 +227,42 @@ const SmsPage = () => {
                         <div className="flex justify-center items-center truncate">
                           {sms.user_name}
                         </div>
+
+
                         <div
-                          className="flex justify-center items-center"
+                          className="flex items-center gap-2 max-w-[250px]"
                           title={sms.message}
                         >
-                          <div className="truncate max-w-[200px]">
+                          <div className="flex-1 truncate text-gray-800">
                             {sms.message}
                           </div>
-                        </div>
-                        <div className="flex justify-center items-center">
+
                           <AiOutlineEye
-                            onClick={() => openModal(sms.phones, sms.names)}
-                            className="text-blue-500 cursor-pointer w-5 h-5"
+                            onClick={() => openModalMessage(sms.message)}
+                            className="text-blue-500 cursor-pointer w-6 h-6 hover:scale-110 transition-transform shrink-0"
+                            title="Visualizar mensagem completa"
+
                           />
                         </div>
+
+
+
+                        <div
+                          className="flex justify-center items-center gap-1 max-w-[200px]"
+                          title={sms.names?.join(", ")}
+                        >
+                          <span className="truncate">
+                            {sms.names?.slice(0, 2).join(", ")}
+                          </span>
+                          {sms.names.length > 2 && (
+                            <AiOutlineEye
+                              onClick={() => openModal(sms.phones, sms.names)}
+                              className="text-red-500 cursor-pointer w-6 h-6 hover:scale-110 transition-transform"
+                              title="Visualizar destinatários"
+                            />
+                          )}
+                        </div>
+
                         <div className="flex justify-center items-center truncate min-w-[150px]">
                           {dayjs(sms.scheduled_at)
                             .locale(lang)
@@ -229,8 +272,8 @@ const SmsPage = () => {
                           {sms.status === "pending"
                             ? "Pendente"
                             : sms.status === "sent"
-                            ? "Enviado"
-                            : "Falha"}
+                              ? "Enviado"
+                              : "Falha"}
                         </div>
                         <div className="flex justify-center items-center w-full gap-2">
                           {sms.status !== "sent" && (
@@ -240,11 +283,10 @@ const SmsPage = () => {
                               onClick={() => handleSendNow(sms.id)}
                             />
                           )}
-                          <FaRegTrashAlt
-                            className="cursor-pointer w-5 h-5"
-                            title="Deletar"
-                            onClick={() => handleDeleteSms(sms.id)}
-                          />
+                          <button onClick={() => openDeleteModal(sms.id)} className="text-red-500 hover:text-red-700">
+                            <Trash className="h-5 w-5" />
+                          </button>
+
                         </div>
                       </div>
                     );
@@ -283,6 +325,27 @@ const SmsPage = () => {
           </button>
         </div>
       </Modal>
+
+      <MessageModal
+        isVisible={showMessageModal}
+        message={selectedMessage}
+        onClose={() => setShowMessageModal(false)}
+      />
+
+      <DeleteConfirmModal
+        isVisible={isModalCrashOpen}
+        onClose={() => {
+          setIsModalCrashOpen(false);
+          setSmsIdToDelete(null);
+        }}
+        onConfirm={() => {
+          if (smsIdToDelete !== null) {
+            handleDelete(smsIdToDelete);
+          }
+        }}
+        loading={loadingMessage}
+      />
+
     </div>
   );
 };

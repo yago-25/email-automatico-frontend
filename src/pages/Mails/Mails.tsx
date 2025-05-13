@@ -108,7 +108,6 @@ const Mails = () => {
     if (status.failed) {
       filtered = filtered.filter((email) => email.status === "failed");
     }
-
     if (date) {
       filtered = filtered.filter((email) => email.send_date === date);
     }

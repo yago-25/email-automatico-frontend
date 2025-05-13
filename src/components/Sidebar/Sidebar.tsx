@@ -95,6 +95,7 @@ const Sidebar = () => {
                     className={`icon ${
                       isActiveRoute("/mails") ? "active-icon" : ""
                     }`}
+
                     onClick={() => setOptionsEmail(!optionsEmail)}
                   />
                 </Tooltip>
@@ -109,7 +110,6 @@ const Sidebar = () => {
                     {t("sidebar.tooltips.email.list")}
                   </button>
                 )}
-
                 {optionsEmail && (
                   <button
                     className="text-[13px] text-white bg-blue-700 w-full px-4 py-1 rounded flex items-center justify-center text-center hover:bg-blue-800 transition mt-3"
@@ -118,9 +118,13 @@ const Sidebar = () => {
                       setOptionsEmail(false);
                     }}
                   >
+
                     {t("sidebar.tooltips.email.create")}
+
                   </button>
                 )}
+
+
               </div>
               <div className="flex flex-col items-center w-full">
                 <Tooltip
