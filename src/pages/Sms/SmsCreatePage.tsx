@@ -436,17 +436,6 @@ const SmsCreatePage = () => {
                       .filter((phone): phone is string => !!phone);
 
                     const names = selected
-                      .map((id) => rawClients.find((c) => c.id === Number(id))?.name)
-                      .filter((name): name is string => !!name);
-                      .map((id) => {
-                        const client = rawClients.find(
-                          (c) => c.id === Number(id)
-                        );
-                        return client ? client.phone : null;
-                      })
-                      .filter((phone): phone is string => phone !== null);
-
-                    const names = selected
                       .map((id) => {
                         const client = rawClients.find(
                           (c) => c.id === Number(id)
