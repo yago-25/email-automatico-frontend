@@ -195,7 +195,6 @@ const Mails = () => {
                     <div className="lg:w-1/5 w-full bg-white/80 text-blue-900 rounded-2xl shadow-xl p-6 h-fit animate-fade-in">
                         <h2 className="text-xl font-bold mb-4">Filtros</h2>
 
-                        {/* Filtro de ID */}
                         <div className="mb-4">
                             <label className="block text-sm font-semibold mb-1">ID</label>
                             <input
@@ -207,7 +206,6 @@ const Mails = () => {
                             />
                         </div>
 
-                        {/* Filtro de Destinatários */}
                         <div className="mb-4">
                             <label className="block text-sm font-semibold mb-1">Destinatários</label>
                             <input
@@ -219,7 +217,6 @@ const Mails = () => {
                             />
                         </div>
 
-                        {/* Filtro de Assunto */}
                         <div className="mb-4">
                             <label className="block text-sm font-semibold mb-1">Assunto</label>
                             <input
@@ -231,7 +228,6 @@ const Mails = () => {
                             />
                         </div>
 
-                        {/* Filtro de Status */}
                         <div className="mb-4">
                             <label className="block text-sm font-semibold mb-1">Status</label>
                             <div className="space-y-2">
@@ -274,8 +270,6 @@ const Mails = () => {
                             </div>
                         </div>
 
-
-                        {/* Filtro de Data de Envio */}
                         <div className="mb-4">
                             <label className="block text-sm font-semibold mb-1">Data de envio</label>
                             <input
@@ -286,7 +280,6 @@ const Mails = () => {
                             />
                         </div>
 
-                        {/* Botões de Aplicar e Limpar */}
                         <div className="flex justify-between gap-2">
                             <button
                                 onClick={applyFilters}
@@ -333,7 +326,6 @@ const Mails = () => {
                                     />
                                 </div>
 
-                                {/* Tabela */}
                                 <div className="overflow-x-auto rounded-2xl shadow-2xl animate-slide-up">
                                     <div className="min-w-full">
                                         <div className="grid grid-cols-6 gap-4 px-4 py-3 bg-blue-200 text-blue-900 font-semibold text-sm text-center rounded-t-2xl">
@@ -345,7 +337,6 @@ const Mails = () => {
                                             <div className="flex justify-center items-center gap-1"><FaPlus /> Ações</div>
                                         </div>
 
-                                        {/* Renderizando os e-mails filtrados */}
                                         {filteredMails.map((mail, i) => {
                                             const agendamento = new Date(`${mail.send_date}T${mail.send_time}`);
                                             const isPast = agendamento < now;
@@ -353,7 +344,7 @@ const Mails = () => {
                                             const isFailed = mail.status === "failed";
                                             const isPending = mail.status === "pending";
 
-                                            let rowBg = "bg-white"; // Cor de fundo padrão
+                                            let rowBg = "bg-white"; 
                                             if (isSent) rowBg = "bg-green-200";
                                             if (isFailed) rowBg = "bg-red-200";
                                             if (isPending) rowBg = "bg-white";

@@ -45,7 +45,7 @@ const Sidebar = () => {
       className={`sidebar-container transition-all duration-300 ${optionsSms || optionsEmail ? "w-[170px]" : "w-[50px]"
         }`}
     >
-      
+
       <div className="first-lay">
         <img src={mailIcon} width={52} height={52} className="img-mail" />
         <div className="pages">
@@ -76,8 +76,19 @@ const Sidebar = () => {
                 <IoMail
                   className={`icon ${isActiveRoute("/mails") ? "active-icon" : ""
                     }`}
-                    onClick={() => setOptionsEmail(!optionsEmail)}
+                  onClick={() => setOptionsEmail(!optionsEmail)}
                 />
+                {optionsEmail && (
+                  <button
+                    className="text-[13px] text-white bg-blue-700 w-full text-left px-4 py-1 rounded hover:bg-blue-800 transition mt-3"
+                    onClick={() => {
+                      handleNavigation("/mails");
+                      setOptionsEmail(false);
+                    }}
+                  >
+                    Listagem de Mail
+                  </button>
+                )}
                 {optionsEmail && (
                   <button
                     className="text-[13px] text-white bg-blue-700 w-full text-left px-4 py-1 rounded hover:bg-blue-800 transition mt-3"
@@ -90,17 +101,7 @@ const Sidebar = () => {
                   </button>
                 )}
 
-                {optionsEmail && (
-                  <button
-                    className="text-[13px] text-white bg-blue-700 w-full text-left px-4 py-1 rounded hover:bg-blue-800 transition mt-3"
-                    onClick={() => {
-                      handleNavigation("/mails");
-                      setOptionsEmail(false);
-                    }}
-                  >
-                    Listagem de Mail
-                  </button>
-                )}
+
               </div>
               <div className="flex flex-col items-center w-full">
                 <MdSms

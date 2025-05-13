@@ -28,3 +28,6 @@ export const SmsMessage = ({ children, onDelete, isEditable }: SmsMessageProps) 
     </div>
   );
 };
+
+
+export default SmsMessage;
