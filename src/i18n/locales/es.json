@@ -291,6 +291,29 @@
     "cancel": "Cancelar",
     "create": "Crear Evento"
   }
-}
+},
+"sidebar": {
+    "logout_message": "Cierre de sesión realizado con éxito.",
+    "tooltips": {
+      "dashboard": "Página Principal",
+      "clients": "Clientes",
+      "tickets": "Tickets",
+      "calendar": "Calendario",
+      "email": {
+        "tooltip": "Correos Electrónicos",
+        "create": "Creación de Correo",
+        "list": "Listado de Correos"
+      },
+      "sms": {
+        "tooltip": "SMS",
+        "create": "Creación de SMS",
+        "list": "Listado de SMS"
+      },
+      "wpp": "WhatsApp",
+      "approve": "Solicitudes de Registro",
+      "config": "Configuraciones",
+      "logout": "Cerrar Sesión"
+    }
+  }
 
 }

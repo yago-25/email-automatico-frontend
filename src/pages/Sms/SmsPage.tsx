@@ -16,9 +16,9 @@ import MessageModal from "../../components/Modal/MessageModal";
 import { useNavigate } from "react-router-dom";
 import dayjs from "dayjs";
 import { useTranslation } from "react-i18next";
-import 'dayjs/locale/pt-br';
-import 'dayjs/locale/en';
-import 'dayjs/locale/es';
+import "dayjs/locale/pt-br";
+import "dayjs/locale/en";
+import "dayjs/locale/es";
 import { api } from "../../api/api";
 import { messageAlert } from "../../utils/messageAlert";
 import { FiMessageCircle } from "react-icons/fi";
@@ -48,9 +48,9 @@ const SmsPage = () => {
   const lang = i18n.language as "pt" | "en" | "es";
 
   const dateFormatMap: Record<string, string> = {
-    'pt-BR': 'DD/MM/YYYY HH:mm',
-    en: 'MM/DD/YYYY hh:mm A',
-    es: 'DD/MM/YYYY HH:mm',
+    "pt-BR": "DD/MM/YYYY HH:mm",
+    en: "MM/DD/YYYY hh:mm A",
+    es: "DD/MM/YYYY HH:mm",
   };
 
   const [isModalOpen, setIsModalOpen] = useState(false);
@@ -63,8 +63,6 @@ const SmsPage = () => {
   const [smsIdToDelete, setSmsIdToDelete] = useState<number | null>(null);
   const [isModalCrashOpen, setIsModalCrashOpen] = useState(false);
   const [loadingMessage, setLoading] = useState(false);
-
-  const now = new Date();
 
   const openModal = (phones: string[], names: string[]) => {
     setModalPhones(phones);
@@ -206,17 +204,22 @@ const SmsPage = () => {
 
                 {data &&
                   data.map((sms, i) => {
-                    const isPast = new Date(sms.scheduled_at) < now;
-                    const isSend = sms.status === "sent";
+                    const isSent = sms.status === "sent";
+                    const isFailed = sms.status === "failed";
+                    const isPending = sms.status === "pending";
+
+                    let rowBg = "bg-white";
+                    if (isSent) rowBg = "bg-green-200";
+                    if (isFailed) rowBg = "bg-red-200";
+                    if (isPending) rowBg = "bg-white";
+
                     return (
                       <div
                         key={sms.id}
-                        className={`grid grid-cols-7 gap-4 px-6 py-4 text-sm text-blue-900 border-b ${isPast
-                          ? "bg-red-200"
-                          : isSend
-                            ? "bg-green-200"
-                            : "bg-white"
-                          } ${i === data.length - 1 ? "rounded-b-lg" : ""}`}
+
+                        className={`grid grid-cols-7 gap-4 px-6 py-4 text-sm text-blue-900 border-b ${rowBg} ${
+                          i === data.length - 1 ? "rounded-b-lg" : ""
+                        }`}
                       >
                         <div className="flex justify-center items-center truncate">
                           {sms.id}
@@ -233,10 +236,12 @@ const SmsPage = () => {
                           <div className="flex-1 truncate text-gray-800">
                             {sms.message}
                           </div>
+
                           <AiOutlineEye
                             onClick={() => openModalMessage(sms.message)}
                             className="text-blue-500 cursor-pointer w-6 h-6 hover:scale-110 transition-transform shrink-0"
                             title="Visualizar mensagem completa"
+
                           />
                         </div>
 
