@@ -297,11 +297,11 @@ const Mails = () => {
                       Agendados
                     </h1>
                     <div className="flex items-center gap-2 text-sm font-medium">
-                      <span className="inline-block w-3 h-3 rounded-full bg-green-300 animate-ping"></span>
+                      <span className="inline-block w-3 h-3 rounded-full bg-green-300 animate-pulse"></span>
                       Enviados
                     </div>
                     <div className="flex items-center gap-2 text-sm font-medium">
-                      <span className="inline-block w-3 h-3 rounded-full bg-red-300 animate-ping"></span>
+                      <span className="inline-block w-3 h-3 rounded-full bg-red-300 animate-pulse"></span>
                       Falhas
                     </div>
                     <div className="flex items-center gap-2 text-sm font-medium">

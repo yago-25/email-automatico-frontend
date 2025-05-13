@@ -1,5 +1,5 @@
 import "./sidebar.css";
-import mailIcon from "./../../../public/mail-svgrepo-com.svg";
+import mailIcon from "./../../../public/martinsadviser.svg";
 import { IoMdHome, IoLogoWhatsapp } from "react-icons/io";
 import { IoLogOut } from "react-icons/io5";
 import { FaCalendar, FaUser } from "react-icons/fa";
@@ -10,7 +10,7 @@ import { FaCheckCircle } from "react-icons/fa";
 import { messageAlert } from "../../utils/messageAlert";
 import { useLocation, useNavigate } from "react-router-dom";
 import { useState } from "react";
-import { Tooltip } from 'antd';
+import { Tooltip } from "antd";
 import { useTranslation } from "react-i18next";
 
 const Sidebar = () => {
@@ -44,36 +44,42 @@ const Sidebar = () => {
 
   return (
     <div
-      className={`sidebar-container transition-all duration-300 ${optionsSms || optionsEmail ? "w-[170px]" : "w-[50px]"
-        }`}
+      className={`sidebar-container transition-all duration-300 ${
+        optionsSms || optionsEmail ? "w-[170px]" : "w-[50px]"
+      }`}
     >
-      
       <div className="first-lay">
-        <img src={mailIcon} width={52} height={52} className="img-mail" />
+        <img src={mailIcon} width={72} height={72} className="img-mail" />
         <div className="pages">
           <Tooltip title={t("sidebar.tooltips.dashboard")} placement="right">
             <IoMdHome
-              className={`icon ${isActiveRoute("/dashboard") ? "active-icon" : ""
-                }`}
+              className={`icon ${
+                isActiveRoute("/dashboard") ? "active-icon" : ""
+              }`}
               onClick={() => handleNavigation("/dashboard")}
             />
           </Tooltip>
           <Tooltip title={t("sidebar.tooltips.clients")} placement="right">
             <FaUser
-              className={`icon ${isActiveRoute("/clients") ? "active-icon" : ""}`}
+              className={`icon ${
+                isActiveRoute("/clients") ? "active-icon" : ""
+              }`}
               onClick={() => handleNavigation("/clients")}
             />
           </Tooltip>
           <Tooltip title={t("sidebar.tooltips.tickets")} placement="right">
             <IoTicketSharp
-              className={`icon ${isActiveRoute("/ticket") ? "active-icon" : ""}`}
+              className={`icon ${
+                isActiveRoute("/ticket") ? "active-icon" : ""
+              }`}
               onClick={() => handleNavigation("/ticket")}
             />
           </Tooltip>
           <Tooltip title={t("sidebar.tooltips.calendar")} placement="right">
             <FaCalendar
-              className={`icon ${isActiveRoute("/calendar") ? "active-icon" : ""
-                }`}
+              className={`icon ${
+                isActiveRoute("/calendar") ? "active-icon" : ""
+              }`}
               onClick={() => handleNavigation("/calendar")}
             />
           </Tooltip>
@@ -81,11 +87,15 @@ const Sidebar = () => {
           {(cargo === 1 || cargo === 2) && (
             <>
               <div className="flex flex-col items-center w-full">
-                <Tooltip title={t("sidebar.tooltips.email.tooltip")} placement="right">
+                <Tooltip
+                  title={t("sidebar.tooltips.email.tooltip")}
+                  placement="right"
+                >
                   <IoMail
-                    className={`icon ${isActiveRoute("/mails") ? "active-icon" : ""
-                      }`}
-                      onClick={() => setOptionsEmail(!optionsEmail)}
+                    className={`icon ${
+                      isActiveRoute("/mails") ? "active-icon" : ""
+                    }`}
+                    onClick={() => setOptionsEmail(!optionsEmail)}
                   />
                 </Tooltip>
                 {optionsEmail && (
@@ -113,9 +123,14 @@ const Sidebar = () => {
                 )}
               </div>
               <div className="flex flex-col items-center w-full">
-                <Tooltip title={t("sidebar.tooltips.sms.tooltip")} placement="right">
+                <Tooltip
+                  title={t("sidebar.tooltips.sms.tooltip")}
+                  placement="right"
+                >
                   <MdSms
-                    className={`icon ${isActiveRoute("/sms") ? "active-icon" : ""}`}
+                    className={`icon ${
+                      isActiveRoute("/sms") ? "active-icon" : ""
+                    }`}
                     onClick={() => setOptionsSms(!optionsSms)}
                   />
                 </Tooltip>
@@ -144,22 +159,25 @@ const Sidebar = () => {
               </div>
               <Tooltip title={t("sidebar.tooltips.wpp")} placement="right">
                 <IoLogoWhatsapp
-                  className={`icon ${isActiveRoute("/whatsapp") ? "active-icon" : ""
-                    }`}
+                  className={`icon ${
+                    isActiveRoute("/whatsapp") ? "active-icon" : ""
+                  }`}
                   onClick={() => handleNavigation("/whatsapp")}
                 />
               </Tooltip>
               <Tooltip title={t("sidebar.tooltips.approve")} placement="right">
                 <FaCheckCircle
-                  className={`icon ${isActiveRoute("/approve") ? "active-icon" : ""
-                    }`}
+                  className={`icon ${
+                    isActiveRoute("/approve") ? "active-icon" : ""
+                  }`}
                   onClick={() => handleNavigation("/approve")}
                 />
               </Tooltip>
               <Tooltip title={t("sidebar.tooltips.config")} placement="right">
                 <FaGear
-                  className={`icon ${isActiveRoute("/settings") ? "active-icon" : ""
-                    }`}
+                  className={`icon ${
+                    isActiveRoute("/settings") ? "active-icon" : ""
+                  }`}
                   onClick={() => handleNavigation("/settings")}
                 />
               </Tooltip>
