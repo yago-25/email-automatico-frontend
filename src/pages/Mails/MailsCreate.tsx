@@ -8,7 +8,7 @@ import { useNavigate } from 'react-router-dom';
 import Header from "../../components/Header/Header";
 import { User } from "../../models/User";
 import { Skeleton } from 'antd';
-import { Trash2 } from 'lucide-react';
+// import { Trash2 } from 'lucide-react';
 import { useRef } from "react";
 import { ConfigProvider, DatePicker, TimePicker } from "antd";
 import ptBR from "antd/lib/locale/pt_BR";
@@ -19,6 +19,9 @@ import "dayjs/locale/en";
 import "dayjs/locale/es";
 import { useTranslation } from "react-i18next";
 import dayjs from "dayjs";
+import { FiCalendar, FiClock, FiPaperclip, FiTrash2, FiMail, FiUsers } from "react-icons/fi";
+import { FiSend } from "react-icons/fi";
+import { CiMail } from "react-icons/ci";
 
 const localeMap = {
     pt: ptBR,
@@ -179,182 +182,238 @@ const MailsCreate = () => {
     return (
         <>
             <Header name={authUser?.nome_completo} />
-            <div className="flex flex-col p-8 gap-8">
-                <h1 className="text-2xl text-blue-50 font-semibold ml-2">Crie seu Email</h1>
-                <div className="flex gap-12">
-                    <form onSubmit={handlePreview} className="p-6 rounded-2xl shadow-md bg-white w-[800px] flex flex-col gap-6">
+            <div className="flex flex-col items-center justify-start p-8 w-full">
+                <div className="ml-[80px] w-full">
+                    <div className="flex items-center gap-[595px] mb-6 w-full">
+                        <h1 className="text-3xl font-bold text-white flex items-center gap-2">
+                            <CiMail className="w-8 h-8 animate-bounce" />
+                            Crie seu Email
+                        </h1>
+                        <h1 className="text-3xl font-bold text-white flex items-center gap-2">
+                            <CiMail className="w-8 h-8 animate-bounce" />
+                            Prévia do E-mail
+                        </h1>
+                    </div>
 
-                        <div>
-                            <label className="text-sm text-blue-500">Assunto do E-mail</label>
-                            <input
-                                type="text"
-                                value={subject}
-                                onChange={(e) => setSubject(e.target.value)}
-                                placeholder="Digite o título"
-                                className="w-full mt-1 p-2 rounded-md bg-gray-100 text-gray-700"
-                            />
-                        </div>
-                        <div>
-                            <label className="text-sm text-blue-500">Clientes</label>
-                            {loadingClients ? (
-                                <Spin />
-                            ) : (
-                                <MultiSelectClient
-                                    options={valueSelect}
-                                    value={selectedClients}
-                                    onChange={(value) => setSelectedClients(value)}
-                                    placeholder="Selecione os clientes"
-                                    onSearch={onSearch}
+                    <div className="flex gap-12">
+                        <form
+                            onSubmit={handlePreview}
+                            className="p-8 rounded-3xl shadow-xl bg-white w-[800px] flex flex-col gap-6 border border-gray-100"
+                        >
+                            <div>
+                                <label className="text-sm text-blue-600 flex items-center gap-1">
+                                    <FiMail />
+                                    Assunto do E-mail
+                                </label>
+                                <input
+                                    type="text"
+                                    value={subject}
+                                    onChange={(e) => setSubject(e.target.value)}
+                                    placeholder="Digite o título"
+                                    className="w-full mt-2 p-3 rounded-lg bg-gray-100 text-gray-700 focus:ring-2 focus:ring-blue-400 outline-none"
                                 />
-                            )}
-                        </div>
-                        <div className="flex flex-col">
-                            <label className="text-sm text-blue-500">Data do Email</label>
-                            <ConfigProvider locale={antdLocale}>
-                                <DatePicker
-                                    format={i18n.language === "en" ? "MM/DD/YYYY" : "DD/MM/YYYY"}
-                                    placeholder={i18n.language === "en" ? "Date of Message" : "Dia da Mensagem"}
-                                    value={sendDate ? dayjs(sendDate) : null}
-                                    onChange={(date) => setSendDate(date ? date.toISOString().split("T")[0] : "")}
-                                    className="bg-white border rounded-md p-2 outline-none"
-                                />
-                            </ConfigProvider>
-                        </div>
-                        <div className="flex gap-6">
-                            <div className="flex flex-col">
-                                <label className="text-sm text-blue-500">Hora de Envio</label>
-                                <ConfigProvider locale={antdLocale}>
-                                    <TimePicker
-                                        className="w-full mt-1 p-2 rounded-md bg-gray-100 text-gray-700"
-                                        value={sendTime ? dayjs(sendTime, timeFormat) : null}
-                                        onChange={(time) =>
-                                            setSendTime(time ? time.format(timeFormat) : "")
-                                        }
-                                        format={timeFormat}
-                                        placeholder="00:00"
+                            </div>
+
+                            <div>
+                                <label className="text-sm text-blue-600 flex items-center gap-1">
+                                    <FiUsers />
+                                    Clientes
+                                </label>
+                                {loadingClients ? (
+                                    <Spin />
+                                ) : (
+                                    <MultiSelectClient
+                                        options={valueSelect}
+                                        value={selectedClients}
+                                        onChange={(value) => setSelectedClients(value)}
+                                        placeholder="Selecione os clientes"
+                                        onSearch={onSearch}
                                     />
-                                </ConfigProvider>
-                            </div>
-                        </div>
-
-                        <div>
-                            <label className="text-sm text-blue-500">Corpo do E-mail</label>
-                            <textarea
-                                value={body}
-                                onChange={(e) => setBody(e.target.value)}
-                                placeholder="Digite sua mensagem..."
-                                className="w-full mt-1 p-2 h-48 rounded-md bg-gray-100 text-gray-700 resize-none"
-                            />
-                        </div>
-
-                        <div>
-                            <label className="text-sm text-blue-500">Anexos</label>
-                            <input
-                                ref={fileInputRef}
-                                type="file"
-                                multiple
-                                onChange={handleFileChange}
-                                className="w-full mt-1 p-2 rounded-md bg-gray-100 text-gray-700"
-                            />
-
-                            {attachments.length > 0 && (
-                                <ul className="mt-2 text-sm text-gray-600">
-                                    {attachments.map((file, idx) => (
-                                        <li key={idx} className="flex items-center justify-between mb-1">
-                                            <span>{file.name}</span>
-                                            <button
-                                                onClick={() => handleRemoveAttachment(idx)}
-                                                className="text-red-500 hover:text-red-700 ml-2"
-                                                title="Remover anexo"
-                                            >
-                                                <Trash2 size={16} />
-                                            </button>
-                                        </li>
-                                    ))}
-                                </ul>
-                            )}
-                        </div>
-
-                    </form>
-                    <div className="p-6 rounded-2xl shadow-md bg-white w-[800px]">
-                        <h2 className="text-xl font-semibold text-blue-500">Prévia do E-mail</h2>
-                        <div className="mt-4">
-
-                            <h3 className="text-lg font-medium">
-                                Assunto: {subject ? subject : <Skeleton title={false} paragraph={{ rows: 1, width: '60%' }} active />}
-                            </h3>
-
-                            <p className="mt-2 text-sm">
-                                Para: {selectedClients.length > 0 ? (
-                                    selectedClients.map(clientId => {
-                                        const client = valueSelect.find(c => c.value === clientId);
-                                        return client ? client.mail : '';
-                                    }).join(", ")
-                                ) : (
-                                    <Skeleton title={false} paragraph={{ rows: 1, width: '40%' }} active />
-                                )}
-                            </p>
-
-                            <div className="mt-2 text-sm">
-                                <div>
-                                    <span className="font-medium">Data do envio:</span>{' '}
-                                    {sendDate ? (
-                                        sendDate
-                                    ) : (
-                                        <Skeleton title={false} paragraph={{ rows: 1, width: '50%' }} active />
-                                    )}
-                                </div>
-                                <div className="mt-1">
-                                    <span className="font-medium">Horário do envio:</span>{' '}
-                                    {sendTime ? (
-                                        sendTime
-                                    ) : (
-                                        <Skeleton title={false} paragraph={{ rows: 1, width: '30%' }} active />
-                                    )}
-                                </div>
-                            </div>
-
-                            <div className="mt-4">
-                                <h4 className="font-medium">Corpo do E-mail:</h4>
-                                {body ? (
-                                    <p style={{ whiteSpace: "pre-line" }}>{body}</p>
-                                ) : (
-                                    <Skeleton title={false} paragraph={{ rows: 3 }} active />
                                 )}
                             </div>
 
-                            {attachments.length > 0 ? (
-                                <div className="mt-4">
-                                    <h4 className="font-medium">Anexos:</h4>
-                                    <ul className="pl-4">
+                            {/* Data e Hora */}
+                            <div className="flex gap-6">
+                                <div className="flex-1">
+                                    <label className="text-sm text-blue-600 flex items-center gap-1">
+                                        <FiCalendar />
+                                        Data do Email
+                                    </label>
+                                    <ConfigProvider locale={antdLocale}>
+                                        <DatePicker
+                                            format={i18n.language === "en" ? "MM/DD/YYYY" : "DD/MM/YYYY"}
+                                            placeholder={i18n.language === "en" ? "Date of Message" : "Dia da Mensagem"}
+                                            value={sendDate ? dayjs(sendDate) : null}
+                                            onChange={(date) => setSendDate(date ? date.toISOString().split("T")[0] : "")}
+                                            className="w-full mt-2 p-2 rounded-lg border-gray-300 outline-none focus:ring-2 focus:ring-blue-400"
+                                        />
+                                    </ConfigProvider>
+                                </div>
+
+                                <div className="flex-1">
+                                    <label className="text-sm text-blue-600 flex items-center gap-1">
+                                        <FiClock />
+                                        Hora de Envio
+                                    </label>
+                                    <ConfigProvider locale={antdLocale}>
+                                        <TimePicker
+                                            className="w-full mt-2 p-2 rounded-lg bg-gray-100 text-gray-700"
+                                            value={sendTime ? dayjs(sendTime, timeFormat) : null}
+                                            onChange={(time) => setSendTime(time ? time.format(timeFormat) : "")}
+                                            format={timeFormat}
+                                            placeholder="00:00"
+                                        />
+                                    </ConfigProvider>
+                                </div>
+                            </div>
+
+                            {/* Corpo do E-mail */}
+                            <div>
+                                <label className="text-sm text-blue-600">Corpo do E-mail</label>
+                                <textarea
+                                    value={body}
+                                    onChange={(e) => setBody(e.target.value)}
+                                    placeholder="Digite sua mensagem..."
+                                    className="w-full mt-2 p-3 h-48 rounded-lg bg-gray-100 text-gray-700 resize-none focus:ring-2 focus:ring-blue-400 outline-none"
+                                />
+                            </div>
+
+                            {/* Anexos */}
+                            <div>
+                                <label className="text-sm text-blue-600 flex items-center gap-1">
+                                    <FiPaperclip />
+                                    Anexos
+                                </label>
+                                <input
+                                    ref={fileInputRef}
+                                    type="file"
+                                    multiple
+                                    onChange={handleFileChange}
+                                    className="w-full mt-2 p-2 rounded-lg bg-gray-100 text-gray-700"
+                                />
+
+                                {attachments.length > 0 && (
+                                    <ul className="mt-2 text-sm text-gray-600 space-y-1">
                                         {attachments.map((file, idx) => (
-                                            <li
-                                                key={idx}
-                                                className="flex items-center justify-between text-sm text-gray-700 mb-1"
-                                            >
+                                            <li key={idx} className="flex items-center justify-between bg-gray-100 px-3 py-2 rounded-md">
                                                 <span>{file.name}</span>
                                                 <button
+                                                    type="button"
                                                     onClick={() => handleRemoveAttachment(idx)}
-                                                    className="ml-2 text-red-500 hover:text-red-700"
-                                                    title="Remover"
+                                                    className="text-red-500 hover:text-red-700 ml-4"
+                                                    title="Remover anexo"
                                                 >
-                                                    <Trash2 size={16} />
+                                                    <FiTrash2 size={16} />
                                                 </button>
                                             </li>
                                         ))}
                                     </ul>
-                                </div>
-                            ) : null}
-                        </div>
+                                )}
+                            </div>
+                        </form>
+                        <div className="p-8 rounded-3xl shadow-xl bg-white w-[800px] border border-gray-100">
+                            <h1 className="text-2xl font-bold text-blue-600 flex items-center gap-2">
+                                <CiMail className="w-8 h-8 animate-bounce" />
+                                Prévia do E-mail
+                            </h1>
 
-                        <div className="flex justify-end mt-4">
-                            <button
-                                onClick={handleSend}
-                                className="bg-green-500 hover:bg-green-600 text-white text-sm font-semibold py-2 px-4 cursor-pointer rounded"
-                                disabled={!subject || !body || selectedClients.length === 0}
-                            >
-                                Confirmar Envio
-                            </button>
+                            <div className="mt-6 space-y-4 text-sm text-gray-800">
+
+                                <div className="flex items-start gap-2">
+                                    <FiMail className="mt-1 text-blue-400" />
+                                    <h3 className="text-base font-semibold">
+                                        Assunto:{" "}
+                                        {subject ? (
+                                            subject
+                                        ) : (
+                                            <Skeleton title={false} paragraph={{ rows: 1, width: "60%" }} active />
+                                        )}
+                                    </h3>
+                                </div>
+
+                                <div className="flex items-start gap-2">
+                                    <FiUsers className="mt-1 text-blue-400" />
+                                    <p>
+                                        Para:{" "}
+                                        {selectedClients.length > 0 ? (
+                                            selectedClients
+                                                .map((clientId) => {
+                                                    const client = valueSelect.find((c) => c.value === clientId);
+                                                    return client ? client.mail : "";
+                                                })
+                                                .join(", ")
+                                        ) : (
+                                            <Skeleton title={false} paragraph={{ rows: 1, width: "40%" }} active />
+                                        )}
+                                    </p>
+                                </div>
+
+                                <div className="flex items-center gap-6 flex-wrap">
+                                    <div className="flex items-center gap-2">
+                                        <FiCalendar className="text-blue-400" />
+                                        <span>
+                                            <strong>Data do envio:</strong>{" "}
+                                            {sendDate ? sendDate : <Skeleton title={false} paragraph={{ rows: 1, width: "50%" }} active />}
+                                        </span>
+                                    </div>
+                                    <div className="flex items-center gap-2">
+                                        <FiClock className="text-blue-400" />
+                                        <span>
+                                            <strong>Horário do envio:</strong>{" "}
+                                            {sendTime ? sendTime : <Skeleton title={false} paragraph={{ rows: 1, width: "30%" }} active />}
+                                        </span>
+                                    </div>
+                                </div>
+
+                                <div className="mt-4">
+                                    <h4 className="font-semibold mb-1 flex items-center gap-1">
+                                        <FiMail className="text-blue-400" />
+                                        Corpo do E-mail:
+                                    </h4>
+                                    {body ? (
+                                        <p className="whitespace-pre-line text-gray-700">{body}</p>
+                                    ) : (
+                                        <Skeleton title={false} paragraph={{ rows: 3 }} active />
+                                    )}
+                                </div>
+
+                                {attachments.length > 0 && (
+                                    <div className="mt-4">
+                                        <h4 className="font-semibold mb-2 flex items-center gap-1 text-blue-500">
+                                            <FiPaperclip />
+                                            Anexos:
+                                        </h4>
+                                        <ul className="space-y-1">
+                                            {attachments.map((file, idx) => (
+                                                <li
+                                                    key={idx}
+                                                    className="flex items-center justify-between bg-gray-50 px-3 py-2 rounded-md shadow-sm"
+                                                >
+                                                    <span className="text-sm text-gray-700">{file.name}</span>
+                                                    <button
+                                                        onClick={() => handleRemoveAttachment(idx)}
+                                                        className="text-red-500 hover:text-red-700 transition"
+                                                        title="Remover"
+                                                    >
+                                                        <FiTrash2 size={16} />
+                                                    </button>
+                                                </li>
+                                            ))}
+                                        </ul>
+                                    </div>
+                                )}
+                            </div>
+
+                            <div className="flex justify-end mt-6">
+                                <button
+                                    onClick={handleSend}
+                                    className="flex items-center gap-2 bg-green-500 hover:bg-green-600 text-white font-semibold py-2 px-5 rounded-md shadow-md transition disabled:opacity-60 disabled:cursor-not-allowed"
+                                    disabled={!subject || !body || selectedClients.length === 0}
+                                >
+                                    <FiSend size={18} />
+                                    Confirmar Envio
+                                </button>
+                            </div>
                         </div>
                     </div>
                 </div>

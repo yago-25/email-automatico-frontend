@@ -422,22 +422,22 @@ const SmsCreatePage = () => {
                     };
 
                     const phones = selected
-                    .map((id) => {
-                      const client = rawClients.find(
-                        (c) => c.id === Number(id)
-                      );
-                      return client ? client.phone : null;
-                    })
-                    .filter((phone): phone is string => phone !== null);
+                      .map((id) => {
+                        const client = rawClients.find(
+                          (c) => c.id === Number(id)
+                        );
+                        return client ? client.phone : null;
+                      })
+                      .filter((phone): phone is string => phone !== null);
 
                     const names = selected
-                    .map((id) => {
-                      const client = rawClients.find(
-                        (c) => c.id === Number(id)
-                      );
-                      return client ? client.name : null;
-                    })
-                    .filter((name): name is string => name !== null);
+                      .map((id) => {
+                        const client = rawClients.find(
+                          (c) => c.id === Number(id)
+                        );
+                        return client ? client.name : null;
+                      })
+                      .filter((name): name is string => name !== null);
 
                     setMessagesToShow((prev) => [...prev, newMessage]);
                     setPayload({
