@@ -15,7 +15,7 @@ import { useEffect, useState } from "react";
 import { messageAlert } from "../../utils/messageAlert";
 import { api } from "../../api/api";
 import dayjs from "dayjs";
-import { ConfigProvider, DatePicker, TimePicker } from "antd";
+import { ConfigProvider, DatePicker, TimePicker, Tooltip } from "antd";
 import MultiSelectClient from "../../components/Select/MultiSelectClient";
 import ptBR from "antd/lib/locale/pt_BR";
 import enUS from "antd/lib/locale/en_US";
@@ -119,9 +119,11 @@ const SmsCreatePage = () => {
     switch (message.mediatype) {
       case "text":
         return (
-          <pre className="max-w-full whitespace-pre-wrap break-words font-['poppins']">
-            {message?.message}
-          </pre>
+          <Tooltip title={message?.message}>
+            <div className="max-h-[700px] overflow-hidden font-['poppins'] line-clamp-5">
+              {message?.message}
+            </div>
+          </Tooltip>
         );
 
       case "audio":
@@ -256,7 +258,9 @@ const SmsCreatePage = () => {
         {
           user_id: authUser?.id,
           names: payload.names,
-          phones: payload.phones?.map((phone) => formatPhoneNumber(phone, "55")),
+          phones: payload.phones?.map((phone) =>
+            formatPhoneNumber(phone, "55")
+          ),
           message: payload.textMessage,
           scheduled_at: scheduledAt,
           file_path: null,
@@ -422,22 +426,22 @@ const SmsCreatePage = () => {
                     };
 
                     const phones = selected
-                    .map((id) => {
-                      const client = rawClients.find(
-                        (c) => c.id === Number(id)
-                      );
-                      return client ? client.phone : null;
-                    })
-                    .filter((phone): phone is string => phone !== null);
+                      .map((id) => {
+                        const client = rawClients.find(
+                          (c) => c.id === Number(id)
+                        );
+                        return client ? client.phone : null;
+                      })
+                      .filter((phone): phone is string => phone !== null);
 
                     const names = selected
-                    .map((id) => {
-                      const client = rawClients.find(
-                        (c) => c.id === Number(id)
-                      );
-                      return client ? client.name : null;
-                    })
-                    .filter((name): name is string => name !== null);
+                      .map((id) => {
+                        const client = rawClients.find(
+                          (c) => c.id === Number(id)
+                        );
+                        return client ? client.name : null;
+                      })
+                      .filter((name): name is string => name !== null);
 
                     setMessagesToShow((prev) => [...prev, newMessage]);
                     setPayload({
