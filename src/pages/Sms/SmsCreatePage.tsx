@@ -8,7 +8,7 @@ import Header from "../../components/Header/Header";
 import { SmsMessage } from "../../components/PhoneComponent/SmsMessage";
 import SmsPhone from "../../components/PhoneComponent/SmsPhone";
 import { User } from "../../models/User";
-import { Button } from "../Ticket/Ticket";
+// import { Button } from "../Ticket/Ticket";
 import { useSwr } from "../../api/useSwr";
 import Spin from "../../components/Spin/Spin";
 import { useEffect, useState } from "react";
@@ -32,7 +32,7 @@ import {
   MessageCircle,
   SendHorizonal,
 } from "lucide-react";
-import { Save, MessageSquare, Trash2 } from "lucide-react";
+import { Save } from "lucide-react";
 
 const localeMap = {
   pt: ptBR,
