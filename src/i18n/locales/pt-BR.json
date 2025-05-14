@@ -217,10 +217,10 @@
     }
   },
   "fields": {
-  "status": "Status",
-  "observation": "Observação"
-},
-"buttons": {
+    "status": "Status",
+    "observation": "Observação"
+  },
+  "buttons": {
     "backToActive": "Voltar para ativos",
     "showFinished": "Mostrar finalizados"
   },
@@ -313,5 +313,42 @@
       "config": "Configurações",
       "logout": "Sair"
     }
+  },
+  "create_email": {
+    "title": "Crie seu Email",
+    "subject": "Assunto do E-mail",
+    "subject_placeholder": "Digite o título",
+    "clients": "Clientes",
+    "select_clients": "Selecione os clientes",
+    "date": "Data do Email",
+    "send_time": "Hora de Envio",
+    "send_time_placeholder": "00:00",
+    "body": "Corpo do E-mail",
+    "body_placeholder": "Digite sua mensagem...",
+    "recurrency": "Recorrência",
+    "frequency": "Frequência",
+    "select_frequency": "Selecione a frequência",
+    "daily": "Diária",
+    "weekly": "Semanal",
+    "monthly": "Mensal",
+    "yearly": "Anual",
+    "end_date": "Data de Término",
+    "select_end_date": "Selecione a data de término",
+    "attachments": "Anexos",
+    "remove_attachment": "Remover anexo"
+  },
+  "email_preview": {
+    "title": "Prévia do E-mail",
+    "subject": "Assunto:",
+    "to": "Para:",
+    "send_date": "Data do envio",
+    "send_time": "Horário do envio",
+    "body": "Corpo do E-mail:",
+    "recurrency": "Recorrência",
+    "yes": "Sim",
+    "no": "Não",
+    "attachments": "Anexos:",
+    "remove_attachment": "Remover",
+    "confirm_send": "Confirmar Envio"
   }
 }
