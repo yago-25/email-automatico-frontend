@@ -1,3 +1,4 @@
+/* eslint-disable react-hooks/exhaustive-deps */
 import { useEffect, useState } from "react";
 import Header from "../../components/Header/Header";
 import "./clients.css";
@@ -18,11 +19,11 @@ import { HiOutlineUser } from "react-icons/hi";
 // import { IoMdAddCircleOutline } from "react-icons/io";
 import { IoTicketOutline } from "react-icons/io5";
 import { useNavigate } from "react-router-dom";
-import  DeleteConfirmModal from "../../components/DeleteConfirm/DeleteConfirmModal";
+import DeleteConfirmModal from "../../components/DeleteConfirm/DeleteConfirmModal";
 import { HiMail, HiPhone, HiUser } from "react-icons/hi";
 import { HiUserAdd } from "react-icons/hi";
-import PhoneInput from 'react-phone-input-2';
-import 'react-phone-input-2/lib/style.css';
+import PhoneInput from "react-phone-input-2";
+import "react-phone-input-2/lib/style.css";
 
 interface Client {
   id: number;
@@ -32,7 +33,7 @@ interface Client {
 }
 
 interface ButtonProps {
-  text: any;
+  text: string;
   onClick: () => void;
   className?: string;
 }
@@ -40,14 +41,22 @@ interface DeleteConfirmModal {
   isOpen: boolean;
   onClose: () => void;
   onConfirm: () => void;
-  loading?: boolean;
 }
 
 const Button: React.FC<ButtonProps> = ({ text, onClick }) => {
   return (
-    <button onClick={onClick} className="cursor-pointer w-44 h-12 bg-blue-600 text-white rounded-lg hover:bg-blue-700 hover:shadow-lg transition-all group active:w-11 active:h-11 active:rounded-full active:duration-300 ease-in-out">
-      <svg className="animate-spin hidden group-active:block mx-auto" width="33" height="32" viewBox="0 0 33 32" fill="none" xmlns="http://www.w3.org/2000/svg">
-      </svg>
+    <button
+      onClick={onClick}
+      className="cursor-pointer w-44 h-12 bg-blue-600 text-white rounded-lg hover:bg-blue-700 hover:shadow-lg transition-all group active:w-11 active:h-11 active:rounded-full active:duration-300 ease-in-out"
+    >
+      <svg
+        className="animate-spin hidden group-active:block mx-auto"
+        width="33"
+        height="32"
+        viewBox="0 0 33 32"
+        fill="none"
+        xmlns="http://www.w3.org/2000/svg"
+      ></svg>
       <span className="group-active:hidden">{text}</span>
     </button>
   );
@@ -61,9 +70,9 @@ const Clients = () => {
   const authUser: User | null = storedUser ? JSON.parse(storedUser) : null;
   const [clients, setClients] = useState<Client[]>([]);
   const [addClient, setAddClient] = useState(false);
-  const [clientName, setClientName] = useState('');
-  const [clientPhone, setClientPhone] = useState('');
-  const [clientMail, setClientMail] = useState('');
+  const [clientName, setClientName] = useState("");
+  const [clientPhone, setClientPhone] = useState("");
+  const [clientMail, setClientMail] = useState("");
   const [editingClient, setEditingClient] = useState<Client | null>(null);
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [isModalCrashOpen, setIsModalCrashOpen] = useState(false);
@@ -93,7 +102,10 @@ const Clients = () => {
 
   const totalPages = Math.ceil(filteredClients.length / itemsPerPage);
   const startIndex = (currentPage - 1) * itemsPerPage;
-  const currentClients = filteredClients.slice(startIndex, startIndex + itemsPerPage);
+  const currentClients = filteredClients.slice(
+    startIndex,
+    startIndex + itemsPerPage
+  );
 
   const goToPage = (page: number) => {
     if (page >= 1 && page <= totalPages) {
@@ -135,34 +147,38 @@ const Clients = () => {
       if (!clientName || !clientPhone || !clientMail) {
         messageAlert({
           type: "error",
-          message: t("clients.fill_all_fields")
+          message: t("clients.fill_all_fields"),
         });
         return;
       }
 
-      await api.post('/clients', {
-        name: clientName,
-        phone: clientPhone,
-        mail: clientMail
-      }, {
-        headers: {
-          Authorization: `Bearer ${localStorage.getItem('accessToken')}`
+      await api.post(
+        "/clients",
+        {
+          name: clientName,
+          phone: clientPhone,
+          mail: clientMail,
+        },
+        {
+          headers: {
+            Authorization: `Bearer ${localStorage.getItem("accessToken")}`,
+          },
         }
-      });
+      );
 
       messageAlert({
         type: "success",
-        message: t("clients.created_successfully")
+        message: t("clients.created_successfully"),
       });
       setAddClient(false);
-      setClientName('');
-      setClientPhone('');
-      setClientMail('');
+      setClientName("");
+      setClientPhone("");
+      setClientMail("");
     } catch (e) {
-      console.log('Erro ao criar usuário: ', e);
+      console.log("Erro ao criar usuário: ", e);
       messageAlert({
         type: "error",
-        message: t("clients.create_error")
+        message: t("clients.create_error"),
       });
     } finally {
       setLoadingPost(false);
@@ -217,18 +233,20 @@ const Clients = () => {
         },
       });
 
-      setClients(clients.map((c) => (c.id === editingClient.id ? editingClient : c)));
+      setClients(
+        clients.map((c) => (c.id === editingClient.id ? editingClient : c))
+      );
       messageAlert({
         type: "success",
-        message: t("clients.updated_successfully")
+        message: t("clients.updated_successfully"),
       });
       setIsModalOpen(false);
     } catch (error) {
       messageAlert({
         type: "error",
-        message: t("clients.update_error")
+        message: t("clients.update_error"),
       });
-      console.log(error, 'Error');
+      console.log(error, "Error");
     } finally {
       setLoading(false);
     }
@@ -242,14 +260,14 @@ const Clients = () => {
     return <Spin />;
   }
 
-
   return (
     <div className="body">
       <Header name={authUser?.nome_completo} />
       <div className="max-w-6xl mx-auto px-4 py-8">
-
         <div className="flex flex-col sm:flex-row justify-between items-center mb-6 gap-4">
-          <h1 className="text-3xl font-bold text-white">{`📝 ${t('clients.clients')}`}</h1>
+          <h1 className="text-3xl font-bold text-white">{`📝 ${t(
+            "clients.clients"
+          )}`}</h1>
 
           <input
             placeholder={t("clients.search_placeholder")}
@@ -266,11 +284,21 @@ const Clients = () => {
 
         <div className="w-full rounded-xl overflow-hidden shadow-md">
           <div className="grid grid-cols-5 gap-x-6 items-center px-6 py-4 bg-blue-100 border-b text-blue-900 font-semibold text-sm">
-            <p className="flex items-center gap-2"><MdOutlineFormatListNumbered /> ID</p>
-            <p className="flex items-center gap-2"><HiOutlineUser /> {t("clients.name")}</p>
-            <p className="flex items-center gap-2"><CiMail /> {t("clients.email")}</p>
-            <p className="flex items-center gap-2"><CiPhone /> {t("clients.phone")}</p>
-            <p className="flex items-center justify-center gap-2"><FaGear /> {t("clients.actions")}</p>
+            <p className="flex items-center gap-2">
+              <MdOutlineFormatListNumbered /> ID
+            </p>
+            <p className="flex items-center gap-2">
+              <HiOutlineUser /> {t("clients.name")}
+            </p>
+            <p className="flex items-center gap-2">
+              <CiMail /> {t("clients.email")}
+            </p>
+            <p className="flex items-center gap-2">
+              <CiPhone /> {t("clients.phone")}
+            </p>
+            <p className="flex items-center justify-center gap-2">
+              <FaGear /> {t("clients.actions")}
+            </p>
           </div>
 
           {currentClients.map((client) => (
@@ -280,7 +308,12 @@ const Clients = () => {
             >
               <p>{client.id}</p>
               <p title={client.name}>{client.name}</p>
-              <p title={client.mail} className="max-w-96 overflow-hidden text-ellipsis truncate">{client.mail}</p>
+              <p
+                title={client.mail}
+                className="max-w-96 overflow-hidden text-ellipsis truncate"
+              >
+                {client.mail}
+              </p>
               <p title={client.phone}>{formatPhone(client.phone)}</p>
               <div className="flex justify-center gap-4">
                 <button
@@ -316,11 +349,10 @@ const Clients = () => {
           onClose={() => {
             setIsModalCrashOpen(false);
             setClientIdToDelete(null);
-          }} 
+          }}
           onConfirm={handleDelete}
-          loading={loading} 
         />
-        
+
         <div className="flex justify-center items-center gap-4 mt-8">
           <button
             onClick={() => goToPage(currentPage - 1)}
@@ -342,7 +374,7 @@ const Clients = () => {
         </div>
 
         <div className="flex justify-end mt-10">
-        <button
+          <button
             onClick={() => setAddClient(true)}
             className="flex items-center gap-2 bg-blue-600 text-white px-5 py-3 rounded-xl shadow-md hover:bg-blue-700 transition"
           >
@@ -382,7 +414,10 @@ const Clients = () => {
                   type="text"
                   required
                   onChange={(e) =>
-                    setEditingClient({ ...editingClient, phone: e.target.value })
+                    setEditingClient({
+                      ...editingClient,
+                      phone: e.target.value,
+                    })
                   }
                   value={editingClient.phone}
                 />
@@ -402,97 +437,106 @@ const Clients = () => {
               <Button text={t("clients.save_changes")} onClick={handleEdit} />
             </div>
           ) : (
-            <div className="text-center text-red-500">{t("clients.load_error")}</div>
+            <div className="text-center text-red-500">
+              {t("clients.load_error")}
+            </div>
           )}
         </Modal>
 
-        <Modal title={t("dashboard.add_client")}
-        isVisible={addClient}
-        onClose={() => setAddClient(false)}>
-        {loadingPost ? (
-          <div className="flex flex-col items-center justify-center w-full gap-4">
-            <Spin />
-          </div>
-        ) : (
-          <div className="flex flex-col items-center justify-center w-full gap-6 p-6 bg-white rounded-xl shadow-lg">
-            <div className="w-full space-y-4">
-              {/* Campo para Nome */}
-              <div className="flex items-center gap-2">
-                <HiUser className="w-5 h-5 text-gray-500" />
-                <p className="text-gray-700 text-sm font-semibold">{t("dashboard.name")}</p>
-              </div>
-              <input
-                placeholder={t("dashboard.name")}
-                type="text"
-                required
-                onChange={(e) => setClientName(e.target.value)}
-                value={clientName}
-                className="w-full mt-2 px-4 py-3 border border-gray-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-400 focus:border-blue-500 transition duration-200"
-              />
-
-              {/* Campo para Telefone */}
-              <div className="w-full">
-                <div className="flex items-center gap-2 mb-2">
-                  <HiPhone className="w-5 h-5 text-gray-500" />
-                  <p className="text-gray-700 text-sm font-semibold">{t("dashboard.phone")}</p>
+        <Modal
+          title={t("dashboard.add_client")}
+          isVisible={addClient}
+          onClose={() => setAddClient(false)}
+        >
+          {loadingPost ? (
+            <div className="flex flex-col items-center justify-center w-full gap-4">
+              <Spin />
+            </div>
+          ) : (
+            <div className="flex flex-col items-center justify-center w-full gap-6 p-6 bg-white rounded-xl shadow-lg">
+              <div className="w-full space-y-4">
+                {/* Campo para Nome */}
+                <div className="flex items-center gap-2">
+                  <HiUser className="w-5 h-5 text-gray-500" />
+                  <p className="text-gray-700 text-sm font-semibold">
+                    {t("dashboard.name")}
+                  </p>
                 </div>
-                <PhoneInput
-                  country={'br'}
-                  value={clientPhone}
-                  onChange={setClientPhone}
-                  inputProps={{
-                    required: true,
-                    name: 'phone',
-                  }}
-                  containerStyle={{ width: '100%' }}
-                  inputStyle={{
-                    width: '100%',
-                    height: '48px',
-                    borderRadius: '0.75rem',
-                    border: '1px solid #D1D5DB',
-                    paddingLeft: '48px',
-                    fontSize: '16px',
-                  }}
-                  buttonStyle={{
-                    borderTopLeftRadius: '0.75rem',
-                    borderBottomLeftRadius: '0.75rem',
-                  }}
+                <input
+                  placeholder={t("dashboard.name")}
+                  type="text"
+                  required
+                  onChange={(e) => setClientName(e.target.value)}
+                  value={clientName}
+                  className="w-full mt-2 px-4 py-3 border border-gray-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-400 focus:border-blue-500 transition duration-200"
                 />
-              </div>
 
-              {/* Campo para Email */}
-              <div className="flex items-center gap-2">
-                <HiMail className="w-5 h-5 text-gray-500" />
-                <p className="text-gray-700 text-sm font-semibold">{t("dashboard.email")}</p>
-              </div>
-              <input
-                placeholder={t("dashboard.email")}
-                type="email"
-                required
-                onChange={(e) => setClientMail(e.target.value)}
-                value={clientMail}
-                className="w-full mt-2 px-4 py-3 border border-gray-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-400 focus:border-blue-500 transition duration-200"
-              />
+                {/* Campo para Telefone */}
+                <div className="w-full">
+                  <div className="flex items-center gap-2 mb-2">
+                    <HiPhone className="w-5 h-5 text-gray-500" />
+                    <p className="text-gray-700 text-sm font-semibold">
+                      {t("dashboard.phone")}
+                    </p>
+                  </div>
+                  <PhoneInput
+                    country={"br"}
+                    value={clientPhone}
+                    onChange={setClientPhone}
+                    inputProps={{
+                      required: true,
+                      name: "phone",
+                    }}
+                    containerStyle={{ width: "100%" }}
+                    inputStyle={{
+                      width: "100%",
+                      height: "48px",
+                      borderRadius: "0.75rem",
+                      border: "1px solid #D1D5DB",
+                      paddingLeft: "48px",
+                      fontSize: "16px",
+                    }}
+                    buttonStyle={{
+                      borderTopLeftRadius: "0.75rem",
+                      borderBottomLeftRadius: "0.75rem",
+                    }}
+                  />
+                </div>
 
-              {/* Botão de Cadastro */}
-              <div className="w-full mt-6">
-                <button
-                  value="Cadastrar Cliente"
-                  onClick={handleAddClient}
-                  className="w-full py-3 bg-blue-600 text-white rounded-xl shadow-md hover:bg-blue-700 transition-all duration-200 flex items-center justify-center gap-2"
-                >
-                  <HiUserAdd className="w-5 h-5" />
-                  {t("dashboard.add_client")}
-                </button>
+                {/* Campo para Email */}
+                <div className="flex items-center gap-2">
+                  <HiMail className="w-5 h-5 text-gray-500" />
+                  <p className="text-gray-700 text-sm font-semibold">
+                    {t("dashboard.email")}
+                  </p>
+                </div>
+                <input
+                  placeholder={t("dashboard.email")}
+                  type="email"
+                  required
+                  onChange={(e) => setClientMail(e.target.value)}
+                  value={clientMail}
+                  className="w-full mt-2 px-4 py-3 border border-gray-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-400 focus:border-blue-500 transition duration-200"
+                />
+
+                {/* Botão de Cadastro */}
+                <div className="w-full mt-6">
+                  <button
+                    value="Cadastrar Cliente"
+                    onClick={handleAddClient}
+                    className="w-full py-3 bg-blue-600 text-white rounded-xl shadow-md hover:bg-blue-700 transition-all duration-200 flex items-center justify-center gap-2"
+                  >
+                    <HiUserAdd className="w-5 h-5" />
+                    {t("dashboard.add_client")}
+                  </button>
+                </div>
               </div>
             </div>
-          </div>
-        )}
-      </Modal>
+          )}
+        </Modal>
       </div>
     </div>
   );
-
 };
 
 export default Clients;

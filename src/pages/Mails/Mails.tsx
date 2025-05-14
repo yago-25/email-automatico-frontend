@@ -442,7 +442,6 @@ const Mails = () => {
                 setClientIdToDelete(null);
               }}
               onConfirm={handleDelete}
-              loading={loading}
             />
 
             <EmailPreviewModal
