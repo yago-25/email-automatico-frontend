@@ -172,7 +172,17 @@
     "ticket": "Ticket",
     "apply": "Apply Filter",
     "clear": "Clear Filters",
-    "all": "All"
+    "all": "All",
+    "id": "ID",
+    "search_by_id": "Search by ID...",
+    "recipients": "Recipients",
+    "search_by_recipient": "Search by recipient...",
+    "subject": "Subject",
+    "search_by_subject": "Search by subject...",
+    "sent": "Sent",
+    "pending": "Pending",
+    "failed": "Failed",
+    "date_sent": "Send Date"
   },
   "status": {
     "open": "Not started",
@@ -350,5 +360,83 @@
     "attachments": "Attachments:",
     "remove_attachment": "Remove",
     "confirm_send": "Confirm Send"
+  },
+  "email": {
+    "success_schedule": "Email scheduled successfully!",
+    "error_schedule": "Error scheduling email.",
+    "unexpected_error": "Unexpected error."
+  },
+  "scheduled_emails": {
+    "title": "Scheduled Emails",
+    "statuses": {
+      "sent": "Sent",
+      "failed": "Failed",
+      "pending": "Pending"
+    },
+    "new_email": "Schedule new e-mail",
+    "table": {
+      "id": "ID",
+      "subject": "Subject",
+      "recipients": "Recipients",
+      "schedule": "Schedule",
+      "status": "Status",
+      "actions": "Actions"
+    },
+    "view_recipients": "View recipients",
+    "view": "View",
+    "edit_mail": "Edit",
+    "at": "at",
+    "statuses2": {
+      "pending": "Pending",
+      "sent": "Sent",
+      "failed": "Failed"
+    },
+    "modal": {
+      "title": "Recipients",
+      "close": "Close",
+      "change_photo": "Change photo",
+      "select_file": "Select a file",
+      "no_file_selected": "Nothing selected",
+      "save": "Save"
+    },
+    "preview": {
+      "title": "Email Preview",
+      "close": "Close",
+      "subject": "Subject:",
+      "to": "To",
+      "send_date": "Send Date",
+      "send_time": "Send Time",
+      "body": "Email Body:",
+      "attachments": "Attachments:",
+      "remove_attachment": "Remove"
+    },
+    "edit": {
+      "title": "Edit Email",
+      "subject": "Subject:",
+      "to": "To:",
+      "send_date": "Send Date:",
+      "send_time": "Send Time:",
+      "body": "Email Body:",
+      "attachments": "Attachments:",
+      "remove_attachment": "Remove",
+      "cancel": "Cancel",
+      "save": "Save"
+    }
+  },
+  "common": {
+    "cancel": "Cancel",
+    "delete": {
+      "title": "Delete Record",
+      "confirmation": "Do you really want to delete this record",
+      "permanently": "permanently",
+      "confirm_button": "Yes, delete it!"
+    },
+    "save": "Save"
+  },
+  "form": {
+    "name": "Full Name",
+    "email": "Email",
+    "phone": "Phone",
+    "username": "Username"
   }
 }

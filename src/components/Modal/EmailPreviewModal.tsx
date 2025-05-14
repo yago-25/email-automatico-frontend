@@ -1,7 +1,7 @@
 // import { Trash2 } from "lucide-react";
 import { AnimatePresence, motion } from "framer-motion";
 import { FiTrash2, FiX, FiMail, FiCalendar, FiClock, FiPaperclip } from "react-icons/fi";
-
+import { useTranslation } from "react-i18next";
 
 interface EmailClient {
     name: string;
@@ -32,6 +32,9 @@ const EmailPreviewModal = ({
     email,
     onRemoveAttachment,
 }: EmailPreviewModalProps) => {
+
+    const { t } = useTranslation();
+
     return (
         <AnimatePresence>
             {isVisible && email && (
@@ -51,9 +54,10 @@ const EmailPreviewModal = ({
                         <div className="flex justify-between items-center p-6 border-b border-gray-200 bg-gray-50 rounded-t-lg">
                             <h2 className="text-xl font-semibold text-blue-600 flex items-center gap-2">
                                 <FiMail className="text-blue-500" />
-                                Prévia do E-mail
+                                {t("scheduled_emails.preview.title")}
                             </h2>
-                            <button onClick={onClose} className="text-2xl font-bold text-gray-400 hover:text-gray-600 transition">
+                            <button onClick={onClose} className="text-2xl font-bold text-gray-400 hover:text-gray-600 transition"
+                                title={t("scheduled_emails.preview.close")}>
                                 <FiX />
                             </button>
                         </div>
@@ -61,27 +65,27 @@ const EmailPreviewModal = ({
                         <div className="overflow-y-auto p-6 space-y-6 bg-white rounded-b-lg shadow-sm" style={{ maxHeight: '60vh' }}>
                             <div>
                                 <h3 className="text-lg font-semibold text-gray-800 mb-1">
-                                    Assunto: <span className="font-normal">{email.subject}</span>
+                                    {t("scheduled_emails.preview.subject")} <span className="font-normal">{email.subject}</span>
                                 </h3>
 
                                 <p className="text-sm text-gray-600 flex items-center gap-2">
                                     <FiMail className="text-gray-400" />
-                                    Para: {email.clients.map(c => c.mail).join(", ")}
+                                    {t("scheduled_emails.preview.to")}{email.clients.map(c => c.mail).join(", ")}
                                 </p>
 
                                 <div className="mt-3 space-y-1 text-sm text-gray-600">
                                     <div className="flex items-center gap-2">
                                         <FiCalendar className="text-gray-400" />
-                                        <span><span className="font-medium">Data do envio:</span> {email.send_date}</span>
+                                        <span><span className="font-medium">{t("scheduled_emails.preview.send_date")}</span> {email.send_date}</span>
                                     </div>
                                     <div className="flex items-center gap-2">
                                         <FiClock className="text-gray-400" />
-                                        <span><span className="font-medium">Horário do envio:</span> {email.send_time}</span>
+                                        <span><span className="font-medium">{t("scheduled_emails.preview.send_time")}</span> {email.send_time}</span>
                                     </div>
                                 </div>
 
                                 <div className="mt-6">
-                                    <h4 className="font-medium text-gray-700 mb-2">Corpo do E-mail:</h4>
+                                    <h4 className="font-medium text-gray-700 mb-2">{t("scheduled_emails.preview.body")}</h4>
                                     <p className="text-gray-800 text-sm whitespace-pre-line bg-gray-50 p-4 rounded-md border border-gray-200 shadow-inner">
                                         {email.body}
                                     </p>
@@ -91,7 +95,7 @@ const EmailPreviewModal = ({
                                     <div className="mt-6">
                                         <h4 className="font-medium text-gray-700 mb-2 flex items-center gap-2">
                                             <FiPaperclip className="text-gray-500" />
-                                            Anexos:
+                                            {t("scheduled_emails.preview.attachments")}
                                         </h4>
                                         <ul className="space-y-2">
                                             {email.attachments.map((file, idx) => (
@@ -101,7 +105,7 @@ const EmailPreviewModal = ({
                                                         <button
                                                             onClick={() => onRemoveAttachment(idx)}
                                                             className="ml-3 text-red-500 hover:text-red-700 transition"
-                                                            title="Remover"
+                                                            title={t("scheduled_emails.preview.remove_attachment")}
                                                         >
                                                             <FiTrash2 size={16} />
                                                         </button>
@@ -113,10 +117,7 @@ const EmailPreviewModal = ({
                                 )}
                             </div>
                         </div>
-
-
                     </motion.div>
-
                 </motion.div>
             )}
         </AnimatePresence>

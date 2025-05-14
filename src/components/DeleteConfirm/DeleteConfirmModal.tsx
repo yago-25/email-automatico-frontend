@@ -1,4 +1,5 @@
 import { motion, AnimatePresence } from "framer-motion";
+import { useTranslation } from "react-i18next";
 
 interface DeleteConfirmModalProps {
   isVisible: boolean;
@@ -11,6 +12,9 @@ const DeleteConfirmModal = ({
   onClose,
   onConfirm,
 }: DeleteConfirmModalProps) => {
+
+const { t } = useTranslation();
+
   return (
     <AnimatePresence>
       {isVisible && (
@@ -35,11 +39,10 @@ const DeleteConfirmModal = ({
             </button>
 
             <h2 className="text-xl sm:text-2xl font-bold text-gray-800 mb-2">
-              Excluir registro
+              {t("common.delete.title")}
             </h2>
             <p className="text-gray-600 text-sm sm:text-base mb-6">
-              Deseja realmente excluir esse registro{" "}
-              <strong>definitivamente</strong>?
+              {t("common.delete.confirmation")} <strong>{t("common.delete.permanently")}</strong>?
             </p>
 
             <div className="flex justify-end gap-3">
@@ -47,13 +50,13 @@ const DeleteConfirmModal = ({
                 onClick={onClose}
                 className="px-4 py-2 rounded-md text-gray-700 hover:bg-gray-100 transition"
               >
-                Cancelar
+                {t("common.cancel")}
               </button>
               <button
                 onClick={onConfirm}
                 className="px-4 py-2 rounded-md bg-red-600 text-white hover:bg-red-700 disabled:opacity-50 transition"
               >
-                Sim, desejo excluir!
+                {t("common.delete.confirm_button")}
               </button>
             </div>
           </motion.div>

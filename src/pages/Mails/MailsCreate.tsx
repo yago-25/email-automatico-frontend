@@ -179,22 +179,23 @@ const MailsCreate = () => {
       if (data.success) {
         messageAlert({
           type: "success",
-          message: "E-mail agendado com sucesso!",
+          message: t("email.success_schedule"),
         });
         navigate("/mails");
       } else {
         messageAlert({
           type: "error",
-          message: "Erro ao agendar e-mail.",
+          message: t("email.error_schedule"),
         });
       }
     } catch (error) {
       console.error("Erro:", error);
       messageAlert({
         type: "error",
-        message: "Erro inesperado.",
+        message: t("email.unexpected_error"),
       });
     }
+
   };
 
   useEffect(() => {
@@ -522,7 +523,7 @@ const MailsCreate = () => {
                 <div className="mt-4">
                   <h4 className="font-semibold mb-2 flex items-center gap-1 text-blue-500">
                     <FiPaperclip />
-                   {t("email_preview.attachments")}
+                    {t("email_preview.attachments")}
                   </h4>
                   <ul className="space-y-1">
                     {attachments.map((file, idx) => (
@@ -536,7 +537,7 @@ const MailsCreate = () => {
                         <button
                           onClick={() => handleRemoveAttachment(idx)}
                           className="text-red-500 hover:text-red-700 transition"
-                           title={t("email_preview.remove_attachment")}
+                          title={t("email_preview.remove_attachment")}
                         >
                           <FiTrash2 size={16} />
                         </button>

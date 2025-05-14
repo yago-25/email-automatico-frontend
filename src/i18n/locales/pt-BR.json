@@ -172,7 +172,17 @@
     "ticket": "Ticket",
     "apply": "Aplicar Filtro",
     "clear": "Limpar Filtros",
-    "all": "Todos"
+    "all": "Todos",
+    "id": "ID",
+    "search_by_id": "Buscar por ID...",
+    "recipients": "Destinatários",
+    "search_by_recipient": "Buscar por destinatário...",
+    "subject": "Assunto",
+    "search_by_subject": "Buscar por assunto...",
+    "sent": "Enviado",
+    "pending": "Pendente",
+    "failed": "Falha",
+    "date_sent": "Data de envio"
   },
   "status": {
     "open": "Não iniciada",
@@ -350,5 +360,83 @@
     "attachments": "Anexos:",
     "remove_attachment": "Remover",
     "confirm_send": "Confirmar Envio"
+  },
+  "email": {
+    "success_schedule": "E-mail agendado com sucesso!",
+    "error_schedule": "Erro ao agendar e-mail.",
+    "unexpected_error": "Erro inesperado."
+  },
+  "scheduled_emails": {
+    "title": "E-mails Agendados",
+    "statuses": {
+      "sent": "Enviados",
+      "failed": "Falhas",
+      "pending": "Pendentes"
+    },
+    "new_email": "Agendar novo e-mail",
+    "table": {
+      "id": "ID",
+      "subject": "Assunto",
+      "recipients": "Destinatários",
+      "schedule": "Agendamento",
+      "status": "Status",
+      "actions": "Ações"
+    },
+    "view_recipients": "Visualizar destinatários",
+    "view": "Visualizar",
+    "edit_mail": "Editar",
+    "at": "às",
+    "statuses2": {
+      "pending": "Pendente",
+      "sent": "Enviado",
+      "failed": "Falha"
+    },
+    "modal": {
+      "title": "Destinatários",
+      "close": "Fechar",
+      "change_photo": "Alterar foto",
+      "select_file": "Selecione um arquivo",
+      "no_file_selected": "Nada selecionado",
+      "save": "Salvar"
+    },
+    "preview": {
+      "title": "Prévia do E-mail",
+      "close": "Fechar",
+      "subject": "Assunto:",
+      "to": "Para",
+      "send_date": "Data do envio",
+      "send_time": "Horário do envio",
+      "body": "Corpo do E-mail:",
+      "attachments": "Anexos:",
+      "remove_attachment": "Remover"
+    },
+    "edit": {
+      "title": "Edição do E-mail",
+      "subject": "Assunto:",
+      "to": "Para:",
+      "send_date": "Data do envio:",
+      "send_time": "Horário do envio:",
+      "body": "Corpo do E-mail:",
+      "attachments": "Anexos:",
+      "remove_attachment": "Remover",
+      "cancel": "Cancelar",
+      "save": "Salvar"
+    }
+  },
+  "common": {
+    "cancel": "Cancelar",
+    "delete": {
+      "title": "Excluir registro",
+      "confirmation": "Deseja realmente excluir esse registro",
+      "permanently": "definitivamente",
+      "confirm_button": "Sim, desejo excluir!"
+    },
+    "save": "Salvar"
+  },
+  "form": {
+    "name": "Nome Completo",
+    "email": "E-mail",
+    "phone": "Telefone",
+    "username": "Nome de usuário"
   }
 }
