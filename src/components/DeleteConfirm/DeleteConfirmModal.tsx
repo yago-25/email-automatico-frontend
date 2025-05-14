@@ -4,14 +4,12 @@ interface DeleteConfirmModalProps {
   isVisible: boolean;
   onClose: () => void;
   onConfirm: () => void;
-  loading?: boolean;
 }
 
 const DeleteConfirmModal = ({
   isVisible,
   onClose,
   onConfirm,
-  loading,
 }: DeleteConfirmModalProps) => {
   return (
     <AnimatePresence>
@@ -40,7 +38,8 @@ const DeleteConfirmModal = ({
               Excluir registro
             </h2>
             <p className="text-gray-600 text-sm sm:text-base mb-6">
-              Deseja realmente excluir esse registro <strong>definitivamente</strong>?
+              Deseja realmente excluir esse registro{" "}
+              <strong>definitivamente</strong>?
             </p>
 
             <div className="flex justify-end gap-3">
@@ -52,7 +51,6 @@ const DeleteConfirmModal = ({
               </button>
               <button
                 onClick={onConfirm}
-                disabled={loading}
                 className="px-4 py-2 rounded-md bg-red-600 text-white hover:bg-red-700 disabled:opacity-50 transition"
               >
                 Sim, desejo excluir!

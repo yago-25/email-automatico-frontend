@@ -1,3 +1,4 @@
+/* eslint-disable react-hooks/exhaustive-deps */
 import { useEffect, useState } from "react";
 import { useTranslation } from "react-i18next";
 import { api } from "../../api/api";
@@ -5,7 +6,7 @@ import { messageAlert } from "../../utils/messageAlert";
 import Spin from "../../components/Spin/Spin";
 import Header from "../../components/Header/Header";
 import { User } from "../../models/User";
-import  DeleteConfirmModal from "../../components/DeleteConfirm/DeleteConfirmModal";
+import DeleteConfirmModal from "../../components/DeleteConfirm/DeleteConfirmModal";
 
 interface Solicitacao {
   id: number;
@@ -25,11 +26,15 @@ const Approve = () => {
   const { t } = useTranslation();
   const [solicitacoes, setSolicitacoes] = useState<Solicitacao[]>([]);
   const [cargos, setCargos] = useState<Cargo[]>([]);
-  const [selectedCargos, setSelectedCargos] = useState<{ [id: number]: number; }>({});
+  const [selectedCargos, setSelectedCargos] = useState<{
+    [id: number]: number;
+  }>({});
   const [loading, setLoading] = useState(true);
   const storedUser = localStorage.getItem("user");
   const authUser: User | null = storedUser ? JSON.parse(storedUser) : null;
-  const [solicitacoesToDelete, setSolicitacoesToDelete] = useState<number | null>(null);
+  const [solicitacoesToDelete, setSolicitacoesToDelete] = useState<
+    number | null
+  >(null);
   const [isModalCrashOpen, setModalCrashOpen] = useState(false);
 
   useEffect(() => {
@@ -49,7 +54,7 @@ const Approve = () => {
         type: "error",
         message: t("approve_page.fetch_error"),
       });
-      console.log(err, 'Error');
+      console.log(err, "Error");
     } finally {
       setLoading(false);
     }
@@ -68,7 +73,7 @@ const Approve = () => {
         type: "error",
         message: t("approve_page.approve_error"),
       });
-      console.log(err, 'Error');
+      console.log(err, "Error");
     }
   };
 
@@ -87,8 +92,8 @@ const Approve = () => {
         type: "error",
         message: t("approve_page.reject_error"),
       });
-      console.log(err, 'Error');
-    } finally{
+      console.log(err, "Error");
+    } finally {
       setLoading(false);
       setModalCrashOpen(false);
       setSolicitacoesToDelete(null);
@@ -97,7 +102,7 @@ const Approve = () => {
   const openDeleteModal = (id: number) => {
     setSolicitacoesToDelete(id);
     setModalCrashOpen(true);
-  }
+  };
 
   const handleCargoChange = (solicitacaoId: number, cargoId: number) => {
     setSelectedCargos((prev) => ({
@@ -113,7 +118,9 @@ const Approve = () => {
       <Header name={authUser?.nome_completo} />
 
       <div className="p-6 max-w-5xl mx-auto">
-        <h1 className="text-3xl font-bold text-white mb-6">📋 {t("approve_page.title")}</h1>
+        <h1 className="text-3xl font-bold text-white mb-6">
+          📋 {t("approve_page.title")}
+        </h1>
 
         {solicitacoes.length === 0 ? (
           <div className="bg-yellow-50 border-l-4 border-yellow-400 text-yellow-800 p-4 rounded">
@@ -126,16 +133,30 @@ const Approve = () => {
               className="bg-white border border-gray-200 p-6 mb-6 rounded-2xl shadow-sm hover:shadow-md transition-shadow"
             >
               <div className="grid grid-cols-2 gap-4 text-sm text-gray-700 mb-4">
-                <p><strong>👤 {t("approve_page.name")}:</strong> {solicitacao.nome_completo}</p>
-                <p><strong>📧 {t("approve_page.email")}:</strong> {solicitacao.email}</p>
-                <p><strong>📞 {t("approve_page.phone")}:</strong> {solicitacao.telefone}</p>
-                <p><strong>💻 {t("approve_page.username")}:</strong> {solicitacao.nome_usuario}</p>
+                <p>
+                  <strong>👤 {t("approve_page.name")}:</strong>{" "}
+                  {solicitacao.nome_completo}
+                </p>
+                <p>
+                  <strong>📧 {t("approve_page.email")}:</strong>{" "}
+                  {solicitacao.email}
+                </p>
+                <p>
+                  <strong>📞 {t("approve_page.phone")}:</strong>{" "}
+                  {solicitacao.telefone}
+                </p>
+                <p>
+                  <strong>💻 {t("approve_page.username")}:</strong>{" "}
+                  {solicitacao.nome_usuario}
+                </p>
               </div>
 
               <div className="flex flex-col sm:flex-row items-start sm:items-center gap-3">
                 <select
                   value={selectedCargos[solicitacao.id] || ""}
-                  onChange={(e) => handleCargoChange(solicitacao.id, Number(e.target.value))}
+                  onChange={(e) =>
+                    handleCargoChange(solicitacao.id, Number(e.target.value))
+                  }
                   className="border border-gray-300 px-3 py-2 rounded-lg text-sm shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-400"
                 >
                   {cargos.map((cargo) => (
@@ -146,12 +167,15 @@ const Approve = () => {
                 </select>
 
                 <button
-                  onClick={() => aprovar(solicitacao.id, selectedCargos[solicitacao.id])}
+                  onClick={() =>
+                    aprovar(solicitacao.id, selectedCargos[solicitacao.id])
+                  }
                   disabled={!selectedCargos[solicitacao.id]}
                   className={`px-4 py-2 rounded-lg text-sm font-medium transition 
-                    ${selectedCargos[solicitacao.id]
-                      ? 'bg-green-500 hover:bg-green-600 text-white'
-                      : 'bg-gray-300 text-gray-500 cursor-not-allowed'
+                    ${
+                      selectedCargos[solicitacao.id]
+                        ? "bg-green-500 hover:bg-green-600 text-white"
+                        : "bg-gray-300 text-gray-500 cursor-not-allowed"
                     }`}
                 >
                   ✅ {t("approve_page.confirm")}
@@ -164,14 +188,13 @@ const Approve = () => {
                   ❌ {t("approve_page.reject")}
                 </button>
                 <DeleteConfirmModal
-                          isVisible={isModalCrashOpen}
-                          onClose={() => {
-                            setModalCrashOpen(false);
-                            setSolicitacoesToDelete(null);
-                          }}
-                          onConfirm={rejeitar}
-                          loading={loading}
-                        />
+                  isVisible={isModalCrashOpen}
+                  onClose={() => {
+                    setModalCrashOpen(false);
+                    setSolicitacoesToDelete(null);
+                  }}
+                  onConfirm={rejeitar}
+                />
               </div>
             </div>
           ))
