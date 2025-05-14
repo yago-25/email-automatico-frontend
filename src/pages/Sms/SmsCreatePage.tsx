@@ -1,5 +1,6 @@
 import {
   ArrowDownCircleIcon,
+  CalendarClock,
   FileIcon,
   PauseIcon,
   PlayIcon,
@@ -15,7 +16,14 @@ import { useEffect, useState } from "react";
 import { messageAlert } from "../../utils/messageAlert";
 import { api } from "../../api/api";
 import dayjs from "dayjs";
-import { ConfigProvider, DatePicker, TimePicker, Tooltip } from "antd";
+import {
+  ConfigProvider,
+  DatePicker,
+  Select,
+  Switch,
+  TimePicker,
+  Tooltip,
+} from "antd";
 import MultiSelectClient from "../../components/Select/MultiSelectClient";
 import ptBR from "antd/lib/locale/pt_BR";
 import enUS from "antd/lib/locale/en_US";
@@ -33,6 +41,9 @@ import {
   SendHorizonal,
 } from "lucide-react";
 import { Save } from "lucide-react";
+import isSameOrBefore from "dayjs/plugin/isSameOrBefore";
+
+dayjs.extend(isSameOrBefore);
 
 const localeMap = {
   pt: ptBR,
@@ -75,6 +86,7 @@ interface Option {
   value: string;
 }
 
+type RecurrencyType = "daily" | "weekly" | "monthly" | "yearly";
 interface SmsValue {
   selected: string[] | null;
   dateMessage: string | null;
@@ -82,6 +94,9 @@ interface SmsValue {
   textMessage: string | null;
   names: string[] | null;
   phones?: string[] | null;
+  recurrency?: boolean;
+  recurrencyType?: RecurrencyType | null;
+  recurrencyEndDate?: string | null;
 }
 
 const SmsCreatePage = () => {
@@ -102,6 +117,13 @@ const SmsCreatePage = () => {
   const [textMessage, setTextMessage] = useState<string | null>(null);
   const [messagesToShow, setMessagesToShow] = useState<Message[]>([]);
   const [loading, setLoading] = useState<boolean>(false);
+  const [recurrency, setRecurrency] = useState<boolean>(false);
+  const [recurrencyType, setRecurrencyType] = useState<
+    "daily" | "weekly" | "monthly" | "yearly" | null
+  >(null);
+  const [recurrencyEndDate, setRecurrencyEndDate] = useState<string | null>(
+    null
+  );
   const [payload, setPayload] = useState<SmsValue>({
     selected: [],
     dateMessage: null,
@@ -109,6 +131,9 @@ const SmsCreatePage = () => {
     textMessage: null,
     names: [],
     phones: [],
+    recurrency: false,
+    recurrencyType: null,
+    recurrencyEndDate: null,
   });
 
   const { data: rawClients = [], loading: loadingClients } =
@@ -253,37 +278,84 @@ const SmsCreatePage = () => {
         return;
       }
 
-      const selectedDate = dayjs(payload.dateMessage);
-      const selectedTime = dayjs(payload.hourMessage).format("HH:mm");
-      const selectedDateTime = dayjs(
+      const {
+        dateMessage,
+        hourMessage,
+        textMessage,
+        phones,
+        names,
+        recurrency,
+        recurrencyType,
+        recurrencyEndDate,
+      } = payload;
+
+      const selectedDate = dayjs(dateMessage);
+      const selectedTime = dayjs(hourMessage).format("HH:mm");
+      const startDateTime = dayjs(
         `${selectedDate.format("YYYY-MM-DD")}T${selectedTime}`
       );
 
-      const scheduledAt = selectedDateTime.format("YYYY-MM-DD HH:mm:ss");
+      const formattedPhones = phones?.map((phone) =>
+        formatPhoneNumber(phone, "55")
+      );
 
-      await api.post(
-        "/sms",
-        {
-          user_id: authUser?.id,
-          names: payload.names,
-          phones: payload.phones?.map((phone) =>
-            formatPhoneNumber(phone, "55")
-          ),
-          message: payload.textMessage,
-          scheduled_at: scheduledAt,
-          file_path: null,
-          status: "pending",
-        },
-        {
-          headers: {
-            Authorization: `Bearer ${localStorage.getItem("accessToken")}`,
-          },
+      const generateDates = (): string[] => {
+        if (!recurrency || !recurrencyType || !recurrencyEndDate)
+          return [startDateTime.format("YYYY-MM-DD HH:mm:ss")];
+
+        const endDate = dayjs(recurrencyEndDate);
+        const dates: string[] = [];
+
+        let current = startDateTime;
+
+        while (current.isSameOrBefore(endDate)) {
+          dates.push(current.format("YYYY-MM-DD HH:mm:ss"));
+          switch (recurrencyType) {
+            case "daily":
+              current = current.add(1, "day");
+              break;
+            case "weekly":
+              current = current.add(1, "week");
+              break;
+            case "monthly":
+              current = current.add(1, "month");
+              break;
+            case "yearly":
+              current = current.add(1, "year");
+              break;
+          }
         }
+
+        return dates;
+      };
+
+      const allDates = generateDates();
+
+      await Promise.all(
+        allDates.map((scheduledAt) =>
+          api.post(
+            "/sms",
+            {
+              user_id: authUser?.id,
+              names,
+              phones: formattedPhones,
+              message: textMessage,
+              scheduled_at: scheduledAt,
+              file_path: null,
+              status: "pending",
+            },
+            {
+              headers: {
+                Authorization: `Bearer ${localStorage.getItem("accessToken")}`,
+              },
+            }
+          )
+        )
       );
 
       messageAlert({
         type: "success",
-        message: "Mensagem programada criada com sucesso!",
+        message: "Mensagens programadas criadas com sucesso!",
       });
       navigate("/sms");
     } catch (e) {
@@ -321,7 +393,6 @@ const SmsCreatePage = () => {
 
           <div className="flex flex-col lg:flex-row gap-10 items-start justify-between w-full">
             <div className="bg-white p-8 rounded-3xl shadow-2xl w-full lg:w-2/3 flex flex-col gap-8 border border-gray-100">
-
               {/* Data */}
               <div className="flex flex-col gap-2">
                 <label className="text-blue-700 text-sm font-semibold flex items-center gap-2">
@@ -330,9 +401,13 @@ const SmsCreatePage = () => {
                 </label>
                 <ConfigProvider locale={antdLocale}>
                   <DatePicker
-                    format={i18n.language === "en" ? "MM/DD/YYYY" : "DD/MM/YYYY"}
+                    format={
+                      i18n.language === "en" ? "MM/DD/YYYY" : "DD/MM/YYYY"
+                    }
                     placeholder={
-                      i18n.language === "en" ? "Date of Message" : "Dia da Mensagem"
+                      i18n.language === "en"
+                        ? "Date of Message"
+                        : "Dia da Mensagem"
                     }
                     value={dateMessage ? dayjs(dateMessage) : null}
                     onChange={(d) => setDateMessage(d ? d.toISOString() : null)}
@@ -387,11 +462,70 @@ const SmsCreatePage = () => {
                 />
               </div>
 
+              <div className="flex flex-col gap-2">
+                <label className="text-blue-700 text-sm font-semibold flex items-center gap-2">
+                  <CalendarClock className="w-4 h-4" />
+                  Recorrência
+                </label>
+                <Switch
+                  className="w-[50px]"
+                  value={recurrency}
+                  onChange={(e) => setRecurrency(e)}
+                />
+              </div>
+              {recurrency && (
+                <div className="flex flex-col gap-4">
+                  <div className="flex flex-col gap-2">
+                    <label className="text-blue-700 text-sm font-semibold">
+                      Frequência
+                    </label>
+                    <Select
+                      value={recurrencyType}
+                      onChange={(value) => setRecurrencyType(value)}
+                      placeholder="Selecione a frequência"
+                      options={[
+                        { label: "Diária", value: "daily" },
+                        { label: "Semanal", value: "weekly" },
+                        { label: "Mensal", value: "monthly" },
+                        { label: "Anual", value: "yearly" },
+                      ]}
+                      className="w-full"
+                    />
+                  </div>
+
+                  <div className="flex flex-col gap-2">
+                    <label className="text-blue-700 text-sm font-semibold">
+                      Data de Término
+                    </label>
+                    <ConfigProvider locale={antdLocale}>
+                      <DatePicker
+                        format={
+                          i18n.language === "en" ? "MM/DD/YYYY" : "DD/MM/YYYY"
+                        }
+                        placeholder="Selecione a data de término"
+                        value={
+                          recurrencyEndDate ? dayjs(recurrencyEndDate) : null
+                        }
+                        onChange={(d) =>
+                          setRecurrencyEndDate(d ? d.toISOString() : null)
+                        }
+                        className="bg-white border border-gray-300 rounded-xl px-4 py-2 outline-none w-full shadow-sm focus:border-blue-500 transition"
+                      />
+                    </ConfigProvider>
+                  </div>
+                </div>
+              )}
+
               {/* Botão */}
               <div className="flex justify-end">
                 <button
                   onClick={() => {
-                    if (!dateMessage || !hourMessage || !selected || !textMessage) {
+                    if (
+                      !dateMessage ||
+                      !hourMessage ||
+                      !selected ||
+                      !textMessage
+                    ) {
                       messageAlert({
                         type: "error",
                         message: "Por favor, preencha todos os campos.",
@@ -402,13 +536,16 @@ const SmsCreatePage = () => {
                     const now = dayjs();
                     const selectedDate = dayjs(dateMessage);
                     const selectedDateTime = dayjs(
-                      `${selectedDate.format("YYYY-MM-DD")}T${dayjs(hourMessage).format("HH:mm")}`
+                      `${selectedDate.format("YYYY-MM-DD")}T${dayjs(
+                        hourMessage
+                      ).format("HH:mm")}`
                     );
 
                     if (selectedDate.isBefore(now, "day")) {
                       messageAlert({
                         type: "error",
-                        message: "Por favor, selecione uma data maior que a data atual.",
+                        message:
+                          "Por favor, selecione uma data maior que a data atual.",
                       });
                       return;
                     }
@@ -432,7 +569,10 @@ const SmsCreatePage = () => {
                     };
 
                     const phones = selected
-                      .map((id) => rawClients.find((c) => c.id === Number(id))?.phone)
+                      .map(
+                        (id) =>
+                          rawClients.find((c) => c.id === Number(id))?.phone
+                      )
                       .filter((phone): phone is string => !!phone);
 
                     const names = selected
@@ -452,11 +592,17 @@ const SmsCreatePage = () => {
                       textMessage,
                       names,
                       phones,
+                      recurrency,
+                      recurrencyType,
+                      recurrencyEndDate,
                     });
                     setSelected([]);
                     setDateMessage(null);
                     setHourMessage(null);
                     setTextMessage(null);
+                    setRecurrency(false);
+                    setRecurrencyEndDate(null);
+                    setRecurrencyType(null);
                   }}
                   disabled={messagesToShow.length >= 1}
                   className="flex items-center gap-2 bg-gradient-to-r from-blue-600 to-blue-700 hover:from-blue-700 hover:to-blue-800 text-white font-semibold py-3 px-6 rounded-xl shadow-lg transition-all duration-300 disabled:opacity-50"
