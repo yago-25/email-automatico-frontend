@@ -22,6 +22,7 @@ import dayjs from "dayjs";
 import { FiCalendar, FiClock, FiPaperclip, FiTrash2, FiMail, FiUsers } from "react-icons/fi";
 import { FiSend } from "react-icons/fi";
 import { CiMail } from "react-icons/ci";
+import { AxiosError } from 'axios';
 
 const localeMap = {
     pt: ptBR,
@@ -61,7 +62,6 @@ const MailsCreate = () => {
     const [attachments, setAttachments] = useState<EmailAttachment[]>([]);
     const [sendDate, setSendDate] = useState<string>("");
     const [sendTime, setSendTime] = useState<string>("");
-    // const isLoading = !subject || !body || selectedClients.length === 0;
     const [antdLocale, setAntdLocale] = useState(
         localeMap[i18n.language as "pt" | "en" | "es"] || ptBR
     );
@@ -94,17 +94,20 @@ const MailsCreate = () => {
     };
 
     const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-        if (e.target.files) {
-            const filesArray = Array.from(e.target.files);
-            const newAttachments: EmailAttachment[] = filesArray.map(file => ({
-                name: file.name,
-                file: file,
-                mime_type: file.type,
-                size: file.size,
-            }));
-            setAttachments(prev => [...prev, ...newAttachments]);
-        }
-    };
+    if (e.target.files) {
+        const filesArray = Array.from(e.target.files);
+        console.log("Arquivos recebidos:", filesArray); 
+
+        const newAttachments: EmailAttachment[] = filesArray.map(file => ({
+            name: file.name,
+            file: file,
+            mime_type: file.type,
+            size: file.size,
+        }));
+
+        setAttachments(prev => [...prev, ...newAttachments]);
+    }
+};
 
     const handlePreview = (e: React.FormEvent) => {
         e.preventDefault();
@@ -116,11 +119,14 @@ const MailsCreate = () => {
         const updated = attachments.filter((_, i) => i !== index);
         setAttachments(updated);
 
-        // Se todos foram removidos, limpa o input também
         if (updated.length === 0 && fileInputRef.current) {
             fileInputRef.current.value = "";
         }
     };
+
+    interface ErrorResponse {
+        message: string;
+    }
 
     const handleSend = async () => {
         const formData = new FormData();
@@ -128,19 +134,41 @@ const MailsCreate = () => {
         formData.append("body", body);
         formData.append("send_date", sendDate);
         formData.append("send_time", sendTime);
-        selectedClients.forEach(clientId => formData.append("client_id[]", clientId));
 
-        attachments.forEach((attachment, index) => {
-            formData.append(`attachments[${index}]`, attachment.file);
-        });
+        selectedClients.forEach(clientId => formData.append("client_id[]", clientId));
+        
+        console.log("Anexos antes de enviar:", attachments);
+
+        console.log("FormData antes de adicionar anexos:");
+        for (let pair of formData.entries()) {
+            console.log(pair[0] + ": " + pair[1]);
+        }
+        attachments.forEach((attachment) => {
+    if (attachment.file instanceof File) {
+        formData.append('attachments[]', attachment.file);  
+        console.log(`Adicionando anexo: ${attachment.name} (${attachment.file.size} bytes)`);
+    } else {
+        console.warn("Attachment inválido:", attachment.file);
+    }
+});
+
 
         try {
+            const token = localStorage.getItem("accessToken");
+            if (!token) {
+                throw new Error("Token de autenticação não encontrado.");
+            }
+
+            console.log("Token de autenticação:", token);
+
             const { data } = await api.post(`/agendar-email`, formData, {
                 headers: {
-                    Authorization: `Bearer ${localStorage.getItem("accessToken")}`,
-                    "Content-Type": "multipart/form-data",
+                    'Content-Type': 'multipart/form-data',
+                    Authorization: `Bearer ${token}`,
                 },
             });
+
+            console.log("Resposta do servidor:", data);
 
             if (data.success) {
                 messageAlert({
@@ -155,13 +183,19 @@ const MailsCreate = () => {
                 });
             }
         } catch (error) {
-            console.error("Erro:", error);
+            // Log para verificar o erro completo
+            console.error("Erro no envio:", error);
+
+            const axiosError = error as AxiosError;
+            const errorMessage = (axiosError.response?.data as ErrorResponse)?.message || "Erro inesperado.";
+
             messageAlert({
                 type: "error",
-                message: "Erro inesperado.",
+                message: errorMessage,
             });
         }
     };
+
     useEffect(() => {
         if (!loadingClients && rawClients.length > 0) {
             const clientOptions = rawClients.map((client) => ({
