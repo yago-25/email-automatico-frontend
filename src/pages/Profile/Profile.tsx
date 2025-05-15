@@ -297,7 +297,6 @@ const Profile = () => {
       ) : (
         <div className="w-full max-w-md bg-white/10 backdrop-blur-md border border-white/30 rounded-2xl shadow-2xl p-8 flex flex-col items-center gap-6 mt-[6rem]">
 
-          {/* Avatar com botão editar */}
           <div
             className="relative group"
             onClick={() => setOpenModalPhoto(true)}
@@ -321,7 +320,7 @@ const Profile = () => {
             <input
               type="text"
               className="pl-10 pr-4 py-2 w-full rounded-xl border border-gray-300 bg-white/90 text-sm text-gray-800 placeholder-gray-500 focus:ring-2 focus:ring-blue-500 focus:outline-none"
-              placeholder="Nome Completo"
+              placeholder={t("form.name")}
               value={name ?? ""}
               onChange={(e) => setName(e.target.value)}
             />
@@ -333,7 +332,7 @@ const Profile = () => {
             <input
               type="text"
               className="pl-10 pr-4 py-2 w-full rounded-xl border border-gray-300 bg-white/90 text-sm text-gray-800 placeholder-gray-500 focus:ring-2 focus:ring-blue-500 focus:outline-none"
-              placeholder="E-mail"
+              placeholder={t("form.email")}
               value={mail ?? ""}
               onChange={(e) => setMail(e.target.value)}
             />
@@ -345,7 +344,7 @@ const Profile = () => {
             <input
               type="text"
               className="pl-10 pr-4 py-2 w-full rounded-xl border border-gray-300 bg-white/90 text-sm text-gray-800 placeholder-gray-500 focus:ring-2 focus:ring-blue-500 focus:outline-none"
-              placeholder="Telefone"
+              placeholder={t("form.phone")}
               value={formatPhone(phone) ?? ""}
               onChange={(e) => setPhone(formatPhone(e.target.value))}
             />
@@ -357,7 +356,7 @@ const Profile = () => {
             <input
               type="text"
               className="pl-10 pr-4 py-2 w-full rounded-xl border border-gray-300 bg-white/90 text-sm text-gray-800 placeholder-gray-500 focus:ring-2 focus:ring-blue-500 focus:outline-none"
-              placeholder="Nome de usuário"
+              placeholder={t("form.username")}
               value={username ?? ""}
               onChange={(e) => setUsername(e.target.value)}
             />
@@ -365,7 +364,7 @@ const Profile = () => {
 
           {/* Botão */}
           <Button
-            text="Salvar"
+            text={t("common.save")}
             onClick={() => {
               console.log("Botão clicado");
               handleEdit();
@@ -376,7 +375,7 @@ const Profile = () => {
       <Modal
         isVisible={openModalPhoto}
         onClose={() => setOpenModalPhoto(false)}
-        title="Alterar foto"
+        title={t("modal.change_photo")}
       >
         {loading ? (
           <div className="flex items-center justify-center w-full h-full">
@@ -391,23 +390,17 @@ const Profile = () => {
                   fill="none"
                   xmlns="http://www.w3.org/2000/svg"
                 >
-                  <g id="SVGRepo_bgCarrier" stroke-width="0"></g>
-                  <g
-                    id="SVGRepo_tracerCarrier"
-                    stroke-linecap="round"
-                    stroke-linejoin="round"
-                  ></g>
                   <g id="SVGRepo_iconCarrier">
                     <path
                       d="M7 10V9C7 6.23858 9.23858 4 12 4C14.7614 4 17 6.23858 17 9V10C19.2091 10 21 11.7909 21 14C21 15.4806 20.1956 16.8084 19 17.5M7 10C4.79086 10 3 11.7909 3 14C3 15.4806 3.8044 16.8084 5 17.5M7 10C7.43285 10 7.84965 10.0688 8.24006 10.1959M12 12V21M12 12L15 15M12 12L9 15"
                       stroke="#000000"
-                      stroke-width="1.5"
-                      stroke-linecap="round"
-                      stroke-linejoin="round"
-                    ></path>{" "}
+                      strokeWidth="1.5"
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
+                    />
                   </g>
-                </svg>{" "}
-                <p>Selecione um arquivo</p>
+                </svg>
+                <p>{t("modal.select_file")}</p>
               </div>
               <label htmlFor="file" className="footer">
                 <svg
@@ -426,7 +419,7 @@ const Profile = () => {
                     <path d="M18.153 6h-.009v5.342H23.5v-.002z"></path>
                   </g>
                 </svg>
-                <p>{profileFile ? profileFile.name : 'Nada selecionado'}</p>
+                 <p>{profileFile ? profileFile.name : t("modal.no_file_selected")}</p>
                 <svg
                   viewBox="0 0 24 24"
                   fill="none"
@@ -467,7 +460,7 @@ const Profile = () => {
               </label>
               <input id="file" type="file" accept="image/*" onChange={handleFileChange} />
             </div>
-            <Button text="Salvar" onClick={handleUploadPhoto} />
+            <Button text={t("modal.save")} onClick={handleUploadPhoto} />
           </div>
         )}
       </Modal>

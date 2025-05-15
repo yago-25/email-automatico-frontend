@@ -172,7 +172,17 @@
     "ticket": "Ticket",
     "apply": "Aplicar Filtro",
     "clear": "Limpiar Filtros",
-    "all": "Todos"
+    "all": "Todos",
+    "id": "ID",
+    "search_by_id": "Buscar por ID...",
+    "recipients": "Destinatarios",
+    "search_by_recipient": "Buscar por destinatario...",
+    "subject": "Asunto",
+    "search_by_subject": "Buscar por asunto...",
+    "sent": "Enviado",
+    "pending": "Pendiente",
+    "failed": "Fallido",
+    "date_sent": "Fecha de envío"
   },
   "status": {
     "open": "Abierto",
@@ -184,9 +194,9 @@
     "discarded": "Descartado",
     "finished": "Resuelto"
   },
-  "date":{
-  "today": "Hoy",
-  "yesterday": "Ayer"
+  "date": {
+    "today": "Hoy",
+    "yesterday": "Ayer"
   },
   "ticket": {
     "title": "📝 Ticket: {{name}}",
@@ -209,7 +219,6 @@
     },
     "modified_by": "Modificado por",
     "created": "Ticket Creado"
-   
   },
   "auth": {
     "forgot": {
@@ -250,49 +259,49 @@
     "delete_error": "Error al eliminar el usuario. Inténtalo de nuevo.",
     "cargo_id": "Puesto "
   },
- "calendar": {
-  "error_event": "Error al obtener los datos del evento",
-  "success_create": "¡Evento creado con éxito!",
-  "error_create": "Error al crear el evento. Verifica los datos e inténtalo de nuevo.",
-  "today": "Hoy",
-  "month": "Mes",
-  "week": "Semana",
-  "day": "Día",
-  "list": "Lista",
-  "event": "Evento",
-  "events": "Eventos",
-  "ticket": "Ticket",
-  "modal_details": {
-    "title_modal": "📅 Detalles del Evento",
-    "title": "Título",
-    "type": "Tipo",
-    "description": "Descripción",
-    "initial": "Inicio",
-    "final": "Fin",
-    "status": "Estado",
-    "color": "Color de fondo",
-    "repeat": "Repetir",
-    "tags": "Etiquetas",
-    "all_day": "Evento de todo el día",
-    "remove": "Borrar"
+  "calendar": {
+    "error_event": "Error al obtener los datos del evento",
+    "success_create": "¡Evento creado con éxito!",
+    "error_create": "Error al crear el evento. Verifica los datos e inténtalo de nuevo.",
+    "today": "Hoy",
+    "month": "Mes",
+    "week": "Semana",
+    "day": "Día",
+    "list": "Lista",
+    "event": "Evento",
+    "events": "Eventos",
+    "ticket": "Ticket",
+    "modal_details": {
+      "title_modal": "📅 Detalles del Evento",
+      "title": "Título",
+      "type": "Tipo",
+      "description": "Descripción",
+      "initial": "Inicio",
+      "final": "Fin",
+      "status": "Estado",
+      "color": "Color de fondo",
+      "repeat": "Repetir",
+      "tags": "Etiquetas",
+      "all_day": "Evento de todo el día",
+      "remove": "Borrar"
+    },
+    "modal_create": {
+      "title_modal": "🆕 Nuevo Evento",
+      "title": "Título",
+      "placeholder_title": "Escribe el título del evento",
+      "description": "Descripción",
+      "placeholder_description": "Agrega una descripción (opcional)",
+      "date_initial": "Fecha de Inicio",
+      "date_final": "Fecha de Fin",
+      "all_day": "Todo el día",
+      "repeat": "Repetir",
+      "color": "Color del evento",
+      "status": "Estado",
+      "cancel": "Cancelar",
+      "create": "Crear Evento"
+    }
   },
-  "modal_create": {
-    "title_modal": "🆕 Nuevo Evento",
-    "title": "Título",
-    "placeholder_title": "Escribe el título del evento",
-    "description": "Descripción",
-    "placeholder_description": "Agrega una descripción (opcional)",
-    "date_initial": "Fecha de Inicio",
-    "date_final": "Fecha de Fin",
-    "all_day": "Todo el día",
-    "repeat": "Repetir",
-    "color": "Color del evento",
-    "status": "Estado",
-    "cancel": "Cancelar",
-    "create": "Crear Evento"
-  }
-},
-"sidebar": {
+  "sidebar": {
     "logout_message": "Cierre de sesión realizado con éxito.",
     "tooltips": {
       "dashboard": "Página Principal",
@@ -314,6 +323,120 @@
       "config": "Configuraciones",
       "logout": "Cerrar Sesión"
     }
+  },
+  "create_email": {
+    "title": "Cree su Correo",
+    "subject": "Asunto del Correo",
+    "subject_placeholder": "Ingrese el título",
+    "clients": "Clientes",
+    "select_clients": "Seleccione los clientes",
+    "date": "Fecha del Correo",
+    "send_time": "Hora de Envío",
+    "send_time_placeholder": "00:00",
+    "body": "Cuerpo del Correo",
+    "body_placeholder": "Escribe tu mensaje...",
+    "recurrency": "Recurrencia",
+    "frequency": "Frecuencia",
+    "select_frequency": "Seleccione la frecuencia",
+    "daily": "Diaria",
+    "weekly": "Semanal",
+    "monthly": "Mensual",
+    "yearly": "Anual",
+    "end_date": "Fecha de Finalización",
+    "select_end_date": "Seleccione la fecha de finalización",
+    "attachments": "Archivos Adjuntos",
+    "remove_attachment": "Eliminar adjunto"
+  },
+  "email_preview": {
+    "title": "Vista Previa del Correo",
+    "subject": "Asunto:",
+    "to": "Para:",
+    "send_date": "Fecha de envío",
+    "send_time": "Hora de envío",
+    "body": "Cuerpo del Correo:",
+    "recurrency": "Recurrencia",
+    "yes": "Sí",
+    "no": "No",
+    "attachments": "Adjuntos:",
+    "remove_attachment": "Eliminar",
+    "confirm_send": "Confirmar Envío"
+  },
+  "email": {
+    "success_schedule": "¡Correo programado con éxito!",
+    "error_schedule": "Error al programar el correo.",
+    "unexpected_error": "Error inesperado."
+  },
+  "scheduled_emails": {
+    "title": "E-mails Agendados",
+    "statuses": {
+      "sent": "Enviados",
+      "failed": "Fallos",
+      "pending": "Pendientes"
+    },
+    "new_email": "Agendar nuevo e-mail",
+    "table": {
+      "id": "ID",
+      "subject": "Asunto",
+      "recipients": "Destinatarios",
+      "schedule": "Agendamiento",
+      "status": "Estado",
+      "actions": "Acciones"
+    },
+    "view_recipients": "Ver destinatarios",
+    "view": "Ver",
+    "edit_mail": "Editar",
+    "at": "a las",
+    "statuses2": {
+      "pending": "Pendiente",
+      "sent": "Enviado",
+      "failed": "Fallido"
+    },
+    "modal": {
+      "title": "Destinatarios",
+      "close": "Cerrar",
+      "change_photo": "Cambiar foto",
+      "select_file": "Selecciona un archivo",
+      "no_file_selected": "Nada seleccionado",
+      "save": "Guardar"
+    },
+    "preview": {
+      "title": "Vista previa del correo",
+      "close": "Cerrar",
+      "subject": "Asunto:",
+      "to": "Para",
+      "send_date": "Fecha de envío",
+      "send_time": "Hora de envío",
+      "body": "Cuerpo del correo:",
+      "attachments": "Archivos adjuntos:",
+      "remove_attachment": "Eliminar"
+    },
+    "edit": {
+      "title": "Edición del Correo",
+      "subject": "Asunto:",
+      "to": "Para:",
+      "send_date": "Fecha de envío:",
+      "send_time": "Hora de envío:",
+      "body": "Cuerpo del correo:",
+      "attachments": "Archivos adjuntos:",
+      "remove_attachment": "Eliminar",
+      "cancel": "Cancelar",
+      "save": "Guardar"
+    }
+  },
+  "common": {
+    "cancel": "Cancelar",
+    "delete": {
+      "title": "Eliminar registro",
+      "confirmation": "¿Realmente desea eliminar este registro",
+      "permanently": "definitivamente",
+      "confirm_button": "¡Sí, quiero eliminarlo!"
+    },
+    "save": "Guardar"
+  },
+  "form": {
+    "name": "Nombre completo",
+    "email": "Correo electrónico",
+    "phone": "Teléfono",
+    "username": "Nombre de usuario"
   }
-
 }

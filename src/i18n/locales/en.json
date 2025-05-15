@@ -172,7 +172,17 @@
     "ticket": "Ticket",
     "apply": "Apply Filter",
     "clear": "Clear Filters",
-    "all": "All"
+    "all": "All",
+    "id": "ID",
+    "search_by_id": "Search by ID...",
+    "recipients": "Recipients",
+    "search_by_recipient": "Search by recipient...",
+    "subject": "Subject",
+    "search_by_subject": "Search by subject...",
+    "sent": "Sent",
+    "pending": "Pending",
+    "failed": "Failed",
+    "date_sent": "Send Date"
   },
   "status": {
     "open": "Not started",
@@ -220,7 +230,7 @@
     "status": "Status",
     "observation": "Observation"
   },
- "buttons": {
+  "buttons": {
     "backToActive": "Back to active",
     "showFinished": "Show finished"
   },
@@ -248,70 +258,185 @@
     "deleted_successfully": "User successfully deleted.",
     "delete_error": "Error deleting user. Please try again.",
     "cargo_id": "Role"
-},
-  "calendar": {
-  "error_event": "Error fetching event data",
-  "success_create": "Event created successfully!",
-  "error_create": "Error creating event. Please check the details and try again.",
-  "today": "Today",
-  "month": "Month",
-  "week": "Week",
-  "day": "Day",
-  "list": "List",
-  "event": "Event",
-  "events": "Events",
-  "ticket": "Ticket",
-  "modal_details": {
-    "title_modal": "📅 Event Details",
-    "title": "Title",
-    "type": "Type",
-    "description": "Description",
-    "initial": "Start",
-    "final": "End",
-    "status": "Status",
-    "color": "Background color",
-    "repeat": "Repeat",
-    "tags": "Tags",
-    "all_day": "All-day event",
-    "remove": "Delete"
   },
-  "modal_create": {
-    "title_modal": "🆕 New Event",
-    "title": "Title",
-    "placeholder_title": "Enter the event title",
-    "description": "Description",
-    "placeholder_description": "Add a description (optional)",
-    "date_initial": "Start Date",
-    "date_final": "End Date",
-    "all_day": "All day",
-    "repeat": "Repeat",
-    "color": "Event color",
-    "status": "Status",
-    "cancel": "Cancel",
-    "create": "Create Event"
-  }
-},
-"sidebar": {
-  "logout_message": "Logout completed successfully.",
-  "tooltips": {
-    "dashboard": "Home Page",
+  "calendar": {
+    "error_event": "Error fetching event data",
+    "success_create": "Event created successfully!",
+    "error_create": "Error creating event. Please check the details and try again.",
+    "today": "Today",
+    "month": "Month",
+    "week": "Week",
+    "day": "Day",
+    "list": "List",
+    "event": "Event",
+    "events": "Events",
+    "ticket": "Ticket",
+    "modal_details": {
+      "title_modal": "📅 Event Details",
+      "title": "Title",
+      "type": "Type",
+      "description": "Description",
+      "initial": "Start",
+      "final": "End",
+      "status": "Status",
+      "color": "Background color",
+      "repeat": "Repeat",
+      "tags": "Tags",
+      "all_day": "All-day event",
+      "remove": "Delete"
+    },
+    "modal_create": {
+      "title_modal": "🆕 New Event",
+      "title": "Title",
+      "placeholder_title": "Enter the event title",
+      "description": "Description",
+      "placeholder_description": "Add a description (optional)",
+      "date_initial": "Start Date",
+      "date_final": "End Date",
+      "all_day": "All day",
+      "repeat": "Repeat",
+      "color": "Event color",
+      "status": "Status",
+      "cancel": "Cancel",
+      "create": "Create Event"
+    }
+  },
+  "sidebar": {
+    "logout_message": "Logout completed successfully.",
+    "tooltips": {
+      "dashboard": "Home Page",
+      "clients": "Clients",
+      "tickets": "Tickets",
+      "calendar": "Calendar",
+      "email": {
+        "tooltip": "Emails",
+        "create": "Create Email",
+        "list": "Email List"
+      },
+      "sms": {
+        "tooltip": "SMS",
+        "create": "Create SMS",
+        "list": "SMS List"
+      },
+      "wpp": "WhatsApp",
+      "approve": "Registration Requests",
+      "config": "Settings",
+      "logout": "Logout"
+    }
+  },
+  "create_email": {
+    "title": "Create Your Email",
+    "subject": "Email Subject",
+    "subject_placeholder": "Enter the subject",
     "clients": "Clients",
-    "tickets": "Tickets",
-    "calendar": "Calendar",
-    "email": {
-      "tooltip": "Emails",
-      "create": "Create Email",
-      "list": "Email List"
+    "select_clients": "Select clients",
+    "date": "Email Date",
+    "send_time": "Send Time",
+    "send_time_placeholder": "00:00",
+    "body": "Email Body",
+    "body_placeholder": "Enter your message...",
+    "recurrency": "Recurrence",
+    "frequency": "Frequency",
+    "select_frequency": "Select frequency",
+    "daily": "Daily",
+    "weekly": "Weekly",
+    "monthly": "Monthly",
+    "yearly": "Yearly",
+    "end_date": "End Date",
+    "select_end_date": "Select end date",
+    "attachments": "Attachments",
+    "remove_attachment": "Remove attachment"
+  },
+  "email_preview": {
+    "title": "Email Preview",
+    "subject": "Subject:",
+    "to": "To:",
+    "send_date": "Send Date",
+    "send_time": "Send Time",
+    "body": "Email Body:",
+    "recurrency": "Recurrence",
+    "yes": "Yes",
+    "no": "No",
+    "attachments": "Attachments:",
+    "remove_attachment": "Remove",
+    "confirm_send": "Confirm Send"
+  },
+  "email": {
+    "success_schedule": "Email scheduled successfully!",
+    "error_schedule": "Error scheduling email.",
+    "unexpected_error": "Unexpected error."
+  },
+  "scheduled_emails": {
+    "title": "Scheduled Emails",
+    "statuses": {
+      "sent": "Sent",
+      "failed": "Failed",
+      "pending": "Pending"
     },
-    "sms": {
-      "tooltip": "SMS",
-      "create": "Create SMS",
-      "list": "SMS List"
+    "new_email": "Schedule new e-mail",
+    "table": {
+      "id": "ID",
+      "subject": "Subject",
+      "recipients": "Recipients",
+      "schedule": "Schedule",
+      "status": "Status",
+      "actions": "Actions"
     },
-    "wpp": "WhatsApp",
-    "approve": "Registration Requests",
-    "config": "Settings",
-    "logout": "Logout"
+    "view_recipients": "View recipients",
+    "view": "View",
+    "edit_mail": "Edit",
+    "at": "at",
+    "statuses2": {
+      "pending": "Pending",
+      "sent": "Sent",
+      "failed": "Failed"
+    },
+    "modal": {
+      "title": "Recipients",
+      "close": "Close",
+      "change_photo": "Change photo",
+      "select_file": "Select a file",
+      "no_file_selected": "Nothing selected",
+      "save": "Save"
+    },
+    "preview": {
+      "title": "Email Preview",
+      "close": "Close",
+      "subject": "Subject:",
+      "to": "To",
+      "send_date": "Send Date",
+      "send_time": "Send Time",
+      "body": "Email Body:",
+      "attachments": "Attachments:",
+      "remove_attachment": "Remove"
+    },
+    "edit": {
+      "title": "Edit Email",
+      "subject": "Subject:",
+      "to": "To:",
+      "send_date": "Send Date:",
+      "send_time": "Send Time:",
+      "body": "Email Body:",
+      "attachments": "Attachments:",
+      "remove_attachment": "Remove",
+      "cancel": "Cancel",
+      "save": "Save"
+    }
+  },
+  "common": {
+    "cancel": "Cancel",
+    "delete": {
+      "title": "Delete Record",
+      "confirmation": "Do you really want to delete this record",
+      "permanently": "permanently",
+      "confirm_button": "Yes, delete it!"
+    },
+    "save": "Save"
+  },
+  "form": {
+    "name": "Full Name",
+    "email": "Email",
+    "phone": "Phone",
+    "username": "Username"
   }
-}
 }

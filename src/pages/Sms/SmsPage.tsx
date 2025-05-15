@@ -22,7 +22,7 @@ import "dayjs/locale/es";
 import { api } from "../../api/api";
 import { messageAlert } from "../../utils/messageAlert";
 import { FiMessageCircle } from "react-icons/fi";
-import {  Trash } from "lucide-react";
+import { Trash } from "lucide-react";
 import DeleteConfirmModal from "../../components/DeleteConfirm/DeleteConfirmModal";
 
 interface Sms {
@@ -62,7 +62,6 @@ const SmsPage = () => {
   const [selectedMessage, setSelectedMessage] = useState("");
   const [smsIdToDelete, setSmsIdToDelete] = useState<number | null>(null);
   const [isModalCrashOpen, setIsModalCrashOpen] = useState(false);
-  const [loadingMessage, setLoading] = useState(false);
 
   const openModal = (phones: string[], names: string[]) => {
     setModalPhones(phones);
@@ -119,30 +118,29 @@ const SmsPage = () => {
   };
 
   const handleDelete = async (id: number) => {
-    setLoading(true); 
+    setLoadingDelete(true);
     try {
       await api.delete(`/sms/${id}`, {
         headers: {
           Authorization: `Bearer ${localStorage.getItem("accessToken")}`!,
         },
       });
-  
+
       messageAlert({
         type: "success",
         message: "SMS deletado com sucesso!",
       });
-  
-      mutate(); 
+
+      mutate();
     } catch (error) {
       console.error("Erro ao deletar SMS:", error);
       alert("Erro ao deletar o SMS.");
     } finally {
       setIsModalCrashOpen(false);
       setSmsIdToDelete(null);
-      setLoading(false); 
+      setLoadingDelete(false);
     }
   };
-  
 
   return (
     <div className="p-4">
@@ -216,7 +214,6 @@ const SmsPage = () => {
                     return (
                       <div
                         key={sms.id}
-
                         className={`grid grid-cols-7 gap-4 px-6 py-4 text-sm text-blue-900 border-b ${rowBg} ${
                           i === data.length - 1 ? "rounded-b-lg" : ""
                         }`}
@@ -227,7 +224,6 @@ const SmsPage = () => {
                         <div className="flex justify-center items-center truncate">
                           {sms.user_name}
                         </div>
-
 
                         <div
                           className="flex items-center gap-2 max-w-[250px]"
@@ -241,11 +237,8 @@ const SmsPage = () => {
                             onClick={() => openModalMessage(sms.message)}
                             className="text-blue-500 cursor-pointer w-6 h-6 hover:scale-110 transition-transform shrink-0"
                             title="Visualizar mensagem completa"
-
                           />
                         </div>
-
-
 
                         <div
                           className="flex justify-center items-center gap-1 max-w-[200px]"
@@ -272,8 +265,8 @@ const SmsPage = () => {
                           {sms.status === "pending"
                             ? "Pendente"
                             : sms.status === "sent"
-                              ? "Enviado"
-                              : "Falha"}
+                            ? "Enviado"
+                            : "Falha"}
                         </div>
                         <div className="flex justify-center items-center w-full gap-2">
                           {sms.status !== "sent" && (
@@ -283,10 +276,12 @@ const SmsPage = () => {
                               onClick={() => handleSendNow(sms.id)}
                             />
                           )}
-                          <button onClick={() => openDeleteModal(sms.id)} className="text-red-500 hover:text-red-700">
+                          <button
+                            onClick={() => openDeleteModal(sms.id)}
+                            className="text-red-500 hover:text-red-700"
+                          >
                             <Trash className="h-5 w-5" />
                           </button>
-
                         </div>
                       </div>
                     );
@@ -343,9 +338,7 @@ const SmsPage = () => {
             handleDelete(smsIdToDelete);
           }
         }}
-        loading={loadingMessage}
       />
-
     </div>
   );
 };

@@ -14,6 +14,7 @@ import EmailPreviewModal from "../../components/Modal/EmailPreviewModal";
 import Header from "../../components/Header/Header";
 import { User } from "../../models/User";
 import EditEmailModal from "../../components/Modal/EditEmailModal";
+import { useTranslation } from "react-i18next";
 
 interface EmailClient {
   id: number;
@@ -38,6 +39,7 @@ interface Attachment {
 
 const Mails = () => {
   const navigate = useNavigate();
+  const { t } = useTranslation();
   const storedUser = localStorage.getItem("user");
   const authUser: User | null = storedUser ? JSON.parse(storedUser) : null;
   const [modalNames, setModalNames] = useState<string[]>([]);
@@ -175,43 +177,43 @@ const Mails = () => {
       <div className="max-w-1xl mx-auto py-7 z-10 relative">
         <div className="flex flex-col lg:flex-row gap-6">
           <div className="lg:w-1/5 w-full bg-white/80 text-blue-900 rounded-2xl shadow-xl p-6 h-fit animate-fade-in">
-            <h2 className="text-xl font-bold mb-4">Filtros</h2>
+            <h2 className="text-xl font-bold mb-4">{t("filters.title")}</h2>
             <div className="mb-4">
-              <label className="block text-sm font-semibold mb-1">ID</label>
+              <label className="block text-sm font-semibold mb-1">{t("filters.id")}</label>
               <input
                 type="text"
                 value={id}
                 onChange={(e) => setId(e.target.value)}
-                placeholder="Buscar por ID..."
+                placeholder={t("filters.search_by_id")}
                 className="w-full px-3 py-2 rounded-lg border border-blue-300 focus:ring focus:ring-blue-200"
               />
             </div>
             <div className="mb-4">
               <label className="block text-sm font-semibold mb-1">
-                Destinatários
+                {t("filters.recipients")}
               </label>
               <input
                 type="text"
                 value={recipients}
                 onChange={(e) => setRecipients(e.target.value)}
-                placeholder="Buscar por destinatário..."
+                placeholder={t("filters.search_by_recipient")}
                 className="w-full px-3 py-2 rounded-lg border border-blue-300 focus:ring focus:ring-blue-200"
               />
             </div>
             <div className="mb-4">
               <label className="block text-sm font-semibold mb-1">
-                Assunto
+                {t("filters.subject")}
               </label>
               <input
                 type="text"
                 value={subject}
                 onChange={(e) => setSubject(e.target.value)}
-                placeholder="Buscar por assunto..."
+                placeholder={t("filters.search_by_subject")}
                 className="w-full px-3 py-2 rounded-lg border border-blue-300 focus:ring focus:ring-blue-200"
               />
             </div>
             <div className="mb-4">
-              <label className="block text-sm font-semibold mb-1">Status</label>
+              <label className="block text-sm font-semibold mb-1">{t("filters.status")}</label>
               <div className="space-y-2">
                 <label className="flex items-center gap-2">
                   <input
@@ -225,7 +227,7 @@ const Mails = () => {
                     }
                     className="accent-green-500"
                   />
-                  Enviado
+                  {t("filters.sent")}
                 </label>
                 <label className="flex items-center gap-2">
                   <input
@@ -239,7 +241,7 @@ const Mails = () => {
                     }
                     className="accent-yellow-500"
                   />
-                  Pendente
+                  {t("filters.pending")}
                 </label>
                 <label className="flex items-center gap-2">
                   <input
@@ -253,13 +255,13 @@ const Mails = () => {
                     }
                     className="accent-red-500"
                   />
-                  Falha
+                  {t("filters.failed")}
                 </label>
               </div>
             </div>
             <div className="mb-4">
               <label className="block text-sm font-semibold mb-1">
-                Data de envio
+                {t("filters.date_sent")}
               </label>
               <input
                 type="date"
@@ -273,15 +275,16 @@ const Mails = () => {
                 onClick={applyFilters}
                 className="bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700 transition"
               >
-                Aplicar
+                {t("filters.apply")}
               </button>
               <button
                 onClick={clearFilters}
                 className="bg-gray-300 text-blue-900 px-4 py-2 rounded-lg hover:bg-gray-400 transition"
               >
-                Limpar
+                {t("filters.clear")}
               </button>
             </div>
+
           </div>
 
           <div className="lg:w-3/4 w-full">
@@ -292,26 +295,26 @@ const Mails = () => {
                 <div className="flex flex-col sm:flex-row justify-between items-center mb-6 gap-4 animate-fade-in">
                   <div className="flex items-center justify-center gap-5 flex-wrap">
                     <h1 className="text-4xl font-extrabold drop-shadow-xl flex items-center gap-2">
-                      <CiMail className="w-8 h-8 animate-bounce" /> E-mails
-                      Agendados
+                      <CiMail className="w-8 h-8 animate-bounce" />
+                      {t("scheduled_emails.title")}
                     </h1>
                     <div className="flex items-center gap-2 text-sm font-medium">
                       <span className="inline-block w-3 h-3 rounded-full bg-green-300 animate-pulse"></span>
-                      Enviados
+                      {t("scheduled_emails.statuses.sent")}
                     </div>
                     <div className="flex items-center gap-2 text-sm font-medium">
                       <span className="inline-block w-3 h-3 rounded-full bg-red-300 animate-pulse"></span>
-                      Falhas
+                      {t("scheduled_emails.statuses.failed")}
                     </div>
                     <div className="flex items-center gap-2 text-sm font-medium">
                       <span className="inline-block w-3 h-3 rounded-full bg-white animate-pulse"></span>
-                      Pendentes
+                      {t("scheduled_emails.statuses.pending")}
                     </div>
                   </div>
                   <FaPlus
                     className="cursor-pointer w-8 h-8 text-white hover:text-green-300 transition-transform transform hover:scale-110"
                     onClick={() => navigate("/mails/create")}
-                    title="Agendar novo e-mail"
+                    title={t("scheduled_emails.new_email")}
                   />
                 </div>
 
@@ -319,22 +322,27 @@ const Mails = () => {
                   <div className="min-w-full">
                     <div className="grid grid-cols-6 gap-4 px-4 py-3 bg-blue-200 text-blue-900 font-semibold text-sm text-center rounded-t-2xl">
                       <div className="flex justify-center items-center gap-1">
-                        <MdOutlineFormatListNumbered /> ID
+                        <MdOutlineFormatListNumbered />
+                        {t("scheduled_emails.table.id")}
                       </div>
                       <div className="flex justify-center items-center gap-1">
-                        <CiMail /> Assunto
+                        <CiMail />
+                        {t("scheduled_emails.table.subject")}
                       </div>
                       <div className="flex justify-center items-center gap-1">
-                        Destinatários
+                        {t("scheduled_emails.table.recipients")}
                       </div>
                       <div className="flex justify-center items-center gap-1">
-                        <MdSchedule /> Agendamento
+                        <MdSchedule />
+                        {t("scheduled_emails.table.schedule")}
                       </div>
                       <div className="flex justify-center items-center gap-1">
-                        <IoIosInformationCircleOutline /> Status
+                        <IoIosInformationCircleOutline />
+                        {t("scheduled_emails.table.status")}
                       </div>
                       <div className="flex justify-center items-center gap-1">
-                        <FaPlus /> Ações
+                        <FaPlus />
+                        {t("scheduled_emails.table.actions")}
                       </div>
                     </div>
 
@@ -351,9 +359,8 @@ const Mails = () => {
                       return (
                         <div
                           key={mail.id}
-                          className={`grid grid-cols-6 gap-4 px-4 py-4 text-sm text-blue-900 text-center border-b ${rowBg} ${
-                            i === mails.length - 1 ? "rounded-b-2xl" : ""
-                          }`}
+                          className={`grid grid-cols-6 gap-4 px-4 py-4 text-sm text-blue-900 text-center border-b ${rowBg} ${i === mails.length - 1 ? "rounded-b-2xl" : ""
+                            }`}
                         >
                           <div>{mail.id}</div>
                           <div
@@ -376,43 +383,44 @@ const Mails = () => {
                               <AiOutlineEye
                                 onClick={() => openModal(mail.clients)}
                                 className="text-red-500 cursor-pointer w-5 h-5 hover:scale-110 transition-transform"
-                                title="Visualizar destinatários"
+                                title={t("scheduled_emails.view_recipients")}
                               />
                             )}
                           </div>
                           <div>
-                            {mail.send_date} às {mail.send_time}
+                            {mail.send_date} {t("scheduled_emails.at")} {mail.send_time}
                           </div>
                           <div className="flex items-center justify-center gap-1">
                             {isPending && (
                               <>
                                 <MdAccessTime className="text-yellow-500 w-4 h-4 animate-pulse" />
-                                <span>Pendente</span>
+                                <span>{t("scheduled_emails.statuses2.pending")}</span>
                               </>
                             )}
                             {isSent && (
                               <>
                                 <MdCheckCircle className="text-green-600 w-4 h-4" />
-                                <span>Enviado</span>
+                                <span>{t("scheduled_emails.statuses2.sent")}</span>
                               </>
                             )}
                             {isFailed && (
                               <>
                                 <MdErrorOutline className="text-red-600 w-4 h-4" />
-                                <span>Falha</span>
+                                <span>{t("scheduled_emails.statuses2.failed")}</span>
                               </>
                             )}
                           </div>
                           <div className="flex justify-center gap-2">
                             <AiOutlineEye
                               className="cursor-pointer w-5 h-5 text-blue-700 hover:text-blue-900"
-                              title="Visualizar"
+                              title={t("scheduled_emails.view")}
                               onClick={() => {
                                 setPreviewEmail(mail);
                                 setPreviewModalOpen(true);
                               }}
                             />
                             <button
+                              title={t("scheduled_emails.edit_mail")}
                               onClick={() => {
                                 setPreviewEmail(mail);
                                 setPreviewModalOpenEdit(true);
@@ -442,7 +450,6 @@ const Mails = () => {
                 setClientIdToDelete(null);
               }}
               onConfirm={handleDelete}
-              loading={loading}
             />
 
             <EmailPreviewModal
@@ -474,7 +481,7 @@ const Mails = () => {
                   await fetchEmails();
                   setPreviewModalOpenEdit(false);
                 } catch (error) {
-                  console.error("Erro ao atualizar o e-mail:", error);
+                  console.error(error);
                 }
               }}
               onRemoveAttachment={(index) => {
@@ -493,22 +500,20 @@ const Mails = () => {
               <div className="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-50">
                 <div className="bg-white rounded-lg shadow-lg max-w-md w-full p-6 relative">
                   <h3 className="text-lg font-bold text-blue-800 mb-4">
-                    Destinatários
+                    {t("scheduled_emails.modal.title")}
                   </h3>
                   <ul className="space-y-2 max-h-60 overflow-y-auto">
                     {modalNames.map((name, index) => (
                       <li key={index} className="border-b pb-2">
                         <p className="font-medium text-gray-800">{name}</p>
-                        <p className="text-sm text-gray-600">
-                          {modalMails[index]}
-                        </p>
+                        <p className="text-sm text-gray-600">{modalMails[index]}</p>
                       </li>
                     ))}
                   </ul>
                   <button
                     className="absolute top-2 right-2 text-gray-500 hover:text-red-500"
                     onClick={() => setIsModalOpen(false)}
-                    title="Fechar"
+                    title={t("scheduled_emails.modal.close")}
                   >
                     ✖
                   </button>
