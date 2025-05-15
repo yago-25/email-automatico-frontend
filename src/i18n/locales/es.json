@@ -133,7 +133,13 @@
     "select_client": "Seleccionar Cliente",
     "select_operator": "Seleccionar Operador",
     "add_tags": "Agregue etiquetas y presione Enter",
-    "create_ticket": "Crear Ticket"
+    "create_ticket": "Crear Ticket",
+    "title": "Destinatarios",
+    "close": "Cerrar",
+    "change_photo": "Cambiar foto",
+    "select_file": "Selecciona un archivo",
+    "no_file_selected": "Nada seleccionado",
+    "save": "Guardar"
   },
   "approve_page": {
     "title": "Solicitudes Pendientes",
@@ -182,7 +188,9 @@
     "sent": "Enviado",
     "pending": "Pendiente",
     "failed": "Fallido",
-    "date_sent": "Fecha de envío"
+    "date_sent": "Fecha de envío",
+    "close": "Cerrar",
+    "open": "Abrir filtros"
   },
   "status": {
     "open": "Abierto",
@@ -438,13 +446,5 @@
     "email": "Correo electrónico",
     "phone": "Teléfono",
     "username": "Nombre de usuario"
-  },
-  "modal": {
-      "title": "Destinatarios",
-      "close": "Cerrar",
-      "change_photo": "Cambiar foto",
-      "select_file": "Selecciona un archivo",
-      "no_file_selected": "Nada seleccionado",
-      "save": "Guardar"
-    }
+  }
 }

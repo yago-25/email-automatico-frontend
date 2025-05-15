@@ -133,7 +133,13 @@
     "select_client": "Select Client",
     "select_operator": "Select Operator",
     "add_tags": "Add tags and press Enter",
-    "create_ticket": "Create Ticket"
+    "create_ticket": "Create Ticket",
+    "title": "Recipients",
+    "close": "Close",
+    "change_photo": "Change photo",
+    "select_file": "Select a file",
+    "no_file_selected": "Nothing selected",
+    "save": "Save"
   },
   "approve_page": {
     "title": "Pending Requests",
@@ -182,7 +188,9 @@
     "sent": "Sent",
     "pending": "Pending",
     "failed": "Failed",
-    "date_sent": "Send Date"
+    "date_sent": "Send Date",
+    "close": "Close",
+    "open": "Open Filters"
   },
   "status": {
     "open": "Not started",
@@ -438,13 +446,5 @@
     "email": "Email",
     "phone": "Phone",
     "username": "Username"
-  },
-  "modal": {
-      "title": "Recipients",
-      "close": "Close",
-      "change_photo": "Change photo",
-      "select_file": "Select a file",
-      "no_file_selected": "Nothing selected",
-      "save": "Save"
-    }
+  }
 }

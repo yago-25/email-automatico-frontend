@@ -66,6 +66,13 @@ const Mails = () => {
   const [date, setDate] = useState("");
   const [id, setId] = useState("");
   const [showFilter, setShowFilter] = useState(false);
+  const [hasEntered, setHasEntered] = useState(false);
+
+  useEffect(() => {
+    if (showFilter) {
+      setHasEntered(true);
+    }
+  }, [showFilter]);
 
   const [currentPage, setCurrentPage] = useState(1);
   const itemsPerPage = 10;
@@ -218,14 +225,14 @@ const Mails = () => {
                       {t("scheduled_emails.statuses.pending")}
                     </div>
                   </div>
-                  <div className="flex items-center text-sm font-medium -mr-[510px]">
+                  <div className="flex items-center gap-2 text-sm font-medium">
                     <AnimatePresence>
                       {!showFilter && (
                         <motion.button
                           key="filter-button"
                           layoutId="filterBox"
                           onClick={() => setShowFilter(true)}
-                          className="flex items-center gap-2 bg-blue-700 text-white font-semibold px-4 py-2 rounded-full shadow-lg hover:bg-blue-800 transition"
+                          className="flex items-center gap-2 bg-blue-600 text-white font-semibold px-4 py-2 rounded-full shadow-lg hover:bg-blue-700 transition"
                           initial={{ opacity: 0, scale: 0.8 }}
                           animate={{ opacity: 1, scale: 1 }}
                           exit={{ opacity: 0 }}
@@ -466,19 +473,17 @@ const Mails = () => {
                   layoutId="filterBox"
                   initial={{ opacity: 0, scale: 0.9 }}
                   animate={{ opacity: 1, scale: 1 }}
-                  exit={{ opacity: 0, y: -30, transition: { duration: 0.3 } }}
+                  exit={{ opacity: 0, y: -30 }} // NÃO usa scale aqui
                   transition={{ duration: 0.3, ease: "easeOut" }}
-                  className="absolute w-[430px] bg-white/90 text-blue-900 mt-[29px] rounded-2xl shadow-xl p-6"
+                  className="w-full max-w-md bg-white/90 text-blue-900 mt-16 rounded-2xl shadow-xl p-6 h-fit"
                 >
-                  <div className="flex justify-between items-center mb-4">
-                    <h2 className="text-xl font-bold">{t("filters.title")}</h2>
-                    <button
-                      onClick={() => setShowFilter(false)}
-                      className="bg-red-600 text-white px-4 py-2 rounded-lg hover:bg-red-700 transition"
-                    >
-                      {t("filters.close")}
-                    </button>
-                  </div>
+                  <h2 className="text-xl font-bold mb-4">Filtros</h2>
+                  <button
+                    onClick={() => setShowFilter(false)}
+                    className="text-blue-600 text-sm hover:underline mb-6"
+                  >
+                    {t("filters.close")}
+                  </button>
 
                   <div className="mb-4">
                     <label className="block text-sm font-semibold mb-1">
