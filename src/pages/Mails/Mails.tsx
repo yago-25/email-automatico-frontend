@@ -176,116 +176,7 @@ const Mails = () => {
       <Header name={authUser?.nome_completo} />
       <div className="max-w-1xl mx-auto py-7 z-10 relative">
         <div className="flex flex-col lg:flex-row gap-6">
-          <div className="lg:w-1/5 w-full bg-white/80 text-blue-900 rounded-2xl shadow-xl p-6 h-fit animate-fade-in">
-            <h2 className="text-xl font-bold mb-4">{t("filters.title")}</h2>
-            <div className="mb-4">
-              <label className="block text-sm font-semibold mb-1">{t("filters.id")}</label>
-              <input
-                type="text"
-                value={id}
-                onChange={(e) => setId(e.target.value)}
-                placeholder={t("filters.search_by_id")}
-                className="w-full px-3 py-2 rounded-lg border border-blue-300 focus:ring focus:ring-blue-200"
-              />
-            </div>
-            <div className="mb-4">
-              <label className="block text-sm font-semibold mb-1">
-                {t("filters.recipients")}
-              </label>
-              <input
-                type="text"
-                value={recipients}
-                onChange={(e) => setRecipients(e.target.value)}
-                placeholder={t("filters.search_by_recipient")}
-                className="w-full px-3 py-2 rounded-lg border border-blue-300 focus:ring focus:ring-blue-200"
-              />
-            </div>
-            <div className="mb-4">
-              <label className="block text-sm font-semibold mb-1">
-                {t("filters.subject")}
-              </label>
-              <input
-                type="text"
-                value={subject}
-                onChange={(e) => setSubject(e.target.value)}
-                placeholder={t("filters.search_by_subject")}
-                className="w-full px-3 py-2 rounded-lg border border-blue-300 focus:ring focus:ring-blue-200"
-              />
-            </div>
-            <div className="mb-4">
-              <label className="block text-sm font-semibold mb-1">{t("filters.status")}</label>
-              <div className="space-y-2">
-                <label className="flex items-center gap-2">
-                  <input
-                    type="checkbox"
-                    checked={status.sent}
-                    onChange={() =>
-                      setStatus((prevStatus) => ({
-                        ...prevStatus,
-                        sent: !prevStatus.sent,
-                      }))
-                    }
-                    className="accent-green-500"
-                  />
-                  {t("filters.sent")}
-                </label>
-                <label className="flex items-center gap-2">
-                  <input
-                    type="checkbox"
-                    checked={status.pending}
-                    onChange={() =>
-                      setStatus((prevStatus) => ({
-                        ...prevStatus,
-                        pending: !prevStatus.pending,
-                      }))
-                    }
-                    className="accent-yellow-500"
-                  />
-                  {t("filters.pending")}
-                </label>
-                <label className="flex items-center gap-2">
-                  <input
-                    type="checkbox"
-                    checked={status.failed}
-                    onChange={() =>
-                      setStatus((prevStatus) => ({
-                        ...prevStatus,
-                        failed: !prevStatus.failed,
-                      }))
-                    }
-                    className="accent-red-500"
-                  />
-                  {t("filters.failed")}
-                </label>
-              </div>
-            </div>
-            <div className="mb-4">
-              <label className="block text-sm font-semibold mb-1">
-                {t("filters.date_sent")}
-              </label>
-              <input
-                type="date"
-                value={date}
-                onChange={(e) => setDate(e.target.value)}
-                className="w-full px-3 py-2 rounded-lg border border-blue-300 focus:ring focus:ring-blue-200"
-              />
-            </div>
-            <div className="flex justify-between gap-2">
-              <button
-                onClick={applyFilters}
-                className="bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700 transition"
-              >
-                {t("filters.apply")}
-              </button>
-              <button
-                onClick={clearFilters}
-                className="bg-gray-300 text-blue-900 px-4 py-2 rounded-lg hover:bg-gray-400 transition"
-              >
-                {t("filters.clear")}
-              </button>
-            </div>
-
-          </div>
+          
 
           <div className="lg:w-3/4 w-full">
             {loading ? (
@@ -520,6 +411,116 @@ const Mails = () => {
                 </div>
               </div>
             )}
+          </div>
+          
+          <div className="lg:w-1/5 w-full bg-white/80 text-blue-900 mt-16 rounded-2xl shadow-xl p-6 h-fit animate-fade-in">
+            <h2 className="text-xl font-bold mb-4">{t("filters.title")}</h2>
+            <div className="mb-4">
+              <label className="block text-sm font-semibold mb-1">{t("filters.id")}</label>
+              <input
+                type="text"
+                value={id}
+                onChange={(e) => setId(e.target.value)}
+                placeholder={t("filters.search_by_id")}
+                className="w-full px-3 py-2 rounded-lg border border-blue-300 focus:ring focus:ring-blue-200"
+              />
+            </div>
+            <div className="mb-4">
+              <label className="block text-sm font-semibold mb-1">
+                {t("filters.recipients")}
+              </label>
+              <input
+                type="text"
+                value={recipients}
+                onChange={(e) => setRecipients(e.target.value)}
+                placeholder={t("filters.search_by_recipient")}
+                className="w-full px-3 py-2 rounded-lg border border-blue-300 focus:ring focus:ring-blue-200"
+              />
+            </div>
+            <div className="mb-4">
+              <label className="block text-sm font-semibold mb-1">
+                {t("filters.subject")}
+              </label>
+              <input
+                type="text"
+                value={subject}
+                onChange={(e) => setSubject(e.target.value)}
+                placeholder={t("filters.search_by_subject")}
+                className="w-full px-3 py-2 rounded-lg border border-blue-300 focus:ring focus:ring-blue-200"
+              />
+            </div>
+            <div className="mb-4">
+              <label className="block text-sm font-semibold mb-1">{t("filters.status")}</label>
+              <div className="space-y-2">
+                <label className="flex items-center gap-2">
+                  <input
+                    type="checkbox"
+                    checked={status.sent}
+                    onChange={() =>
+                      setStatus((prevStatus) => ({
+                        ...prevStatus,
+                        sent: !prevStatus.sent,
+                      }))
+                    }
+                    className="accent-green-500"
+                  />
+                  {t("filters.sent")}
+                </label>
+                <label className="flex items-center gap-2">
+                  <input
+                    type="checkbox"
+                    checked={status.pending}
+                    onChange={() =>
+                      setStatus((prevStatus) => ({
+                        ...prevStatus,
+                        pending: !prevStatus.pending,
+                      }))
+                    }
+                    className="accent-yellow-500"
+                  />
+                  {t("filters.pending")}
+                </label>
+                <label className="flex items-center gap-2">
+                  <input
+                    type="checkbox"
+                    checked={status.failed}
+                    onChange={() =>
+                      setStatus((prevStatus) => ({
+                        ...prevStatus,
+                        failed: !prevStatus.failed,
+                      }))
+                    }
+                    className="accent-red-500"
+                  />
+                  {t("filters.failed")}
+                </label>
+              </div>
+            </div>
+            <div className="mb-4">
+              <label className="block text-sm font-semibold mb-1">
+                {t("filters.date_sent")}
+              </label>
+              <input
+                type="date"
+                value={date}
+                onChange={(e) => setDate(e.target.value)}
+                className="w-full px-3 py-2 rounded-lg border border-blue-300 focus:ring focus:ring-blue-200"
+              />
+            </div>
+            <div className="flex justify-between gap-2">
+              <button
+                onClick={applyFilters}
+                className="bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700 transition"
+              >
+                {t("filters.apply")}
+              </button>
+              <button
+                onClick={clearFilters}
+                className="bg-gray-300 text-blue-900 px-4 py-2 rounded-lg hover:bg-gray-400 transition"
+              >
+                {t("filters.clear")}
+              </button>
+            </div>
           </div>
         </div>
       </div>

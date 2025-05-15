@@ -201,7 +201,6 @@ const MailsCreate = () => {
                 });
             }
         } catch (error) {
-            // Log para verificar o erro completo
             console.error("Erro no envio:", error);
 
             const axiosError = error as AxiosError;

@@ -438,5 +438,13 @@
     "email": "Email",
     "phone": "Phone",
     "username": "Username"
-  }
+  },
+  "modal": {
+      "title": "Recipients",
+      "close": "Close",
+      "change_photo": "Change photo",
+      "select_file": "Select a file",
+      "no_file_selected": "Nothing selected",
+      "save": "Save"
+    }
 }

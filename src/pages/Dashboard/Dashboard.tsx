@@ -265,8 +265,7 @@ const Dashboard = () => {
       </div>
 
       <div className="flex flex-col md:flex-row items-center justify-center gap-4 mt-6 w-full max-w-4xl mx-auto px-4">
-        {/* Barra de busca */}
-        <div className="relative w-full md:max-w-2xl"> {/* Aumentei para max-w-2xl */}
+        <div className="relative w-full md:max-w-2xl"> 
           <span className="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none text-gray-400">
             <svg className="w-5 h-5" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24">
               <path strokeLinecap="round" strokeLinejoin="round" d="M21 21l-4.35-4.35M11 19a8 8 0 100-16 8 8 0 000 16z" />
@@ -284,8 +283,6 @@ const Dashboard = () => {
           />
         </div>
 
-
-        {/* Botões */}
         <div className="flex gap-4 w-full max-w-md">
           <button
             onClick={() => setAddClient(true)}
@@ -306,7 +303,6 @@ const Dashboard = () => {
       </div>
 
       <div className="w-full max-w-[80rem] mx-auto mt-10 rounded-3xl overflow-hidden shadow-lg border border-gray-200 bg-white">
-        {/* Cabeçalho */}
         <div className="grid grid-cols-5 gap-x-6 items-center justify-items-center px-6 py-4 bg-gradient-to-r from-blue-100 to-blue-200 border-b font-semibold text-blue-900 text-sm uppercase tracking-wide">
           <p className="flex items-center gap-2 justify-center">
             <MdOutlineFormatListNumbered className="text-blue-700" /> ID
@@ -325,7 +321,6 @@ const Dashboard = () => {
           </p>
         </div>
 
-        {/* Linhas */}
         {currentClients.map((client, index) => (
           <div
             key={client.id}
@@ -375,7 +370,6 @@ const Dashboard = () => {
         ) : (
           <div className="flex flex-col items-center justify-center w-full gap-6 p-6 bg-white rounded-xl shadow-lg">
             <div className="w-full space-y-4">
-              {/* Campo para Nome */}
               <div className="flex items-center gap-2">
                 <HiUser className="w-5 h-5 text-gray-500" />
                 <p className="text-gray-700 text-sm font-semibold">{t("dashboard.name")}</p>
@@ -389,7 +383,6 @@ const Dashboard = () => {
                 className="w-full mt-2 px-4 py-3 border border-gray-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-400 focus:border-blue-500 transition duration-200"
               />
 
-              {/* Campo para Telefone */}
               <div className="w-full">
                 <div className="flex items-center gap-2 mb-2">
                   <HiPhone className="w-5 h-5 text-gray-500" />
@@ -419,7 +412,6 @@ const Dashboard = () => {
                 />
               </div>
 
-              {/* Campo para Email */}
               <div className="flex items-center gap-2">
                 <HiMail className="w-5 h-5 text-gray-500" />
                 <p className="text-gray-700 text-sm font-semibold">{t("dashboard.email")}</p>
@@ -433,7 +425,6 @@ const Dashboard = () => {
                 className="w-full mt-2 px-4 py-3 border border-gray-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-400 focus:border-blue-500 transition duration-200"
               />
 
-              {/* Botão de Cadastro */}
               <div className="w-full mt-6">
                 <button
                   value="Cadastrar Cliente"
@@ -567,8 +558,6 @@ const Dashboard = () => {
           </div>
         )}
       </Modal>
-
-
     </div>
   );
 };

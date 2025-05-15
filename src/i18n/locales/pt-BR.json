@@ -438,5 +438,13 @@
     "email": "E-mail",
     "phone": "Telefone",
     "username": "Nome de usuário"
-  }
+  },
+  "modal": {
+      "title": "Destinatários",
+      "close": "Fechar",
+      "change_photo": "Alterar foto",
+      "select_file": "Selecione um arquivo",
+      "no_file_selected": "Nada selecionado",
+      "save": "Salvar"
+    }
 }
