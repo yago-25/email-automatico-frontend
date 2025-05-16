@@ -439,12 +439,79 @@
       "permanently": "permanently",
       "confirm_button": "Yes, delete it!"
     },
-    "save": "Save"
+    "save": "Save",
+    "close": "Close"
   },
   "form": {
     "name": "Full Name",
     "email": "Email",
     "phone": "Phone",
     "username": "Username"
+  },
+  "text_message": {
+    "create_title": "Create Your Text Message",
+    "date": "Message Day",
+    "date_placeholder": "Message Day",
+    "time": "Message Time",
+    "time_placeholder": "Message Time",
+    "client": "Client who will receive the Message",
+    "client_placeholder": "Select Client",
+    "body": "Message Text",
+    "body_placeholder": "Type your message...",
+    "recurrency": "Recurrence",
+    "frequency": "Frequency",
+    "frequency_placeholder": "Select frequency",
+    "daily": "Daily",
+    "weekly": "Weekly",
+    "monthly": "Monthly",
+    "yearly": "Yearly",
+    "errors": {
+      "fill_all_fields": "Please fill in all fields.",
+      "date_in_past": "Please select a date after today.",
+      "time_invalid": "Please select a time at least 5 minutes ahead of the current time."
+    },
+    "end_date": "End Date",
+    "send_preview": "Send Preview",
+    "document_caption": "Document Caption"
+  },
+  "alerts": {
+    "fill_all_fields": "Please fill in all fields.",
+    "schedule_created_success": "Scheduled messages created successfully!",
+    "sms_creation_error": "Error creating SMS message",
+    "send_success": "Message sent successfully!",
+    "send_error": "Error sending message.",
+    "delete_success": "SMS deleted successfully!",
+    "delete_error": "Error deleting SMS."
+  },
+  "photo_upload": {
+    "file_label": "Photo File"
+  },
+  "sms_list": {
+    "title": "SMS List",
+    "sent": "Sent",
+    "failed": "Failed",
+    "pending": "Pending",
+    "table": {
+      "id": "ID",
+      "user": "User",
+      "message": "Message",
+      "recipients": "Recipients",
+      "send_date": "Send Date",
+      "status": "Status",
+      "actions": "Actions"
+    },
+    "sms_list": {
+      "actions": {
+        "view_message": "View full message",
+        "view_recipients": "View recipients",
+        "send_now": "Send now"
+      },
+      "statuses": {
+        "pending": "Pending",
+        "sent": "Sent",
+        "failed": "Failed"
+      }
+    },
+    "full_message": "Full Message"
   }
 }

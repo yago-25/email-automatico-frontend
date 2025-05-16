@@ -44,7 +44,7 @@ const SmsPage = () => {
 
   const { data, loading, mutate } = useSwr<Sms[]>("/sms");
 
-  const { i18n } = useTranslation();
+  const { i18n, t } = useTranslation();
   const lang = i18n.language as "pt" | "en" | "es";
 
   const dateFormatMap: Record<string, string> = {
@@ -98,15 +98,14 @@ const SmsPage = () => {
 
       messageAlert({
         type: "success",
-        message: "Mensagem enviada com sucesso!",
+        message: t("alerts.send_success"),
       });
       mutate();
     } catch (e) {
       messageAlert({
         type: "error",
-        message: "Erro ao enviar mensagem.",
+        message: t("alerts.send_error"),
       });
-      console.log("Erro ao enviar mensagem: ", e);
     } finally {
       setLoadingPost(false);
     }
@@ -128,13 +127,13 @@ const SmsPage = () => {
 
       messageAlert({
         type: "success",
-        message: "SMS deletado com sucesso!",
+        message: t("alerts.delete_success"),
       });
 
       mutate();
     } catch (error) {
       console.error("Erro ao deletar SMS:", error);
-      alert("Erro ao deletar o SMS.");
+      alert(t("alerts.delete_error"));
     } finally {
       setIsModalCrashOpen(false);
       setSmsIdToDelete(null);
@@ -154,19 +153,19 @@ const SmsPage = () => {
               <div className="flex items-center justify-center gap-5">
                 <h1 className="text-3xl font-bold text-white flex items-center gap-2">
                   <FiMessageCircle className="text-white" />
-                  Listagem de SMS
+                  {t("sms_list.title")}
                 </h1>
                 <div className="flex items-center gap-1 text-white">
                   <span className="inline-block w-3 h-3 rounded-full bg-green-200"></span>
-                  Enviados
+                  {t("sms_list.sent")}
                 </div>
                 <div className="flex items-center gap-1 text-white">
                   <span className="inline-block w-3 h-3 rounded-full bg-red-200"></span>
-                  Falhas
+                  {t("sms_list.failed")}
                 </div>
                 <div className="flex items-center gap-1 text-white">
                   <span className="inline-block w-3 h-3 rounded-full bg-white"></span>
-                  Pendentes
+                  {t("sms_list.pending")}
                 </div>
               </div>
               <FaPlus
@@ -178,25 +177,25 @@ const SmsPage = () => {
               <div className="overflow-x-auto">
                 <div className="grid grid-cols-7 gap-4 px-6 py-3 bg-blue-100 text-blue-900 font-semibold text-sm rounded-t-lg">
                   <div className="flex justify-center items-center truncate">
-                    <MdOutlineFormatListNumbered /> ID
+                    <MdOutlineFormatListNumbered /> {t("sms_list.table.id")}
                   </div>
                   <div className="flex justify-center items-center truncate">
-                    <HiOutlineUser /> Usuário
+                    <HiOutlineUser /> {t("sms_list.table.user")}
                   </div>
                   <div className="flex justify-center items-center truncate">
-                    <CiMail /> Mensagem
+                    <CiMail /> {t("sms_list.table.message")}
                   </div>
                   <div className="flex justify-center items-center truncate">
-                    <CiPhone /> Receptores
+                    <CiPhone /> {t("sms_list.table.recipients")}
                   </div>
                   <div className="flex justify-center items-center truncate">
-                    <MdSchedule /> Data de Envio
+                    <MdSchedule /> {t("sms_list.table.send_date")}
                   </div>
                   <div className="flex justify-center items-center truncate">
-                    <IoIosInformationCircleOutline /> Status
+                    <IoIosInformationCircleOutline /> {t("sms_list.table.status")}
                   </div>
                   <div className="flex justify-center items-center">
-                    <FaGear /> Ações
+                    <FaGear /> {t("sms_list.table.actions")}
                   </div>
                 </div>
 
@@ -214,9 +213,8 @@ const SmsPage = () => {
                     return (
                       <div
                         key={sms.id}
-                        className={`grid grid-cols-7 gap-4 px-6 py-4 text-sm text-blue-900 border-b ${rowBg} ${
-                          i === data.length - 1 ? "rounded-b-lg" : ""
-                        }`}
+                        className={`grid grid-cols-7 gap-4 px-6 py-4 text-sm text-blue-900 border-b ${rowBg} ${i === data.length - 1 ? "rounded-b-lg" : ""
+                          }`}
                       >
                         <div className="flex justify-center items-center truncate">
                           {sms.id}
@@ -236,7 +234,7 @@ const SmsPage = () => {
                           <AiOutlineEye
                             onClick={() => openModalMessage(sms.message)}
                             className="text-blue-500 cursor-pointer w-6 h-6 hover:scale-110 transition-transform shrink-0"
-                            title="Visualizar mensagem completa"
+                            title={t("sms_list.actions.view_message")}
                           />
                         </div>
 
@@ -251,7 +249,7 @@ const SmsPage = () => {
                             <AiOutlineEye
                               onClick={() => openModal(sms.phones, sms.names)}
                               className="text-red-500 cursor-pointer w-6 h-6 hover:scale-110 transition-transform"
-                              title="Visualizar destinatários"
+                              title={t("sms_list.actions.view_recipients")}
                             />
                           )}
                         </div>
@@ -265,14 +263,14 @@ const SmsPage = () => {
                           {sms.status === "pending"
                             ? "Pendente"
                             : sms.status === "sent"
-                            ? "Enviado"
-                            : "Falha"}
+                              ? "Enviado"
+                              : "Falha"}
                         </div>
                         <div className="flex justify-center items-center w-full gap-2">
                           {sms.status !== "sent" && (
                             <MdScheduleSend
                               className="cursor-pointer w-5 h-5"
-                              title="Enviar agora"
+                              title={t("sms_list.actions.send_now")}
                               onClick={() => handleSendNow(sms.id)}
                             />
                           )}
@@ -316,7 +314,7 @@ const SmsPage = () => {
             onClick={closeModal}
             className="bg-blue-500 hover:bg-blue-600 text-white font-semibold py-2 px-6 rounded-xl transition"
           >
-            Fechar
+            {t("modal.close")}
           </button>
         </div>
       </Modal>

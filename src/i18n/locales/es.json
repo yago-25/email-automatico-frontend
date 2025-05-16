@@ -439,12 +439,79 @@
       "permanently": "definitivamente",
       "confirm_button": "¡Sí, quiero eliminarlo!"
     },
-    "save": "Guardar"
+    "save": "Guardar",
+    "close": "Cerrar"
   },
   "form": {
     "name": "Nombre completo",
     "email": "Correo electrónico",
     "phone": "Teléfono",
     "username": "Nombre de usuario"
+  },
+  "text_message": {
+    "create_title": "Crea tu Mensaje de Texto",
+    "date": "Día del Mensaje",
+    "date_placeholder": "Día del Mensaje",
+    "time": "Hora del Mensaje",
+    "time_placeholder": "Hora del Mensaje",
+    "client": "Cliente que recibirá el Mensaje",
+    "client_placeholder": "Selecciona el Cliente",
+    "body": "Texto del Mensaje",
+    "body_placeholder": "Escribe tu mensaje...",
+    "recurrency": "Recurrencia",
+    "frequency": "Frecuencia",
+    "frequency_placeholder": "Seleccione la frecuencia",
+    "daily": "Diaria",
+    "weekly": "Semanal",
+    "monthly": "Mensual",
+    "yearly": "Anual",
+    "errors": {
+      "fill_all_fields": "Por favor, complete todos los campos.",
+      "date_in_past": "Por favor, seleccione una fecha posterior a la actual.",
+      "time_invalid": "Por favor, seleccione una hora al menos 5 minutos después de la hora actual."
+    },
+    "end_date": "Fecha de Finalización",
+    "send_preview": "Enviar Vista Previa",
+    "document_caption": "Leyenda del Documento"
+  },
+  "alerts": {
+    "fill_all_fields": "Por favor, complete todos los campos.",
+    "schedule_created_success": "¡Mensajes programados creados con éxito!",
+    "sms_creation_error": "Error al crear el mensaje SMS",
+    "send_success": "¡Mensaje enviado con éxito!",
+    "send_error": "Error al enviar el mensaje.",
+    "delete_success": "¡SMS eliminado con éxito!",
+    "delete_error": "Error al eliminar el SMS."
+  },
+  "photo_upload": {
+    "file_label": "Archivo de Foto"
+  },
+  "sms_list": {
+    "title": "Listado de SMS",
+    "sent": "Enviados",
+    "failed": "Fallidos",
+    "pending": "Pendientes",
+    "table": {
+      "id": "ID",
+      "user": "Usuario",
+      "message": "Mensaje",
+      "recipients": "Receptores",
+      "send_date": "Fecha de Envío",
+      "status": "Estado",
+      "actions": "Acciones"
+    },
+    "sms_list": {
+      "actions": {
+        "view_message": "Ver mensaje completo",
+        "view_recipients": "Ver destinatarios",
+        "send_now": "Enviar ahora"
+      },
+      "statuses": {
+        "pending": "Pendiente",
+        "sent": "Enviado",
+        "failed": "Fallido"
+      }
+    },
+    "full_message": "Mensaje Completo"
   }
 }
