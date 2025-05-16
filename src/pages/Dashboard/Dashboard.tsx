@@ -18,6 +18,7 @@ import { CiMail } from "react-icons/ci";
 import { FaGear } from "react-icons/fa6";
 import { HiOutlineUser } from "react-icons/hi";
 import { IoTicketOutline } from "react-icons/io5";
+import { IoPersonSharp } from "react-icons/io5";
 import { useNavigate } from "react-router-dom";
 import { FaTags, FaClipboardList, FaRegStickyNote } from 'react-icons/fa';
 import { HiUserAdd } from "react-icons/hi";
@@ -249,6 +250,10 @@ const Dashboard = () => {
     navigate(`/ticket/${ticketName}`);
   };
 
+  const handleClient = (clientName: string) => {
+    navigate(`/clients?name=${encodeURIComponent(clientName)}`);
+  };
+
   if (loadingClients || loadingAdmins) {
     return (
       <div className="flex items-center justify-center h-full w-full">
@@ -265,7 +270,7 @@ const Dashboard = () => {
       </div>
 
       <div className="flex flex-col md:flex-row items-center justify-center gap-4 mt-6 w-full max-w-4xl mx-auto px-4">
-        <div className="relative w-full md:max-w-2xl"> 
+        <div className="relative w-full md:max-w-2xl">
           <span className="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none text-gray-400">
             <svg className="w-5 h-5" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24">
               <path strokeLinecap="round" strokeLinejoin="round" d="M21 21l-4.35-4.35M11 19a8 8 0 100-16 8 8 0 000 16z" />
@@ -339,8 +344,15 @@ const Dashboard = () => {
             </p>
             <div className="flex justify-center items-center gap-3">
               <button
-                onClick={() => handleTicket(client.name)}
+                onClick={() => handleClient(client.name)}
                 className="text-blue-600 hover:text-blue-800 transition-colors duration-200"
+                title="Ver tickets"
+              >
+                <IoPersonSharp className="h-5 w-5" />
+              </button>
+              <button
+                onClick={() => handleTicket(client.name)}
+                className="text-red-600 hover:text-red-800 transition-colors duration-200"
                 title="Ver tickets"
               >
                 <IoTicketOutline className="h-5 w-5" />
@@ -439,8 +451,6 @@ const Dashboard = () => {
           </div>
         )}
       </Modal>
-
-
       <Modal
         title={`📝 ${t('modal.add_ticket')}`}
 

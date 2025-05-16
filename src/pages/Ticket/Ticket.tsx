@@ -6,7 +6,7 @@ import { api } from "../../api/api";
 import { messageAlert } from "../../utils/messageAlert";
 import Spin from "../../components/Spin/Spin";
 import useSwr from "swr";
-import { FaFilter } from "react-icons/fa";
+import { FaFilter, FaEraser } from "react-icons/fa";
 import { useParams } from "react-router-dom";
 import Input from "../../components/Input/Input";
 import Select from "../../components/Select/Select";
@@ -14,7 +14,6 @@ import Select from "../../components/Select/Select";
 import TagInput from "../../components/TagInput/TagInput";
 import { useTranslation } from "react-i18next";
 import { IoTicketOutline } from "react-icons/io5";
-
 
 import {
   FaCalendarAlt,
@@ -132,7 +131,6 @@ const Ticket = () => {
 
   const storedUser = localStorage.getItem("user");
   const authUser: User | null = storedUser ? JSON.parse(storedUser) : null;
-
   const [selectedTicket, setSelectedTicket] = useState<Ticket | null>(null);
   const [showModal, setShowModal] = useState(false);
   const [showModalFilter, setShowModalFilter] = useState(false);
@@ -155,7 +153,7 @@ const Ticket = () => {
   const [observation, setObservation] = useState("");
   const [loadingModal, setLoadingModal] = useState(false);
   const [showOnlyFinished, setShowOnlyFinished] = useState(false);
-
+  // const [filteredTxt, setFilteredTxt] = useState("");
 
   const { data: rawClients = [], isLoading: loadingClients } = useSwr<Clients[]>('/clients', {
     fetcher: (url) =>
@@ -388,7 +386,6 @@ const Ticket = () => {
 
       mutate()
 
-
       messageAlert({
         type: "success",
         message: "Ticket cadastrado com sucesso!",
@@ -432,6 +429,7 @@ const Ticket = () => {
       }
     );
   };
+
   useEffect(() => {
     if (showModal && selectedTicket?.id) {
       fetchHistory(selectedTicket.id);
@@ -469,18 +467,12 @@ const Ticket = () => {
     ? ["Completa"]
     : ["Em progresso", "Não iniciada", "Esperando", "Descartada"];
 
-  // const toggleShowOnlyFinished = () => {
-  //   setShowOnlyFinished((prev) => !prev);
-  //   mutate(); // Atualiza a lista após trocar
-  // };
-
   return (
     <div>
       <Header name={authUser?.nome_completo} />
 
       <div className="filter-button-container flex items-center gap-4 mb-4 p-4">
 
-        {/* Botão de Filtro */}
         <button
           onClick={handleFilterToggle}
           className="flex items-center justify-center gap-2 min-w-[150px] px-4 py-2.5 bg-blue-600 text-white font-medium rounded-lg shadow-md hover:bg-blue-700 hover:shadow-lg transition-all duration-200"
@@ -489,7 +481,14 @@ const Ticket = () => {
           {t("filters.titleup")}
         </button>
 
-        {/* Botão de Adicionar Ticket */}
+        <button
+          onClick={handleClearFilters}
+          className="flex items-center justify-center gap-2 min-w-[150px] px-4 py-2.5 bg-red-600 text-white font-medium rounded-lg shadow-md hover:bg-red-700 hover:shadow-lg transition-all duration-200"
+        >
+          <FaEraser className="w-5 h-5" />
+          Limpar Filtro
+        </button>
+
         <button
           onClick={() => setAddTicket(true)}
           className="flex items-center justify-center gap-2 min-w-[150px] px-4 py-2.5 bg-purple-600 text-white font-medium rounded-lg shadow-md hover:bg-purple-700 hover:shadow-lg transition-all duration-200"
@@ -498,7 +497,6 @@ const Ticket = () => {
           {t("dashboard.add_ticket")}
         </button>
 
-        {/* Botão de Mostrar Concluídos */}
         <button
           onClick={() => setShowOnlyFinished(prev => !prev)}
           className="flex items-center justify-center gap-2 min-w-[150px] px-4 py-2.5 bg-blue-600 text-white font-medium rounded-lg shadow-md hover:bg-blue-700 hover:shadow-lg transition-all duration-200"
@@ -564,7 +562,7 @@ const Ticket = () => {
         }}
       >
         <div className="bg-white p-6 shadow-lg rounded-xl mt-2 max-w-md mx-auto">
-          <h3 className="font-semibold text-xl text-blue-600 mb-4">{t('filters.title')}</h3>
+          {/* <h3 className="font-semibold text-xl text-blue-600 mb-4">{t('filters.title')}</h3> */}
 
           <div className="mt-4">
             <label className="block text-sm font-medium text-gray-700 mb-2">{t('filters.user')}</label>
