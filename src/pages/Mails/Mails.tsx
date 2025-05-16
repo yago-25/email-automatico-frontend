@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useEffect, useState, useMemo } from "react";
 import { useNavigate } from "react-router-dom";
 import { Pencil, Trash } from "lucide-react";
 import { FaPlus } from "react-icons/fa6";
@@ -18,6 +18,7 @@ import { useTranslation } from "react-i18next";
 import { MdArrowBackIos, MdArrowForwardIos } from "react-icons/md";
 import { motion, AnimatePresence } from "framer-motion";
 import { FiFilter } from "react-icons/fi";
+import { debounce } from "lodash";
 
 interface EmailClient {
   id: number;
@@ -78,7 +79,6 @@ const Mails = () => {
     }
   };
 
-
   const fetchEmails = async () => {
     setLoading(true);
     try {
@@ -117,15 +117,21 @@ const Mails = () => {
       );
     }
 
-    if (status.sent) {
-      filtered = filtered.filter((email) => email.status === "sent");
+    const selectedStatuses: string[] = [];
+    if (status.sent) selectedStatuses.push("sent");
+    if (status.pending) selectedStatuses.push("pending");
+    if (status.failed) selectedStatuses.push("failed");
+
+    if (selectedStatuses.length > 0) {
+      filtered = filtered.filter((email) =>
+        selectedStatuses.includes(email.status)
+      );
     }
-    if (status.pending) {
-      filtered = filtered.filter((email) => email.status === "pending");
+
+    if (selectedStatuses.length > 0) {
+      filtered = filtered.filter((email) => selectedStatuses.includes(email.status));
     }
-    if (status.failed) {
-      filtered = filtered.filter((email) => email.status === "failed");
-    }
+
     if (date) {
       filtered = filtered.filter((email) => email.send_date === date);
     }
@@ -136,6 +142,7 @@ const Mails = () => {
 
     setFilteredMails(filtered);
   };
+
 
   const clearFilters = () => {
     setSubject("");
@@ -183,6 +190,19 @@ const Mails = () => {
     setIsModalCrashOpen(true);
   };
 
+  const debouncedApplyFilters = useMemo(
+    () => debounce(applyFilters, 500),
+    [id, recipients, subject, status, date]
+  );
+
+  useEffect(() => {
+    debouncedApplyFilters();
+
+    return () => {
+      debouncedApplyFilters.cancel();
+    };
+  }, [id, recipients, subject, status, date]);
+
   if (loading) {
     return <Spin />;
   }
@@ -218,7 +238,7 @@ const Mails = () => {
                       {t("scheduled_emails.statuses.pending")}
                     </div>
                   </div>
-                  <div className="flex items-center text-sm font-medium -mr-[510px]">
+                  <div className="flex items-center gap-4 ml-auto">
                     <AnimatePresence>
                       {!showFilter && (
                         <motion.button
@@ -231,7 +251,7 @@ const Mails = () => {
                           exit={{ opacity: 0 }}
                         >
                           <FiFilter className="w-5 h-5" />
-                          Abrir Filtros
+                          {t("filters.open")}
                         </motion.button>
                       )}
                     </AnimatePresence>
@@ -317,26 +337,27 @@ const Mails = () => {
                             <div>
                               {mail.send_date} {t("scheduled_emails.at")} {mail.send_time}
                             </div>
-                            <div className="flex items-center justify-center gap-1">
+                            <div className="flex items-center justify-center gap-4">
                               {isPending && (
-                                <>
+                                <div className="flex items-center gap-1">
                                   <MdAccessTime className="text-yellow-500 w-4 h-4 animate-pulse" />
                                   <span>{t("scheduled_emails.statuses2.pending")}</span>
-                                </>
+                                </div>
                               )}
                               {isSent && (
-                                <>
+                                <div className="flex items-center gap-1">
                                   <MdCheckCircle className="text-green-600 w-4 h-4" />
                                   <span>{t("scheduled_emails.statuses2.sent")}</span>
-                                </>
+                                </div>
                               )}
                               {isFailed && (
-                                <>
+                                <div className="flex items-center gap-1">
                                   <MdErrorOutline className="text-red-600 w-4 h-4" />
                                   <span>{t("scheduled_emails.statuses2.failed")}</span>
-                                </>
+                                </div>
                               )}
                             </div>
+
                             <div className="flex justify-center gap-2">
                               <AiOutlineEye
                                 className="cursor-pointer w-5 h-5 text-blue-700 hover:text-blue-900"

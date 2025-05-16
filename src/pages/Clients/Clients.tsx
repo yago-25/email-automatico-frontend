@@ -324,7 +324,7 @@ const Clients = () => {
               className="flex items-center justify-center gap-2 min-w-[150px] px-4 py-2.5 bg-red-600 text-white font-medium rounded-lg shadow-md hover:bg-red-700 hover:shadow-lg transition-all duration-200"
             >
               <FaEraser className="w-5 h-5" />
-              Limpar Filtro
+              {t('filters.clear')}
             </button>
           </div>
         </div>
