@@ -31,7 +31,7 @@ const MessageModal: React.FC<MessageModalProps> = ({ isVisible, message, onClose
           >
 
             <div className="flex justify-between items-center p-6 border-b">
-              <h2 className="text-xl font-semibold text-blue-600">{t("sms_modal.full_message")}</h2>
+              <h2 className="text-xl font-semibold text-blue-600">{t("sms_list.full_message")}</h2>
               <button
                 onClick={onClose}
                 className="text-gray-500 hover:text-gray-800 text-2xl"
