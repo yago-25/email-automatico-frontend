@@ -29,7 +29,9 @@ import {
 } from "react-icons/fi";
 import { FiSend } from "react-icons/fi";
 import { CiMail } from "react-icons/ci";
+import { AxiosError } from 'axios';
 import { CalendarClock, Check } from "lucide-react";
+// import { useTranslation } from 'react-i18next';
 
 const localeMap = {
   pt: ptBR,
@@ -58,7 +60,7 @@ interface EmailAttachment {
 }
 
 const MailsCreate = () => {
-  const { i18n } = useTranslation();
+  const { i18n, t } = useTranslation();
   const { data: rawClients = [], loading: loadingClients } =
     useSwr<Clients[]>("/clients");
   const storedUser = localStorage.getItem("user");
@@ -109,18 +111,21 @@ const MailsCreate = () => {
     setValueSelect(filteredClients);
   };
 
-  const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     if (e.target.files) {
-      const filesArray = Array.from(e.target.files);
-      const newAttachments: EmailAttachment[] = filesArray.map((file) => ({
-        name: file.name,
-        file: file,
-        mime_type: file.type,
-        size: file.size,
-      }));
-      setAttachments((prev) => [...prev, ...newAttachments]);
+        const filesArray = Array.from(e.target.files);
+        console.log("Arquivos recebidos:", filesArray); 
+
+        const newAttachments: EmailAttachment[] = filesArray.map(file => ({
+            name: file.name,
+            file: file,
+            mime_type: file.type,
+            size: file.size,
+        }));
+
+        setAttachments(prev => [...prev, ...newAttachments]);
     }
-  };
+};
 
   const handlePreview = (e: React.FormEvent) => {
     e.preventDefault();
@@ -132,80 +137,92 @@ const MailsCreate = () => {
     const updated = attachments.filter((_, i) => i !== index);
     setAttachments(updated);
 
-    if (updated.length === 0 && fileInputRef.current) {
-      fileInputRef.current.value = "";
-    }
-  };
+        if (updated.length === 0 && fileInputRef.current) {
+            fileInputRef.current.value = "";
+        }
+    };
 
-  const handleSend = async () => {
-    const formData = new FormData();
-    formData.append("subject", subject);
-    formData.append("body", body);
-    formData.append("send_date", sendDate);
-    formData.append("send_time", sendTime);
-
-    selectedClients.forEach((clientId) =>
-      formData.append("client_id[]", clientId)
-    );
-
-    attachments.forEach((attachment, index) => {
-      formData.append(`attachments[${index}]`, attachment.file);
-    });
-
-    if (recurrency) {
-      formData.append("recurrency", "1");
-
-      if (recurrencyType) {
-        formData.append("recurrency_type", recurrencyType);
-      }
-
-      if (recurrencyEndDate) {
-        formData.append(
-          "recurrency_end_date",
-          dayjs(recurrencyEndDate).format("YYYY-MM-DD")
-        );
-      }
+    interface ErrorResponse {
+        message: string;
     }
 
-    try {
-      const { data } = await api.post(`/agendar-email`, formData, {
-        headers: {
-          Authorization: `Bearer ${localStorage.getItem("accessToken")}`,
-          "Content-Type": "multipart/form-data",
-        },
-      });
+    const handleSend = async () => {
+        const formData = new FormData();
+        formData.append("subject", subject);
+        formData.append("body", body);
+        formData.append("send_date", sendDate);
+        formData.append("send_time", sendTime);
 
-      if (data.success) {
-        messageAlert({
-          type: "success",
-          message: "E-mail agendado com sucesso!",
-        });
-        navigate("/mails");
-      } else {
-        messageAlert({
-          type: "error",
-          message: "Erro ao agendar e-mail.",
-        });
-      }
-    } catch (error) {
-      console.error("Erro:", error);
-      messageAlert({
-        type: "error",
-        message: "Erro inesperado.",
-      });
-    }
-  };
+        selectedClients.forEach(clientId => formData.append("client_id[]", clientId));
+        
+        console.log("Anexos antes de enviar:", attachments);
 
-  useEffect(() => {
-    if (!loadingClients && rawClients.length > 0) {
-      const clientOptions = rawClients.map((client) => ({
-        value: String(client.id),
-        label: client.name,
-        mail: client.mail,
-      }));
-      setValueSelect(clientOptions);
+        console.log("FormData antes de adicionar anexos:");
+        for (let pair of formData.entries()) {
+            console.log(pair[0] + ": " + pair[1]);
+        }
+        attachments.forEach((attachment) => {
+    if (attachment.file instanceof File) {
+        formData.append('attachments[]', attachment.file);  
+        console.log(`Adicionando anexo: ${attachment.name} (${attachment.file.size} bytes)`);
+    } else {
+        console.warn("Attachment inválido:", attachment.file);
     }
-  }, [loadingClients, rawClients]);
+});
+
+
+        try {
+            const token = localStorage.getItem("accessToken");
+            if (!token) {
+                throw new Error("Token de autenticação não encontrado.");
+            }
+
+            console.log("Token de autenticação:", token);
+
+            const { data } = await api.post(`/agendar-email`, formData, {
+                headers: {
+                    'Content-Type': 'multipart/form-data',
+                    Authorization: `Bearer ${token}`,
+                },
+            });
+
+            console.log("Resposta do servidor:", data);
+
+            if (data.success) {
+                messageAlert({
+                    type: "success",
+                    message: "E-mail agendado com sucesso!",
+                });
+                navigate('/mails');
+            } else {
+                messageAlert({
+                    type: "error",
+                    message: "Erro ao agendar e-mail.",
+                });
+            }
+        } catch (error) {
+            console.error("Erro no envio:", error);
+
+            const axiosError = error as AxiosError;
+            const errorMessage = (axiosError.response?.data as ErrorResponse)?.message || "Erro inesperado.";
+
+            messageAlert({
+                type: "error",
+                message: errorMessage,
+            });
+        }
+    };
+
+    useEffect(() => {
+        if (!loadingClients && rawClients.length > 0) {
+            const clientOptions = rawClients.map((client) => ({
+                value: String(client.id),
+                label: client.name,
+                mail: client.mail,
+            }));
+            setValueSelect(clientOptions);
+        }
+    }, [loadingClients, rawClients]);
 
   useEffect(() => {
     const lang = i18n.language as "pt" | "en" | "es";
@@ -220,7 +237,7 @@ const MailsCreate = () => {
         <div className="flex flex-col items-start justify-start gap-3 h-[900px]">
           <h1 className="text-3xl font-bold text-white flex items-center gap-2">
             <CiMail className="w-8 h-8 animate-bounce" />
-            Crie seu Email
+            {t("create_email.title")}
           </h1>
           <form
             onSubmit={handlePreview}
@@ -229,13 +246,13 @@ const MailsCreate = () => {
             <div>
               <label className="text-sm text-blue-600 flex items-center gap-1">
                 <FiMail />
-                Assunto do E-mail
+                {t("create_email.subject")}
               </label>
               <input
                 type="text"
                 value={subject}
                 onChange={(e) => setSubject(e.target.value)}
-                placeholder="Digite o título"
+                placeholder={t("create_email.subject_placeholder")}
                 className="w-full mt-2 p-3 rounded-lg bg-gray-100 text-gray-700 focus:ring-2 focus:ring-blue-400 outline-none"
               />
             </div>
@@ -243,7 +260,7 @@ const MailsCreate = () => {
             <div>
               <label className="text-sm text-blue-600 flex items-center gap-1">
                 <FiUsers />
-                Clientes
+                {t("create_email.clients")}
               </label>
               {loadingClients ? (
                 <Spin />
@@ -252,7 +269,7 @@ const MailsCreate = () => {
                   options={valueSelect}
                   value={selectedClients}
                   onChange={(value) => setSelectedClients(value)}
-                  placeholder="Selecione os clientes"
+                  placeholder={t("create_email.select_clients")}
                   onSearch={onSearch}
                 />
               )}
@@ -262,7 +279,7 @@ const MailsCreate = () => {
               <div className="flex-1">
                 <label className="text-sm text-blue-600 flex items-center gap-1">
                   <FiCalendar />
-                  Data do Email
+                  {t("create_email.date")}
                 </label>
                 <ConfigProvider locale={antdLocale}>
                   <DatePicker
@@ -286,7 +303,7 @@ const MailsCreate = () => {
               <div className="flex-1">
                 <label className="text-sm text-blue-600 flex items-center gap-1">
                   <FiClock />
-                  Hora de Envio
+                  {t("create_email.send_time")}
                 </label>
                 <ConfigProvider locale={antdLocale}>
                   <TimePicker
@@ -296,18 +313,18 @@ const MailsCreate = () => {
                       setSendTime(time ? time.format(timeFormat) : "")
                     }
                     format={timeFormat}
-                    placeholder="00:00"
+                    placeholder={t("create_email.body_placeholder")}
                   />
                 </ConfigProvider>
               </div>
             </div>
 
             <div>
-              <label className="text-sm text-blue-600">Corpo do E-mail</label>
+              <label className="text-sm text-blue-600"> {t("create_email.body")}</label>
               <textarea
                 value={body}
                 onChange={(e) => setBody(e.target.value)}
-                placeholder="Digite sua mensagem..."
+                placeholder={t("create_email.body_placeholder")}
                 className="w-full mt-2 p-3 h-48 rounded-lg bg-gray-100 text-gray-700 resize-none focus:ring-2 focus:ring-blue-400 outline-none"
               />
             </div>
@@ -316,7 +333,7 @@ const MailsCreate = () => {
               <div className="flex flex-col items-start justify-start gap-1">
                 <label className="text-sm text-blue-600 flex items-center gap-1 mb-2">
                   <CalendarClock size={16} />
-                  Recorrência
+                  {t("create_email.recurrency")}
                 </label>
                 <Switch value={recurrency} onChange={(e) => setRecurrency(e)} />
               </div>
@@ -324,17 +341,17 @@ const MailsCreate = () => {
                 <div className="flex gap-4 w-full mt-4">
                   <div className="flex w-1/2 flex-col gap-2">
                     <label className="text-blue-700 text-sm font-semibold">
-                      Frequência
+                      {t("create_email.frequency")}
                     </label>
                     <Select
                       value={recurrencyType}
                       onChange={(value) => setRecurrencyType(value)}
-                      placeholder="Selecione a frequência"
+                      placeholder={t("create_email.select_frequency")}
                       options={[
-                        { label: "Diária", value: "daily" },
-                        { label: "Semanal", value: "weekly" },
-                        { label: "Mensal", value: "monthly" },
-                        { label: "Anual", value: "yearly" },
+                        { label: t("create_email.daily"), value: "daily" },
+                        { label: t("create_email.weekly"), value: "weekly" },
+                        { label: t("create_email.monthly"), value: "monthly" },
+                        { label: t("create_email.yearly"), value: "yearly" }
                       ]}
                       className="w-full h-[40px]"
                     />
@@ -342,14 +359,14 @@ const MailsCreate = () => {
 
                   <div className="flex w-1/2 flex-col gap-2">
                     <label className="text-blue-700 text-sm font-semibold">
-                      Data de Término
+                      {t("create_email.end_date")}
                     </label>
                     <ConfigProvider locale={antdLocale}>
                       <DatePicker
                         format={
                           i18n.language === "en" ? "MM/DD/YYYY" : "DD/MM/YYYY"
                         }
-                        placeholder="Selecione a data de término"
+                        placeholder={t("create_email.select_end_date")}
                         value={
                           recurrencyEndDate ? dayjs(recurrencyEndDate) : null
                         }
@@ -367,7 +384,7 @@ const MailsCreate = () => {
             <div>
               <label className="text-sm text-blue-600 flex items-center gap-1">
                 <FiPaperclip />
-                Anexos
+                {t("create_email.attachments")}
               </label>
               <input
                 ref={fileInputRef}
@@ -389,7 +406,7 @@ const MailsCreate = () => {
                         type="button"
                         onClick={() => handleRemoveAttachment(idx)}
                         className="text-red-500 hover:text-red-700 ml-4"
-                        title="Remover anexo"
+                        title={t("create_email.remove_attachment")}
                       >
                         <FiTrash2 size={16} />
                       </button>
@@ -403,19 +420,14 @@ const MailsCreate = () => {
         <div className="flex flex-col items-start justify-start gap-3 h-[900px]">
           <h1 className="text-3xl font-bold text-white flex items-center gap-2">
             <CiMail className="w-8 h-8 animate-bounce" />
-            Prévia do E-mail
+            {t("email_preview.title")}
           </h1>
-          <div className="p-8 rounded-3xl shadow-xl bg-white w-[800px] h-[85%] h-full border border-gray-100">
-            <h1 className="text-2xl font-bold text-blue-600 flex items-center gap-2">
-              <CiMail className="w-8 h-8 animate-bounce" />
-              Prévia do E-mail
-            </h1>
-
+          <div className="p-8 rounded-3xl shadow-xl bg-white w-[800px] h-[85%] border border-gray-100">
             <div className="flex flex-col h-[85%] mt-6 space-y-4 text-sm text-gray-800">
               <div className="flex items-start gap-2">
                 <FiMail className="mt-1 text-blue-400" />
                 <h3 className="text-base font-semibold">
-                  Assunto:{" "}
+                  {t("email_preview.subject")}{" "}
                   {subject ? (
                     subject
                   ) : (
@@ -431,7 +443,7 @@ const MailsCreate = () => {
               <div className="flex items-start gap-2">
                 <FiUsers className="mt-1 text-blue-400" />
                 <p>
-                  Para:{" "}
+                  {t("email_preview.to")}{" "}
                   {selectedClients.length > 0 ? (
                     selectedClients
                       .map((clientId) => {
@@ -455,7 +467,7 @@ const MailsCreate = () => {
                 <div className="flex items-center gap-2">
                   <FiCalendar className="text-blue-400" />
                   <span>
-                    <strong>Data do envio:</strong>{" "}
+                    <strong>{t("email_preview.send_date")}:</strong>{" "}
                     {sendDate ? (
                       sendDate
                     ) : (
@@ -470,7 +482,7 @@ const MailsCreate = () => {
                 <div className="flex items-center gap-2">
                   <FiClock className="text-blue-400" />
                   <span>
-                    <strong>Horário do envio:</strong>{" "}
+                    <strong>{t("email_preview.send_time")}:</strong>{" "}
                     {sendTime ? (
                       sendTime
                     ) : (
@@ -487,7 +499,7 @@ const MailsCreate = () => {
               <div className="mt-4">
                 <h4 className="font-semibold mb-1 flex items-center gap-1">
                   <FiMail className="text-blue-400" />
-                  Corpo do E-mail:
+                  {t("email_preview.body")}
                 </h4>
                 {body ? (
                   <p className="whitespace-pre-line text-gray-700">{body}</p>
@@ -499,26 +511,26 @@ const MailsCreate = () => {
               <div className="mt-4">
                 <h4 className="font-semibold mb-1 flex items-center gap-1">
                   <Check className="text-blue-400" size={16} />
-                  Recorrência
+                  {t("email_preview.recurrency")}
                 </h4>
                 {recurrency ? (
                   <div className="flex items-center">
-                    <p>Sim</p>
+                    <p>{t("email_preview.yes")}</p>
                     {recurrencyType && (
                       <p className="ml-2">
                         -{" "}
                         {recurrencyType === "daily"
-                          ? "Diária"
+                          ? t("create_email.daily")
                           : recurrencyType === "weekly"
-                          ? "Semanal"
-                          : recurrencyType === "monthly"
-                          ? "Mensal"
-                          : "Anual"}
+                            ? t("create_email.weekly")
+                            : recurrencyType === "monthly"
+                              ? t("create_email.monthly")
+                              : t("create_email.yearly")}
                       </p>
                     )}
                   </div>
                 ) : (
-                  <p>Não</p>
+                  <p>{t("email_preview.no")}</p>
                 )}
               </div>
 
@@ -526,7 +538,7 @@ const MailsCreate = () => {
                 <div className="mt-4">
                   <h4 className="font-semibold mb-2 flex items-center gap-1 text-blue-500">
                     <FiPaperclip />
-                    Anexos:
+                    {t("email_preview.attachments")}
                   </h4>
                   <ul className="space-y-1">
                     {attachments.map((file, idx) => (
@@ -540,7 +552,7 @@ const MailsCreate = () => {
                         <button
                           onClick={() => handleRemoveAttachment(idx)}
                           className="text-red-500 hover:text-red-700 transition"
-                          title="Remover"
+                          title={t("email_preview.remove_attachment")}
                         >
                           <FiTrash2 size={16} />
                         </button>
@@ -558,7 +570,7 @@ const MailsCreate = () => {
                 disabled={!subject || !body || selectedClients.length === 0}
               >
                 <FiSend size={18} />
-                Confirmar Envio
+                {t("email_preview.confirm_send")}
               </button>
             </div>
           </div>

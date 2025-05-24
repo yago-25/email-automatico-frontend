@@ -133,7 +133,13 @@
     "select_client": "Selecione o Cliente",
     "select_operator": "Selecione o Operador",
     "add_tags": "Adicione tags e pressione Enter",
-    "create_ticket": "Criar Ticket"
+    "create_ticket": "Criar Ticket",
+    "title": "Destinatários",
+    "close": "Fechar",
+    "change_photo": "Alterar foto",
+    "select_file": "Selecione um arquivo",
+    "no_file_selected": "Nada selecionado",
+    "save": "Salvar"
   },
   "approve_page": {
     "title": "Solicitações Pendentes",
@@ -172,17 +178,30 @@
     "ticket": "Ticket",
     "apply": "Aplicar Filtro",
     "clear": "Limpar Filtros",
-    "all": "Todos"
+    "all": "Todos",
+    "id": "ID",
+    "search_by_id": "Buscar por ID...",
+    "recipients": "Destinatários",
+    "search_by_recipient": "Buscar por destinatário...",
+    "subject": "Assunto",
+    "search_by_subject": "Buscar por assunto...",
+    "sent": "Enviado",
+    "pending": "Pendente",
+    "failed": "Falha",
+    "date_sent": "Data de envio",
+    "close": "Fechar",
+    "open": "Abrir Filtros"
   },
   "status": {
-    "open": "Não iniciada",
-    "resolved": "Completa",
+    "open": "Aberto",
+    "resolved": "Completo",
     "closed": "Descartada",
-    "not_started": "Aberto",
+    "not_started": "Não iniciada",
     "waiting": "Esperando",
     "in_progress": "Em progresso",
     "discarded": "Fechado",
-    "finished": "Resolvido"
+    "finished": "Resolvido",
+    "completed": "Completo"
   },
   "ticket": {
     "title": "📝 Ticket: {{name}}",
@@ -217,10 +236,10 @@
     }
   },
   "fields": {
-  "status": "Status",
-  "observation": "Observação"
-},
-"buttons": {
+    "status": "Status",
+    "observation": "Observação"
+  },
+  "buttons": {
     "backToActive": "Voltar para ativos",
     "showFinished": "Mostrar finalizados"
   },
@@ -313,5 +332,185 @@
       "config": "Configurações",
       "logout": "Sair"
     }
+  },
+  "create_email": {
+    "title": "Crie seu Email",
+    "subject": "Assunto do E-mail",
+    "subject_placeholder": "Digite o título",
+    "clients": "Clientes",
+    "select_clients": "Selecione os clientes",
+    "date": "Data do Email",
+    "send_time": "Hora de Envio",
+    "send_time_placeholder": "00:00",
+    "body": "Corpo do E-mail",
+    "body_placeholder": "Digite sua mensagem...",
+    "recurrency": "Recorrência",
+    "frequency": "Frequência",
+    "select_frequency": "Selecione a frequência",
+    "daily": "Diária",
+    "weekly": "Semanal",
+    "monthly": "Mensal",
+    "yearly": "Anual",
+    "end_date": "Data de Término",
+    "select_end_date": "Selecione a data de término",
+    "attachments": "Anexos",
+    "remove_attachment": "Remover anexo"
+  },
+  "email_preview": {
+    "title": "Prévia do E-mail",
+    "subject": "Assunto:",
+    "to": "Para: ",
+    "send_date": "Data do envio: ",
+    "send_time": "Horário do envio: ",
+    "body": "Corpo do E-mail:",
+    "recurrency": "Recorrência",
+    "yes": "Sim",
+    "no": "Não",
+    "attachments": "Anexos:",
+    "remove_attachment": "Remover",
+    "confirm_send": "Confirmar Envio"
+  },
+  "email": {
+    "success_schedule": "E-mail agendado com sucesso!",
+    "error_schedule": "Erro ao agendar e-mail.",
+    "unexpected_error": "Erro inesperado."
+  },
+  "scheduled_emails": {
+    "title": "E-mails Agendados",
+    "statuses": {
+      "sent": "Enviados",
+      "failed": "Falhas",
+      "pending": "Pendentes"
+    },
+    "new_email": "Agendar novo e-mail",
+    "table": {
+      "id": "ID",
+      "subject": "Assunto",
+      "recipients": "Destinatários",
+      "schedule": "Agendamento",
+      "status": "Status",
+      "actions": "Ações"
+    },
+    "view_recipients": "Visualizar destinatários",
+    "view": "Visualizar",
+    "edit_mail": "Editar",
+    "at": "às",
+    "statuses2": {
+      "pending": "Pendente",
+      "sent": "Enviado",
+      "failed": "Falha"
+    },
+    "modal": {
+      "title": "Destinatários",
+      "close": "Fechar",
+      "change_photo": "Alterar foto",
+      "select_file": "Selecione um arquivo",
+      "no_file_selected": "Nada selecionado",
+      "save": "Salvar"
+    },
+    "preview": {
+      "title": "Prévia do E-mail",
+      "close": "Fechar",
+      "subject": "Assunto:",
+      "to": "Para: ",
+      "send_date": "Data do envio: ",
+      "send_time": "Horário do envio: ",
+      "body": "Corpo do E-mail:",
+      "attachments": "Anexos:",
+      "remove_attachment": "Remover"
+    },
+    "edit": {
+      "title": "Edição do E-mail",
+      "subject": "Assunto:",
+      "to": "Para: ",
+      "send_date": "Data do envio: ",
+      "send_time": "Horário do envio: ",
+      "body": "Corpo do E-mail:",
+      "attachments": "Anexos:",
+      "remove_attachment": "Remover",
+      "cancel": "Cancelar",
+      "save": "Salvar"
+    }
+  },
+  "common": {
+    "cancel": "Cancelar",
+    "delete": {
+      "title": "Excluir registro",
+      "confirmation": "Deseja realmente excluir esse registro",
+      "permanently": "definitivamente",
+      "confirm_button": "Sim, desejo excluir!"
+    },
+    "save": "Salvar",
+    "close": "Fechar"
+  },
+  "form": {
+    "name": "Nome Completo",
+    "email": "E-mail",
+    "phone": "Telefone",
+    "username": "Nome de usuário"
+  },
+  "text_message": {
+    "create_title": "Crie sua Mensagem de Texto",
+    "date": "Dia da Mensagem",
+    "date_placeholder": "Dia da Mensagem",
+    "time": "Hora da Mensagem",
+    "time_placeholder": "Hora da Mensagem",
+    "client": "Cliente que receberá a Mensagem",
+    "client_placeholder": "Selecione o Cliente",
+    "body": "Texto da Mensagem",
+    "body_placeholder": "Digite sua mensagem...",
+    "recurrency": "Recorrência",
+    "frequency": "Frequência",
+    "frequency_placeholder": "Selecione a frequência",
+    "daily": "Diária",
+    "weekly": "Semanal",
+    "monthly": "Mensal",
+    "yearly": "Anual",
+    "errors": {
+      "fill_all_fields": "Por favor, preencha todos os campos.",
+      "date_in_past": "Por favor, selecione uma data maior que a data atual.",
+      "time_invalid": "Por favor, selecione uma hora com no mínimo 5 minutos à frente do horário atual."
+    },
+    "end_date": "Data de Término",
+    "send_preview": "Enviar Preview",
+    "document_caption": "Legenda do Documento"
+  },
+  "alerts": {
+    "fill_all_fields": "Por favor, preencha todos os campos.",
+    "schedule_created_success": "Mensagens programadas criadas com sucesso!",
+    "sms_creation_error": "Erro ao cadastrar mensagem SMS",
+    "send_success": "Mensagem enviada com sucesso!",
+    "send_error": "Erro ao enviar mensagem.",
+    "delete_success": "SMS deletado com sucesso!",
+    "delete_error": "Erro ao deletar o SMS."
+  },
+  "photo_upload": {
+    "file_label": "Arquivo Foto"
+  },
+  "sms_list": {
+    "title": "Listagem de SMS",
+    "sent": "Enviados",
+    "failed": "Falhas",
+    "pending": "Pendentes",
+    "table": {
+      "id": "ID",
+      "user": "Usuário",
+      "message": "Mensagem",
+      "recipients": "Receptores",
+      "send_date": "Data de Envio: ",
+      "status": "Status",
+      "actions": "Ações"
+    },
+    "actions": {
+      "view_message": "Visualizar mensagem completa",
+      "view_recipients": "Visualizar destinatários",
+      "send_now": "Enviar agora"
+    },
+    "statuses": {
+      "pending": "Pendente",
+      "sent": "Enviado",
+      "failed": "Falha"
+    },
+    "full_message": "Mensagem Completa"
   }
 }

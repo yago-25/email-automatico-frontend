@@ -1,6 +1,7 @@
 import React from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { AiOutlineClose } from "react-icons/ai";
+import { useTranslation } from "react-i18next";
 
 interface MessageModalProps {
   isVisible: boolean;
@@ -9,6 +10,9 @@ interface MessageModalProps {
 }
 
 const MessageModal: React.FC<MessageModalProps> = ({ isVisible, message, onClose }) => {
+
+  const { t } = useTranslation();
+
   return (
     <AnimatePresence>
       {isVisible && (
@@ -25,13 +29,13 @@ const MessageModal: React.FC<MessageModalProps> = ({ isVisible, message, onClose
             exit={{ scale: 0.95, opacity: 0 }}
             transition={{ type: "spring", stiffness: 300, damping: 25 }}
           >
-           
-           <div className="flex justify-between items-center p-6 border-b">
-              <h2 className="text-xl font-semibold text-blue-600">Mensagem Completa</h2>
+
+            <div className="flex justify-between items-center p-6 border-b">
+              <h2 className="text-xl font-semibold text-blue-600">{t("sms_list.full_message")}</h2>
               <button
                 onClick={onClose}
                 className="text-gray-500 hover:text-gray-800 text-2xl"
-                title="Fechar"
+                title={t("common.close")}
               >
                 <AiOutlineClose />
               </button>
@@ -46,7 +50,7 @@ const MessageModal: React.FC<MessageModalProps> = ({ isVisible, message, onClose
                 onClick={onClose}
                 className="px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700 transition"
               >
-                Fechar
+                {t("modal.close")}
               </button>
             </div>
           </motion.div>

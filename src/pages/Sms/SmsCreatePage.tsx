@@ -103,7 +103,7 @@ const SmsCreatePage = () => {
   const format = "HH:mm";
   const navigate = useNavigate();
 
-  const { i18n } = useTranslation();
+  const { i18n, t } = useTranslation();
 
   const storedUser = localStorage.getItem("user");
   const authUser: User | null = storedUser ? JSON.parse(storedUser) : null;
@@ -197,7 +197,7 @@ const SmsCreatePage = () => {
                 <div className="flex gap-1">
                   <FileIcon />
                   <div className="text-sm flex-1 flex flex-col">
-                    <p>Arquivo Foto</p>
+                    <p>{t("photo_upload.file_label")}</p>
                     <p className="text-xs text-gray-600">26.2MB</p>
                   </div>
                 </div>
@@ -211,8 +211,9 @@ const SmsCreatePage = () => {
               </div>
             </div>
             <pre className="max-w-full whitespace-pre-wrap break-words font-['lato']">
-              Legenda do Documento
+              {t("text_message.document_caption")}
             </pre>
+
           </div>
         );
 
@@ -273,7 +274,7 @@ const SmsCreatePage = () => {
       ) {
         messageAlert({
           type: "error",
-          message: "Por favor, preencha todos os campos.",
+          message: t("alerts.fill_all_fields"),
         });
         return;
       }
@@ -354,15 +355,14 @@ const SmsCreatePage = () => {
       );
 
       messageAlert({
-        type: "success",
-        message: "Mensagens programadas criadas com sucesso!",
+        type: "error",
+        message: t("alerts.fill_all_fields"),
       });
       navigate("/sms");
     } catch (e) {
-      console.log("Erro ao cadastrar mensagem SMS: ", e);
       messageAlert({
-        type: "error",
-        message: "Erro ao cadastrar mensagem SMS",
+        type: "success",
+        message: t("alerts.schedule_created_success"),
       });
     } finally {
       setLoading(false);
@@ -388,7 +388,7 @@ const SmsCreatePage = () => {
         <div>
           <h1 className="text-4xl font-extrabold text-white mb-8 flex items-center gap-3">
             <MessageCircle className="w-9 h-9 text-white animate-pulse" />
-            Crie sua Mensagem de Texto
+            {t("text_message.create_title")}
           </h1>
 
           <div className="flex flex-col lg:flex-row gap-10 items-start justify-between w-full">
@@ -397,18 +397,14 @@ const SmsCreatePage = () => {
               <div className="flex flex-col gap-2">
                 <label className="text-blue-700 text-sm font-semibold flex items-center gap-2">
                   <Calendar className="w-4 h-4" />
-                  Dia da Mensagem
+                  {t("text_message.date")}
                 </label>
                 <ConfigProvider locale={antdLocale}>
                   <DatePicker
                     format={
                       i18n.language === "en" ? "MM/DD/YYYY" : "DD/MM/YYYY"
                     }
-                    placeholder={
-                      i18n.language === "en"
-                        ? "Date of Message"
-                        : "Dia da Mensagem"
-                    }
+                    placeholder={t("text_message.date_placeholder")}
                     value={dateMessage ? dayjs(dateMessage) : null}
                     onChange={(d) => setDateMessage(d ? d.toISOString() : null)}
                     className="bg-white border border-gray-300 rounded-xl px-4 py-2 outline-none w-full shadow-sm focus:border-blue-500 transition"
@@ -420,7 +416,7 @@ const SmsCreatePage = () => {
               <div className="flex flex-col gap-2">
                 <label className="text-blue-700 text-sm font-semibold flex items-center gap-2">
                   <Clock className="w-4 h-4" />
-                  Hora da Mensagem
+                  {t("text_message.time")}
                 </label>
                 <ConfigProvider locale={antdLocale}>
                   <TimePicker
@@ -429,6 +425,7 @@ const SmsCreatePage = () => {
                     onChange={(d) => setHourMessage(d ? d.toISOString() : null)}
                     defaultValue={dayjs("00:00", format)}
                     format={format}
+                    placeholder={t("text_message.time_placeholder")}
                   />
                 </ConfigProvider>
               </div>
@@ -437,12 +434,12 @@ const SmsCreatePage = () => {
               <div className="flex flex-col gap-2">
                 <label className="text-blue-700 text-sm font-semibold flex items-center gap-2">
                   <Users className="w-4 h-4" />
-                  Cliente que receberá a Mensagem
+                  {t("text_message.client")}
                 </label>
                 <MultiSelectClient
                   options={optionsClient}
                   value={selected}
-                  placeholder="Selecione o Cliente"
+                  placeholder={t("text_message.client_placeholder")}
                   onChange={handleSelectChange}
                   showSearch={false}
                 />
@@ -452,10 +449,10 @@ const SmsCreatePage = () => {
               <div className="flex flex-col gap-2">
                 <label className="text-blue-700 text-sm font-semibold flex items-center gap-2">
                   <MessageCircle className="w-4 h-4" />
-                  Texto da Mensagem
+                  {t("text_message.body")}
                 </label>
                 <textarea
-                  placeholder="Digite sua mensagem..."
+                  placeholder={t("text_message.body_placeholder")}
                   className="bg-white border border-gray-300 rounded-xl px-4 py-3 h-32 resize-none outline-none shadow-sm focus:border-blue-500 transition"
                   value={textMessage || ""}
                   onChange={(e) => setTextMessage(e.target.value)}
@@ -465,7 +462,7 @@ const SmsCreatePage = () => {
               <div className="flex flex-col gap-2">
                 <label className="text-blue-700 text-sm font-semibold flex items-center gap-2">
                   <CalendarClock className="w-4 h-4" />
-                  Recorrência
+                  {t("text_message.recurrency")}
                 </label>
                 <Switch
                   className="w-[50px]"
@@ -477,17 +474,17 @@ const SmsCreatePage = () => {
                 <div className="flex flex-col gap-4">
                   <div className="flex flex-col gap-2">
                     <label className="text-blue-700 text-sm font-semibold">
-                      Frequência
+                      {t("text_message.frequency")}
                     </label>
                     <Select
                       value={recurrencyType}
                       onChange={(value) => setRecurrencyType(value)}
-                      placeholder="Selecione a frequência"
+                      placeholder={t("text_message.frequency_placeholder")}
                       options={[
-                        { label: "Diária", value: "daily" },
-                        { label: "Semanal", value: "weekly" },
-                        { label: "Mensal", value: "monthly" },
-                        { label: "Anual", value: "yearly" },
+                        { label: t("text_message.daily"), value: "daily" },
+                        { label: t("text_message.weekly"), value: "weekly" },
+                        { label: t("text_message.monthly"), value: "monthly" },
+                        { label: t("text_message.yearly"), value: "yearly" }
                       ]}
                       className="w-full"
                     />
@@ -495,7 +492,7 @@ const SmsCreatePage = () => {
 
                   <div className="flex flex-col gap-2">
                     <label className="text-blue-700 text-sm font-semibold">
-                      Data de Término
+                      {t("text_message.end_date")}
                     </label>
                     <ConfigProvider locale={antdLocale}>
                       <DatePicker
@@ -528,7 +525,7 @@ const SmsCreatePage = () => {
                     ) {
                       messageAlert({
                         type: "error",
-                        message: "Por favor, preencha todos os campos.",
+                        message: t("text_message.errors.fill_all_fields")
                       });
                       return;
                     }
@@ -544,8 +541,7 @@ const SmsCreatePage = () => {
                     if (selectedDate.isBefore(now, "day")) {
                       messageAlert({
                         type: "error",
-                        message:
-                          "Por favor, selecione uma data maior que a data atual.",
+                        message: t("text_message.errors.date_in_past")
                       });
                       return;
                     }
@@ -556,8 +552,7 @@ const SmsCreatePage = () => {
                     ) {
                       messageAlert({
                         type: "error",
-                        message:
-                          "Por favor, selecione uma hora com no mínimo 5 minutos à frente do horário atual.",
+                        message: t("text_message.errors.time_invalid")
                       });
                       return;
                     }
@@ -608,7 +603,7 @@ const SmsCreatePage = () => {
                   className="flex items-center gap-2 bg-gradient-to-r from-blue-600 to-blue-700 hover:from-blue-700 hover:to-blue-800 text-white font-semibold py-3 px-6 rounded-xl shadow-lg transition-all duration-300 disabled:opacity-50"
                 >
                   <SendHorizonal className="w-4 h-4" />
-                  Enviar Preview
+                  {t("text_message.send_preview")}
                 </button>
               </div>
             </div>
@@ -620,7 +615,7 @@ const SmsCreatePage = () => {
                   className="flex items-center gap-2 bg-blue-600 text-white px-6 py-2 rounded-xl shadow hover:bg-blue-700 transition duration-200"
                 >
                   <Save className="w-5 h-5" />
-                  Salvar
+                  {t("common.save")}
                 </button>
               </div>
               <SmsPhone>

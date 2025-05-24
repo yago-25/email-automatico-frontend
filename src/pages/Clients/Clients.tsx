@@ -24,6 +24,7 @@ import { HiMail, HiPhone, HiUser } from "react-icons/hi";
 import { HiUserAdd } from "react-icons/hi";
 import PhoneInput from "react-phone-input-2";
 import "react-phone-input-2/lib/style.css";
+import {  FaEraser } from "react-icons/fa";
 
 interface Client {
   id: number;
@@ -82,6 +83,10 @@ const Clients = () => {
   const [currentPage, setCurrentPage] = useState(1);
   const [loadingPost, setLoadingPost] = useState(false);
   const [clientIdToDelete, setClientIdToDelete] = useState<number | null>(null);
+  const queryParams = new URLSearchParams(location.search);
+  const clientNameQuery = queryParams.get('name');
+  const params = new URLSearchParams(location.search);
+  const clientId = params.get('clientId');
 
   const formatPhone = (phone: string): string => {
     if (!phone) return "";
@@ -112,6 +117,37 @@ const Clients = () => {
       setCurrentPage(page);
     }
   };
+
+  useEffect(() => {
+    const fetchClients = async () => {
+      try {
+        const response = await api.get("/clients", {
+          headers: {
+            Authorization: `Bearer ${localStorage.getItem("accessToken")}`,
+          },
+        });
+
+        let data: Client[] = response.data; // 👈 Aqui você tipa
+
+        if (clientId) {
+          data = data.filter((c) => c.id === Number(clientId));
+        } else if (clientNameQuery) {
+          data = data.filter(
+            (c) => c.name.toLowerCase() === clientNameQuery.toLowerCase()
+          );
+          setFilteredTxt(clientNameQuery);
+        }
+
+        setClients(data);
+      } catch (error) {
+        console.error("Erro ao buscar clientes:", error);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchClients();
+  }, [clientId, clientNameQuery]);
 
   const getClients = async () => {
     setLoading(true);
@@ -255,6 +291,10 @@ const Clients = () => {
   const handleTicket = (ticketName: string) => {
     navigate(`/ticket/${ticketName}`);
   };
+  const handleClearFilter = () => {
+    setFilteredTxt("");
+    navigate("/clients");
+  };
 
   if (loading) {
     return <Spin />;
@@ -265,22 +305,30 @@ const Clients = () => {
       <Header name={authUser?.nome_completo} />
       <div className="max-w-6xl mx-auto px-4 py-8">
         <div className="flex flex-col sm:flex-row justify-between items-center mb-6 gap-4">
-          <h1 className="text-3xl font-bold text-white">{`📝 ${t(
-            "clients.clients"
-          )}`}</h1>
+          <h1 className="text-3xl font-bold text-white">{`📝 ${t("clients.clients")}`}</h1>
 
-          <input
-            placeholder={t("clients.search_placeholder")}
-            type="text"
-            name="text"
-            className="w-full sm:w-96 px-4 py-2 border border-gray-300 rounded-xl shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-400 transition"
-            onChange={(e) => {
-              setFilteredTxt(e.target.value);
-              setCurrentPage(1);
-            }}
-            value={filteredTxt}
-          />
+          <div className="flex w-full sm:w-auto gap-2">
+            <input
+              placeholder={t("clients.search_placeholder")}
+              type="text"
+              name="text"
+              className="w-full sm:w-96 px-4 py-2 border border-gray-300 rounded-xl shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-400 transition"
+              onChange={(e) => {
+                setFilteredTxt(e.target.value);
+                setCurrentPage(1);
+              }}
+              value={filteredTxt}
+            />
+            <button
+              onClick={handleClearFilter}
+              className="flex items-center justify-center gap-2 min-w-[150px] px-4 py-2.5 bg-red-600 text-white font-medium rounded-lg shadow-md hover:bg-red-700 hover:shadow-lg transition-all duration-200"
+            >
+              <FaEraser className="w-5 h-5" />
+              {t('filters.clear')}
+            </button>
+          </div>
         </div>
+
 
         <div className="w-full rounded-xl overflow-hidden shadow-md">
           <div className="grid grid-cols-5 gap-x-6 items-center px-6 py-4 bg-blue-100 border-b text-blue-900 font-semibold text-sm">
