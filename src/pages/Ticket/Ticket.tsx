@@ -14,6 +14,7 @@ import Select from "../../components/Select/Select";
 import TagInput from "../../components/TagInput/TagInput";
 import { useTranslation } from "react-i18next";
 import { IoTicketOutline } from "react-icons/io5";
+import { AlertCircle } from "lucide-react";
 
 import {
   FaCalendarAlt,
@@ -125,7 +126,7 @@ const Ticket = () => {
     { name: "Não iniciada", title: t("tickets.types.not_started") },
     { name: "Esperando", title: t("tickets.types.waiting") },
     { name: "Em progresso", title: t("tickets.types.in_progress") },
-    { name: "Completa", title: t("tickets.types.completed") },
+    { name: "Completo", title: t("tickets.types.completed") },
     { name: "Descartada", title: t("tickets.types.discarded") },
   ];
 
@@ -464,7 +465,7 @@ const Ticket = () => {
   }
 
   const statusToShow = showOnlyFinished
-    ? ["Completa"]
+    ? ["Completo"]
     : ["Em progresso", "Não iniciada", "Esperando", "Descartada"];
 
   return (
@@ -472,6 +473,14 @@ const Ticket = () => {
       <Header name={authUser?.nome_completo} />
 
       <div className="filter-button-container flex items-center gap-4 mb-4 p-4">
+
+        <button
+          onClick={() => setAddTicket(true)}
+          className="flex items-center justify-center gap-2 min-w-[150px] px-4 py-2.5 bg-purple-600 text-white font-medium rounded-lg shadow-md hover:bg-purple-700 hover:shadow-lg transition-all duration-200"
+        >
+          <IoTicketOutline className="w-5 h-5" />
+          {t("dashboard.add_ticket")}
+        </button>
 
         <button
           onClick={handleFilterToggle}
@@ -486,15 +495,7 @@ const Ticket = () => {
           className="flex items-center justify-center gap-2 min-w-[150px] px-4 py-2.5 bg-red-600 text-white font-medium rounded-lg shadow-md hover:bg-red-700 hover:shadow-lg transition-all duration-200"
         >
           <FaEraser className="w-5 h-5" />
-         {t('filters.clear')}
-        </button>
-
-        <button
-          onClick={() => setAddTicket(true)}
-          className="flex items-center justify-center gap-2 min-w-[150px] px-4 py-2.5 bg-purple-600 text-white font-medium rounded-lg shadow-md hover:bg-purple-700 hover:shadow-lg transition-all duration-200"
-        >
-          <IoTicketOutline className="w-5 h-5" />
-          {t("dashboard.add_ticket")}
+          {t('filters.clear')}
         </button>
 
         <button
@@ -503,8 +504,6 @@ const Ticket = () => {
         >
           {showOnlyFinished ? t("buttons.backToActive") : t("buttons.showFinished")}
         </button>
-
-
 
       </div>
 
@@ -534,6 +533,7 @@ const Ticket = () => {
                     <p className="ticket-observation text-ellipsis overflow-hidden whitespace-nowrap max-h-12">
                       {ticket.observation || t("ticket.no_observation")}
                     </p>
+
                   </div>
                 </div>
                 <div className="ticket-tags">
@@ -543,6 +543,14 @@ const Ticket = () => {
                         {tag}
                       </span>
                     ))}
+                </div>
+                <div className="ticket-header-no-avatar">
+                  <div className="w-full h-full">
+                    <div className="flex items-center gap-2 text-black bg-white border border-black rounded-full px-3 py-1 max-w-fit mt-3">
+                      <AlertCircle size={16} />
+                      <span className="text-sm truncate max-w-xs">{ticket.status}</span>
+                    </div>
+                  </div>
                 </div>
               </div>
             ))
@@ -607,7 +615,7 @@ const Ticket = () => {
               <option value="Não iniciada">{t('status.not_started')}</option>
               <option value="Esperando">{t('status.waiting')}</option>
               <option value="Em progresso">{t('status.in_progress')}</option>
-              <option value="Completa">{t('status.resolved')}</option>
+              <option value="Completo">{t('status.resolved')}</option>
               <option value="Descartada">{t('status.discarded')}</option>
             </select>
           </div>
@@ -705,10 +713,10 @@ const Ticket = () => {
                         onChange={(e) => handleChangeStatus(e.target.value)}
                         className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-400"
                       >
-                        <option value="Não iniciada">{t('status.open')}</option>
+                        <option value="Não iniciada">{t('status.not_started')}</option>
                         <option value="Esperando">{t('status.waiting')}</option>
                         <option value="Em progresso">{t('status.in_progress')}</option>
-                        <option value="Completa">{t('status.resolved')}</option>
+                        <option value="Completo">{t('status.resolved')}</option>
                         <option value="Descartada">{t('status.closed')}</option>
                       </select>
                     </div>
@@ -757,7 +765,7 @@ const Ticket = () => {
                           { name: 'not_started', translate: 'Não iniciada' },
                           { name: 'waiting', translate: 'Esperando' },
                           { name: 'in_progress', translate: 'Em progresso' },
-                          { name: 'completed', translate: 'Completa' },
+                          { name: 'completed', translate: 'Completo' },
                           { name: 'discarded', translate: 'Descartada' },
                         ];
 
@@ -829,7 +837,7 @@ const Ticket = () => {
           </div>
         ) : (
           <div className="flex flex-col gap-4 text-sm text-gray-800 max-h-[80vh] overflow-y-auto pr-1">
-            {/* Detalhes do Ticket */}
+
             <div className="bg-white p-4 rounded-xl shadow-md space-y-2">
               <h3 className="text-lg font-semibold flex items-center gap-2 text-blue-600">
                 <FaClipboardList /> {t('modal.ticket_details')}

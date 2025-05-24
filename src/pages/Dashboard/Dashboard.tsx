@@ -97,7 +97,7 @@ const Dashboard = () => {
     { name: "Não iniciada", title: t("tickets.types.not_started") },
     { name: "Esperando", title: t("tickets.types.waiting") },
     { name: "Em progresso", title: t("tickets.types.in_progress") },
-    { name: "Completa", title: t("tickets.types.completed") },
+    { name: "Completo", title: t("tickets.types.completed") },
     { name: "Descartada", title: t("tickets.types.discarded") },
   ];
 

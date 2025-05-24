@@ -193,14 +193,15 @@
     "open": "Abrir Filtros"
   },
   "status": {
-    "open": "Não iniciada",
-    "resolved": "Completa",
+    "open": "Aberto",
+    "resolved": "Completo",
     "closed": "Descartada",
-    "not_started": "Aberto",
+    "not_started": "Não iniciada",
     "waiting": "Esperando",
     "in_progress": "Em progresso",
     "discarded": "Fechado",
-    "finished": "Resolvido"
+    "finished": "Resolvido",
+    "completed": "Completo"
   },
   "ticket": {
     "title": "📝 Ticket: {{name}}",
