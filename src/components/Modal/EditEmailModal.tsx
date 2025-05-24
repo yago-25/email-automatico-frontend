@@ -87,7 +87,7 @@ const EditEmailModal = ({
                         </div>
 
                         <div className="overflow-y-auto p-6 space-y-5 bg-white" style={{ maxHeight: '60vh' }}>
-                            {/* Assunto */}
+                           
                             <div>
                                 <label className="block font-medium text-gray-700">{t("scheduled_emails.edit.subject")}</label>
                                 <input
@@ -108,7 +108,6 @@ const EditEmailModal = ({
                                 </p>
                             </div>
 
-                            {/* Data e Horário */}
                             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                                 <div>
                                     <label className="font-medium text-gray-700 flex items-center gap-1">
@@ -136,7 +135,6 @@ const EditEmailModal = ({
                                 </div>
                             </div>
 
-                            {/* Corpo */}
                             <div>
                                 <label className="block font-medium text-gray-700">{t("scheduled_emails.edit.body")}</label>
                                 <textarea
@@ -147,7 +145,6 @@ const EditEmailModal = ({
                                 />
                             </div>
 
-                            {/* Anexos */}
                             {localEmail.attachments?.length > 0 && (
                                 <div>
                                     <label className="font-medium text-gray-700 flex items-center gap-1">

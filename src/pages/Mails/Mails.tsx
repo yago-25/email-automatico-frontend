@@ -212,8 +212,6 @@ const Mails = () => {
       <Header name={authUser?.nome_completo} />
       <div className="max-w-1xl mx-auto py-7 z-10 relative">
         <div className="flex flex-col lg:flex-row gap-6">
-
-
           <div className="lg:w-3/4 w-full">
             {loading ? (
               <Spin />

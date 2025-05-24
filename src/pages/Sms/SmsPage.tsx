@@ -214,7 +214,7 @@ const SmsPage = () => {
   return (
     <div className="p-4">
       <Header name={authUser?.nome_completo} />
-      <div className="max-w-6xl mx-auto px-4 py-8">
+      <div className="max-w-6xl mr-auto px-4 py-8 ml-28">
         {loading || loadingPost || loadingDelete ? (
           <Spin />
         ) : (
@@ -378,8 +378,8 @@ const SmsPage = () => {
             </div>
           </>
         )}
-
-        <div className="mb-6">
+        {/* ------------------------------------------------------------------------------------ */}
+        <div className="max-w-6xl ml-[100%] px-4 py-8 relative -top-[190px]">
           <AnimatePresence>
             {showFilter && (
               <motion.div
