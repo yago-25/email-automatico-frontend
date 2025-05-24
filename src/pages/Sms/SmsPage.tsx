@@ -63,7 +63,7 @@ const SmsPage = () => {
   const [selectedMessage, setSelectedMessage] = useState("");
   const [smsIdToDelete, setSmsIdToDelete] = useState<number | null>(null);
   const [isModalCrashOpen, setIsModalCrashOpen] = useState(false);
-  const [filteredSms, setFilteredSms] = useState<Sms[]>([]);
+  // const [filteredSms, setFilteredSms] = useState<Sms[]>([]);
   const [showFilter, setShowFilter] = useState(false);
   const [id, setId] = useState("");
   const [subject, setSubject] = useState("");
@@ -90,48 +90,47 @@ const SmsPage = () => {
     setShowMessageModal(true);
   };
 
-  const applyFilters = () => {
-    if (!data) return;
+  // const applyFilters = () => {
+  //   if (!data) return;
 
-    let filtered = data;
+  //   let filtered = data;
 
-    if (subject) {
-      filtered = filtered.filter((sms) =>
-        sms.message.toLowerCase().includes(subject.toLowerCase())
-      );
-    }
+  //   if (subject) {
+  //     filtered = filtered.filter((sms) =>
+  //       sms.message.toLowerCase().includes(subject.toLowerCase())
+  //     );
+  //   }
 
-    if (recipients) {
-      filtered = filtered.filter((sms) =>
-        sms.names.some((name) =>
-          name.toLowerCase().includes(recipients.toLowerCase())
-        )
-      );
-    }
+  //   if (recipients) {
+  //     filtered = filtered.filter((sms) =>
+  //       sms.names.some((name) =>
+  //         name.toLowerCase().includes(recipients.toLowerCase())
+  //       )
+  //     );
+  //   }
 
-    if (status.sent) {
-      filtered = filtered.filter((sms) => sms.status === "sent");
-    }
-    if (status.pending) {
-      filtered = filtered.filter((sms) => sms.status === "pending");
-    }
-    if (status.failed) {
-      filtered = filtered.filter((sms) => sms.status === "failed");
-    }
+  //   if (status.sent) {
+  //     filtered = filtered.filter((sms) => sms.status === "sent");
+  //   }
+  //   if (status.pending) {
+  //     filtered = filtered.filter((sms) => sms.status === "pending");
+  //   }
+  //   if (status.failed) {
+  //     filtered = filtered.filter((sms) => sms.status === "failed");
+  //   }
 
-    if (date) {
-      filtered = filtered.filter((sms) =>
-        sms.scheduled_at.startsWith(date)
-      );
-    }
+  //   if (date) {
+  //     filtered = filtered.filter((sms) =>
+  //       sms.scheduled_at.startsWith(date)
+  //     );
+  //   }
 
-    if (id) {
-      filtered = filtered.filter((sms) => sms.id === Number(id));
-    }
+  //   if (id) {
+  //     filtered = filtered.filter((sms) => sms.id === Number(id));
+  //   }
 
-    setFilteredSms(filtered);
-  };
-
+  //   setFilteredSms(filtered);
+  // };
 
   const formatPhoneNumber = (phone: string) => {
     const cleaned = phone.replace(/\D/g, "");
@@ -161,6 +160,7 @@ const SmsPage = () => {
         type: "error",
         message: t("alerts.send_error"),
       });
+      console.log("Erro: ", e);
     } finally {
       setLoadingPost(false);
     }
@@ -171,20 +171,20 @@ const SmsPage = () => {
     setIsModalCrashOpen(true);
   };
 
-  const clearFilters = () => {
-    setSubject("");
-    setRecipients("");
-    setStatus({
-      sent: false,
-      pending: false,
-      failed: false,
-    });
-    setDate("");
-    setId("");
-    if (data) {
-      setFilteredSms(data);
-    }
-  };
+  // const clearFilters = () => {
+  //   setSubject("");
+  //   setRecipients("");
+  //   setStatus({
+  //     sent: false,
+  //     pending: false,
+  //     failed: false,
+  //   });
+  //   setDate("");
+  //   setId("");
+  //   if (data) {
+  //     setFilteredSms(data);
+  //   }
+  // };
 
   const handleDelete = async (id: number) => {
     setLoadingDelete(true);
@@ -281,7 +281,8 @@ const SmsPage = () => {
                       <MdSchedule /> {t("sms_list.table.send_date")}
                     </div>
                     <div className="flex justify-center items-center truncate">
-                      <IoIosInformationCircleOutline /> {t("sms_list.table.status")}
+                      <IoIosInformationCircleOutline />{" "}
+                      {t("sms_list.table.status")}
                     </div>
                     <div className="flex justify-center items-center">
                       <FaGear /> {t("sms_list.table.actions")}
@@ -302,8 +303,9 @@ const SmsPage = () => {
                       return (
                         <div
                           key={sms.id}
-                          className={`grid grid-cols-7 gap-4 px-6 py-4 text-sm text-blue-900 border-b ${rowBg} ${i === data.length - 1 ? "rounded-b-lg" : ""
-                            }`}
+                          className={`grid grid-cols-7 gap-4 px-6 py-4 text-sm text-blue-900 border-b ${rowBg} ${
+                            i === data.length - 1 ? "rounded-b-lg" : ""
+                          }`}
                         >
                           <div className="flex justify-center items-center truncate">
                             {sms.id}
@@ -352,8 +354,8 @@ const SmsPage = () => {
                             {sms.status === "pending"
                               ? "Pendente"
                               : sms.status === "sent"
-                                ? "Enviado"
-                                : "Falha"}
+                              ? "Enviado"
+                              : "Falha"}
                           </div>
                           <div className="flex justify-center items-center w-full gap-2">
                             {sms.status !== "sent" && (
@@ -461,7 +463,10 @@ const SmsPage = () => {
                         type="checkbox"
                         checked={status.pending}
                         onChange={() =>
-                          setStatus((prev) => ({ ...prev, pending: !prev.pending }))
+                          setStatus((prev) => ({
+                            ...prev,
+                            pending: !prev.pending,
+                          }))
                         }
                         className="accent-yellow-500"
                       />
@@ -472,7 +477,10 @@ const SmsPage = () => {
                         type="checkbox"
                         checked={status.failed}
                         onChange={() =>
-                          setStatus((prev) => ({ ...prev, failed: !prev.failed }))
+                          setStatus((prev) => ({
+                            ...prev,
+                            failed: !prev.failed,
+                          }))
                         }
                         className="accent-red-500"
                       />
@@ -495,13 +503,13 @@ const SmsPage = () => {
 
                 <div className="flex justify-between gap-2">
                   <button
-                    onClick={applyFilters}
+                    // onClick={applyFilters}
                     className="bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700 transition"
                   >
                     {t("filters.apply")}
                   </button>
                   <button
-                    onClick={clearFilters}
+                    // onClick={clearFilters}
                     className="bg-gray-300 text-blue-900 px-4 py-2 rounded-lg hover:bg-gray-400 transition"
                   >
                     {t("filters.clear")}
