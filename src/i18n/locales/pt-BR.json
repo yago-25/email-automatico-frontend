@@ -1,24 +1,28 @@
 {
   "login_page": {
-    "title": "Entrar",
-    "email_label": "Email",
-    "email_placeholder": "Insira seu email",
+    "title": "Bem-vindo de volta",
+    "welcome_back": "Entre para continuar na sua conta",
+    "email_label": "E-mail",
+    "email_placeholder": "Digite seu e-mail",
     "password_label": "Senha",
-    "password_placeholder": "Insira sua senha",
-    "forgot_password": "Esqueceu sua senha? Redefina aqui.",
-    "login_button": "ENTRAR",
+    "password_placeholder": "Digite sua senha",
+    "forgot_password": "Esqueceu sua senha?",
+    "login_button": "Entrar",
+    "or_continue_with": "Ou continuar com",
     "back_button": "VOLTAR",
     "register_text": "Não tem uma conta?",
     "register_button": "Cadastre-se",
-    "no_account": "Não tem uma conta?",
-    "signup": "Solicitar Cadastro",
-    "fill_all_fields": "Por favor, preencha todos os dados de login.",
+    "no_account": "Novo na nossa plataforma?",
+    "signup": "Criar uma conta",
+    "fill_all_fields": "Por favor, preencha todos os campos.",
     "success": "Login realizado com sucesso!",
-    "success_google": "Login pelo Google realizado com sucesso!",
-    "error": "Erro ao fazer login"
+    "success_google": "Login com Google realizado com sucesso!",
+    "error": "Erro ao fazer login",
+    "error_google": "Erro ao fazer login com Google"
   },
   "register_page": {
-    "title": "Cadastro",
+    "title": "Criar Conta",
+    "create_account_message": "Preencha suas informações para criar sua conta",
     "full_name": "Nome Completo",
     "email": "E-mail",
     "cpf_cnpj": "CPF/CNPJ",
@@ -26,15 +30,15 @@
     "username": "Nome de Usuário",
     "password": "Senha",
     "confirm_password": "Confirmar Senha",
-    "button_text": "Registrar",
+    "button_text": "Criar Conta",
     "password_mismatch_error": "As senhas não coincidem!",
-    "fill_all_fields": "Preencha todos os campos!",
+    "fill_all_fields": "Por favor, preencha todos os campos!",
     "password_mismatch": "As senhas não coincidem!",
     "success": "Cadastro realizado com sucesso! Verifique seu e-mail.",
     "error": "Erro ao cadastrar. Tente novamente.",
     "server_error": "Erro ao conectar ao servidor.",
-    "data_access": " Dados de acesso",
-    "back_button": "VOLTAR"
+    "data_access": "Informações de Acesso",
+    "back_button": "Voltar para Login"
   },
   "email_verification": {
     "title": "Verifique Seu Email",
@@ -116,7 +120,8 @@
     "add_client": "Adicionar Cliente",
     "add_ticket": "Adicionar Ticket",
     "modal_title": "Adicionar Cliente",
-    "register_client": "Cadastrar Cliente"
+    "register_client": "Cadastrar Cliente",
+    "total_clients": "Total de Clientes"
   },
   "modal": {
     "add_ticket": "Adicionar Ticket",
