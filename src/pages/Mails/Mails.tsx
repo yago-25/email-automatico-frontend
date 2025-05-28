@@ -16,8 +16,6 @@ import { User } from "../../models/User";
 import EditEmailModal from "../../components/Modal/EditEmailModal";
 import { useTranslation } from "react-i18next";
 import { MdArrowBackIos, MdArrowForwardIos } from "react-icons/md";
-import { motion, AnimatePresence } from "framer-motion";
-import { FiFilter } from "react-icons/fi";
 import { debounce } from "lodash";
 
 interface EmailClient {
@@ -66,7 +64,6 @@ const Mails = () => {
   });
   const [date, setDate] = useState("");
   const [id, setId] = useState("");
-  const [showFilter, setShowFilter] = useState(false);
 
   const [currentPage, setCurrentPage] = useState(1);
   const itemsPerPage = 10;
@@ -236,24 +233,7 @@ const Mails = () => {
                       {t("scheduled_emails.statuses.pending")}
                     </div>
                   </div>
-                  <div className="flex items-center gap-4 ml-auto">
-                    <AnimatePresence>
-                      {!showFilter && (
-                        <motion.button
-                          key="filter-button"
-                          layoutId="filterBox"
-                          onClick={() => setShowFilter(true)}
-                          className="flex items-center gap-2 bg-blue-700 text-white font-semibold px-4 py-2 rounded-full shadow-lg hover:bg-blue-800 transition"
-                          initial={{ opacity: 0, scale: 0.8 }}
-                          animate={{ opacity: 1, scale: 1 }}
-                          exit={{ opacity: 0 }}
-                        >
-                          <FiFilter className="w-5 h-5" />
-                          {t("filters.open")}
-                        </motion.button>
-                      )}
-                    </AnimatePresence>
-                  </div>
+
                   <FaPlus
                     className="cursor-pointer w-8 h-8 text-white hover:text-green-300 transition-transform transform hover:scale-110"
                     onClick={() => navigate("/mails/create")}
@@ -477,27 +457,12 @@ const Mails = () => {
             )}
           </div>
 
-          <div className="mb-6">
-            <AnimatePresence>
-              {showFilter && (
-                <motion.div
-                  key="filter-box"
-                  layoutId="filterBox"
-                  initial={{ opacity: 0, scale: 0.9 }}
-                  animate={{ opacity: 1, scale: 1 }}
-                  exit={{ opacity: 0, y: -30, transition: { duration: 0.3 } }}
-                  transition={{ duration: 0.3, ease: "easeOut" }}
-                  className="absolute w-[430px] bg-white/90 text-blue-900 mt-[29px] rounded-2xl shadow-xl p-6"
-                >
-                  <div className="flex justify-between items-center mb-4">
-                    <h2 className="text-xl font-bold">{t("filters.title")}</h2>
-                    <button
-                      onClick={() => setShowFilter(false)}
-                      className="bg-red-600 text-white px-4 py-2 rounded-lg hover:bg-red-700 transition"
-                    >
-                      {t("filters.close")}
-                    </button>
-                  </div>
+          <div className="lg:w-1/4">
+            <div className="sticky" style={{ top: '118px' }}>
+              <div className="bg-white/90 text-blue-900 rounded-2xl shadow-xl p-6">
+                <div className="mb-4">
+                  <h2 className="text-xl font-bold">{t("filters.title")}</h2>
+                </div>
 
                   <div className="mb-4">
                     <label className="block text-sm font-semibold mb-1">
@@ -604,10 +569,9 @@ const Mails = () => {
                     >
                       {t("filters.clear")}
                     </button>
-                  </div>
-                </motion.div>
-              )}
-            </AnimatePresence>
+                                  </div>
+              </div>
+            </div>
           </div>
 
 

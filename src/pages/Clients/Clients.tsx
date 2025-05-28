@@ -326,6 +326,13 @@ const Clients = () => {
               <FaEraser className="w-5 h-5" />
               {t('filters.clear')}
             </button>
+            <button
+            onClick={() => setAddClient(true)}
+            className="flex items-center gap-2 bg-blue-600 text-white px-5 py-3 rounded-xl shadow-md hover:bg-blue-700 transition"
+          >
+            <HiUserAdd className="w-5 h-5" />
+            {t("dashboard.add_client")}
+          </button>
           </div>
         </div>
 
@@ -421,17 +428,6 @@ const Clients = () => {
           </button>
         </div>
 
-        <div className="flex justify-end mt-10">
-          <button
-            onClick={() => setAddClient(true)}
-            className="flex items-center gap-2 bg-blue-600 text-white px-5 py-3 rounded-xl shadow-md hover:bg-blue-700 transition"
-          >
-            <HiUserAdd className="w-5 h-5" />
-            {t("dashboard.add_client")}
-          </button>
-        </div>
-
-        {/* Modal de edição */}
         <Modal
           title={t("clients.edit_client")}
           isVisible={isModalOpen}
@@ -503,7 +499,6 @@ const Clients = () => {
           ) : (
             <div className="flex flex-col items-center justify-center w-full gap-6 p-6 bg-white rounded-xl shadow-lg">
               <div className="w-full space-y-4">
-                {/* Campo para Nome */}
                 <div className="flex items-center gap-2">
                   <HiUser className="w-5 h-5 text-gray-500" />
                   <p className="text-gray-700 text-sm font-semibold">
@@ -519,7 +514,6 @@ const Clients = () => {
                   className="w-full mt-2 px-4 py-3 border border-gray-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-400 focus:border-blue-500 transition duration-200"
                 />
 
-                {/* Campo para Telefone */}
                 <div className="w-full">
                   <div className="flex items-center gap-2 mb-2">
                     <HiPhone className="w-5 h-5 text-gray-500" />
@@ -551,7 +545,6 @@ const Clients = () => {
                   />
                 </div>
 
-                {/* Campo para Email */}
                 <div className="flex items-center gap-2">
                   <HiMail className="w-5 h-5 text-gray-500" />
                   <p className="text-gray-700 text-sm font-semibold">
@@ -567,7 +560,6 @@ const Clients = () => {
                   className="w-full mt-2 px-4 py-3 border border-gray-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-400 focus:border-blue-500 transition duration-200"
                 />
 
-                {/* Botão de Cadastro */}
                 <div className="w-full mt-6">
                   <button
                     value="Cadastrar Cliente"
