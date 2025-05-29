@@ -64,6 +64,7 @@ const SmsPage = () => {
   const [selectedMessage, setSelectedMessage] = useState("");
   const [smsIdToDelete, setSmsIdToDelete] = useState<number | null>(null);
   const [isModalCrashOpen, setIsModalCrashOpen] = useState(false);
+  const [showFilter, setShowFilter] = useState(false);
   const [id, setId] = useState("");
   const [subject, setSubject] = useState("");
   const [recipients, setRecipients] = useState("");
@@ -148,7 +149,7 @@ const SmsPage = () => {
     }
 
     setFilteredSms(filtered);
-    setCurrentPage(1); // Reset to first page when filters change
+    setCurrentPage(1);
   };
 
   const debouncedApplyFilters = useMemo(
@@ -207,6 +208,7 @@ const SmsPage = () => {
         type: "error",
         message: t("alerts.send_error"),
       });
+      console.log("Erro: ", e);
     } finally {
       setLoadingPost(false);
     }
@@ -521,7 +523,6 @@ const SmsPage = () => {
                       className="w-full px-3 py-2 rounded-lg border border-blue-300 focus:ring focus:ring-blue-200"
                     />
                   </div>
-
                   <div className="flex justify-between gap-2">
                     <button
                       onClick={applyFilters}
@@ -535,7 +536,7 @@ const SmsPage = () => {
                     >
                       {t("filters.clear")}
                     </button>
-                                  </div>
+                   </div>
               </div>
             </div>
           </div>
