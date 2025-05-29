@@ -29,6 +29,8 @@
     "@react-oauth/google": "^0.12.1",
     "antd": "^5.24.8",
     "axios": "^1.8.4",
+    "class-variance-authority": "^0.7.1",
+    "clsx": "^2.1.1",
     "date-fns": "^4.1.0",
     "dayjs": "^1.11.13",
     "framer-motion": "^12.11.3",
@@ -49,7 +51,8 @@
     "rsuite": "^5.79.1",
     "smart-webcomponents-react": "^22.0.0",
     "styled-components": "^6.1.17",
-    "swr": "^2.3.3"
+    "swr": "^2.3.3",
+    "tailwind-merge": "^3.3.0"
   },
   "devDependencies": {
     "@eslint/js": "^9.21.0",

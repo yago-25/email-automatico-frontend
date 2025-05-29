@@ -1,12 +1,15 @@
-import { Avatar, Spin, Tooltip } from "antd";
+import { useEffect, useState } from "react";
 import { FaWhatsapp } from "react-icons/fa";
 import { AiOutlinePlus } from "react-icons/ai";
+import { MdRefresh, MdDelete, MdQrCode2 } from "react-icons/md";
+import { IoMdInformation } from "react-icons/io";
 import Header from "../../components/Header/Header";
 import { User } from "../../models/User";
-import { useEffect, useState } from "react";
-import Input from "../../components/Input/Input";
 import { messageAlert } from "../../utils/messageAlert";
 import { api } from "../../api/api";
+import Modal from "../../components/Modal/Modal";
+import Input from "../../components/Input/Input";
+import { motion, AnimatePresence } from "framer-motion";
 
 type WhatsAppInstance = {
   id: number;
@@ -24,44 +27,45 @@ const WhatsApp = () => {
   const authUser: User | null = storedUser ? JSON.parse(storedUser) : null;
 
   const [instances, setInstances] = useState<WhatsAppInstance[]>([]);
-
   const [newNumber, setNewNumber] = useState<string>("");
-
   const [loading, setLoading] = useState(false);
-
   const [creating, setCreating] = useState(false);
+  const [showQRModal, setShowQRModal] = useState(false);
+  const [selectedInstance, setSelectedInstance] =
+    useState<WhatsAppInstance | null>(null);
+  const [showDeleteModal, setShowDeleteModal] = useState(false);
 
   useEffect(() => {
-    const fetchInstances = async () => {
-      setLoading(true);
-      try {
-        const response = await api.get("/whatsapp/instances", {
-          headers: {
-            Authorization: `Bearer ${localStorage.getItem("accessToken")}`,
-          },
-        });
-
-        if (response.data.status === "success") {
-          setInstances(response.data.data);
-        } else {
-          messageAlert({
-            type: "error",
-            message: "Não foi possível carregar as instâncias.",
-          });
-        }
-      } catch (error) {
-        messageAlert({
-          type: "error",
-          message: "Erro ao buscar instâncias do servidor.",
-        });
-        console.error(error);
-      } finally {
-        setLoading(false);
-      }
-    };
-
     fetchInstances();
   }, []);
+
+  const fetchInstances = async () => {
+    setLoading(true);
+    try {
+      const response = await api.get("/whatsapp/instances", {
+        headers: {
+          Authorization: `Bearer ${localStorage.getItem("accessToken")}`,
+        },
+      });
+
+      if (response.data.status === "success") {
+        setInstances(response.data.data);
+      } else {
+        messageAlert({
+          type: "error",
+          message: "Não foi possível carregar as instâncias.",
+        });
+      }
+    } catch (error) {
+      messageAlert({
+        type: "error",
+        message: "Erro ao buscar instâncias do servidor.",
+      });
+      console.error(error);
+    } finally {
+      setLoading(false);
+    }
+  };
 
   const handleConnect = async () => {
     if (!newNumber.trim()) {
@@ -88,19 +92,20 @@ const WhatsApp = () => {
         response.data.data.api_response;
 
       if (qrcode?.base64) {
-        setInstances((prev) => [
-          ...prev,
-          {
-            id: Date.now(),
-            number: newNumber.trim(),
-            qrCodeBase64: qrcode.base64,
-            instance_name: instance_name || instanceName,
-            status: status || "pending",
-            photo,
-            name: instanceName || newNumber.trim(),
-          },
-        ]);
+        const newInstance = {
+          id: Date.now(),
+          number: newNumber.trim(),
+          qrCodeBase64: qrcode.base64,
+          instance_name: instance_name || instanceName,
+          status: status || "pending",
+          photo,
+          name: instanceName || newNumber.trim(),
+        };
+
+        setInstances((prev) => [...prev, newInstance]);
         setNewNumber("");
+        setSelectedInstance(newInstance);
+        setShowQRModal(true);
       } else {
         messageAlert({
           type: "error",
@@ -118,8 +123,8 @@ const WhatsApp = () => {
     }
   };
 
-  const handleUpdateStatus = async (instance_name?: string) => {
-    if (!instance_name) {
+  const handleUpdateStatus = async (instance: WhatsAppInstance) => {
+    if (!instance.instance_name) {
       messageAlert({
         type: "error",
         message: "Nome da instância inválido para atualizar status.",
@@ -129,22 +134,27 @@ const WhatsApp = () => {
 
     setInstances((prev) =>
       prev.map((inst) =>
-        inst.instance_name === instance_name ? { ...inst, loading: true } : inst
+        inst.instance_name === instance.instance_name
+          ? { ...inst, loading: true }
+          : inst
       )
     );
 
     try {
-      const response = await api.get(`/instance/status/${instance_name}`, {
-        headers: {
-          Authorization: `Bearer ${localStorage.getItem("accessToken")}`,
-        },
-      });
+      const response = await api.get(
+        `/instance/status/${instance.instance_name}`,
+        {
+          headers: {
+            Authorization: `Bearer ${localStorage.getItem("accessToken")}`,
+          },
+        }
+      );
 
       if (response.data.status === "success") {
         const instanceData = response.data.data;
         setInstances((prev) =>
           prev.map((inst) =>
-            inst.instance_name === instance_name
+            inst.instance_name === instance.instance_name
               ? {
                   ...inst,
                   status: instanceData.status,
@@ -156,18 +166,15 @@ const WhatsApp = () => {
               : inst
           )
         );
+        messageAlert({
+          type: "success",
+          message: "Status atualizado com sucesso!",
+        });
       } else {
         messageAlert({
           type: "error",
           message: "Não foi possível atualizar o status da instância.",
         });
-        setInstances((prev) =>
-          prev.map((inst) =>
-            inst.instance_name === instance_name
-              ? { ...inst, loading: false }
-              : inst
-          )
-        );
       }
     } catch (error) {
       messageAlert({
@@ -175,9 +182,10 @@ const WhatsApp = () => {
         message: "Erro ao atualizar status da instância.",
       });
       console.error(error);
+    } finally {
       setInstances((prev) =>
         prev.map((inst) =>
-          inst.instance_name === instance_name
+          inst.instance_name === instance.instance_name
             ? { ...inst, loading: false }
             : inst
         )
@@ -185,120 +193,252 @@ const WhatsApp = () => {
     }
   };
 
+  const handleDeleteInstance = async (instance: WhatsAppInstance) => {
+    try {
+      await api.delete(`/whatsapp/instance/${instance.instance_name}`, {
+        headers: {
+          Authorization: `Bearer ${localStorage.getItem("accessToken")}`,
+        },
+      });
+
+      setInstances((prev) =>
+        prev.filter((inst) => inst.instance_name !== instance.instance_name)
+      );
+
+      messageAlert({
+        type: "success",
+        message: "Instância excluída com sucesso!",
+      });
+    } catch (error) {
+      messageAlert({
+        type: "error",
+        message: "Erro ao excluir instância.",
+      });
+      console.error(error);
+    }
+    setShowDeleteModal(false);
+    setSelectedInstance(null);
+  };
+
+  const getStatusColor = (status?: string) => {
+    switch (status?.toLowerCase()) {
+      case "connected":
+        return "bg-green-500";
+      case "disconnected":
+        return "bg-red-500";
+      case "pending":
+        return "bg-yellow-500";
+      default:
+        return "bg-gray-500";
+    }
+  };
+
   return (
     <div>
       <Header name={authUser?.nome_completo} />
-      <div className="p-6">
-        <div className="flex items-center justify-between w-full mb-6">
-          <div className="flex flex-col">
-            <h1 className="text-[32px] flex items-center text-white mb-2">
-              <FaWhatsapp color="#25D366" className="mr-2" />
+
+      <div className="max-w-7xl mx-auto px-4 py-8">
+        <div className="flex flex-col md:flex-row justify-between items-center mb-8 gap-4">
+          <div className="text-white">
+            <h1 className="text-3xl font-bold flex items-center gap-3 mb-2">
+              <FaWhatsapp className="text-green-400" />
               Suas Instâncias do WhatsApp
             </h1>
-            <p className="text-white font-light text-lg">
-              Crie e conecte múltiplas instâncias para enviar mensagens
-              automáticas.
+            <p className="text-blue-100">
+              Crie e conecte múltiplas instâncias para enviar mensagens automáticas.
             </p>
           </div>
-          <div className="flex items-center gap-2">
+
+          <div className="flex items-center gap-3">
             <Input
               text="Número com DDD"
               value={newNumber}
               onChange={(e) => setNewNumber(e.target.value)}
-              styles={{
-                width: "80%",
-              }}
+              styles={{ width: "256px" }}
             />
-            <Tooltip title="Adicionar nova instância">
-              <button
-                onClick={handleConnect}
-                disabled={creating}
-                className="w-16 h-16 bg-white text-blue-600 rounded-full flex items-center justify-center shadow-lg hover:text-blue-700 transition-all"
-              >
-                {creating ? <Spin size="small" /> : <AiOutlinePlus size={28} />}
-              </button>
-            </Tooltip>
+            <button
+              onClick={handleConnect}
+              disabled={creating}
+              className="h-12 px-6 bg-green-500 text-white rounded-xl flex items-center gap-2 hover:bg-green-600 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+            >
+              <AiOutlinePlus size={20} />
+              Adicionar Instância
+            </button>
           </div>
         </div>
 
         {loading ? (
-          <div className="flex justify-center items-center min-h-[200px]">
-            <Spin size="large" />
+          <div className="flex justify-center items-center h-64">
+            <div className="animate-spin rounded-full h-16 w-16 border-t-2 border-b-2 border-white"></div>
           </div>
         ) : (
-          <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-6">
-            {instances.map((instance) => (
-              <div
-                key={instance.instance_name || instance.id}
-                className="bg-white rounded-lg shadow p-5 flex flex-col items-center justify-between w-full min-h-[360px] max-w-[400px]"
-              >
-                {instance.qrCodeBase64 ? (
-                  <>
-                    <img
-                      src={instance.qrCodeBase64}
-                      alt="QR Code"
-                      className="w-[180px] h-[180px] mb-4"
-                    />
-                    <p className="text-center text-gray-700 text-sm">
-                      Escaneie o QR Code para finalizar a conexão.
-                    </p>
-                    <button
-                      onClick={() => handleUpdateStatus(instance.instance_name)}
-                      disabled={instance.loading}
-                      className="mt-4 w-full h-10 bg-blue-600 text-white rounded-lg hover:bg-blue-700"
-                    >
-                      {instance.loading ? (
-                        <Spin size="small" />
-                      ) : (
-                        "Atualizar status"
-                      )}
-                    </button>
-                  </>
-                ) : instance.status ? (
-                  <div className="flex flex-col items-center gap-4">
-                    <Avatar
-                      size={96}
-                      src={instance.photo}
-                      alt={instance.name || "Instância"}
-                    />
-                    <h3 className="text-lg font-semibold">
-                      {instance.name || instance.instance_name}
-                    </h3>
-                    <p className="text-gray-600 capitalize">
-                      Status: {instance.status}
-                    </p>
-                    <button
-                      onClick={() => handleUpdateStatus(instance.instance_name)}
-                      disabled={instance.loading}
-                      className="mt-4 w-full h-10 bg-blue-600 text-white rounded-lg hover:bg-blue-700"
-                    >
-                      {instance.loading ? (
-                        <Spin size="small" />
-                      ) : (
-                        "Atualizar status"
-                      )}
-                    </button>
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+            <AnimatePresence>
+              {instances.map((instance) => (
+                <motion.div
+                  key={instance.instance_name}
+                  initial={{ opacity: 0, y: 20 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  exit={{ opacity: 0, y: -20 }}
+                  className="bg-white rounded-xl shadow-lg overflow-hidden"
+                >
+                  <div className="p-6">
+                    <div className="flex items-center justify-between mb-4">
+                      <div className="flex items-center gap-3">
+                        {instance.photo ? (
+                          <img
+                            src={instance.photo}
+                            alt="Profile"
+                            className="w-12 h-12 rounded-full object-cover"
+                          />
+                        ) : (
+                          <div className="w-12 h-12 rounded-full bg-gray-200 flex items-center justify-center">
+                            <FaWhatsapp className="text-gray-400 text-2xl" />
+                          </div>
+                        )}
+                        <div>
+                          <h3 className="font-semibold text-gray-800">
+                            {instance.name || instance.number}
+                          </h3>
+                          <div className="flex items-center gap-2">
+                            <span
+                              className={`w-2 h-2 rounded-full ${getStatusColor(
+                                instance.status
+                              )}`}
+                            ></span>
+                            <span className="text-sm text-gray-600 capitalize">
+                              {instance.status || "Desconhecido"}
+                            </span>
+                          </div>
+                        </div>
+                      </div>
+
+                      <div className="flex items-center gap-2">
+                        {instance.qrCodeBase64 && (
+                          <button
+                            onClick={() => {
+                              setSelectedInstance(instance);
+                              setShowQRModal(true);
+                            }}
+                            className="p-2 text-blue-600 hover:bg-blue-50 rounded-lg transition-colors"
+                            title="Mostrar QR Code"
+                          >
+                            <MdQrCode2 size={20} />
+                          </button>
+                        )}
+                        <button
+                          onClick={() => handleUpdateStatus(instance)}
+                          disabled={instance.loading}
+                          className="p-2 text-green-600 hover:bg-green-50 rounded-lg transition-colors disabled:opacity-50"
+                          title="Atualizar Status"
+                        >
+                          <MdRefresh
+                            size={20}
+                            className={instance.loading ? "animate-spin" : ""}
+                          />
+                        </button>
+                        <button
+                          onClick={() => {
+                            setSelectedInstance(instance);
+                            setShowDeleteModal(true);
+                          }}
+                          className="p-2 text-red-600 hover:bg-red-50 rounded-lg transition-colors"
+                          title="Excluir Instância"
+                        >
+                          <MdDelete size={20} />
+                        </button>
+                      </div>
+                    </div>
+
+                    <div className="bg-gray-50 rounded-lg p-4">
+                      <div className="flex items-center gap-2 text-sm text-gray-600">
+                        <IoMdInformation className="text-blue-500" />
+                        <span>Informações da Instância</span>
+                      </div>
+                      <div className="mt-2 text-sm text-gray-700">
+                        <p>
+                          <strong>Número:</strong>{" "}
+                          {instance.number}
+                        </p>
+                        <p>
+                          <strong>Nome da Instância:</strong>{" "}
+                          {instance.instance_name}
+                        </p>
+                      </div>
+                    </div>
                   </div>
-                ) : (
-                  <div className="flex flex-col items-center gap-4">
-                    <Avatar
-                      size={96}
-                      icon={<FaWhatsapp size={60} color="#2563EB" />}
-                      className="bg-white mb-4"
-                    />
-                    <p className="text-center text-gray-600">
-                      Número: {instance.number || "Desconhecido"}
-                    </p>
-                    <p className="text-center text-sm text-gray-500">
-                      Nenhum status disponível.
-                    </p>
-                  </div>
-                )}
-              </div>
-            ))}
+                </motion.div>
+              ))}
+            </AnimatePresence>
           </div>
         )}
       </div>
+
+      {/* QR Code Modal */}
+      <Modal
+        title="QR Code de Conexão"
+        isVisible={showQRModal}
+        onClose={() => {
+          setShowQRModal(false);
+          setSelectedInstance(null);
+        }}
+      >
+        <div className="flex flex-col items-center gap-4">
+          {selectedInstance?.qrCodeBase64 && (
+            <>
+              <img
+                src={selectedInstance.qrCodeBase64}
+                alt="QR Code"
+                className="w-64 h-64"
+              />
+              <p className="text-center text-gray-600">
+                Escaneie o QR Code para finalizar a conexão.
+              </p>
+              <button
+                onClick={() => handleUpdateStatus(selectedInstance)}
+                className="px-6 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors"
+              >
+                Verificar Conexão
+              </button>
+            </>
+          )}
+        </div>
+      </Modal>
+
+      {/* Delete Confirmation Modal */}
+      <Modal
+        title="Confirmar Exclusão"
+        isVisible={showDeleteModal}
+        onClose={() => {
+          setShowDeleteModal(false);
+          setSelectedInstance(null);
+        }}
+      >
+        <div className="flex flex-col items-center gap-4">
+          <p className="text-center text-gray-600">
+            Tem certeza que deseja excluir esta instância do WhatsApp?
+          </p>
+          <div className="flex gap-3">
+            <button
+              onClick={() => {
+                setShowDeleteModal(false);
+                setSelectedInstance(null);
+              }}
+              className="px-6 py-2 bg-gray-200 text-gray-700 rounded-lg hover:bg-gray-300 transition-colors"
+            >
+              Cancelar
+            </button>
+            <button
+              onClick={() =>
+                selectedInstance && handleDeleteInstance(selectedInstance)
+              }
+              className="px-6 py-2 bg-red-600 text-white rounded-lg hover:bg-red-700 transition-colors"
+            >
+              Excluir
+            </button>
+          </div>
+        </div>
+      </Modal>
     </div>
   );
 };

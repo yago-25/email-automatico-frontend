@@ -1,3 +1,4 @@
+/* eslint-disable react-hooks/exhaustive-deps */
 import { MdOutlineFormatListNumbered } from "react-icons/md";
 import Header from "../../components/Header/Header";
 import { User } from "../../models/User";
@@ -64,7 +65,6 @@ const SmsPage = () => {
   const [selectedMessage, setSelectedMessage] = useState("");
   const [smsIdToDelete, setSmsIdToDelete] = useState<number | null>(null);
   const [isModalCrashOpen, setIsModalCrashOpen] = useState(false);
-  const [showFilter, setShowFilter] = useState(false);
   const [id, setId] = useState("");
   const [subject, setSubject] = useState("");
   const [recipients, setRecipients] = useState("");
@@ -139,9 +139,7 @@ const SmsPage = () => {
     }
 
     if (date) {
-      filtered = filtered.filter((sms) =>
-        sms.scheduled_at.startsWith(date)
-      );
+      filtered = filtered.filter((sms) => sms.scheduled_at.startsWith(date));
     }
 
     if (id) {
@@ -208,7 +206,7 @@ const SmsPage = () => {
         type: "error",
         message: t("alerts.send_error"),
       });
-      console.log("Erro: ", e);
+      console.log("Erro: ", error);
     } finally {
       setLoadingPost(false);
     }
@@ -315,90 +313,98 @@ const SmsPage = () => {
                     </div>
 
                     {filteredSms
-                      .slice((currentPage - 1) * itemsPerPage, currentPage * itemsPerPage)
+                      .slice(
+                        (currentPage - 1) * itemsPerPage,
+                        currentPage * itemsPerPage
+                      )
                       .map((sms, i) => {
-                          const isSent = sms.status === "sent";
-                          const isFailed = sms.status === "failed";
-                          const isPending = sms.status === "pending";
+                        const isSent = sms.status === "sent";
+                        const isFailed = sms.status === "failed";
+                        const isPending = sms.status === "pending";
 
-                          let rowBg = "bg-white";
-                          if (isSent) rowBg = "bg-green-200";
-                          if (isFailed) rowBg = "bg-red-200";
-                          if (isPending) rowBg = "bg-white";
+                        let rowBg = "bg-white";
+                        if (isSent) rowBg = "bg-green-200";
+                        if (isFailed) rowBg = "bg-red-200";
+                        if (isPending) rowBg = "bg-white";
 
-                          return (
-                            <div
-                              key={sms.id}
-                              className={`grid grid-cols-7 gap-4 px-4 py-4 text-sm text-blue-900 text-center border-b ${rowBg} ${data && i === data.length - 1 ? "rounded-b-2xl" : ""
-                                }`}
-                            >
-                              <div>{sms.id}</div>
-                              <div>{sms.user_name}</div>
-                              <div className="flex items-center gap-2 max-w-[250px]">
-                                <div className="flex-1 truncate text-gray-800">
-                                  {sms.message}
-                                </div>
-                                <AiOutlineEye
-                                  onClick={() => openModalMessage(sms.message)}
-                                  className="text-blue-500 cursor-pointer w-5 h-5 hover:scale-110 transition-transform"
-                                  title={t("sms_list.actions.view_message")}
-                                />
+                        return (
+                          <div
+                            key={sms.id}
+                            className={`grid grid-cols-7 gap-4 px-4 py-4 text-sm text-blue-900 text-center border-b ${rowBg} ${
+                              data && i === data.length - 1
+                                ? "rounded-b-2xl"
+                                : ""
+                            }`}
+                          >
+                            <div>{sms.id}</div>
+                            <div>{sms.user_name}</div>
+                            <div className="flex items-center gap-2 max-w-[250px]">
+                              <div className="flex-1 truncate text-gray-800">
+                                {sms.message}
                               </div>
-                              <div className="flex justify-center items-center gap-1 max-w-[200px]">
-                                <span className="truncate">
-                                  {sms.names?.slice(0, 2).join(", ")}
-                                </span>
-                                {sms.names.length > 2 && (
-                                  <AiOutlineEye
-                                    onClick={() => openModal(sms.phones, sms.names)}
-                                    className="text-red-500 cursor-pointer w-5 h-5 hover:scale-110 transition-transform"
-                                    title={t("sms_list.actions.view_recipients")}
-                                  />
-                                )}
-                              </div>
-                              <div>
-                                {dayjs(sms.scheduled_at)
-                                  .locale(lang)
-                                  .format(dateFormatMap[lang])}
-                              </div>
-                              <div className="flex items-center justify-center gap-4">
-                                {isPending && (
-                                  <div className="flex items-center gap-1">
-                                    <MdAccessTime className="text-yellow-500 w-4 h-4 animate-pulse" />
-                                    <span>{t("sms_list.statuses.pending")}</span>
-                                  </div>
-                                )}
-                                {isSent && (
-                                  <div className="flex items-center gap-1">
-                                    <MdCheckCircle className="text-green-600 w-4 h-4" />
-                                    <span>{t("sms_list.statuses.sent")}</span>
-                                  </div>
-                                )}
-                                {isFailed && (
-                                  <div className="flex items-center gap-1">
-                                    <MdErrorOutline className="text-red-600 w-4 h-4" />
-                                    <span>{t("sms_list.statuses.failed")}</span>
-                                  </div>
-                                )}
-                              </div>
-                              <div className="flex justify-center gap-2">
-                                {sms.status !== "sent" && (
-                                  <MdScheduleSend
-                                    className="cursor-pointer w-5 h-5 text-blue-700 hover:text-blue-900"
-                                    title={t("sms_list.actions.send_now")}
-                                    onClick={() => handleSendNow(sms.id)}
-                                  />
-                                )}
-                                <button
-                                  onClick={() => openDeleteModal(sms.id)}
-                                  className="text-red-500 hover:text-red-700"
-                                >
-                                  <Trash className="h-5 w-5" />
-                                </button>
-                              </div>
+                              <AiOutlineEye
+                                onClick={() => openModalMessage(sms.message)}
+                                className="text-blue-500 cursor-pointer w-5 h-5 hover:scale-110 transition-transform"
+                                title={t("sms_list.actions.view_message")}
+                              />
                             </div>
-                          );
-                        })}
+                            <div className="flex justify-center items-center gap-1 max-w-[200px]">
+                              <span className="truncate">
+                                {sms.names?.slice(0, 2).join(", ")}
+                              </span>
+                              {sms.names.length > 2 && (
+                                <AiOutlineEye
+                                  onClick={() =>
+                                    openModal(sms.phones, sms.names)
+                                  }
+                                  className="text-red-500 cursor-pointer w-5 h-5 hover:scale-110 transition-transform"
+                                  title={t("sms_list.actions.view_recipients")}
+                                />
+                              )}
+                            </div>
+                            <div>
+                              {dayjs(sms.scheduled_at)
+                                .locale(lang)
+                                .format(dateFormatMap[lang])}
+                            </div>
+                            <div className="flex items-center justify-center gap-4">
+                              {isPending && (
+                                <div className="flex items-center gap-1">
+                                  <MdAccessTime className="text-yellow-500 w-4 h-4 animate-pulse" />
+                                  <span>{t("sms_list.statuses.pending")}</span>
+                                </div>
+                              )}
+                              {isSent && (
+                                <div className="flex items-center gap-1">
+                                  <MdCheckCircle className="text-green-600 w-4 h-4" />
+                                  <span>{t("sms_list.statuses.sent")}</span>
+                                </div>
+                              )}
+                              {isFailed && (
+                                <div className="flex items-center gap-1">
+                                  <MdErrorOutline className="text-red-600 w-4 h-4" />
+                                  <span>{t("sms_list.statuses.failed")}</span>
+                                </div>
+                              )}
+                            </div>
+                            <div className="flex justify-center gap-2">
+                              {sms.status !== "sent" && (
+                                <MdScheduleSend
+                                  className="cursor-pointer w-5 h-5 text-blue-700 hover:text-blue-900"
+                                  title={t("sms_list.actions.send_now")}
+                                  onClick={() => handleSendNow(sms.id)}
+                                />
+                              )}
+                              <button
+                                onClick={() => openDeleteModal(sms.id)}
+                                className="text-red-500 hover:text-red-700"
+                              >
+                                <Trash className="h-5 w-5" />
+                              </button>
+                            </div>
+                          </div>
+                        );
+                      })}
                   </div>
                 </div>
 
@@ -426,117 +432,123 @@ const SmsPage = () => {
           </div>
 
           <div className="lg:w-1/4">
-            <div className="sticky" style={{ top: '118px' }}>
+            <div className="sticky" style={{ top: "118px" }}>
               <div className="bg-white/90 text-blue-900 rounded-2xl shadow-xl p-6">
                 <div className="mb-4">
                   <h2 className="text-xl font-bold">{t("filters.title")}</h2>
                 </div>
 
-                  <div className="mb-4">
-                    <label className="block text-sm font-semibold mb-1">
-                      {t("filters.id")}
-                    </label>
-                    <input
-                      type="text"
-                      value={id}
-                      onChange={(e) => setId(e.target.value)}
-                      placeholder={t("filters.search_by_id")}
-                      className="w-full px-3 py-2 rounded-lg border border-blue-300 focus:ring focus:ring-blue-200"
-                    />
-                  </div>
+                <div className="mb-4">
+                  <label className="block text-sm font-semibold mb-1">
+                    {t("filters.id")}
+                  </label>
+                  <input
+                    type="text"
+                    value={id}
+                    onChange={(e) => setId(e.target.value)}
+                    placeholder={t("filters.search_by_id")}
+                    className="w-full px-3 py-2 rounded-lg border border-blue-300 focus:ring focus:ring-blue-200"
+                  />
+                </div>
 
-                  <div className="mb-4">
-                    <label className="block text-sm font-semibold mb-1">
-                      {t("filters.recipients")}
-                    </label>
-                    <input
-                      type="text"
-                      value={recipients}
-                      onChange={(e) => setRecipients(e.target.value)}
-                      placeholder={t("filters.search_by_recipient")}
-                      className="w-full px-3 py-2 rounded-lg border border-blue-300 focus:ring focus:ring-blue-200"
-                    />
-                  </div>
+                <div className="mb-4">
+                  <label className="block text-sm font-semibold mb-1">
+                    {t("filters.recipients")}
+                  </label>
+                  <input
+                    type="text"
+                    value={recipients}
+                    onChange={(e) => setRecipients(e.target.value)}
+                    placeholder={t("filters.search_by_recipient")}
+                    className="w-full px-3 py-2 rounded-lg border border-blue-300 focus:ring focus:ring-blue-200"
+                  />
+                </div>
 
-                  <div className="mb-4">
-                    <label className="block text-sm font-semibold mb-1">
-                      {t("filters.subject")}
-                    </label>
-                    <input
-                      type="text"
-                      value={subject}
-                      onChange={(e) => setSubject(e.target.value)}
-                      placeholder={t("filters.search_by_subject")}
-                      className="w-full px-3 py-2 rounded-lg border border-blue-300 focus:ring focus:ring-blue-200"
-                    />
-                  </div>
+                <div className="mb-4">
+                  <label className="block text-sm font-semibold mb-1">
+                    {t("filters.subject")}
+                  </label>
+                  <input
+                    type="text"
+                    value={subject}
+                    onChange={(e) => setSubject(e.target.value)}
+                    placeholder={t("filters.search_by_subject")}
+                    className="w-full px-3 py-2 rounded-lg border border-blue-300 focus:ring focus:ring-blue-200"
+                  />
+                </div>
 
-                  <div className="mb-4">
-                    <label className="block text-sm font-semibold mb-1">
-                      {t("filters.status")}
+                <div className="mb-4">
+                  <label className="block text-sm font-semibold mb-1">
+                    {t("filters.status")}
+                  </label>
+                  <div className="space-y-2">
+                    <label className="flex items-center gap-2">
+                      <input
+                        type="checkbox"
+                        checked={status.sent}
+                        onChange={() =>
+                          setStatus((prev) => ({ ...prev, sent: !prev.sent }))
+                        }
+                        className="accent-green-500"
+                      />
+                      {t("filters.sent")}
                     </label>
-                    <div className="space-y-2">
-                      <label className="flex items-center gap-2">
-                        <input
-                          type="checkbox"
-                          checked={status.sent}
-                          onChange={() =>
-                            setStatus((prev) => ({ ...prev, sent: !prev.sent }))
-                          }
-                          className="accent-green-500"
-                        />
-                        {t("filters.sent")}
-                      </label>
-                      <label className="flex items-center gap-2">
-                        <input
-                          type="checkbox"
-                          checked={status.pending}
-                          onChange={() =>
-                            setStatus((prev) => ({ ...prev, pending: !prev.pending }))
-                          }
-                          className="accent-yellow-500"
-                        />
-                        {t("filters.pending")}
-                      </label>
-                      <label className="flex items-center gap-2">
-                        <input
-                          type="checkbox"
-                          checked={status.failed}
-                          onChange={() =>
-                            setStatus((prev) => ({ ...prev, failed: !prev.failed }))
-                          }
-                          className="accent-red-500"
-                        />
-                        {t("filters.failed")}
-                      </label>
-                    </div>
+                    <label className="flex items-center gap-2">
+                      <input
+                        type="checkbox"
+                        checked={status.pending}
+                        onChange={() =>
+                          setStatus((prev) => ({
+                            ...prev,
+                            pending: !prev.pending,
+                          }))
+                        }
+                        className="accent-yellow-500"
+                      />
+                      {t("filters.pending")}
+                    </label>
+                    <label className="flex items-center gap-2">
+                      <input
+                        type="checkbox"
+                        checked={status.failed}
+                        onChange={() =>
+                          setStatus((prev) => ({
+                            ...prev,
+                            failed: !prev.failed,
+                          }))
+                        }
+                        className="accent-red-500"
+                      />
+                      {t("filters.failed")}
+                    </label>
                   </div>
+                </div>
 
-                  <div className="mb-6">
-                    <label className="block text-sm font-semibold mb-1">
-                      {t("filters.date_sent")}
-                    </label>
-                    <input
-                      type="date"
-                      value={date}
-                      onChange={(e) => setDate(e.target.value)}
-                      className="w-full px-3 py-2 rounded-lg border border-blue-300 focus:ring focus:ring-blue-200"
-                    />
-                  </div>
-                  <div className="flex justify-between gap-2">
-                    <button
-                      onClick={applyFilters}
-                      className="bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700 transition"
-                    >
-                      {t("filters.apply")}
-                    </button>
-                    <button
-                      onClick={clearFilters}
-                      className="bg-gray-300 text-blue-900 px-4 py-2 rounded-lg hover:bg-gray-400 transition"
-                    >
-                      {t("filters.clear")}
-                    </button>
-                   </div>
+                <div className="mb-6">
+                  <label className="block text-sm font-semibold mb-1">
+                    {t("filters.date_sent")}
+                  </label>
+                  <input
+                    type="date"
+                    value={date}
+                    onChange={(e) => setDate(e.target.value)}
+                    className="w-full px-3 py-2 rounded-lg border border-blue-300 focus:ring focus:ring-blue-200"
+                  />
+                </div>
+                <div className="flex justify-between gap-2">
+                  <button
+                    onClick={applyFilters}
+                    className="bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700 transition"
+                  >
+                    {t("filters.apply")}
+                  </button>
+                  <button
+                    onClick={clearFilters}
+                    className="bg-gray-300 text-blue-900 px-4 py-2 rounded-lg hover:bg-gray-400 transition"
+                  >
+                    {t("filters.clear")}
+                  </button>
+                </div>
               </div>
             </div>
           </div>
