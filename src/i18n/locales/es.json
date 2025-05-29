@@ -243,7 +243,8 @@
   },
   "buttons": {
     "backToActive": "Voltar para ativos",
-    "showFinished": "Mostrar finalizados"
+    "showFinished": "Mostrar finalizados",
+    "cancel": "Cancelar"
   },
   "messages": {
     "noTicketsFound": "No se encontraron tickets"
