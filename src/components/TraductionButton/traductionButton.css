@@ -1,21 +1,93 @@
 .container-icons-traduction {
     position: fixed;
-    bottom: 0;
-    right: 0;
-    margin: 20px;
+    bottom: 20px;
+    right: 80px;
     display: flex;
-    gap: 10px;
-    background-color: rgb(163, 175, 228);
-    padding-left: 10px;
-    padding-right: 10px;
-    border-radius: 8px;
+    flex-direction: column;
+    gap: 8px;
+    background: rgba(255, 255, 255, 0.1);
+    backdrop-filter: blur(12px);
+    padding: 12px;
+    border-radius: 20px;
+    border: 1px solid rgba(255, 255, 255, 0.2);
+    box-shadow: 
+        0 4px 6px rgba(0, 0, 0, 0.1),
+        0 10px 15px rgba(0, 0, 0, 0.1);
+    z-index: 1000;
 }
 
-.container-icons-traduction img {
-    transition: all 0.3s ease;
-}
-
-.container-icons-traduction img:hover {
-    transform: scale(1.1);
+.language-toggle-button {
+    position: fixed;
+    bottom: 20px;
+    right: 20px;
+    width: 48px;
+    height: 48px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: rgba(255, 255, 255, 0.1);
+    backdrop-filter: blur(12px);
+    border: 1px solid rgba(255, 255, 255, 0.2);
     cursor: pointer;
+    z-index: 1001;
+    box-shadow: 
+        0 4px 6px rgba(0, 0, 0, 0.1),
+        0 10px 15px rgba(0, 0, 0, 0.1);
+}
+
+.language-button {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding: 10px 16px;
+    border-radius: 16px;
+    background: rgba(255, 255, 255, 0.15);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    cursor: pointer;
+    transition: all 0.3s ease;
+    width: 100%;
+    min-width: 160px;
+}
+
+.language-button:hover {
+    background: rgba(255, 255, 255, 0.25);
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+    transform: translateY(-2px);
+}
+
+.language-button img {
+    filter: drop-shadow(0 2px 4px rgba(0, 0, 0, 0.1));
+}
+
+.language-text {
+    color: white;
+    font-size: 14px;
+    font-weight: 500;
+    letter-spacing: 0.5px;
+    text-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+@media (max-width: 640px) {
+    .container-icons-traduction {
+        bottom: 20px;
+        right: 70px;
+        padding: 8px;
+    }
+
+    .language-toggle-button {
+        bottom: 20px;
+        right: 10px;
+        width: 40px;
+        height: 40px;
+    }
+
+    .language-button {
+        padding: 8px 12px;
+        min-width: 140px;
+    }
+
+    .language-text {
+        font-size: 13px;
+    }
 }

@@ -1,7 +1,7 @@
 import React from "react";
 
 interface ModalProps {
-  title: string;
+  title: React.ReactNode;
   isVisible: boolean;
   onClose: () => void;
   children: React.ReactNode;

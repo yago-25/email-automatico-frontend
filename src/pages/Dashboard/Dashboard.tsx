@@ -372,33 +372,53 @@ const Dashboard = () => {
         </button>
       </div>
 
-      <Modal title={t("dashboard.add_client")}
+      <Modal 
+        title={
+          <div className="flex items-center gap-3 text-blue-700">
+            <HiUserAdd className="w-7 h-7" />
+            <span className="text-xl font-bold">{t("dashboard.add_client")}</span>
+          </div>
+        }
         isVisible={addClient}
-        onClose={() => setAddClient(false)}>
+        onClose={() => setAddClient(false)}
+      >
         {loadingPost ? (
           <div className="flex flex-col items-center justify-center w-full gap-4">
             <Spin />
           </div>
         ) : (
-          <div className="flex flex-col items-center justify-center w-full gap-6 p-6 bg-white rounded-xl shadow-lg">
-            <div className="w-full space-y-4">
-              <div className="flex items-center gap-2">
-                <HiUser className="w-5 h-5 text-gray-500" />
-                <p className="text-gray-700 text-sm font-semibold">{t("dashboard.name")}</p>
-              </div>
-              <input
-                placeholder={t("dashboard.name")}
-                type="text"
-                required
-                onChange={(e) => setClientName(e.target.value)}
-                value={clientName}
-                className="w-full mt-2 px-4 py-3 border border-gray-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-400 focus:border-blue-500 transition duration-200"
-              />
-
-              <div className="w-full">
+          <div className="flex flex-col items-center justify-center w-full gap-6 p-6 bg-gradient-to-br from-white to-blue-50 rounded-xl">
+            <div className="w-full space-y-6">
+              {/* Nome */}
+              <div className="group">
                 <div className="flex items-center gap-2 mb-2">
-                  <HiPhone className="w-5 h-5 text-gray-500" />
-                  <p className="text-gray-700 text-sm font-semibold">{t("dashboard.phone")}</p>
+                  <div className="p-2 bg-blue-100 rounded-lg text-blue-600 group-hover:bg-blue-600 group-hover:text-white transition-all duration-300">
+                    <HiUser className="w-5 h-5" />
+                  </div>
+                  <p className="text-gray-700 font-semibold">{t("dashboard.name")}</p>
+                </div>
+                <div className="relative">
+                  <input
+                    placeholder={t("dashboard.name")}
+                    type="text"
+                    required
+                    onChange={(e) => setClientName(e.target.value)}
+                    value={clientName}
+                    className="w-full px-4 py-3 border border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-400 focus:border-transparent transition duration-200 shadow-sm"
+                  />
+                  <div className="absolute inset-y-0 right-4 flex items-center pointer-events-none text-gray-400">
+                    <HiUser className="w-5 h-5" />
+                  </div>
+                </div>
+              </div>
+
+              {/* Telefone */}
+              <div className="group">
+                <div className="flex items-center gap-2 mb-2">
+                  <div className="p-2 bg-green-100 rounded-lg text-green-600 group-hover:bg-green-600 group-hover:text-white transition-all duration-300">
+                    <HiPhone className="w-5 h-5" />
+                  </div>
+                  <p className="text-gray-700 font-semibold">{t("dashboard.phone")}</p>
                 </div>
                 <PhoneInput
                   country={'br'}
@@ -407,43 +427,58 @@ const Dashboard = () => {
                   inputProps={{
                     required: true,
                     name: 'phone',
+                    className: 'w-full px-4 py-3 border border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-green-400 focus:border-transparent transition duration-200 shadow-sm'
                   }}
                   containerStyle={{ width: '100%' }}
                   inputStyle={{
                     width: '100%',
                     height: '48px',
                     borderRadius: '0.75rem',
-                    border: '1px solid #D1D5DB',
+                    border: '1px solid #E5E7EB',
                     paddingLeft: '48px',
                     fontSize: '16px',
+                    boxShadow: '0 1px 2px rgba(0, 0, 0, 0.05)'
                   }}
                   buttonStyle={{
                     borderTopLeftRadius: '0.75rem',
                     borderBottomLeftRadius: '0.75rem',
+                    backgroundColor: '#F3F4F6',
+                    border: '1px solid #E5E7EB',
+                    borderRight: 'none'
                   }}
                 />
               </div>
 
-              <div className="flex items-center gap-2">
-                <HiMail className="w-5 h-5 text-gray-500" />
-                <p className="text-gray-700 text-sm font-semibold">{t("dashboard.email")}</p>
+              {/* Email */}
+              <div className="group">
+                <div className="flex items-center gap-2 mb-2">
+                  <div className="p-2 bg-purple-100 rounded-lg text-purple-600 group-hover:bg-purple-600 group-hover:text-white transition-all duration-300">
+                    <HiMail className="w-5 h-5" />
+                  </div>
+                  <p className="text-gray-700 font-semibold">{t("dashboard.email")}</p>
+                </div>
+                <div className="relative">
+                  <input
+                    placeholder={t("dashboard.email")}
+                    type="email"
+                    required
+                    onChange={(e) => setClientMail(e.target.value)}
+                    value={clientMail}
+                    className="w-full px-4 py-3 border border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-purple-400 focus:border-transparent transition duration-200 shadow-sm"
+                  />
+                  <div className="absolute inset-y-0 right-4 flex items-center pointer-events-none text-gray-400">
+                    <HiMail className="w-5 h-5" />
+                  </div>
+                </div>
               </div>
-              <input
-                placeholder={t("dashboard.email")}
-                type="email"
-                required
-                onChange={(e) => setClientMail(e.target.value)}
-                value={clientMail}
-                className="w-full mt-2 px-4 py-3 border border-gray-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-400 focus:border-blue-500 transition duration-200"
-              />
 
-              <div className="w-full mt-6">
+              {/* Botão de Cadastro */}
+              <div className="pt-4">
                 <button
-                  value="Cadastrar Cliente"
                   onClick={handleAddClient}
-                  className="w-full py-3 bg-blue-600 text-white rounded-xl shadow-md hover:bg-blue-700 transition-all duration-200 flex items-center justify-center gap-2"
+                  className="w-full py-4 bg-gradient-to-r from-blue-600 to-blue-700 text-white rounded-xl shadow-lg hover:from-blue-700 hover:to-blue-800 transition-all duration-300 transform hover:scale-[1.02] active:scale-[0.98] flex items-center justify-center gap-3 font-semibold text-lg"
                 >
-                  <HiUserAdd className="w-5 h-5" />
+                  <HiUserAdd className="w-6 h-6" />
                   {t("dashboard.add_client")}
                 </button>
               </div>

@@ -5,6 +5,8 @@ import { useTranslation } from "react-i18next";
 import Spin from "../../components/Spin/Spin";
 import { api } from "../../api/api";
 import { messageAlert } from "../../utils/messageAlert";
+import { HiMail, HiLockClosed, HiUser, HiPhone, HiUserAdd, HiArrowLeft } from 'react-icons/hi';
+import { BsShieldLock } from 'react-icons/bs';
 
 const Register = () => {
   const navigate = useNavigate();
@@ -63,9 +65,12 @@ const Register = () => {
     }
   };
 
-
   if (!i18n.isInitialized || loading) {
-    return <Spin />;
+    return (
+      <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-blue-700 to-blue-900">
+        <Spin />
+      </div>
+    );
   }
 
   const handleLogin = () => {
@@ -73,89 +78,129 @@ const Register = () => {
   };
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-gradient-to-r from-blue-700 to-blue-900 px-4">
-      <div className="w-full max-w-3xl bg-white bg-opacity-25 border border-white rounded-2xl shadow-lg backdrop-blur-lg p-10">
-        <h1 className="text-white text-4xl font-light text-center mb-8">
-          {t("register_page.title")}
-        </h1>
-
-        <div className="flex flex-col items-center gap-6">
-          <div className="w-full flex flex-col md:flex-row gap-6">
-            <Input
-              type="text"
-              text={t("register_page.full_name")}
-              required
-              value={fullName}
-              onChange={(e) => setFullName(e.target.value)}
-              styles={{ width: "100%" }}
-            />
-            <Input
-              type="text"
-              text={t("register_page.phone")}
-              required
-              value={phone}
-              onChange={(e) => setPhone(e.target.value)}
-              styles={{ width: "100%" }}
-            />
+    <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-blue-700 to-blue-900 px-4">
+      <div className="w-full max-w-3xl bg-white/10 backdrop-blur-md rounded-2xl shadow-2xl p-10 space-y-8">
+        <div className="text-center space-y-2">
+          <div className="inline-block p-3 rounded-full bg-blue-600/20 mb-4">
+            <BsShieldLock className="w-8 h-8 text-white" />
           </div>
-          <div className="w-full flex flex-col md:flex-row gap-6">
+          <h1 className="text-3xl font-bold text-white">
+            {t("register_page.title")}
+          </h1>
+          <p className="text-blue-100/80 text-sm">
+            {t("register_page.create_account_message")}
+          </p>
+        </div>
+
+        <div className="space-y-6">
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+            <div className="relative">
+              <div className="absolute inset-y-0 left-3 flex items-center pointer-events-none">
+                <HiUser className="h-5 w-5 text-blue-200" />
+              </div>
+              <Input
+                type="text"
+                text={t("register_page.full_name")}
+                required
+                value={fullName}
+                onChange={(e) => setFullName(e.target.value)}
+                className="pl-10 w-full bg-white/10 border border-blue-200/20 text-white placeholder-blue-200/50 focus:ring-2 focus:ring-blue-500"
+              />
+            </div>
+
+            <div className="relative">
+              <div className="absolute inset-y-0 left-3 flex items-center pointer-events-none">
+                <HiPhone className="h-5 w-5 text-blue-200" />
+              </div>
+              <Input
+                type="text"
+                text={t("register_page.phone")}
+                required
+                value={phone}
+                onChange={(e) => setPhone(e.target.value)}
+                className="pl-10 w-full bg-white/10 border border-blue-200/20 text-white placeholder-blue-200/50 focus:ring-2 focus:ring-blue-500"
+              />
+            </div>
+          </div>
+
+          <div className="relative">
+            <div className="absolute inset-y-0 left-3 flex items-center pointer-events-none">
+              <HiMail className="h-5 w-5 text-blue-200" />
+            </div>
             <Input
               type="email"
               text={t("register_page.email")}
               required
               value={email}
               onChange={(e) => setEmail(e.target.value)}
-              styles={{ width: "100%" }}
+              className="pl-10 w-full bg-white/10 border border-blue-200/20 text-white placeholder-blue-200/50 focus:ring-2 focus:ring-blue-500"
             />
           </div>
-          <h2 className="text-white text-xl font-light text-center">
-            {t("register_page.data_access")}
-          </h2>
 
-          <Input
-            type="text"
-            text={t("register_page.username")}
-            required
-            value={username}
-            onChange={(e) => setUsername(e.target.value)}
-            styles={{ width: "100%" }}
-          />
-          <div className="w-full flex flex-col md:flex-row gap-6">
+          <div className="relative mt-8">
+            <div className="absolute inset-y-0 left-3 flex items-center pointer-events-none">
+              <HiUserAdd className="h-5 w-5 text-blue-200" />
+            </div>
             <Input
-              type="password"
-              text={t("register_page.password")}
+              type="text"
+              text={t("register_page.username")}
               required
-              value={password}
-              onChange={(e) => setPassword(e.target.value)}
-              styles={{ width: "100%" }}
-            />
-            <Input
-              type="password"
-              text={t("register_page.confirm_password")}
-              required
-              value={confirmPassword}
-              onChange={(e) => setConfirmPassword(e.target.value)}
-              styles={{ width: "100%" }}
+              value={username}
+              onChange={(e) => setUsername(e.target.value)}
+              className="pl-10 w-full bg-white/10 border border-blue-200/20 text-white placeholder-blue-200/50 focus:ring-2 focus:ring-blue-500"
             />
           </div>
-          <div className="w-full flex flex-col gap-4">
+
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+            <div className="relative">
+              <div className="absolute inset-y-0 left-3 flex items-center pointer-events-none">
+                <HiLockClosed className="h-5 w-5 text-blue-200" />
+              </div>
+              <Input
+                type="password"
+                text={t("register_page.password")}
+                required
+                value={password}
+                onChange={(e) => setPassword(e.target.value)}
+                className="pl-10 w-full bg-white/10 border border-blue-200/20 text-white placeholder-blue-200/50 focus:ring-2 focus:ring-blue-500"
+              />
+            </div>
+
+            <div className="relative">
+              <div className="absolute inset-y-0 left-3 flex items-center pointer-events-none">
+                <HiLockClosed className="h-5 w-5 text-blue-200" />
+              </div>
+              <Input
+                type="password"
+                text={t("register_page.confirm_password")}
+                required
+                value={confirmPassword}
+                onChange={(e) => setConfirmPassword(e.target.value)}
+                className="pl-10 w-full bg-white/10 border border-blue-200/20 text-white placeholder-blue-200/50 focus:ring-2 focus:ring-blue-500"
+              />
+            </div>
+          </div>
+
+          <div className="pt-4">
             <button
               onClick={handleRegister}
-              className="w-full bg-blue-700 hover:bg-blue-800 text-white font-semibold py-2 rounded-lg shadow-md transition-all duration-200"
+              className="w-full bg-blue-600 hover:bg-blue-700 text-white font-semibold py-3 rounded-lg shadow-lg transition-all duration-200 flex items-center justify-center gap-2 group"
             >
               {t("register_page.button_text")}
+              <HiUserAdd className="w-5 h-5 group-hover:scale-110 transition-transform" />
+            </button>
+
+            <button
+              onClick={handleLogin}
+              className="w-full mt-4 text-blue-200 hover:text-white transition-colors flex items-center justify-center gap-2 text-sm"
+            >
+              <HiArrowLeft className="w-4 h-4" />
+              {t("register_page.back_button")}
             </button>
           </div>
-          <p
-            onClick={handleLogin}
-            className="text-white cursor-pointer hover:underline text-center"
-          >
-            {t("register_page.back_button")}
-          </p>
         </div>
       </div>
     </div>
-
   );
 };
 

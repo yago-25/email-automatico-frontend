@@ -13,6 +13,8 @@ interface InputProps {
   onKeyDown?: (e: React.KeyboardEvent<HTMLInputElement>) => void;
   ref?: React.Ref<HTMLInputElement>;
   width?: number;
+  className?: string;
+  placeholder?: string;
 }
 
 const Input: React.FC<InputProps> = ({

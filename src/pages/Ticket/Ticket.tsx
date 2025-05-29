@@ -13,8 +13,9 @@ import Select from "../../components/Select/Select";
 // import { useSwre } from "../../api/useSwr";
 import TagInput from "../../components/TagInput/TagInput";
 import { useTranslation } from "react-i18next";
-import { IoTicketOutline } from "react-icons/io5";
+import { IoTicketOutline, IoPersonSharp } from "react-icons/io5";
 import { AlertCircle } from "lucide-react";
+import { motion } from "framer-motion";
 
 import {
   FaCalendarAlt,
@@ -129,6 +130,14 @@ const Ticket = () => {
     { name: "Completo", title: t("tickets.types.completed") },
     { name: "Descartada", title: t("tickets.types.discarded") },
   ];
+
+  const statusTranslations = {
+    "Não iniciada": "status.not_started",
+    "Esperando": "status.waiting",
+    "Em progresso": "status.in_progress",
+    "Completo": "status.completed",
+    "Descartada": "status.discarded"
+  };
 
   const storedUser = localStorage.getItem("user");
   const authUser: User | null = storedUser ? JSON.parse(storedUser) : null;
@@ -507,77 +516,131 @@ const Ticket = () => {
 
       </div>
 
-      <div className="ticket-container">
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6 p-6 w-full">
+
         {isLoading ? (
-          <div className="loading-message text-center text-gray-500 p-4">
-            {t("messages.loadingTickets")}
+          <div className="col-span-full flex justify-center items-center py-12">
+            <Spin />
           </div>
         ) : filteredTickets.length > 0 ? (
           filteredTickets
             .filter(ticket => statusToShow.includes(ticket.status))
             .map((ticket) => (
-              <div
+              <motion.div
                 key={ticket.id}
-                className="ticket-card"
+                initial={{ opacity: 0, y: 20 }}
+                animate={{ opacity: 1, y: 0 }}
+                whileHover={{ scale: 1.02 }}
+                transition={{ duration: 0.3 }}
                 onClick={() => handleCardClick(ticket)}
+                className="bg-white rounded-2xl shadow-lg hover:shadow-xl transition-all duration-300 border border-gray-100 overflow-hidden group cursor-pointer"
               >
-                <div className="ticket-header-no-avatar">
-                  <div className="w-full h-full">
-                    <p className="ticket-user overflow-hidden ellipsis">
-                      {ticket.client?.name}
-                    </p>
-                    <p className="ticket-time">{formatDate(ticket.created_at, t)}</p>
-                    <p className="ticket-name overflow-hidden text-ellipsis whitespace-nowrap">
-                      {ticket.name}
-                    </p>
-                    <p className="ticket-observation text-ellipsis overflow-hidden whitespace-nowrap max-h-12">
-                      {ticket.observation || t("ticket.no_observation")}
-                    </p>
+                <div className="p-6 space-y-4">
 
-                  </div>
-                </div>
-                <div className="ticket-tags">
-                  {Array.isArray(ticket.tags) &&
-                    ticket.tags.map((tag, index) => (
-                      <span key={index} className={`ticket-tag color-0`}>
-                        {tag}
-                      </span>
-                    ))}
-                </div>
-                <div className="ticket-header-no-avatar">
-                  <div className="w-full h-full">
-                    <div className="flex items-center gap-2 text-black bg-white border border-black rounded-full px-3 py-1 max-w-fit mt-3">
-                      <AlertCircle size={16} />
-                      <span className="text-sm truncate max-w-xs">{ticket.status}</span>
+                  <div className="flex justify-between items-start">
+                    <div className="flex items-center gap-3">
+                      <div className="p-2 bg-blue-100 rounded-xl group-hover:bg-blue-600 transition-all duration-300">
+                        <IoPersonSharp className="w-5 h-5 text-blue-600 group-hover:text-white" />
+                      </div>
+                      <div>
+                        <h3 className="font-semibold text-gray-900 line-clamp-1">
+                          {ticket.client?.name}
+                        </h3>
+                        <p className="text-sm text-gray-500">
+                          {formatDate(ticket.created_at, t)}
+                        </p>
+                      </div>
                     </div>
                   </div>
+
+                  {/* Ticket Name and Observation */}
+                  <div className="space-y-2">
+                    <div className="flex items-center gap-3">
+                      <div className="p-2 bg-purple-100 rounded-xl group-hover:bg-purple-600 transition-all duration-300">
+                        <IoTicketOutline className="w-5 h-5 text-purple-600 group-hover:text-white" />
+                      </div>
+                      <h4 className="font-medium text-gray-800">
+                        {ticket.name}
+                      </h4>
+                    </div>
+                    <div className="flex items-start gap-3">
+                      <div className="p-2 bg-yellow-100 rounded-xl group-hover:bg-yellow-600 transition-all duration-300">
+                        <FaRegStickyNote className="w-5 h-5 text-yellow-600 group-hover:text-white" />
+                      </div>
+                      <p className="text-sm text-gray-600 line-clamp-2">
+                        {ticket.observation || t("ticket.no_observation")}
+                      </p>
+                    </div>
+                  </div>
+
+                  {/* Tags */}
+                  <div className="flex flex-wrap gap-2">
+                    {Array.isArray(ticket.tags) &&
+                      ticket.tags.map((tag, index) => (
+                        <span
+                          key={index}
+                          className="px-3 py-1 bg-blue-50 text-blue-600 rounded-full text-sm font-medium group-hover:bg-blue-600 group-hover:text-white transition-all duration-300"
+                        >
+                          {tag}
+                        </span>
+                      ))}
+                  </div>
+
+                  {/* Status Badge */}
+                  <div className="flex items-center gap-2 mt-4">
+                    <div className={`
+                      px-4 py-2 rounded-xl flex items-center gap-2 w-full justify-center
+                      ${ticket.status === "Não iniciada" ? "bg-gray-100 text-gray-600" :
+                        ticket.status === "Esperando" ? "bg-yellow-100 text-yellow-600" :
+                        ticket.status === "Em progresso" ? "bg-blue-100 text-blue-600" :
+                        ticket.status === "Completo" ? "bg-green-100 text-green-600" :
+                        "bg-red-100 text-red-600"} 
+                      group-hover:bg-opacity-20 transition-all duration-300
+                    `}>
+                      <AlertCircle className="w-4 h-4" />
+                      <span className="text-sm font-medium">
+                        {t(statusTranslations[ticket.status as keyof typeof statusTranslations])}
+                      </span>
+                    </div>
+                  </div>
+
                 </div>
-              </div>
+              </motion.div>
             ))
         ) : (
-          <div className="no-tickets">
-            <p>{t("messages.noTicketsFound")}</p>
+          <div className="col-span-full flex flex-col items-center justify-center py-12 text-gray-500">
+            <IoTicketOutline className="w-16 h-16 mb-4 text-gray-400" />
+            <p className="text-lg font-medium">{t("messages.noTicketsFound")}</p>
           </div>
         )}
       </div>
 
       <Modal
-        title={t('filters.title')}
+        title={
+          <div className="flex items-center gap-3 text-blue-600">
+            <FaFilter className="w-6 h-6" />
+            <span className="text-2xl font-bold">{t('filters.title')}</span>
+          </div>
+        }
         isVisible={showModalFilter}
         onClose={() => {
           setShowModalFilter(false);
           mutate(undefined, true);
         }}
       >
-        <div className="bg-white p-6 shadow-lg rounded-xl mt-2 max-w-md mx-auto">
-          {/* <h3 className="font-semibold text-xl text-blue-600 mb-4">{t('filters.title')}</h3> */}
-
+        <div className="bg-gradient-to-br from-white to-blue-50/50 p-6 rounded-2xl shadow-lg mt-2 max-w-md mx-auto">
+          {/* User Filter */}
           <div className="mt-4">
-            <label className="block text-sm font-medium text-gray-700 mb-2">{t('filters.user')}</label>
+            <div className="flex items-center gap-2 mb-2">
+              <div className="p-2 bg-blue-100 rounded-xl text-blue-600">
+                <FaUser className="w-5 h-5" />
+              </div>
+              <label className="text-sm font-semibold text-gray-700">{t('filters.user')}</label>
+            </div>
             <select
               value={filterUser}
               onChange={(e) => setFilterUser(e.target.value)}
-              className="w-full border border-gray-300 rounded-lg px-4 py-3 text-sm shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-400"
+              className="w-full border border-gray-200 rounded-xl px-4 py-3 text-sm shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-400 bg-white/70 backdrop-blur-sm"
             >
               <option value="">{t('filters.all')}</option>
               {rawAdmins.map((user) => (
@@ -588,12 +651,18 @@ const Ticket = () => {
             </select>
           </div>
 
+          {/* Client Filter */}
           <div className="mt-4">
-            <label className="block text-sm font-medium text-gray-700 mb-2">{t('filters.client')}</label>
+            <div className="flex items-center gap-2 mb-2">
+              <div className="p-2 bg-purple-100 rounded-xl text-purple-600">
+                <IoPersonSharp className="w-5 h-5" />
+              </div>
+              <label className="text-sm font-semibold text-gray-700">{t('filters.client')}</label>
+            </div>
             <select
               value={filterClient}
               onChange={(e) => setFilterClient(e.target.value)}
-              className="w-full border border-gray-300 rounded-lg px-4 py-3 text-sm shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-400"
+              className="w-full border border-gray-200 rounded-xl px-4 py-3 text-sm shadow-sm focus:outline-none focus:ring-2 focus:ring-purple-400 bg-white/70 backdrop-blur-sm"
             >
               <option value="">{t('filters.all')}</option>
               {rawClients.map((client) => (
@@ -604,28 +673,40 @@ const Ticket = () => {
             </select>
           </div>
 
+          {/* Status Filter */}
           <div className="mt-4">
-            <label className="block text-sm font-medium text-gray-700 mb-2">{t('filters.status')}</label>
+            <div className="flex items-center gap-2 mb-2">
+              <div className="p-2 bg-green-100 rounded-xl text-green-600">
+                <AlertCircle className="w-5 h-5" />
+              </div>
+              <label className="text-sm font-semibold text-gray-700">{t('filters.status')}</label>
+            </div>
             <select
               value={filterStatus}
               onChange={(e) => setFilterStatus(e.target.value)}
-              className="w-full border border-gray-300 rounded-lg px-4 py-3 text-sm shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-400"
+              className="w-full border border-gray-200 rounded-xl px-4 py-3 text-sm shadow-sm focus:outline-none focus:ring-2 focus:ring-green-400 bg-white/70 backdrop-blur-sm"
             >
               <option value="">{t('filters.all')}</option>
               <option value="Não iniciada">{t('status.not_started')}</option>
               <option value="Esperando">{t('status.waiting')}</option>
               <option value="Em progresso">{t('status.in_progress')}</option>
-              <option value="Completo">{t('status.resolved')}</option>
+              <option value="Completo">{t('status.completed')}</option>
               <option value="Descartada">{t('status.discarded')}</option>
             </select>
           </div>
 
+          {/* Tag Filter */}
           <div className="mt-4">
-            <label className="block text-sm font-medium text-gray-700 mb-2">{t('filters.tag')}</label>
+            <div className="flex items-center gap-2 mb-2">
+              <div className="p-2 bg-yellow-100 rounded-xl text-yellow-600">
+                <FaTags className="w-5 h-5" />
+              </div>
+              <label className="text-sm font-semibold text-gray-700">{t('filters.tag')}</label>
+            </div>
             <select
               value={filterTag}
               onChange={(e) => setFilterTag(e.target.value)}
-              className="w-full border border-gray-300 rounded-lg px-4 py-3 text-sm shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-400"
+              className="w-full border border-gray-200 rounded-xl px-4 py-3 text-sm shadow-sm focus:outline-none focus:ring-2 focus:ring-yellow-400 bg-white/70 backdrop-blur-sm"
             >
               <option value="">{t('filters.all')}</option>
               {allTags.map((tag, index) => (
@@ -636,22 +717,34 @@ const Ticket = () => {
             </select>
           </div>
 
+          {/* Date Filter */}
           <div className="mt-4">
-            <label className="block text-sm font-medium text-gray-700 mb-2">{t('filters.date')}</label>
+            <div className="flex items-center gap-2 mb-2">
+              <div className="p-2 bg-red-100 rounded-xl text-red-600">
+                <FaCalendarAlt className="w-5 h-5" />
+              </div>
+              <label className="text-sm font-semibold text-gray-700">{t('filters.date')}</label>
+            </div>
             <input
               type="date"
               value={filterDate}
               onChange={(e) => setFilterDate(e.target.value)}
-              className="w-full border border-gray-300 rounded-lg px-4 py-3 text-sm shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-400"
+              className="w-full border border-gray-200 rounded-xl px-4 py-3 text-sm shadow-sm focus:outline-none focus:ring-2 focus:ring-red-400 bg-white/70 backdrop-blur-sm"
             />
           </div>
 
+          {/* Ticket Filter */}
           <div className="mt-4">
-            <label className="block text-sm font-medium text-gray-700 mb-2">{t('filters.ticket')}</label>
+            <div className="flex items-center gap-2 mb-2">
+              <div className="p-2 bg-indigo-100 rounded-xl text-indigo-600">
+                <IoTicketOutline className="w-5 h-5" />
+              </div>
+              <label className="text-sm font-semibold text-gray-700">{t('filters.ticket')}</label>
+            </div>
             <select
               value={filterTicket}
               onChange={(e) => setFilterTicket(e.target.value)}
-              className="w-full border border-gray-300 rounded-lg px-4 py-3 text-sm shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-400"
+              className="w-full border border-gray-200 rounded-xl px-4 py-3 text-sm shadow-sm focus:outline-none focus:ring-2 focus:ring-indigo-400 bg-white/70 backdrop-blur-sm"
             >
               <option value="">{t('filters.all')}</option>
               {optionsTicket.map((option) => (
@@ -662,20 +755,23 @@ const Ticket = () => {
             </select>
           </div>
 
-          <div className="mt-6 flex gap-4">
+          {/* Action Buttons */}
+          <div className="flex gap-4 mt-6">
             <button
               onClick={() => {
                 handleFilterChange();
                 setShowModalFilter(false);
               }}
-              className="w-full p-3 bg-green-600 text-white rounded-lg hover:bg-green-700 transition duration-200"
+              className="flex-1 flex items-center justify-center gap-2 py-3 bg-gradient-to-r from-green-500 to-green-600 text-white rounded-xl hover:from-green-600 hover:to-green-700 transition-all duration-300 shadow-lg hover:shadow-xl font-medium"
             >
+              <FaFilter className="w-4 h-4" />
               {t('filters.apply')}
             </button>
             <button
               onClick={handleClearFilters}
-              className="w-full p-3 bg-red-600 text-white rounded-lg hover:bg-red-700 transition duration-200"
+              className="flex-1 flex items-center justify-center gap-2 py-3 bg-gradient-to-r from-red-500 to-red-600 text-white rounded-xl hover:from-red-600 hover:to-red-700 transition-all duration-300 shadow-lg hover:shadow-xl font-medium"
             >
+              <FaEraser className="w-4 h-4" />
               {t('filters.clear')}
             </button>
           </div>

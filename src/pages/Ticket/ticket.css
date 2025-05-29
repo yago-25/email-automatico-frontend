@@ -76,6 +76,9 @@
     flex-wrap: wrap;
     gap: 16px;
     padding: 1rem;
+    justify-content: flex-start;
+    margin-left: 0;
+    width: 100%;
   }
   
   .ticket-card {
@@ -89,6 +92,7 @@
     transition: 0.3s;
     position: relative;
     overflow: hidden;
+    margin-left: 0;
   }
 
   .ticket-card::after {
