@@ -182,27 +182,29 @@ const Mails = () => {
     }
   };
 
-  const openDeleteModal = (id: number) => {
-    setClientIdToDelete(id);
-    setIsModalCrashOpen(true);
-  };
+ const openDeleteModal = (id: number) => {
+  setClientIdToDelete(id);
+  setIsModalCrashOpen(true);
+};
 
-  const debouncedApplyFilters = useMemo(
-    () => debounce(applyFilters, 500),
-    [id, recipients, subject, status, date]
-  );
+const debouncedApplyFilters = useMemo(
+  () => debounce(applyFilters, 500),
+  [id, recipients, subject, status, date, mails]
+);
 
-  useEffect(() => {
+useEffect(() => {
+  if (mails.length > 0) {
     debouncedApplyFilters();
-
-    return () => {
-      debouncedApplyFilters.cancel();
-    };
-  }, [id, recipients, subject, status, date]);
-
-  if (loading) {
-    return <Spin />;
   }
+
+  return () => {
+    debouncedApplyFilters.cancel();
+  };
+}, [id, recipients, subject, status, date, mails]);
+
+if (loading) {
+  return <Spin />;
+}
 
   return (
     <div className="p-4 min-h-screen bg-gradient-to-br text-white relative overflow-hidden">

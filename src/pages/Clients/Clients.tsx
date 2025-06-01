@@ -1,4 +1,3 @@
-/* eslint-disable react-hooks/exhaustive-deps */
 import { useEffect, useState } from "react";
 import Header from "../../components/Header/Header";
 import "./clients.css";
@@ -16,7 +15,6 @@ import { CiPhone } from "react-icons/ci";
 import { CiMail } from "react-icons/ci";
 import { FaGear } from "react-icons/fa6";
 import { HiOutlineUser } from "react-icons/hi";
-// import { IoMdAddCircleOutline } from "react-icons/io";
 import { IoTicketOutline } from "react-icons/io5";
 import { useNavigate } from "react-router-dom";
 import DeleteConfirmModal from "../../components/DeleteConfirm/DeleteConfirmModal";
@@ -503,7 +501,7 @@ const Clients = () => {
             </div>
           ) : (
             <div className="bg-gradient-to-br from-white to-blue-50/50 p-6 rounded-2xl shadow-lg space-y-6">
-              {/* Nome */}
+
               <div className="space-y-2">
                 <div className="flex items-center gap-2 mb-2">
                   <div className="p-2 bg-blue-100 rounded-xl text-blue-600">
@@ -520,7 +518,6 @@ const Clients = () => {
                 />
               </div>
 
-              {/* Telefone */}
               <div className="space-y-2">
                 <div className="flex items-center gap-2 mb-2">
                   <div className="p-2 bg-green-100 rounded-xl text-green-600">
@@ -559,7 +556,6 @@ const Clients = () => {
                 />
               </div>
 
-              {/* Email */}
               <div className="space-y-2">
                 <div className="flex items-center gap-2 mb-2">
                   <div className="p-2 bg-purple-100 rounded-xl text-purple-600">
@@ -576,7 +572,6 @@ const Clients = () => {
                 />
               </div>
 
-              {/* Botões de Ação */}
               <div className="flex gap-4 pt-4">
                 <button
                   onClick={handleAddClient}
