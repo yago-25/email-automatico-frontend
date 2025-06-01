@@ -245,7 +245,8 @@
   },
   "buttons": {
     "backToActive": "Back to active",
-    "showFinished": "Show finished"
+    "showFinished": "Show finished",
+    "cancel": "Cancel"
   },
   "messages": {
     "noTicketsFound": "No tickets found"

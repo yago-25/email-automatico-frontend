@@ -21,7 +21,7 @@ import { IoTicketOutline } from "react-icons/io5";
 import { useNavigate } from "react-router-dom";
 import DeleteConfirmModal from "../../components/DeleteConfirm/DeleteConfirmModal";
 import { HiMail, HiPhone, HiUser } from "react-icons/hi";
-import { HiUserAdd } from "react-icons/hi";
+import { HiUserAdd, HiX } from "react-icons/hi";
 import PhoneInput from "react-phone-input-2";
 import "react-phone-input-2/lib/style.css";
 import {  FaEraser } from "react-icons/fa";
@@ -488,7 +488,12 @@ const Clients = () => {
         </Modal>
 
         <Modal
-          title={t("dashboard.add_client")}
+          title={
+            <div className="flex items-center gap-3 text-blue-600">
+              <HiUserAdd className="w-6 h-6" />
+              <span className="text-2xl font-bold">{t("dashboard.add_client")}</span>
+            </div>
+          }
           isVisible={addClient}
           onClose={() => setAddClient(false)}
         >
@@ -497,79 +502,96 @@ const Clients = () => {
               <Spin />
             </div>
           ) : (
-            <div className="flex flex-col items-center justify-center w-full gap-6 p-6 bg-white rounded-xl shadow-lg">
-              <div className="w-full space-y-4">
-                <div className="flex items-center gap-2">
-                  <HiUser className="w-5 h-5 text-gray-500" />
-                  <p className="text-gray-700 text-sm font-semibold">
-                    {t("dashboard.name")}
-                  </p>
-                </div>
-                <input
-                  placeholder={t("dashboard.name")}
-                  type="text"
-                  required
-                  onChange={(e) => setClientName(e.target.value)}
-                  value={clientName}
-                  className="w-full mt-2 px-4 py-3 border border-gray-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-400 focus:border-blue-500 transition duration-200"
-                />
-
-                <div className="w-full">
-                  <div className="flex items-center gap-2 mb-2">
-                    <HiPhone className="w-5 h-5 text-gray-500" />
-                    <p className="text-gray-700 text-sm font-semibold">
-                      {t("dashboard.phone")}
-                    </p>
+            <div className="bg-gradient-to-br from-white to-blue-50/50 p-6 rounded-2xl shadow-lg space-y-6">
+              {/* Nome */}
+              <div className="space-y-2">
+                <div className="flex items-center gap-2 mb-2">
+                  <div className="p-2 bg-blue-100 rounded-xl text-blue-600">
+                    <HiUser className="w-5 h-5" />
                   </div>
-                  <PhoneInput
-                    country={"br"}
-                    value={clientPhone}
-                    onChange={setClientPhone}
-                    inputProps={{
-                      required: true,
-                      name: "phone",
-                    }}
-                    containerStyle={{ width: "100%" }}
-                    inputStyle={{
-                      width: "100%",
-                      height: "48px",
-                      borderRadius: "0.75rem",
-                      border: "1px solid #D1D5DB",
-                      paddingLeft: "48px",
-                      fontSize: "16px",
-                    }}
-                    buttonStyle={{
-                      borderTopLeftRadius: "0.75rem",
-                      borderBottomLeftRadius: "0.75rem",
-                    }}
-                  />
-                </div>
-
-                <div className="flex items-center gap-2">
-                  <HiMail className="w-5 h-5 text-gray-500" />
-                  <p className="text-gray-700 text-sm font-semibold">
-                    {t("dashboard.email")}
-                  </p>
+                  <label className="text-sm font-semibold text-gray-700">{t("dashboard.name")}</label>
                 </div>
                 <input
-                  placeholder={t("dashboard.email")}
-                  type="email"
-                  required
-                  onChange={(e) => setClientMail(e.target.value)}
-                  value={clientMail}
-                  className="w-full mt-2 px-4 py-3 border border-gray-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-400 focus:border-blue-500 transition duration-200"
+                  type="text"
+                  value={clientName}
+                  onChange={(e) => setClientName(e.target.value)}
+                  className="w-full border border-gray-200 rounded-xl px-4 py-3 text-sm shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-400 bg-white/70 backdrop-blur-sm transition-all duration-200"
+                  placeholder={t("dashboard.name")}
                 />
+              </div>
 
-                <div className="w-full mt-6">
-                  <button
-                    value="Cadastrar Cliente"
-                    onClick={handleAddClient}
-                    className="w-full py-3 bg-blue-600 text-white rounded-xl shadow-md hover:bg-blue-700 transition-all duration-200 flex items-center justify-center gap-2"
-                  >
-                    <HiUserAdd className="w-5 h-5" />
-                    {t("dashboard.add_client")}
-                  </button>
+              {/* Telefone */}
+              <div className="space-y-2">
+                <div className="flex items-center gap-2 mb-2">
+                  <div className="p-2 bg-green-100 rounded-xl text-green-600">
+                    <HiPhone className="w-5 h-5" />
+                  </div>
+                  <label className="text-sm font-semibold text-gray-700">{t("dashboard.phone")}</label>
                 </div>
+                <PhoneInput
+                  country={'br'}
+                  value={clientPhone}
+                  onChange={setClientPhone}
+                  prefix="+"
+                  inputProps={{
+                    required: true,
+                    className: 'w-full border border-gray-200 rounded-xl px-4 py-3 text-sm shadow-sm focus:outline-none focus:ring-2 focus:ring-green-400 bg-white/70 backdrop-blur-sm transition-all duration-200'
+                  }}
+                  containerStyle={{ width: '100%' }}
+                  inputStyle={{
+                    width: '100%',
+                    height: '48px',
+                    borderRadius: '0.75rem',
+                    border: '1px solid #E5E7EB',
+                    fontSize: '16px',
+                    paddingLeft: '43px'
+                  }}
+                  buttonStyle={{
+                    borderTopLeftRadius: '0.75rem',
+                    borderBottomLeftRadius: '0.75rem',
+                    backgroundColor: '#F3F4F6',
+                    border: '1px solid #E5E7EB',
+                    borderRight: 'none'
+                  }}
+                  enableSearch={false}
+                  disableSearchIcon={true}
+                  countryCodeEditable={false}
+                />
+              </div>
+
+              {/* Email */}
+              <div className="space-y-2">
+                <div className="flex items-center gap-2 mb-2">
+                  <div className="p-2 bg-purple-100 rounded-xl text-purple-600">
+                    <HiMail className="w-5 h-5" />
+                  </div>
+                  <label className="text-sm font-semibold text-gray-700">{t("dashboard.email")}</label>
+                </div>
+                <input
+                  type="email"
+                  value={clientMail}
+                  onChange={(e) => setClientMail(e.target.value)}
+                  className="w-full border border-gray-200 rounded-xl px-4 py-3 text-sm shadow-sm focus:outline-none focus:ring-2 focus:ring-purple-400 bg-white/70 backdrop-blur-sm transition-all duration-200"
+                  placeholder={t("dashboard.email")}
+                />
+              </div>
+
+              {/* Botões de Ação */}
+              <div className="flex gap-4 pt-4">
+                <button
+                  onClick={handleAddClient}
+                  className="flex-1 flex items-center justify-center gap-2 py-3 bg-gradient-to-r from-blue-500 to-blue-600 text-white rounded-xl hover:from-blue-600 hover:to-blue-700 transition-all duration-300 shadow-lg hover:shadow-xl font-medium"
+                >
+                  <HiUserAdd className="w-5 h-5" />
+                  {t("dashboard.add_client")}
+                </button>
+                <button
+                  onClick={() => setAddClient(false)}
+                  className="flex-1 flex items-center justify-center gap-2 py-3 bg-gradient-to-r from-gray-500 to-gray-600 text-white rounded-xl hover:from-gray-600 hover:to-gray-700 transition-all duration-300 shadow-lg hover:shadow-xl font-medium"
+                >
+                  <HiX className="w-5 h-5" />
+                  {t("buttons.cancel")}
+                </button>
               </div>
             </div>
           )}
