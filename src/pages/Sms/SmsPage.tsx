@@ -27,6 +27,7 @@ import { Trash } from "lucide-react";
 import DeleteConfirmModal from "../../components/DeleteConfirm/DeleteConfirmModal";
 import { MdArrowBackIos, MdArrowForwardIos } from "react-icons/md";
 import { MdCheckCircle, MdAccessTime, MdErrorOutline } from "react-icons/md";
+import { X } from "lucide-react";
 
 interface Sms {
   id: number;
@@ -432,122 +433,159 @@ const SmsPage = () => {
           </div>
 
           <div className="lg:w-1/4">
-            <div className="sticky" style={{ top: "118px" }}>
-              <div className="bg-white/90 text-blue-900 rounded-2xl shadow-xl p-6">
-                <div className="mb-4">
-                  <h2 className="text-xl font-bold">{t("filters.title")}</h2>
-                </div>
-
-                <div className="mb-4">
-                  <label className="block text-sm font-semibold mb-1">
-                    {t("filters.id")}
-                  </label>
-                  <input
-                    type="text"
-                    value={id}
-                    onChange={(e) => setId(e.target.value)}
-                    placeholder={t("filters.search_by_id")}
-                    className="w-full px-3 py-2 rounded-lg border border-blue-300 focus:ring focus:ring-blue-200"
-                  />
-                </div>
-
-                <div className="mb-4">
-                  <label className="block text-sm font-semibold mb-1">
-                    {t("filters.recipients")}
-                  </label>
-                  <input
-                    type="text"
-                    value={recipients}
-                    onChange={(e) => setRecipients(e.target.value)}
-                    placeholder={t("filters.search_by_recipient")}
-                    className="w-full px-3 py-2 rounded-lg border border-blue-300 focus:ring focus:ring-blue-200"
-                  />
-                </div>
-
-                <div className="mb-4">
-                  <label className="block text-sm font-semibold mb-1">
-                    {t("filters.subject")}
-                  </label>
-                  <input
-                    type="text"
-                    value={subject}
-                    onChange={(e) => setSubject(e.target.value)}
-                    placeholder={t("filters.search_by_subject")}
-                    className="w-full px-3 py-2 rounded-lg border border-blue-300 focus:ring focus:ring-blue-200"
-                  />
-                </div>
-
-                <div className="mb-4">
-                  <label className="block text-sm font-semibold mb-1">
-                    {t("filters.status")}
-                  </label>
-                  <div className="space-y-2">
-                    <label className="flex items-center gap-2">
-                      <input
-                        type="checkbox"
-                        checked={status.sent}
-                        onChange={() =>
-                          setStatus((prev) => ({ ...prev, sent: !prev.sent }))
-                        }
-                        className="accent-green-500"
-                      />
-                      {t("filters.sent")}
-                    </label>
-                    <label className="flex items-center gap-2">
-                      <input
-                        type="checkbox"
-                        checked={status.pending}
-                        onChange={() =>
-                          setStatus((prev) => ({
-                            ...prev,
-                            pending: !prev.pending,
-                          }))
-                        }
-                        className="accent-yellow-500"
-                      />
-                      {t("filters.pending")}
-                    </label>
-                    <label className="flex items-center gap-2">
-                      <input
-                        type="checkbox"
-                        checked={status.failed}
-                        onChange={() =>
-                          setStatus((prev) => ({
-                            ...prev,
-                            failed: !prev.failed,
-                          }))
-                        }
-                        className="accent-red-500"
-                      />
-                      {t("filters.failed")}
-                    </label>
+            <div className="sticky" style={{ top: '118px' }}>
+              <div className="bg-white/90 backdrop-blur-sm text-blue-900 rounded-2xl shadow-xl p-6 border border-blue-100/50">
+                <div className="mb-6 flex items-center gap-2">
+                  <div className="bg-blue-100 p-2 rounded-xl">
+                    <MdOutlineFormatListNumbered className="w-5 h-5 text-blue-600" />
                   </div>
+                  <h2 className="text-xl font-bold text-blue-900">{t("filters.title")}</h2>
                 </div>
 
-                <div className="mb-6">
-                  <label className="block text-sm font-semibold mb-1">
-                    {t("filters.date_sent")}
-                  </label>
-                  <input
-                    type="date"
-                    value={date}
-                    onChange={(e) => setDate(e.target.value)}
-                    className="w-full px-3 py-2 rounded-lg border border-blue-300 focus:ring focus:ring-blue-200"
-                  />
-                </div>
-                <div className="flex justify-between gap-2">
-                  <button
-                    onClick={applyFilters}
-                    className="bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700 transition"
-                  >
-                    {t("filters.apply")}
-                  </button>
-                  <button
-                    onClick={clearFilters}
-                    className="bg-gray-300 text-blue-900 px-4 py-2 rounded-lg hover:bg-gray-400 transition"
-                  >
-                    {t("filters.clear")}
-                  </button>
+                <div className="space-y-5">
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700 flex items-center gap-2 mb-2">
+                      <div className="bg-blue-50 p-1.5 rounded-lg">
+                        <MdOutlineFormatListNumbered className="w-4 h-4 text-blue-500" />
+                      </div>
+                      {t("filters.id")}
+                    </label>
+                    <input
+                      type="text"
+                      value={id}
+                      onChange={(e) => setId(e.target.value)}
+                      placeholder={t("filters.search_by_id")}
+                      className="w-full px-4 py-2.5 rounded-xl border border-gray-200 focus:ring-2 focus:ring-blue-100 focus:border-blue-400 focus:outline-none transition-all duration-200 hover:border-gray-300 text-[15px] shadow-sm bg-white/70"
+                    />
+                  </div>
+
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700 flex items-center gap-2 mb-2">
+                      <div className="bg-blue-50 p-1.5 rounded-lg">
+                        <HiOutlineUser className="w-4 h-4 text-blue-500" />
+                      </div>
+                      {t("filters.recipients")}
+                    </label>
+                    <input
+                      type="text"
+                      value={recipients}
+                      onChange={(e) => setRecipients(e.target.value)}
+                      placeholder={t("filters.search_by_recipient")}
+                      className="w-full px-4 py-2.5 rounded-xl border border-gray-200 focus:ring-2 focus:ring-blue-100 focus:border-blue-400 focus:outline-none transition-all duration-200 hover:border-gray-300 text-[15px] shadow-sm bg-white/70"
+                    />
+                  </div>
+
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700 flex items-center gap-2 mb-2">
+                      <div className="bg-blue-50 p-1.5 rounded-lg">
+                        <FiMessageCircle className="w-4 h-4 text-blue-500" />
+                      </div>
+                      {t("filters.subject")}
+                    </label>
+                    <input
+                      type="text"
+                      value={subject}
+                      onChange={(e) => setSubject(e.target.value)}
+                      placeholder={t("filters.search_by_subject")}
+                      className="w-full px-4 py-2.5 rounded-xl border border-gray-200 focus:ring-2 focus:ring-blue-100 focus:border-blue-400 focus:outline-none transition-all duration-200 hover:border-gray-300 text-[15px] shadow-sm bg-white/70"
+                    />
+                  </div>
+
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700 flex items-center gap-2 mb-3">
+                      <div className="bg-blue-50 p-1.5 rounded-lg">
+                        <IoIosInformationCircleOutline className="w-4 h-4 text-blue-500" />
+                      </div>
+                      {t("filters.status")}
+                    </label>
+                    <div className="space-y-3">
+                      <label className="flex items-center gap-3 cursor-pointer group">
+                        <div className="relative flex items-center justify-center w-5 h-5">
+                          <input
+                            type="checkbox"
+                            checked={status.sent}
+                            onChange={() => setStatus((prev) => ({ ...prev, sent: !prev.sent }))}
+                            className="peer appearance-none w-5 h-5 border-2 border-green-200 rounded-lg checked:bg-green-500 checked:border-green-500 hover:border-green-400 transition-all duration-200"
+                          />
+                          <MdCheckCircle className="absolute w-3.5 h-3.5 text-white scale-0 peer-checked:scale-100 transition-transform duration-200" />
+                        </div>
+                        <div className="flex items-center gap-2">
+                          <div className="w-2 h-2 rounded-full bg-green-500" />
+                          <span className="text-[15px] text-gray-600 group-hover:text-gray-900 transition-colors duration-200">
+                            {t("filters.sent")}
+                          </span>
+                        </div>
+                      </label>
+
+                      <label className="flex items-center gap-3 cursor-pointer group">
+                        <div className="relative flex items-center justify-center w-5 h-5">
+                          <input
+                            type="checkbox"
+                            checked={status.pending}
+                            onChange={() => setStatus((prev) => ({ ...prev, pending: !prev.pending }))}
+                            className="peer appearance-none w-5 h-5 border-2 border-yellow-200 rounded-lg checked:bg-yellow-500 checked:border-yellow-500 hover:border-yellow-400 transition-all duration-200"
+                          />
+                          <MdAccessTime className="absolute w-3.5 h-3.5 text-white scale-0 peer-checked:scale-100 transition-transform duration-200" />
+                        </div>
+                        <div className="flex items-center gap-2">
+                          <div className="w-2 h-2 rounded-full bg-yellow-500" />
+                          <span className="text-[15px] text-gray-600 group-hover:text-gray-900 transition-colors duration-200">
+                            {t("filters.pending")}
+                          </span>
+                        </div>
+                      </label>
+
+                      <label className="flex items-center gap-3 cursor-pointer group">
+                        <div className="relative flex items-center justify-center w-5 h-5">
+                          <input
+                            type="checkbox"
+                            checked={status.failed}
+                            onChange={() => setStatus((prev) => ({ ...prev, failed: !prev.failed }))}
+                            className="peer appearance-none w-5 h-5 border-2 border-red-200 rounded-lg checked:bg-red-500 checked:border-red-500 hover:border-red-400 transition-all duration-200"
+                          />
+                          <MdErrorOutline className="absolute w-3.5 h-3.5 text-white scale-0 peer-checked:scale-100 transition-transform duration-200" />
+                        </div>
+                        <div className="flex items-center gap-2">
+                          <div className="w-2 h-2 rounded-full bg-red-500" />
+                          <span className="text-[15px] text-gray-600 group-hover:text-gray-900 transition-colors duration-200">
+                            {t("filters.failed")}
+                          </span>
+                        </div>
+                      </label>
+                    </div>
+                  </div>
+
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700 flex items-center gap-2 mb-2">
+                      <div className="bg-blue-50 p-1.5 rounded-lg">
+                        <MdSchedule className="w-4 h-4 text-blue-500" />
+                      </div>
+                      {t("filters.date_sent")}
+                    </label>
+                    <input
+                      type="date"
+                      value={date}
+                      onChange={(e) => setDate(e.target.value)}
+                      className="w-full px-4 py-2.5 rounded-xl border border-gray-200 focus:ring-2 focus:ring-blue-100 focus:border-blue-400 focus:outline-none transition-all duration-200 hover:border-gray-300 text-[15px] shadow-sm bg-white/70"
+                    />
+                  </div>
+
+                  <div className="flex gap-3 pt-2">
+                    <button
+                      onClick={clearFilters}
+                      className="flex-1 px-4 py-2.5 bg-gray-100 text-gray-700 rounded-xl hover:bg-gray-200 transition-all duration-200 text-[15px] font-medium flex items-center justify-center gap-2 shadow-sm hover:shadow"
+                    >
+                      <X className="w-4 h-4" />
+                      {t("filters.clear")}
+                    </button>
+                    <button
+                      onClick={applyFilters}
+                      className="flex-1 px-4 py-2.5 bg-blue-600 text-white rounded-xl hover:bg-blue-700 transition-all duration-200 text-[15px] font-medium flex items-center justify-center gap-2 shadow-sm hover:shadow"
+                    >
+                      <MdOutlineFormatListNumbered className="w-4 h-4" />
+                      {t("filters.apply")}
+                    </button>
+                  </div>
                 </div>
               </div>
             </div>

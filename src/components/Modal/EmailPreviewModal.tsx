@@ -1,6 +1,6 @@
 // import { Trash2 } from "lucide-react";
 import { AnimatePresence, motion } from "framer-motion";
-import { FiTrash2, FiX, FiMail, FiCalendar, FiClock, FiPaperclip } from "react-icons/fi";
+import { FiTrash2, FiX, FiMail, FiCalendar, FiClock, FiPaperclip, FiUser } from "react-icons/fi";
 import { useTranslation } from "react-i18next";
 
 interface EmailClient {
@@ -39,83 +39,122 @@ const EmailPreviewModal = ({
         <AnimatePresence>
             {isVisible && email && (
                 <motion.div
-                    className="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-40 backdrop-blur-sm"
+                    className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-[2px]"
                     initial={{ opacity: 0 }}
                     animate={{ opacity: 1 }}
                     exit={{ opacity: 0 }}
                 >
                     <motion.div
-                        className="bg-white text-black rounded-2xl shadow-2xl w-[800px] max-h-[90vh] flex flex-col p-0 relative"
-                        initial={{ scale: 0.9, opacity: 0 }}
-                        animate={{ scale: 1, opacity: 1 }}
-                        exit={{ scale: 0.95, opacity: 0 }}
+                        className="bg-white text-black rounded-2xl shadow-[0_20px_70px_-10px_rgba(0,0,0,0.3)] w-[800px] max-h-[90vh] flex flex-col p-0 relative overflow-hidden"
+                        initial={{ scale: 0.95, opacity: 0, y: 20 }}
+                        animate={{ scale: 1, opacity: 1, y: 0 }}
+                        exit={{ scale: 0.95, opacity: 0, y: 20 }}
                         transition={{ type: "spring", stiffness: 300, damping: 25 }}
                     >
-                        <div className="flex justify-between items-center p-6 border-b border-gray-200 bg-gray-50 rounded-t-lg">
-                            <h2 className="text-xl font-semibold text-blue-600 flex items-center gap-2">
-                                <FiMail className="text-blue-500" />
-                                {t("scheduled_emails.preview.title")}
-                            </h2>
-                            <button onClick={onClose} className="text-2xl font-bold text-gray-400 hover:text-gray-600 transition"
-                                title={t("scheduled_emails.preview.close")}>
-                                <FiX />
+                        {/* Email Header */}
+                        <div className="flex justify-between items-center px-6 py-3 border-b bg-gray-50">
+                            <div className="flex items-center gap-3">
+                                <div className="bg-blue-100 p-2 rounded-full">
+                                    <FiMail className="w-5 h-5 text-blue-600" />
+                                </div>
+                                <span className="text-sm font-medium text-gray-500">{t("scheduled_emails.preview.title")}</span>
+                            </div>
+                            <button 
+                                onClick={onClose} 
+                                className="p-1.5 rounded-full hover:bg-gray-200 transition-colors duration-200"
+                            >
+                                <FiX className="w-5 h-5 text-gray-500" />
                             </button>
                         </div>
 
-                        <div className="overflow-y-auto p-6 space-y-6 bg-white rounded-b-lg shadow-sm" style={{ maxHeight: '60vh' }}>
-                            <div>
-                                <h3 className="text-lg font-semibold text-gray-800 mb-1">
-                                    {t("scheduled_emails.preview.subject")} <span className="font-normal">{email.subject}</span>
-                                </h3>
-
-                                <p className="text-sm text-gray-600 flex items-center gap-2">
-                                    <FiMail className="text-gray-400" />
-                                    {t("scheduled_emails.preview.to")}{email.clients.map(c => c.mail).join(", ")}
-                                </p>
-
-                                <div className="mt-3 space-y-1 text-sm text-gray-600">
-                                    <div className="flex items-center gap-2">
-                                        <FiCalendar className="text-gray-400" />
-                                        <span><span className="font-medium">{t("scheduled_emails.preview.send_date")}</span> {email.send_date}</span>
+                        {/* Email Content */}
+                        <div className="overflow-y-auto bg-white" style={{ maxHeight: '75vh' }}>
+                            {/* Email Subject and Meta */}
+                            <div className="px-6 py-5 border-b">
+                                <h1 className="text-xl font-semibold text-gray-900 mb-4">
+                                    {email.subject}
+                                </h1>
+                                
+                                <div className="space-y-3">
+                                    <div className="flex items-center gap-2 text-sm">
+                                        <div className="min-w-[40px] text-gray-500">Para:</div>
+                                        <div className="flex flex-wrap gap-1">
+                                            {email.clients.map((client, idx) => (
+                                                <div key={idx} className="inline-flex items-center bg-gray-100 px-2 py-1 rounded-full text-gray-700">
+                                                    <FiUser className="w-3.5 h-3.5 mr-1.5 text-gray-500" />
+                                                    {client.mail}
+                                                </div>
+                                            ))}
+                                        </div>
                                     </div>
-                                    <div className="flex items-center gap-2">
-                                        <FiClock className="text-gray-400" />
-                                        <span><span className="font-medium">{t("scheduled_emails.preview.send_time")}</span> {email.send_time}</span>
+
+                                    <div className="flex items-center gap-4 text-sm text-gray-600">
+                                        <div className="flex items-center gap-2">
+                                            <FiCalendar className="w-4 h-4 text-gray-400" />
+                                            <span>{email.send_date}</span>
+                                        </div>
+                                        <div className="flex items-center gap-2">
+                                            <FiClock className="w-4 h-4 text-gray-400" />
+                                            <span>{email.send_time}</span>
+                                        </div>
                                     </div>
                                 </div>
+                            </div>
 
-                                <div className="mt-6">
-                                    <h4 className="font-medium text-gray-700 mb-2">{t("scheduled_emails.preview.body")}</h4>
-                                    <p className="text-gray-800 text-sm whitespace-pre-line bg-gray-50 p-4 rounded-md border border-gray-200 shadow-inner">
-                                        {email.body}
-                                    </p>
+                            {/* Email Body */}
+                            <div className="px-6 py-6">
+                                <div className="text-gray-800 text-[15px] leading-relaxed whitespace-pre-line">
+                                    {email.body}
                                 </div>
+                            </div>
 
-                                {email.attachments?.length > 0 && (
-                                    <div className="mt-6">
-                                        <h4 className="font-medium text-gray-700 mb-2 flex items-center gap-2">
-                                            <FiPaperclip className="text-gray-500" />
-                                            {t("scheduled_emails.preview.attachments")}
-                                        </h4>
-                                        <ul className="space-y-2">
+                            {/* Attachments */}
+                            {email.attachments?.length > 0 && (
+                                <div className="px-6 pb-6">
+                                    <div className="border-t pt-4">
+                                        <div className="flex items-center gap-2 mb-3 text-sm font-medium text-gray-700">
+                                            <FiPaperclip className="w-4 h-4" />
+                                            <span>{email.attachments.length} {t("scheduled_emails.preview.attachments")}</span>
+                                        </div>
+                                        <div className="grid grid-cols-2 gap-2">
                                             {email.attachments.map((file, idx) => (
-                                                <li key={idx} className="flex items-center justify-between text-sm bg-gray-100 rounded-md px-4 py-2 text-gray-700 shadow-sm">
-                                                    <span className="truncate">{file.name}</span>
+                                                <div 
+                                                    key={idx} 
+                                                    className="flex items-center justify-between bg-gray-50 px-3 py-2 rounded border border-gray-200 group hover:border-gray-300 transition-all duration-200"
+                                                >
+                                                    <div className="flex items-center gap-2 min-w-0">
+                                                        <div className="bg-blue-100 p-1.5 rounded">
+                                                            <FiPaperclip className="w-3.5 h-3.5 text-blue-600" />
+                                                        </div>
+                                                        <span className="truncate text-sm text-gray-700">
+                                                            {file.name}
+                                                        </span>
+                                                    </div>
                                                     {onRemoveAttachment && (
                                                         <button
                                                             onClick={() => onRemoveAttachment(idx)}
-                                                            className="ml-3 text-red-500 hover:text-red-700 transition"
+                                                            className="p-1 rounded text-gray-400 hover:text-red-500 hover:bg-red-50 opacity-0 group-hover:opacity-100 transition-all duration-200 ml-2"
                                                             title={t("scheduled_emails.preview.remove_attachment")}
                                                         >
-                                                            <FiTrash2 size={16} />
+                                                            <FiTrash2 size={14} />
                                                         </button>
                                                     )}
-                                                </li>
+                                                </div>
                                             ))}
-                                        </ul>
+                                        </div>
                                     </div>
-                                )}
-                            </div>
+                                </div>
+                            )}
+                        </div>
+
+                        {/* Email Footer */}
+                        <div className="flex justify-end items-center px-6 py-3 border-t bg-gray-50">
+                            <button
+                                onClick={onClose}
+                                className="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors duration-200 text-sm font-medium"
+                            >
+                                {t("scheduled_emails.preview.close")}
+                            </button>
                         </div>
                     </motion.div>
                 </motion.div>
