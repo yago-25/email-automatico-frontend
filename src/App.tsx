@@ -24,6 +24,8 @@ import SmsCreatePage from "./pages/Sms/SmsCreatePage";
 import Mails from "./pages/Mails/Mails";
 import MailsCreate from "./pages/Mails/MailsCreate";
 import WhatsApp from "./pages/WhatsApp/WhatsApp";
+import WhatsAppList from "./pages/WhatsApp/WhatsAppList";
+import WhatsAppCreate from "./pages/WhatsApp/WhatsAppCreate";
 
 function App() {
   return (
@@ -139,6 +141,22 @@ function App() {
               element={
                 <AuthenticatedLayout>
                   <WhatsApp />
+                </AuthenticatedLayout>
+              }
+            />
+            <Route
+              path="/whatsapp/mensagens/:instance"
+              element={
+                <AuthenticatedLayout>
+                  <WhatsAppList />
+                </AuthenticatedLayout>
+              }
+            />
+            <Route
+              path="/whatsapp/mensagens/:instance/create"
+              element={
+                <AuthenticatedLayout>
+                  <WhatsAppCreate />
                 </AuthenticatedLayout>
               }
             />

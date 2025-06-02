@@ -213,7 +213,6 @@ const SmsCreatePage = () => {
             <pre className="max-w-full whitespace-pre-wrap break-words font-['lato']">
               {t("text_message.document_caption")}
             </pre>
-
           </div>
         );
 
@@ -364,6 +363,7 @@ const SmsCreatePage = () => {
         type: "success",
         message: t("alerts.schedule_created_success"),
       });
+      console.log("Error saving SMS:", e);
     } finally {
       setLoading(false);
     }
@@ -484,7 +484,7 @@ const SmsCreatePage = () => {
                         { label: t("text_message.daily"), value: "daily" },
                         { label: t("text_message.weekly"), value: "weekly" },
                         { label: t("text_message.monthly"), value: "monthly" },
-                        { label: t("text_message.yearly"), value: "yearly" }
+                        { label: t("text_message.yearly"), value: "yearly" },
                       ]}
                       className="w-full"
                     />
@@ -525,7 +525,7 @@ const SmsCreatePage = () => {
                     ) {
                       messageAlert({
                         type: "error",
-                        message: t("text_message.errors.fill_all_fields")
+                        message: t("text_message.errors.fill_all_fields"),
                       });
                       return;
                     }
@@ -541,7 +541,7 @@ const SmsCreatePage = () => {
                     if (selectedDate.isBefore(now, "day")) {
                       messageAlert({
                         type: "error",
-                        message: t("text_message.errors.date_in_past")
+                        message: t("text_message.errors.date_in_past"),
                       });
                       return;
                     }
@@ -552,7 +552,7 @@ const SmsCreatePage = () => {
                     ) {
                       messageAlert({
                         type: "error",
-                        message: t("text_message.errors.time_invalid")
+                        message: t("text_message.errors.time_invalid"),
                       });
                       return;
                     }
