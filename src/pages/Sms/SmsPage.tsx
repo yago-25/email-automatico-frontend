@@ -152,16 +152,19 @@ const SmsPage = () => {
   };
 
   const debouncedApplyFilters = useMemo(
-    () => debounce(applyFilters, 500),
-    [id, recipients, subject, status, date]
-  );
+  () => debounce(applyFilters, 500),
+  [id, recipients, subject, status, date, data] 
+);
 
-  useEffect(() => {
+useEffect(() => {
+  if (data && data.length > 0) {
     debouncedApplyFilters();
-    return () => {
-      debouncedApplyFilters.cancel();
-    };
-  }, [id, recipients, subject, status, date]);
+  }
+
+  return () => {
+    debouncedApplyFilters.cancel();
+  };
+}, [id, recipients, subject, status, date, data]); 
 
   const clearFilters = () => {
     setSubject("");
