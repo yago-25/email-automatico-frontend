@@ -492,6 +492,13 @@ const Ticket = () => {
         </button>
 
         <button
+          onClick={() => setShowOnlyFinished(prev => !prev)}
+          className="flex items-center justify-center gap-2 min-w-[150px] px-4 py-2.5 bg-blue-600 text-white font-medium rounded-lg shadow-md hover:bg-blue-700 hover:shadow-lg transition-all duration-200"
+        >
+          {showOnlyFinished ? t("buttons.backToActive") : t("buttons.showFinished")}
+        </button>
+
+        <button
           onClick={handleFilterToggle}
           className="flex items-center justify-center gap-2 min-w-[150px] px-4 py-2.5 bg-blue-600 text-white font-medium rounded-lg shadow-md hover:bg-blue-700 hover:shadow-lg transition-all duration-200"
         >
@@ -505,13 +512,6 @@ const Ticket = () => {
         >
           <FaEraser className="w-5 h-5" />
           {t('filters.clear')}
-        </button>
-
-        <button
-          onClick={() => setShowOnlyFinished(prev => !prev)}
-          className="flex items-center justify-center gap-2 min-w-[150px] px-4 py-2.5 bg-blue-600 text-white font-medium rounded-lg shadow-md hover:bg-blue-700 hover:shadow-lg transition-all duration-200"
-        >
-          {showOnlyFinished ? t("buttons.backToActive") : t("buttons.showFinished")}
         </button>
 
       </div>
@@ -553,7 +553,6 @@ const Ticket = () => {
                     </div>
                   </div>
 
-                  {/* Ticket Name and Observation */}
                   <div className="space-y-2">
                     <div className="flex items-center gap-3">
                       <div className="p-2 bg-purple-100 rounded-xl group-hover:bg-purple-600 transition-all duration-300">
@@ -629,7 +628,6 @@ const Ticket = () => {
         }}
       >
         <div className="bg-gradient-to-br from-white to-blue-50/50 p-6 rounded-2xl shadow-lg mt-2 max-w-md mx-auto">
-          {/* User Filter */}
           <div className="mt-4">
             <div className="flex items-center gap-2 mb-2">
               <div className="p-2 bg-blue-100 rounded-xl text-blue-600">
@@ -651,7 +649,6 @@ const Ticket = () => {
             </select>
           </div>
 
-          {/* Client Filter */}
           <div className="mt-4">
             <div className="flex items-center gap-2 mb-2">
               <div className="p-2 bg-purple-100 rounded-xl text-purple-600">
@@ -673,7 +670,6 @@ const Ticket = () => {
             </select>
           </div>
 
-          {/* Status Filter */}
           <div className="mt-4">
             <div className="flex items-center gap-2 mb-2">
               <div className="p-2 bg-green-100 rounded-xl text-green-600">
@@ -695,7 +691,6 @@ const Ticket = () => {
             </select>
           </div>
 
-          {/* Tag Filter */}
           <div className="mt-4">
             <div className="flex items-center gap-2 mb-2">
               <div className="p-2 bg-yellow-100 rounded-xl text-yellow-600">
@@ -717,7 +712,6 @@ const Ticket = () => {
             </select>
           </div>
 
-          {/* Date Filter */}
           <div className="mt-4">
             <div className="flex items-center gap-2 mb-2">
               <div className="p-2 bg-red-100 rounded-xl text-red-600">
@@ -733,7 +727,6 @@ const Ticket = () => {
             />
           </div>
 
-          {/* Ticket Filter */}
           <div className="mt-4">
             <div className="flex items-center gap-2 mb-2">
               <div className="p-2 bg-indigo-100 rounded-xl text-indigo-600">
@@ -755,7 +748,6 @@ const Ticket = () => {
             </select>
           </div>
 
-          {/* Action Buttons */}
           <div className="flex gap-4 mt-6">
             <button
               onClick={() => {
