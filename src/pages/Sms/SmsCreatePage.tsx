@@ -42,7 +42,9 @@ import {
 } from "lucide-react";
 import { Save } from "lucide-react";
 import isSameOrBefore from "dayjs/plugin/isSameOrBefore";
+import utc from "dayjs/plugin/utc";
 
+dayjs.extend(utc);
 dayjs.extend(isSameOrBefore);
 
 const localeMap = {
@@ -301,7 +303,7 @@ const SmsCreatePage = () => {
 
       const generateDates = (): string[] => {
         if (!recurrency || !recurrencyType || !recurrencyEndDate)
-          return [startDateTime.format("YYYY-MM-DD HH:mm:ss")];
+          return [startDateTime.utc().format("YYYY-MM-DD HH:mm:ss")];
 
         const endDate = dayjs(recurrencyEndDate);
         const dates: string[] = [];
@@ -309,7 +311,7 @@ const SmsCreatePage = () => {
         let current = startDateTime;
 
         while (current.isSameOrBefore(endDate)) {
-          dates.push(current.format("YYYY-MM-DD HH:mm:ss"));
+          dates.push(current.utc().format("YYYY-MM-DD HH:mm:ss"));
           switch (recurrencyType) {
             case "daily":
               current = current.add(1, "day");
@@ -354,14 +356,14 @@ const SmsCreatePage = () => {
       );
 
       messageAlert({
-        type: "error",
-        message: t("alerts.fill_all_fields"),
+        type: "success",
+        message: t("alerts.schedule_created_success"),
       });
       navigate("/sms");
     } catch (e) {
       messageAlert({
-        type: "success",
-        message: t("alerts.schedule_created_success"),
+        type: "error",
+        message: t("alerts.fill_all_fields"),
       });
       console.log("Error saving SMS:", e);
     } finally {
