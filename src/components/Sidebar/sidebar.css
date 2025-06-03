@@ -11,6 +11,7 @@
     height: 24px;
     cursor: pointer;
     transition: all 0.3s ease;
+    color: #3C80FF;
 }
 
 .icon:hover {
@@ -45,7 +46,7 @@
 .active-icon {
     padding: 2px;
     border-radius: 5px;
-    background-color: #007BFF;
+    background-color: #c9dbf0;
 }
 
 .icon-logout {

@@ -298,7 +298,7 @@ const Dashboard = () => {
           </button>
           <button
             onClick={() => setAddTicket(true)}
-            className="flex items-center gap-2 bg-purple-600 text-white px-5 py-3 rounded-xl shadow-md hover:bg-purple-700 transition"
+            className="flex items-center gap-2 bg-white text-blue-500 px-5 py-3 rounded-xl shadow-md hover:hover:bg-gray-200 transition"
           >
             <IoTicketOutline className="w-5 h-5" />
             {t("dashboard.add_ticket")}
@@ -389,7 +389,6 @@ const Dashboard = () => {
         ) : (
           <div className="flex flex-col items-center justify-center w-full gap-6 p-6 bg-gradient-to-br from-white to-blue-50 rounded-xl">
             <div className="w-full space-y-6">
-              {/* Nome */}
               <div className="group">
                 <div className="flex items-center gap-2 mb-2">
                   <div className="p-2 bg-blue-100 rounded-lg text-blue-600 group-hover:bg-blue-600 group-hover:text-white transition-all duration-300">
@@ -412,7 +411,6 @@ const Dashboard = () => {
                 </div>
               </div>
 
-              {/* Telefone */}
               <div className="group">
                 <div className="flex items-center gap-2 mb-2">
                   <div className="p-2 bg-green-100 rounded-lg text-green-600 group-hover:bg-green-600 group-hover:text-white transition-all duration-300">
@@ -449,7 +447,6 @@ const Dashboard = () => {
                 />
               </div>
 
-              {/* Email */}
               <div className="group">
                 <div className="flex items-center gap-2 mb-2">
                   <div className="p-2 bg-purple-100 rounded-lg text-purple-600 group-hover:bg-purple-600 group-hover:text-white transition-all duration-300">
@@ -472,7 +469,6 @@ const Dashboard = () => {
                 </div>
               </div>
 
-              {/* Botão de Cadastro */}
               <div className="pt-4">
                 <button
                   onClick={handleAddClient}
