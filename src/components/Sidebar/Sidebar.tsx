@@ -46,11 +46,17 @@ const Sidebar = () => {
   return (
     <div
       className={`sidebar-container transition-all duration-300 ${
-        optionsSms || optionsEmail ? "w-[170px]" : "w-[50px]"
+        optionsSms || optionsEmail ? "w-[180px]" : "w-[90px]"
       }`}
     >
       <div className="first-lay">
-        <img src={mailIcon} width={72} height={72} className="img-mail" />
+        <img
+          src={mailIcon}
+          width={105}
+          height={105}
+          className="img-mail"
+          style={{ paddingLeft: "15px", paddingRight: "15px" }}
+        />
         <div className="pages">
           <Tooltip title={t("sidebar.tooltips.dashboard")} placement="right">
             <IoMdHome
@@ -96,7 +102,10 @@ const Sidebar = () => {
                     className={`icon ${
                       isActiveRoute("/mails") ? "active-icon" : ""
                     }`}
-                    onClick={() => setOptionsEmail(!optionsEmail)}
+                    onClick={() => {
+                      setOptionsEmail(!optionsEmail);
+                      setOptionsSms(false);
+                    }}
                   />
                 </Tooltip>
                 {optionsEmail && (
@@ -105,6 +114,7 @@ const Sidebar = () => {
                     onClick={() => {
                       handleNavigation("/mails");
                       setOptionsEmail(false);
+                      setOptionsSms(false);
                     }}
                   >
                     {t("sidebar.tooltips.email.list")}
@@ -116,6 +126,7 @@ const Sidebar = () => {
                     onClick={() => {
                       handleNavigation("/mails/create");
                       setOptionsEmail(false);
+                      setOptionsSms(false);
                     }}
                   >
                     {t("sidebar.tooltips.email.create")}
@@ -131,7 +142,10 @@ const Sidebar = () => {
                     className={`icon ${
                       isActiveRoute("/sms") ? "active-icon" : ""
                     }`}
-                    onClick={() => setOptionsSms(!optionsSms)}
+                    onClick={() => {
+                      setOptionsSms(!optionsSms);
+                      setOptionsEmail(false);
+                    }}
                   />
                 </Tooltip>
                 {optionsSms && (
@@ -140,6 +154,7 @@ const Sidebar = () => {
                     onClick={() => {
                       handleNavigation("/sms");
                       setOptionsSms(false);
+                      setOptionsEmail(false);
                     }}
                   >
                     {t("sidebar.tooltips.sms.list")}
@@ -151,6 +166,7 @@ const Sidebar = () => {
                     onClick={() => {
                       handleNavigation("/sms/create");
                       setOptionsSms(false);
+                      setOptionsEmail(false);
                     }}
                   >
                     {t("sidebar.tooltips.sms.create")}

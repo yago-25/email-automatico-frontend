@@ -1,3 +1,4 @@
+/* eslint-disable react-hooks/exhaustive-deps */
 import { useEffect, useState } from "react";
 import Header from "../../components/Header/Header";
 import "./clients.css";
@@ -16,13 +17,13 @@ import { CiMail } from "react-icons/ci";
 import { FaGear } from "react-icons/fa6";
 import { HiOutlineUser } from "react-icons/hi";
 import { IoTicketOutline } from "react-icons/io5";
-import { useNavigate } from "react-router-dom";
+import { useLocation, useNavigate } from "react-router-dom";
 import DeleteConfirmModal from "../../components/DeleteConfirm/DeleteConfirmModal";
 import { HiMail, HiPhone, HiUser } from "react-icons/hi";
 import { HiUserAdd, HiX } from "react-icons/hi";
 import PhoneInput from "react-phone-input-2";
 import "react-phone-input-2/lib/style.css";
-import {  FaEraser } from "react-icons/fa";
+import { FaEraser } from "react-icons/fa";
 
 interface Client {
   id: number;
@@ -81,10 +82,9 @@ const Clients = () => {
   const [currentPage, setCurrentPage] = useState(1);
   const [loadingPost, setLoadingPost] = useState(false);
   const [clientIdToDelete, setClientIdToDelete] = useState<number | null>(null);
-  const queryParams = new URLSearchParams(location.search);
-  const clientNameQuery = queryParams.get('name');
-  const params = new URLSearchParams(location.search);
-  const clientId = params.get('clientId');
+
+  const location = useLocation();
+  const params = location?.state || [];
 
   const formatPhone = (phone: string): string => {
     if (!phone) return "";
@@ -116,37 +116,6 @@ const Clients = () => {
     }
   };
 
-  useEffect(() => {
-    const fetchClients = async () => {
-      try {
-        const response = await api.get("/clients", {
-          headers: {
-            Authorization: `Bearer ${localStorage.getItem("accessToken")}`,
-          },
-        });
-
-        let data: Client[] = response.data; // 👈 Aqui você tipa
-
-        if (clientId) {
-          data = data.filter((c) => c.id === Number(clientId));
-        } else if (clientNameQuery) {
-          data = data.filter(
-            (c) => c.name.toLowerCase() === clientNameQuery.toLowerCase()
-          );
-          setFilteredTxt(clientNameQuery);
-        }
-
-        setClients(data);
-      } catch (error) {
-        console.error("Erro ao buscar clientes:", error);
-      } finally {
-        setLoading(false);
-      }
-    };
-
-    fetchClients();
-  }, [clientId, clientNameQuery]);
-
   const getClients = async () => {
     setLoading(true);
     try {
@@ -168,12 +137,14 @@ const Clients = () => {
   };
 
   useEffect(() => {
-    getClients();
-  }, []);
-
-  useEffect(() => {
-    getClients();
-  }, [loadingPost]);
+    if (params?.client?.id && params?.client) {
+      if (clients.length !== 1 || clients[0].id !== params?.client?.id) {
+        setClients([params.client]);
+      }
+    } else {
+      getClients();
+    }
+  }, [params?.client?.id, params.client]);
 
   const handleAddClient = async () => {
     setLoadingPost(true);
@@ -286,12 +257,13 @@ const Clients = () => {
     }
   };
 
-  const handleTicket = (ticketName: string) => {
-    navigate(`/ticket/${ticketName}`);
+  const handleTicket = (ticket: Client) => {
+    navigate(`/ticket`, { state: { ticket } });
   };
+
   const handleClearFilter = () => {
     setFilteredTxt("");
-    navigate("/clients");
+    navigate("/clients", { replace: true, state: null });
   };
 
   if (loading) {
@@ -301,9 +273,11 @@ const Clients = () => {
   return (
     <div className="body">
       <Header name={authUser?.nome_completo} />
-      <div className="max-w-6xl mx-auto px-4 py-8">
+      <div className="max-w-[1500px] mx-auto px-4 py-8">
         <div className="flex flex-col sm:flex-row justify-between items-center mb-6 gap-4">
-          <h1 className="text-3xl font-bold text-white">{`📝 ${t("clients.clients")}`}</h1>
+          <h1 className="text-3xl font-bold text-white">{`📝 ${t(
+            "clients.clients"
+          )}`}</h1>
 
           <div className="flex w-full sm:w-auto gap-2">
             <input
@@ -322,18 +296,17 @@ const Clients = () => {
               className="flex items-center justify-center gap-2 min-w-[150px] px-4 py-2.5 bg-red-600 text-white font-medium rounded-lg shadow-md hover:bg-red-700 hover:shadow-lg transition-all duration-200"
             >
               <FaEraser className="w-5 h-5" />
-              {t('filters.clear')}
+              {t("filters.clear")}
             </button>
             <button
-            onClick={() => setAddClient(true)}
-            className="flex items-center gap-2 bg-blue-600 text-white px-5 py-3 rounded-xl shadow-md hover:bg-blue-700 transition"
-          >
-            <HiUserAdd className="w-5 h-5" />
-            {t("dashboard.add_client")}
-          </button>
+              onClick={() => setAddClient(true)}
+              className="flex items-center gap-2 bg-blue-600 text-white px-5 py-3 rounded-xl shadow-md hover:bg-blue-700 transition"
+            >
+              <HiUserAdd className="w-5 h-5" />
+              {t("dashboard.add_client")}
+            </button>
           </div>
         </div>
-
 
         <div className="w-full rounded-xl overflow-hidden shadow-md">
           <div className="grid grid-cols-5 gap-x-6 items-center px-6 py-4 bg-blue-100 border-b text-blue-900 font-semibold text-sm">
@@ -370,7 +343,7 @@ const Clients = () => {
               <p title={client.phone}>{formatPhone(client.phone)}</p>
               <div className="flex justify-center gap-4">
                 <button
-                  onClick={() => handleTicket(client.name)}
+                  onClick={() => handleTicket(client)}
                   className="text-indigo-500 hover:text-indigo-700"
                 >
                   <IoTicketOutline className="h-5 w-5" />
@@ -410,7 +383,7 @@ const Clients = () => {
           <button
             onClick={() => goToPage(currentPage - 1)}
             disabled={currentPage === 1}
-            className="p-2 bg-blue-600 text-white rounded-full hover:bg-blue-700 disabled:bg-gray-300 disabled:cursor-not-allowed"
+            className="p-2 bg-[#00448d] text-white rounded-full hover:bg-blue-700 disabled:bg-gray-300 disabled:cursor-not-allowed"
           >
             <MdArrowBackIos />
           </button>
@@ -420,7 +393,7 @@ const Clients = () => {
           <button
             onClick={() => goToPage(currentPage + 1)}
             disabled={currentPage === totalPages}
-            className="p-2 bg-blue-600 text-white rounded-full hover:bg-blue-700 disabled:bg-gray-300 disabled:cursor-not-allowed"
+            className="p-2 bg-[#00448d] text-white rounded-full hover:bg-blue-700 disabled:bg-gray-300 disabled:cursor-not-allowed"
           >
             <MdArrowForwardIos />
           </button>
@@ -489,7 +462,9 @@ const Clients = () => {
           title={
             <div className="flex items-center gap-3 text-blue-600">
               <HiUserAdd className="w-6 h-6" />
-              <span className="text-2xl font-bold">{t("dashboard.add_client")}</span>
+              <span className="text-2xl font-bold">
+                {t("dashboard.add_client")}
+              </span>
             </div>
           }
           isVisible={addClient}
@@ -501,13 +476,14 @@ const Clients = () => {
             </div>
           ) : (
             <div className="bg-gradient-to-br from-white to-blue-50/50 p-6 rounded-2xl shadow-lg space-y-6">
-
               <div className="space-y-2">
                 <div className="flex items-center gap-2 mb-2">
                   <div className="p-2 bg-blue-100 rounded-xl text-blue-600">
                     <HiUser className="w-5 h-5" />
                   </div>
-                  <label className="text-sm font-semibold text-gray-700">{t("dashboard.name")}</label>
+                  <label className="text-sm font-semibold text-gray-700">
+                    {t("dashboard.name")}
+                  </label>
                 </div>
                 <input
                   type="text"
@@ -523,32 +499,35 @@ const Clients = () => {
                   <div className="p-2 bg-green-100 rounded-xl text-green-600">
                     <HiPhone className="w-5 h-5" />
                   </div>
-                  <label className="text-sm font-semibold text-gray-700">{t("dashboard.phone")}</label>
+                  <label className="text-sm font-semibold text-gray-700">
+                    {t("dashboard.phone")}
+                  </label>
                 </div>
                 <PhoneInput
-                  country={'br'}
+                  country={"br"}
                   value={clientPhone}
                   onChange={setClientPhone}
                   prefix="+"
                   inputProps={{
                     required: true,
-                    className: 'w-full border border-gray-200 rounded-xl px-4 py-3 text-sm shadow-sm focus:outline-none focus:ring-2 focus:ring-green-400 bg-white/70 backdrop-blur-sm transition-all duration-200'
+                    className:
+                      "w-full border border-gray-200 rounded-xl px-4 py-3 text-sm shadow-sm focus:outline-none focus:ring-2 focus:ring-green-400 bg-white/70 backdrop-blur-sm transition-all duration-200",
                   }}
-                  containerStyle={{ width: '100%' }}
+                  containerStyle={{ width: "100%" }}
                   inputStyle={{
-                    width: '100%',
-                    height: '48px',
-                    borderRadius: '0.75rem',
-                    border: '1px solid #E5E7EB',
-                    fontSize: '16px',
-                    paddingLeft: '43px'
+                    width: "100%",
+                    height: "48px",
+                    borderRadius: "0.75rem",
+                    border: "1px solid #E5E7EB",
+                    fontSize: "16px",
+                    paddingLeft: "43px",
                   }}
                   buttonStyle={{
-                    borderTopLeftRadius: '0.75rem',
-                    borderBottomLeftRadius: '0.75rem',
-                    backgroundColor: '#F3F4F6',
-                    border: '1px solid #E5E7EB',
-                    borderRight: 'none'
+                    borderTopLeftRadius: "0.75rem",
+                    borderBottomLeftRadius: "0.75rem",
+                    backgroundColor: "#F3F4F6",
+                    border: "1px solid #E5E7EB",
+                    borderRight: "none",
                   }}
                   enableSearch={false}
                   disableSearchIcon={true}
@@ -561,7 +540,9 @@ const Clients = () => {
                   <div className="p-2 bg-purple-100 rounded-xl text-purple-600">
                     <HiMail className="w-5 h-5" />
                   </div>
-                  <label className="text-sm font-semibold text-gray-700">{t("dashboard.email")}</label>
+                  <label className="text-sm font-semibold text-gray-700">
+                    {t("dashboard.email")}
+                  </label>
                 </div>
                 <input
                   type="email"

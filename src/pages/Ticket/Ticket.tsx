@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 import { useEffect, useState } from "react";
 import Header from "../../components/Header/Header";
 import Modal from "../../components/Modal/Modal";
@@ -7,7 +8,7 @@ import { messageAlert } from "../../utils/messageAlert";
 import Spin from "../../components/Spin/Spin";
 import useSwr from "swr";
 import { FaFilter, FaEraser } from "react-icons/fa";
-import { useParams } from "react-router-dom";
+import { useLocation } from "react-router-dom";
 import Input from "../../components/Input/Input";
 import Select from "../../components/Select/Select";
 // import { useSwre } from "../../api/useSwr";
@@ -26,7 +27,6 @@ import {
   FaUser,
 } from "react-icons/fa";
 import "./ticket.css";
-
 
 interface TicketHistory {
   id: number;
@@ -47,6 +47,7 @@ interface Ticket {
   status: string;
   tags: string[] | string;
   client: {
+    id: number;
     name: string;
   };
   user: User;
@@ -97,14 +98,16 @@ export const Button: React.FC<ButtonProps> = ({ text, onClick, disabled }) => {
           onClick?.(e);
         }
       }}
-      className={`w-44 h-12 text-white rounded-lg transition-all ease-in-out ${disabled
-        ? "bg-blue-400 cursor-not-allowed opacity-50"
-        : "bg-blue-600 hover:bg-blue-700 hover:shadow-lg cursor-pointer active:w-11 active:h-11 active:rounded-full active:duration-300"
-        } group`}
+      className={`w-44 h-12 text-white rounded-lg transition-all ease-in-out ${
+        disabled
+          ? "bg-blue-400 cursor-not-allowed opacity-50"
+          : "bg-blue-600 hover:bg-blue-700 hover:shadow-lg cursor-pointer active:w-11 active:h-11 active:rounded-full active:duration-300"
+      } group`}
     >
       <svg
-        className={`animate-spin mx-auto ${disabled ? "hidden" : "group-active:block hidden"
-          }`}
+        className={`animate-spin mx-auto ${
+          disabled ? "hidden" : "group-active:block hidden"
+        }`}
         width="33"
         height="32"
         viewBox="0 0 33 32"
@@ -119,8 +122,10 @@ export const Button: React.FC<ButtonProps> = ({ text, onClick, disabled }) => {
 };
 
 const Ticket = () => {
+  const location = useLocation();
+  const params = location?.state || [];
+  const id = params?.ticket?.id;
 
-  const { id } = useParams<{ id: string }>();
   const { t } = useTranslation();
 
   const statusTickets = [
@@ -133,10 +138,10 @@ const Ticket = () => {
 
   const statusTranslations = {
     "Não iniciada": "status.not_started",
-    "Esperando": "status.waiting",
+    Esperando: "status.waiting",
     "Em progresso": "status.in_progress",
-    "Completo": "status.completed",
-    "Descartada": "status.discarded"
+    Completo: "status.completed",
+    Descartada: "status.discarded",
   };
 
   const storedUser = localStorage.getItem("user");
@@ -150,7 +155,7 @@ const Ticket = () => {
   const [filterDate, setFilterDate] = useState<string>("");
   const [filterTicket, setFilterTicket] = useState<string>("");
   const [filteredTickets, setFilteredTickets] = useState<Ticket[]>([]);
-  const [filterUser, setFilterUser] = useState('');
+  const [filterUser, setFilterUser] = useState("");
   const [filterClient, setFilterClient] = useState<string>("");
   const [addTicket, setAddTicket] = useState(false);
   const [loadingPost, setLoadingPost] = useState(false);
@@ -165,32 +170,46 @@ const Ticket = () => {
   const [showOnlyFinished, setShowOnlyFinished] = useState(false);
   // const [filteredTxt, setFilteredTxt] = useState("");
 
-  const { data: rawClients = [], isLoading: loadingClients } = useSwr<Clients[]>('/clients', {
+  const { data: rawClients = [], isLoading: loadingClients } = useSwr<
+    Clients[]
+  >("/clients", {
     fetcher: (url) =>
-      api.get(url, {
-        headers: {
-          Authorization: `Bearer ${localStorage.getItem("accessToken")}`,
-        },
-      }).then((res) => res.data),
+      api
+        .get(url, {
+          headers: {
+            Authorization: `Bearer ${localStorage.getItem("accessToken")}`,
+          },
+        })
+        .then((res) => res.data),
   });
 
-  const { data: rawAdmins = [], isLoading: loadingAdmins } = useSwr<Admins[]>('/admins', {
+  const { data: rawAdmins = [], isLoading: loadingAdmins } = useSwr<Admins[]>(
+    "/admins",
+    {
+      fetcher: (url) =>
+        api
+          .get(url, {
+            headers: {
+              Authorization: `Bearer ${localStorage.getItem("accessToken")}`,
+            },
+          })
+          .then((res) => res.data),
+    }
+  );
+
+  const {
+    data: rawTickets = [],
+    isLoading,
+    mutate,
+  } = useSwr<Ticket[]>("/tickets", {
     fetcher: (url) =>
-      api.get(url, {
-        headers: {
-          Authorization: `Bearer ${localStorage.getItem("accessToken")}`,
-        },
-      }).then((res) => res.data),
-  });
-
-  const { data: rawTickets = [], isLoading, mutate } = useSwr<Ticket[]>('/tickets', {
-
-    fetcher: (url) => api.get(url, {
-      headers: {
-        Authorization: `Bearer ${localStorage.getItem("accessToken")}`,
-      },
-    }).then((res) => res.data),
-
+      api
+        .get(url, {
+          headers: {
+            Authorization: `Bearer ${localStorage.getItem("accessToken")}`,
+          },
+        })
+        .then((res) => res.data),
   });
 
   const allTags = Array.from(
@@ -208,7 +227,7 @@ const Ticket = () => {
 
   const optionsAdmin: Option[] = rawAdmins.map((admin: Admins) => ({
     value: String(admin.id),
-    label: admin.nome_completo
+    label: admin.nome_completo,
   }));
 
   const optionsTicket: Option[] = rawTickets.map((ticket) => ({
@@ -258,7 +277,6 @@ const Ticket = () => {
     }
   };
 
-
   const handleChangeStatus = async (newStatus: string) => {
     setLoadingModal(true);
     if (!selectedTicket) return;
@@ -277,7 +295,7 @@ const Ticket = () => {
 
         return {
           ...prev,
-          status: data.status
+          status: data.status,
         };
       });
 
@@ -285,8 +303,7 @@ const Ticket = () => {
 
       setSelectedTicket({
         ...data,
-        tags:
-          typeof data.tags === "string" ? JSON.parse(data.tags) : data.tags,
+        tags: typeof data.tags === "string" ? JSON.parse(data.tags) : data.tags,
       });
 
       mutate();
@@ -300,12 +317,11 @@ const Ticket = () => {
         type: "error",
         message: "Erro ao atualizar status",
       });
-      console.log(error, 'error');
+      console.log(error, "error");
     } finally {
       setLoadingModal(false);
     }
   };
-
 
   const handleFilterToggle = () => {
     mutate();
@@ -313,33 +329,37 @@ const Ticket = () => {
   };
 
   const handleFilterChange = () => {
-
     mutate();
 
     const filtered = rawTickets.filter((ticket) => {
-      const matchesStatus = filterStatus ? ticket.status === filterStatus : true;
+      const matchesStatus = filterStatus
+        ? ticket.status === filterStatus
+        : true;
 
-      const matchesTag =
-        filterTag
-          ? Array.isArray(ticket.tags)
-            ? ticket.tags.some((tag) =>
+      const matchesTag = filterTag
+        ? Array.isArray(ticket.tags)
+          ? ticket.tags.some((tag) =>
               tag.toLowerCase().includes(filterTag.toLowerCase())
             )
-            : ticket.tags.toLowerCase().includes(filterTag.toLowerCase())
-          : true;
+          : ticket.tags.toLowerCase().includes(filterTag.toLowerCase())
+        : true;
 
-      const matchesDate =
-        filterDate ? new Date(ticket.created_at).toLocaleDateString() === new Date(filterDate).toLocaleDateString() : true;
+      const matchesDate = filterDate
+        ? new Date(ticket.created_at).toLocaleDateString() ===
+          new Date(filterDate).toLocaleDateString()
+        : true;
 
-      const matchesTicket =
-        filterTicket ? String(ticket.id) === filterTicket : true;
+      const matchesTicket = filterTicket
+        ? String(ticket.id) === filterTicket
+        : true;
 
-      const matchesUser = filterUser ? ticket.user?.id === Number(filterUser) : true;
+      const matchesUser = filterUser
+        ? ticket.user?.id === Number(filterUser)
+        : true;
 
-      const matchesClient =
-        filterClient
-          ? ticket.client?.name.toLowerCase().includes(filterClient.toLowerCase())
-          : true;
+      const matchesClient = filterClient
+        ? ticket.client?.name.toLowerCase().includes(filterClient.toLowerCase())
+        : true;
 
       return (
         matchesStatus &&
@@ -355,10 +375,10 @@ const Ticket = () => {
   };
 
   const handleClearFilters = () => {
-    setFilterStatus('');
-    setFilterTag('');
-    setFilterDate('');
-    setFilterTicket('');
+    setFilterStatus("");
+    setFilterTag("");
+    setFilterDate("");
+    setFilterTicket("");
     setFilteredTickets(rawTickets);
   };
 
@@ -379,41 +399,45 @@ const Ticket = () => {
         return;
       }
 
-      await api.post('/tickets', {
-        name: clientName,
-        type: typeName,
-        tags: tags,
-        client_id: selected,
-        user_id: selectedAdmin,
-        create_id: authUser?.id,
-        status: statusTicket,
-        observation: observation,
-      }, {
-        headers: {
-          Authorization: `Bearer ${localStorage.getItem("accessToken")}`
+      await api.post(
+        "/tickets",
+        {
+          name: clientName,
+          type: typeName,
+          tags: tags,
+          client_id: selected,
+          user_id: selectedAdmin,
+          create_id: authUser?.id,
+          status: statusTicket,
+          observation: observation,
+        },
+        {
+          headers: {
+            Authorization: `Bearer ${localStorage.getItem("accessToken")}`,
+          },
         }
-      });
+      );
 
-      mutate()
+      mutate();
 
       messageAlert({
         type: "success",
         message: "Ticket cadastrado com sucesso!",
       });
 
-      setStatusTicket('');
-      setClientName('');
-      setTypeName('');
-      setSelected('');
-      setSelectedAdmin('');
+      setStatusTicket("");
+      setClientName("");
+      setTypeName("");
+      setSelected("");
+      setSelectedAdmin("");
       setTags([]);
-      setObservation('');
+      setObservation("");
       setAddTicket(false);
     } catch (e) {
-      console.log('Erro ao adicionar ticket: ', e);
+      console.log("Erro ao adicionar ticket: ", e);
       messageAlert({
         type: "error",
-        message: "Erro ao adicionar ticket"
+        message: "Erro ao adicionar ticket",
       });
     } finally {
       setLoadingPost(false);
@@ -446,21 +470,25 @@ const Ticket = () => {
     }
   }, [showModal, selectedTicket?.id]);
 
-
   useEffect(() => {
     setFilteredTickets(rawTickets);
   }, [rawTickets]);
 
   useEffect(() => {
     if (id && rawTickets.length > 0) {
-
-      const matchedTickets = rawTickets.filter(ticket => ticket.client.name === id);
+      const matchedTickets = rawTickets.filter(
+        (ticket) => ticket.client.id === id
+      );
 
       if (matchedTickets.length > 0) {
         setFilterClient(matchedTickets[0].client?.name || "");
         setSelectedTicket(matchedTickets[0]);
         fetchHistory(matchedTickets[0].id);
         setFilteredTickets(matchedTickets);
+      } else {
+        setFilterClient("");
+        setSelectedTicket(null);
+        setFilteredTickets([]);
       }
     }
   }, [id, rawTickets]);
@@ -482,7 +510,6 @@ const Ticket = () => {
       <Header name={authUser?.nome_completo} />
 
       <div className="filter-button-container flex items-center gap-4 mb-4 p-4">
-
         <button
           onClick={() => setAddTicket(true)}
           className="flex items-center justify-center gap-2 min-w-[150px] px-4 py-2.5 bg-purple-600 text-white font-medium rounded-lg shadow-md hover:bg-purple-700 hover:shadow-lg transition-all duration-200"
@@ -492,10 +519,12 @@ const Ticket = () => {
         </button>
 
         <button
-          onClick={() => setShowOnlyFinished(prev => !prev)}
+          onClick={() => setShowOnlyFinished((prev) => !prev)}
           className="flex items-center justify-center gap-2 min-w-[150px] px-4 py-2.5 bg-blue-600 text-white font-medium rounded-lg shadow-md hover:bg-blue-700 hover:shadow-lg transition-all duration-200"
         >
-          {showOnlyFinished ? t("buttons.backToActive") : t("buttons.showFinished")}
+          {showOnlyFinished
+            ? t("buttons.backToActive")
+            : t("buttons.showFinished")}
         </button>
 
         <button
@@ -511,20 +540,18 @@ const Ticket = () => {
           className="flex items-center justify-center gap-2 min-w-[150px] px-4 py-2.5 bg-red-600 text-white font-medium rounded-lg shadow-md hover:bg-red-700 hover:shadow-lg transition-all duration-200"
         >
           <FaEraser className="w-5 h-5" />
-          {t('filters.clear')}
+          {t("filters.clear")}
         </button>
-
       </div>
 
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6 p-6 w-full">
-
         {isLoading ? (
           <div className="col-span-full flex justify-center items-center py-12">
             <Spin />
           </div>
         ) : filteredTickets.length > 0 ? (
           filteredTickets
-            .filter(ticket => statusToShow.includes(ticket.status))
+            .filter((ticket) => statusToShow.includes(ticket.status))
             .map((ticket) => (
               <motion.div
                 key={ticket.id}
@@ -536,7 +563,6 @@ const Ticket = () => {
                 className="bg-white rounded-2xl shadow-lg hover:shadow-xl transition-all duration-300 border border-gray-100 overflow-hidden group cursor-pointer"
               >
                 <div className="p-6 space-y-4">
-
                   <div className="flex justify-between items-start">
                     <div className="flex items-center gap-3">
                       <div className="p-2 bg-blue-100 rounded-xl group-hover:bg-blue-600 transition-all duration-300">
@@ -587,29 +613,42 @@ const Ticket = () => {
 
                   {/* Status Badge */}
                   <div className="flex items-center gap-2 mt-4">
-                    <div className={`
+                    <div
+                      className={`
                       px-4 py-2 rounded-xl flex items-center gap-2 w-full justify-center
-                      ${ticket.status === "Não iniciada" ? "bg-gray-100 text-gray-600" :
-                        ticket.status === "Esperando" ? "bg-yellow-100 text-yellow-600" :
-                        ticket.status === "Em progresso" ? "bg-blue-100 text-blue-600" :
-                        ticket.status === "Completo" ? "bg-green-100 text-green-600" :
-                        "bg-red-100 text-red-600"} 
+                      ${
+                        ticket.status === "Não iniciada"
+                          ? "bg-gray-100 text-gray-600"
+                          : ticket.status === "Esperando"
+                          ? "bg-yellow-100 text-yellow-600"
+                          : ticket.status === "Em progresso"
+                          ? "bg-blue-100 text-blue-600"
+                          : ticket.status === "Completo"
+                          ? "bg-green-100 text-green-600"
+                          : "bg-red-100 text-red-600"
+                      } 
                       group-hover:bg-opacity-20 transition-all duration-300
-                    `}>
+                    `}
+                    >
                       <AlertCircle className="w-4 h-4" />
                       <span className="text-sm font-medium">
-                        {t(statusTranslations[ticket.status as keyof typeof statusTranslations])}
+                        {t(
+                          statusTranslations[
+                            ticket.status as keyof typeof statusTranslations
+                          ]
+                        )}
                       </span>
                     </div>
                   </div>
-
                 </div>
               </motion.div>
             ))
         ) : (
           <div className="col-span-full flex flex-col items-center justify-center py-12 text-gray-500">
             <IoTicketOutline className="w-16 h-16 mb-4 text-gray-400" />
-            <p className="text-lg font-medium">{t("messages.noTicketsFound")}</p>
+            <p className="text-lg font-medium">
+              {t("messages.noTicketsFound")}
+            </p>
           </div>
         )}
       </div>
@@ -618,7 +657,7 @@ const Ticket = () => {
         title={
           <div className="flex items-center gap-3 text-blue-600">
             <FaFilter className="w-6 h-6" />
-            <span className="text-2xl font-bold">{t('filters.title')}</span>
+            <span className="text-2xl font-bold">{t("filters.title")}</span>
           </div>
         }
         isVisible={showModalFilter}
@@ -633,14 +672,16 @@ const Ticket = () => {
               <div className="p-2 bg-blue-100 rounded-xl text-blue-600">
                 <FaUser className="w-5 h-5" />
               </div>
-              <label className="text-sm font-semibold text-gray-700">{t('filters.user')}</label>
+              <label className="text-sm font-semibold text-gray-700">
+                {t("filters.user")}
+              </label>
             </div>
             <select
               value={filterUser}
               onChange={(e) => setFilterUser(e.target.value)}
               className="w-full border border-gray-200 rounded-xl px-4 py-3 text-sm shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-400 bg-white/70 backdrop-blur-sm"
             >
-              <option value="">{t('filters.all')}</option>
+              <option value="">{t("filters.all")}</option>
               {rawAdmins.map((user) => (
                 <option key={user.id} value={user.id}>
                   {user.nome_completo}
@@ -654,14 +695,16 @@ const Ticket = () => {
               <div className="p-2 bg-purple-100 rounded-xl text-purple-600">
                 <IoPersonSharp className="w-5 h-5" />
               </div>
-              <label className="text-sm font-semibold text-gray-700">{t('filters.client')}</label>
+              <label className="text-sm font-semibold text-gray-700">
+                {t("filters.client")}
+              </label>
             </div>
             <select
               value={filterClient}
               onChange={(e) => setFilterClient(e.target.value)}
               className="w-full border border-gray-200 rounded-xl px-4 py-3 text-sm shadow-sm focus:outline-none focus:ring-2 focus:ring-purple-400 bg-white/70 backdrop-blur-sm"
             >
-              <option value="">{t('filters.all')}</option>
+              <option value="">{t("filters.all")}</option>
               {rawClients.map((client) => (
                 <option key={client.name} value={client.name}>
                   {client.name}
@@ -675,19 +718,21 @@ const Ticket = () => {
               <div className="p-2 bg-green-100 rounded-xl text-green-600">
                 <AlertCircle className="w-5 h-5" />
               </div>
-              <label className="text-sm font-semibold text-gray-700">{t('filters.status')}</label>
+              <label className="text-sm font-semibold text-gray-700">
+                {t("filters.status")}
+              </label>
             </div>
             <select
               value={filterStatus}
               onChange={(e) => setFilterStatus(e.target.value)}
               className="w-full border border-gray-200 rounded-xl px-4 py-3 text-sm shadow-sm focus:outline-none focus:ring-2 focus:ring-green-400 bg-white/70 backdrop-blur-sm"
             >
-              <option value="">{t('filters.all')}</option>
-              <option value="Não iniciada">{t('status.not_started')}</option>
-              <option value="Esperando">{t('status.waiting')}</option>
-              <option value="Em progresso">{t('status.in_progress')}</option>
-              <option value="Completo">{t('status.completed')}</option>
-              <option value="Descartada">{t('status.discarded')}</option>
+              <option value="">{t("filters.all")}</option>
+              <option value="Não iniciada">{t("status.not_started")}</option>
+              <option value="Esperando">{t("status.waiting")}</option>
+              <option value="Em progresso">{t("status.in_progress")}</option>
+              <option value="Completo">{t("status.completed")}</option>
+              <option value="Descartada">{t("status.discarded")}</option>
             </select>
           </div>
 
@@ -696,14 +741,16 @@ const Ticket = () => {
               <div className="p-2 bg-yellow-100 rounded-xl text-yellow-600">
                 <FaTags className="w-5 h-5" />
               </div>
-              <label className="text-sm font-semibold text-gray-700">{t('filters.tag')}</label>
+              <label className="text-sm font-semibold text-gray-700">
+                {t("filters.tag")}
+              </label>
             </div>
             <select
               value={filterTag}
               onChange={(e) => setFilterTag(e.target.value)}
               className="w-full border border-gray-200 rounded-xl px-4 py-3 text-sm shadow-sm focus:outline-none focus:ring-2 focus:ring-yellow-400 bg-white/70 backdrop-blur-sm"
             >
-              <option value="">{t('filters.all')}</option>
+              <option value="">{t("filters.all")}</option>
               {allTags.map((tag, index) => (
                 <option key={index} value={tag}>
                   {tag}
@@ -717,7 +764,9 @@ const Ticket = () => {
               <div className="p-2 bg-red-100 rounded-xl text-red-600">
                 <FaCalendarAlt className="w-5 h-5" />
               </div>
-              <label className="text-sm font-semibold text-gray-700">{t('filters.date')}</label>
+              <label className="text-sm font-semibold text-gray-700">
+                {t("filters.date")}
+              </label>
             </div>
             <input
               type="date"
@@ -732,14 +781,16 @@ const Ticket = () => {
               <div className="p-2 bg-indigo-100 rounded-xl text-indigo-600">
                 <IoTicketOutline className="w-5 h-5" />
               </div>
-              <label className="text-sm font-semibold text-gray-700">{t('filters.ticket')}</label>
+              <label className="text-sm font-semibold text-gray-700">
+                {t("filters.ticket")}
+              </label>
             </div>
             <select
               value={filterTicket}
               onChange={(e) => setFilterTicket(e.target.value)}
               className="w-full border border-gray-200 rounded-xl px-4 py-3 text-sm shadow-sm focus:outline-none focus:ring-2 focus:ring-indigo-400 bg-white/70 backdrop-blur-sm"
             >
-              <option value="">{t('filters.all')}</option>
+              <option value="">{t("filters.all")}</option>
               {optionsTicket.map((option) => (
                 <option key={option.value} value={option.value}>
                   {option.label}
@@ -757,14 +808,14 @@ const Ticket = () => {
               className="flex-1 flex items-center justify-center gap-2 py-3 bg-gradient-to-r from-green-500 to-green-600 text-white rounded-xl hover:from-green-600 hover:to-green-700 transition-all duration-300 shadow-lg hover:shadow-xl font-medium"
             >
               <FaFilter className="w-4 h-4" />
-              {t('filters.apply')}
+              {t("filters.apply")}
             </button>
             <button
               onClick={handleClearFilters}
               className="flex-1 flex items-center justify-center gap-2 py-3 bg-gradient-to-r from-red-500 to-red-600 text-white rounded-xl hover:from-red-600 hover:to-red-700 transition-all duration-300 shadow-lg hover:shadow-xl font-medium"
             >
               <FaEraser className="w-4 h-4" />
-              {t('filters.clear')}
+              {t("filters.clear")}
             </button>
           </div>
         </div>
@@ -772,7 +823,7 @@ const Ticket = () => {
 
       {selectedTicket && (
         <Modal
-          title={t('ticket.title', { name: selectedTicket.name })}
+          title={t("ticket.title", { name: selectedTicket.name })}
           isVisible={showModal}
           onClose={() => setShowModal(false)}
         >
@@ -785,39 +836,56 @@ const Ticket = () => {
               <>
                 <div className="bg-white p-4 rounded-xl shadow-md space-y-2">
                   <h3 className="text-lg font-semibold flex items-center gap-2 text-blue-600">
-                    <FaClipboardList /> {t('ticket.details_title')}
+                    <FaClipboardList /> {t("ticket.details_title")}
                   </h3>
 
                   <div className="grid grid-cols-2 gap-4">
-                    <p><strong>{t('ticket.name')}:</strong> {selectedTicket.name}</p>
-                    <p><strong>{t('ticket.type')}:</strong> {selectedTicket.type}</p>
+                    <p>
+                      <strong>{t("ticket.name")}:</strong> {selectedTicket.name}
+                    </p>
+                    <p>
+                      <strong>{t("ticket.type")}:</strong> {selectedTicket.type}
+                    </p>
 
                     <div className="col-span-2">
                       <label className="block text-sm font-medium text-gray-700 mb-1">
-                        <strong>{t('ticket.status')}:</strong>
+                        <strong>{t("ticket.status")}:</strong>
                       </label>
                       <select
                         value={selectedTicket.status}
                         onChange={(e) => handleChangeStatus(e.target.value)}
                         className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-400"
                       >
-                        <option value="Não iniciada">{t('status.not_started')}</option>
-                        <option value="Esperando">{t('status.waiting')}</option>
-                        <option value="Em progresso">{t('status.in_progress')}</option>
-                        <option value="Completo">{t('status.resolved')}</option>
-                        <option value="Descartada">{t('status.closed')}</option>
+                        <option value="Não iniciada">
+                          {t("status.not_started")}
+                        </option>
+                        <option value="Esperando">{t("status.waiting")}</option>
+                        <option value="Em progresso">
+                          {t("status.in_progress")}
+                        </option>
+                        <option value="Completo">{t("status.resolved")}</option>
+                        <option value="Descartada">{t("status.closed")}</option>
                       </select>
                     </div>
 
-                    <p><strong>{t('ticket.creation_date')}:</strong> {formatDate(selectedTicket.created_at, t)}</p>
-                    <p><strong>{t('ticket.client')}:</strong> {selectedTicket.client?.name}</p>
-                    <p><strong>{t('ticket.operator')}:</strong> {selectedTicket.user?.nome_completo}</p>
+                    <p>
+                      <strong>{t("ticket.creation_date")}:</strong>{" "}
+                      {formatDate(selectedTicket.created_at, t)}
+                    </p>
+                    <p>
+                      <strong>{t("ticket.client")}:</strong>{" "}
+                      {selectedTicket.client?.name}
+                    </p>
+                    <p>
+                      <strong>{t("ticket.operator")}:</strong>{" "}
+                      {selectedTicket.user?.nome_completo}
+                    </p>
                   </div>
                 </div>
 
                 <div className="bg-white p-4 rounded-xl shadow-md">
                   <h3 className="text-lg font-semibold flex items-center gap-2 text-green-600">
-                    <FaTags /> {t('ticket.tags_title')}
+                    <FaTags /> {t("ticket.tags_title")}
                   </h3>
                   <div className="flex flex-wrap gap-2 mt-2">
                     {(Array.isArray(selectedTicket.tags)
@@ -833,16 +901,17 @@ const Ticket = () => {
 
                 <div className="bg-white p-4 rounded-xl shadow-md">
                   <h3 className="text-lg font-semibold flex items-center gap-2 text-yellow-600">
-                    <FaRegStickyNote /> {t('ticket.notes_title')}
+                    <FaRegStickyNote /> {t("ticket.notes_title")}
                   </h3>
-                  <p className="mt-2">{selectedTicket.observation || t('ticket.no_notes')}</p>
+                  <p className="mt-2">
+                    {selectedTicket.observation || t("ticket.no_notes")}
+                  </p>
                 </div>
-
 
                 {Array.isArray(history) && history.length > 0 && (
                   <div className="bg-white p-4 rounded-xl shadow-md">
                     <h3 className="text-lg font-semibold flex items-center gap-2 text-purple-600">
-                      <FaHistory /> {t('ticket.history_title')}
+                      <FaHistory /> {t("ticket.history_title")}
                     </h3>
 
                     <div className="space-y-3 mt-3">
@@ -850,15 +919,18 @@ const Ticket = () => {
                         const isStatus = item.field_modified === "status";
 
                         const values = [
-                          { name: 'not_started', translate: 'Não iniciada' },
-                          { name: 'waiting', translate: 'Esperando' },
-                          { name: 'in_progress', translate: 'Em progresso' },
-                          { name: 'completed', translate: 'Completo' },
-                          { name: 'discarded', translate: 'Descartada' },
+                          { name: "not_started", translate: "Não iniciada" },
+                          { name: "waiting", translate: "Esperando" },
+                          { name: "in_progress", translate: "Em progresso" },
+                          { name: "completed", translate: "Completo" },
+                          { name: "discarded", translate: "Descartada" },
                         ];
 
                         const getTranslatedStatus = (value: any) => {
-                          return values.find((v) => v.translate.toLowerCase() === value?.toLowerCase())?.name;
+                          return values.find(
+                            (v) =>
+                              v.translate.toLowerCase() === value?.toLowerCase()
+                          )?.name;
                         };
 
                         const oldValue = getTranslatedStatus(item.old_value);
@@ -879,27 +951,40 @@ const Ticket = () => {
                             className="border-l-4 border-purple-400 pl-4 py-2 bg-gray-50 rounded-md hover:bg-gray-100 transition"
                           >
                             <p>
-                              <strong>{t(`fields.${item.field_modified}`, item.field_modified)}:</strong>{" "}
+                              <strong>
+                                {t(
+                                  `fields.${item.field_modified}`,
+                                  item.field_modified
+                                )}
+                                :
+                              </strong>{" "}
                               {isTicketCreated ? (
-                                <>{t('ticket.created')}</>
+                                <>{t("ticket.created")}</>
                               ) : isCreated ? (
-                                <>{t('ticket.created')}</>
-                              ) : item.old_value === null || item.old_value === "" ? (
+                                <>{t("ticket.created")}</>
+                              ) : item.old_value === null ||
+                                item.old_value === "" ? (
                                 <>
-                                  {t('ticket.changed.set_to')} <em>"{t(`status.${newValue}`)}"</em>
+                                  {t("ticket.changed.set_to")}{" "}
+                                  <em>"{t(`status.${newValue}`)}"</em>
                                 </>
                               ) : (
                                 <>
-                                  {t('ticket.changed.from')} <em>"{t(`status.${oldValue}`)}"</em> {t('ticket.changed.to')} <em>"{t(`status.${newValue}`)}"</em>
+                                  {t("ticket.changed.from")}{" "}
+                                  <em>"{t(`status.${oldValue}`)}"</em>{" "}
+                                  {t("ticket.changed.to")}{" "}
+                                  <em>"{t(`status.${newValue}`)}"</em>
                                 </>
                               )}
                             </p>
                             <p className="text-xs text-gray-500 flex items-center gap-1">
-                              <FaCalendarAlt /> {new Date(item.created_at).toLocaleString()}
+                              <FaCalendarAlt />{" "}
+                              {new Date(item.created_at).toLocaleString()}
                             </p>
                             {item.user?.nome_completo && (
                               <p className="text-xs text-gray-600 italic flex items-center gap-1">
-                                <FaUser /> {t('ticket.modified_by')}: <strong>{item.user.nome_completo}</strong>
+                                <FaUser /> {t("ticket.modified_by")}:{" "}
+                                <strong>{item.user.nome_completo}</strong>
                               </p>
                             )}
                           </div>
@@ -912,10 +997,9 @@ const Ticket = () => {
             )}
           </div>
         </Modal>
-
       )}
       <Modal
-        title={`📝 ${t('modal.add_ticket')}`}
+        title={`📝 ${t("modal.add_ticket")}`}
         isVisible={addTicket}
         onClose={() => setAddTicket(false)}
       >
@@ -925,17 +1009,18 @@ const Ticket = () => {
           </div>
         ) : (
           <div className="flex flex-col gap-4 text-sm text-gray-800 max-h-[80vh] overflow-y-auto pr-1">
-
             <div className="bg-white p-4 rounded-xl shadow-md space-y-2">
               <h3 className="text-lg font-semibold flex items-center gap-2 text-blue-600">
-                <FaClipboardList /> {t('modal.ticket_details')}
+                <FaClipboardList /> {t("modal.ticket_details")}
               </h3>
 
               <div className="grid grid-cols-2 gap-4">
                 <div className="flex flex-col">
-                  <label className="text-sm font-medium text-gray-700 mb-1">{t('modal.name')}</label>
+                  <label className="text-sm font-medium text-gray-700 mb-1">
+                    {t("modal.name")}
+                  </label>
                   <Input
-                    text={t('modal.name')}
+                    text={t("modal.name")}
                     type="text"
                     required
                     onChange={(e) => setClientName(e.target.value)}
@@ -944,9 +1029,11 @@ const Ticket = () => {
                 </div>
 
                 <div className="flex flex-col">
-                  <label className="text-sm font-medium text-gray-700 mb-1">{t('modal.type')}</label>
+                  <label className="text-sm font-medium text-gray-700 mb-1">
+                    {t("modal.type")}
+                  </label>
                   <Input
-                    text={t('modal.type')}
+                    text={t("modal.type")}
                     type="text"
                     required
                     onChange={(e) => setTypeName(e.target.value)}
@@ -956,7 +1043,7 @@ const Ticket = () => {
 
                 <div className="col-span-2">
                   <label className="block text-sm font-medium text-gray-700 mb-1">
-                    <strong>{t('modal.status')}</strong>
+                    <strong>{t("modal.status")}</strong>
                   </label>
                   <div className="wrapper">
                     {statusTickets.map((status) => (
@@ -967,7 +1054,9 @@ const Ticket = () => {
                           type="radio"
                           className="input"
                           onClick={(e) =>
-                            setStatusTicket((e.target as HTMLInputElement).value)
+                            setStatusTicket(
+                              (e.target as HTMLInputElement).value
+                            )
                           }
                         />
                         <div className="btn">
@@ -982,25 +1071,29 @@ const Ticket = () => {
 
             <div className="bg-white p-4 rounded-xl shadow-md">
               <h3 className="text-lg font-semibold flex items-center gap-2 text-green-600">
-                <FaTags /> {t('modal.client_operator')}
+                <FaTags /> {t("modal.client_operator")}
               </h3>
               <div className="flex gap-5 mt-2">
                 <div className="flex flex-col w-full sm:w-1/2 mb-2">
-                  <label className="text-sm font-medium text-gray-700">{t('modal.client')}</label>
+                  <label className="text-sm font-medium text-gray-700">
+                    {t("modal.client")}
+                  </label>
                   <Select
                     options={optionsClient}
                     value={selected}
                     onChange={handleSelectChange}
-                    placeholder={t('modal.select_client')}
+                    placeholder={t("modal.select_client")}
                   />
                 </div>
                 <div className="flex flex-col w-full sm:w-1/2 mb-2">
-                  <label className="text-sm font-medium text-gray-700">{t('modal.operator')}</label>
+                  <label className="text-sm font-medium text-gray-700">
+                    {t("modal.operator")}
+                  </label>
                   <Select
                     options={optionsAdmin}
                     value={selectedAdmin}
                     onChange={handleSelectChangeAdmin}
-                    placeholder={t('modal.select_operator')}
+                    placeholder={t("modal.select_operator")}
                   />
                 </div>
               </div>
@@ -1008,16 +1101,24 @@ const Ticket = () => {
 
             <div className="bg-white p-4 rounded-xl shadow-md">
               <h3 className="text-lg font-semibold flex items-center gap-2 text-yellow-600">
-                <FaRegStickyNote /> {t('modal.tags_notes')}
+                <FaRegStickyNote /> {t("modal.tags_notes")}
               </h3>
               <div className="flex flex-col gap-2 mt-2">
-                <label className="text-sm font-medium text-gray-700">{t('modal.tags')}</label>
-                <TagInput tags={tags} setTags={setTags} placeholder={t('modal.add_tags')} />
+                <label className="text-sm font-medium text-gray-700">
+                  {t("modal.tags")}
+                </label>
+                <TagInput
+                  tags={tags}
+                  setTags={setTags}
+                  placeholder={t("modal.add_tags")}
+                />
               </div>
               <div className="flex flex-col gap-2 mt-2">
-                <label className="text-sm font-medium text-gray-700">{t('modal.notes')}</label>
+                <label className="text-sm font-medium text-gray-700">
+                  {t("modal.notes")}
+                </label>
                 <Input
-                  text={t('modal.notes')}
+                  text={t("modal.notes")}
                   type="text"
                   onChange={(e) => setObservation(e.target.value)}
                   value={observation}
@@ -1026,7 +1127,10 @@ const Ticket = () => {
             </div>
 
             <div className="flex flex-col items-end justify-end w-full gap-4 mt-4">
-              <Button text={t('modal.create_ticket')} onClick={handleAddTicket} />
+              <Button
+                text={t("modal.create_ticket")}
+                onClick={handleAddTicket}
+              />
             </div>
           </div>
         )}

@@ -1,55 +1,76 @@
 .sidebar-container {
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    justify-content: space-between;
-    height: 100%;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: space-between;
+  height: 100%;
+  position: relative;
+  backdrop-filter: blur(8px);
+  border-right: 1px solid rgba(255, 255, 255, 0.1);
 }
 
 .icon {
-    width: 24px;
-    height: 24px;
-    cursor: pointer;
-    transition: all 0.3s ease;
-    color: #3C80FF;
+  width: 30px;
+  height: 30px;
+  cursor: pointer;
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  color: rgba(255, 255, 255, 0.85);
+  position: relative;
 }
 
 .icon:hover {
-    transform: scale(1.2);
+  transform: translateY(-2px);
+  color: white;
+  filter: drop-shadow(0 0 8px rgba(255, 255, 255, 0.5));
 }
 
 .logout {
-    margin-bottom: 10px;
-    cursor: pointer;
+  margin-bottom: 15px;
+  cursor: pointer;
+  padding: 8px;
+  border-radius: 50%;
+  transition: all 0.3s ease;
 }
 
 .img-mail {
-    margin-top: 10px;
+  margin-top: 15px;
+  filter: brightness(0) invert(1);
+  opacity: 0.9;
+  transition: all 0.3s ease;
+}
+
+.img-mail:hover {
+  opacity: 1;
+  transform: scale(1.05);
 }
 
 .pages {
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    justify-content: center;
-    gap: 25px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 28px;
+  padding: 20px 0;
 }
 
 .first-lay {
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    justify-content: center;
-    gap: 50px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 50px;
+  width: 300px;
 }
 
 .active-icon {
-    padding: 2px;
-    border-radius: 5px;
-    background-color: #c9dbf0;
+  padding: 3px;
+  border-radius: 12px;
+  background: rgba(255, 255, 255, 0.15);
+  backdrop-filter: blur(4px);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
 }
 
 .icon-logout {
-    border-radius: 5px;
-    padding: 2px;
+  border-radius: 5px;
+  padding: 2px;
 }

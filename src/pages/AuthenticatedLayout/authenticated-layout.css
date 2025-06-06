@@ -1,22 +1,21 @@
 .authenticated-layout {
-    display: flex;
-    height: 100vh;
-  }
-  
-  .sidebar-container {
-    /* width: 240px; */
-    background: #ffffff;
-    color: white;
-    padding: 0px;
-    max-height: 100%;
-    padding-left: 10px;
-    padding-right: 10px;
-    height: 100vh;
-  }
-  
-  .authenticated-content {
-    flex: 1;
-    padding: 10px;
-    overflow-y: auto;
-  }
-  
+  display: flex;
+  height: 100vh;
+}
+
+.sidebar-container {
+  /* width: 90px; */
+  background: #3979f2;
+  color: white;
+  padding: 0px;
+  max-height: 100%;
+  padding-left: 15px;
+  padding-right: 15px;
+  height: 100vh;
+}
+
+.authenticated-content {
+  flex: 1;
+  padding: 10px;
+  overflow-y: auto;
+}
