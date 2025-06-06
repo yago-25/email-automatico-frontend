@@ -212,7 +212,7 @@ const Users = () => {
   return (
     <div className="body">
       <Header name={authUser?.nome_completo} />
-      <div className="max-w-6xl mx-auto px-4 py-8">
+      <div className="max-w-[1500px] mx-auto px-4 py-8">
         <div className="flex flex-col sm:flex-row justify-between items-center mb-6 gap-4">
           <h1 className="text-3xl font-bold text-white">
             👤 {t("users.users")}

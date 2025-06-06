@@ -7,6 +7,16 @@ import Spin from "../../components/Spin/Spin";
 import Header from "../../components/Header/Header";
 import { User } from "../../models/User";
 import DeleteConfirmModal from "../../components/DeleteConfirm/DeleteConfirmModal";
+import { 
+  User as UserIcon, 
+  Mail, 
+  Phone, 
+  AtSign, 
+  CheckCircle, 
+  XCircle,
+  ClipboardList
+} from "lucide-react";
+import "./Approve.css";
 
 interface Solicitacao {
   id: number;
@@ -32,9 +42,7 @@ const Approve = () => {
   const [loading, setLoading] = useState(true);
   const storedUser = localStorage.getItem("user");
   const authUser: User | null = storedUser ? JSON.parse(storedUser) : null;
-  const [solicitacoesToDelete, setSolicitacoesToDelete] = useState<
-    number | null
-  >(null);
+  const [solicitacoesToDelete, setSolicitacoesToDelete] = useState<number | null>(null);
   const [isModalCrashOpen, setModalCrashOpen] = useState(false);
 
   useEffect(() => {
@@ -99,6 +107,7 @@ const Approve = () => {
       setSolicitacoesToDelete(null);
     }
   };
+
   const openDeleteModal = (id: number) => {
     setSolicitacoesToDelete(id);
     setModalCrashOpen(true);
@@ -117,48 +126,53 @@ const Approve = () => {
     <>
       <Header name={authUser?.nome_completo} />
 
-      <div className="p-6 max-w-5xl mx-auto">
-        <h1 className="text-3xl font-bold text-white mb-6">
-          📋 {t("approve_page.title")}
+      <div className="approve-container">
+        <h1 className="approve-title">
+          <ClipboardList />
+          {t("approve_page.title")}
         </h1>
 
         {solicitacoes.length === 0 ? (
-          <div className="bg-yellow-50 border-l-4 border-yellow-400 text-yellow-800 p-4 rounded">
+          <div className="approve-empty">
+            <ClipboardList />
             {t("approve_page.no_requests")}
           </div>
         ) : (
           solicitacoes.map((solicitacao) => (
-            <div
-              key={solicitacao.id}
-              className="bg-white border border-gray-200 p-6 mb-6 rounded-2xl shadow-sm hover:shadow-md transition-shadow"
-            >
-              <div className="grid grid-cols-2 gap-4 text-sm text-gray-700 mb-4">
-                <p>
-                  <strong>👤 {t("approve_page.name")}:</strong>{" "}
-                  {solicitacao.nome_completo}
-                </p>
-                <p>
-                  <strong>📧 {t("approve_page.email")}:</strong>{" "}
-                  {solicitacao.email}
-                </p>
-                <p>
-                  <strong>📞 {t("approve_page.phone")}:</strong>{" "}
-                  {solicitacao.telefone}
-                </p>
-                <p>
-                  <strong>💻 {t("approve_page.username")}:</strong>{" "}
-                  {solicitacao.nome_usuario}
-                </p>
+            <div key={solicitacao.id} className="approve-card">
+              <div className="approve-card-header">
+                <div className="approve-info-item">
+                  <UserIcon />
+                  <span className="approve-info-label">{t("approve_page.name")}:</span>
+                  <span className="approve-info-value">{solicitacao.nome_completo}</span>
+                </div>
+                
+                <div className="approve-info-item">
+                  <Mail />
+                  <span className="approve-info-label">{t("approve_page.email")}:</span>
+                  <span className="approve-info-value">{solicitacao.email}</span>
+                </div>
+
+                <div className="approve-info-item">
+                  <Phone />
+                  <span className="approve-info-label">{t("approve_page.phone")}:</span>
+                  <span className="approve-info-value">{solicitacao.telefone}</span>
+                </div>
+
+                <div className="approve-info-item">
+                  <AtSign />
+                  <span className="approve-info-label">{t("approve_page.username")}:</span>
+                  <span className="approve-info-value">{solicitacao.nome_usuario}</span>
+                </div>
               </div>
 
-              <div className="flex flex-col sm:flex-row items-start sm:items-center gap-3">
+              <div className="approve-actions">
                 <select
                   value={selectedCargos[solicitacao.id] || ""}
-                  onChange={(e) =>
-                    handleCargoChange(solicitacao.id, Number(e.target.value))
-                  }
-                  className="border border-gray-300 px-3 py-2 rounded-lg text-sm shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-400"
+                  onChange={(e) => handleCargoChange(solicitacao.id, Number(e.target.value))}
+                  className="approve-select"
                 >
+                  <option value="">{t("approve_page.select_role")}</option>
                   {cargos.map((cargo) => (
                     <option key={cargo.id} value={cargo.id}>
                       {cargo.nome}
@@ -167,38 +181,34 @@ const Approve = () => {
                 </select>
 
                 <button
-                  onClick={() =>
-                    aprovar(solicitacao.id, selectedCargos[solicitacao.id])
-                  }
+                  onClick={() => aprovar(solicitacao.id, selectedCargos[solicitacao.id])}
                   disabled={!selectedCargos[solicitacao.id]}
-                  className={`px-4 py-2 rounded-lg text-sm font-medium transition 
-                    ${
-                      selectedCargos[solicitacao.id]
-                        ? "bg-green-500 hover:bg-green-600 text-white"
-                        : "bg-gray-300 text-gray-500 cursor-not-allowed"
-                    }`}
+                  className={`approve-button approve-button-confirm`}
                 >
-                  ✅ {t("approve_page.confirm")}
+                  <CheckCircle />
+                  {t("approve_page.confirm")}
                 </button>
 
                 <button
                   onClick={() => openDeleteModal(solicitacao.id)}
-                  className="bg-red-500 hover:bg-red-600 text-white px-4 py-2 rounded-lg text-sm font-medium transition"
+                  className="approve-button approve-button-reject"
                 >
-                  ❌ {t("approve_page.reject")}
+                  <XCircle />
+                  {t("approve_page.reject")}
                 </button>
-                <DeleteConfirmModal
-                  isVisible={isModalCrashOpen}
-                  onClose={() => {
-                    setModalCrashOpen(false);
-                    setSolicitacoesToDelete(null);
-                  }}
-                  onConfirm={rejeitar}
-                />
               </div>
             </div>
           ))
         )}
+
+        <DeleteConfirmModal
+          isVisible={isModalCrashOpen}
+          onClose={() => {
+            setModalCrashOpen(false);
+            setSolicitacoesToDelete(null);
+          }}
+          onConfirm={rejeitar}
+        />
       </div>
     </>
   );
