@@ -1,17 +1,29 @@
+/* eslint-disable no-case-declarations */
 import { useEffect, useState } from "react";
 import { useNavigate, useParams } from "react-router-dom";
-import { FaWhatsapp } from "react-icons/fa";
+import { FaPollH, FaWhatsapp } from "react-icons/fa";
 import {
   FiUsers,
   FiCalendar,
   FiClock,
   FiSend,
   FiArrowLeft,
+  FiImage,
+  FiFile,
+  FiMapPin,
+  FiUser,
 } from "react-icons/fi";
 import Header from "../../components/Header/Header";
 import { User } from "../../models/User";
 import { useTranslation } from "react-i18next";
-import { ConfigProvider, DatePicker, TimePicker, Select } from "antd";
+import {
+  ConfigProvider,
+  DatePicker,
+  TimePicker,
+  Select,
+  Upload,
+  Input,
+} from "antd";
 import ptBR from "antd/lib/locale/pt_BR";
 import enUS from "antd/lib/locale/en_US";
 import esES from "antd/lib/locale/es_ES";
@@ -29,6 +41,40 @@ interface Clients {
   phone: string;
   mail: string;
   value?: string;
+}
+
+type MessageType =
+  | "text"
+  | "media"
+  | "document"
+  | "contact"
+  | "poll"
+  | "location";
+
+interface MediaMessage {
+  file: File;
+  caption?: string;
+}
+
+interface PollOption {
+  text: string;
+}
+
+interface PollMessage {
+  question: string;
+  options: PollOption[];
+}
+
+interface LocationMessage {
+  latitude: number;
+  longitude: number;
+  name?: string;
+  address?: string;
+}
+
+interface ContactMessage {
+  name: string;
+  phone: string;
 }
 
 const localeMap = {
@@ -50,7 +96,24 @@ const WhatsAppCreate = () => {
   const storedUser = localStorage.getItem("user");
   const authUser: User | null = storedUser ? JSON.parse(storedUser) : null;
 
-  const [message, setMessage] = useState("");
+  const [messageType, setMessageType] = useState<MessageType>("text");
+  const [textMessage, setTextMessage] = useState("");
+  const [mediaMessage, setMediaMessage] = useState<MediaMessage | null>(null);
+  const [documentMessage, setDocumentMessage] = useState<MediaMessage | null>(
+    null
+  );
+  const [contactMessage, setContactMessage] = useState<ContactMessage>({
+    name: "",
+    phone: "",
+  });
+  const [pollMessage, setPollMessage] = useState<PollMessage>({
+    question: "",
+    options: [{ text: "" }, { text: "" }],
+  });
+  const [locationMessage, setLocationMessage] = useState<LocationMessage>({
+    latitude: 0,
+    longitude: 0,
+  });
   const [sendDate, setSendDate] = useState<string>("");
   const [sendTime, setSendTime] = useState<string>("");
   const [selectedClient, setSelectedClient] = useState<string | undefined>();
@@ -62,7 +125,7 @@ const WhatsAppCreate = () => {
     useSwr<Clients[]>("/clients");
 
   const handleSend = async () => {
-    if (!selectedClient || !message || !sendDate || !sendTime) {
+    if (!selectedClient || !sendDate || !sendTime) {
       messageAlert({
         type: "error",
         message: "Preencha todos os campos obrigatórios.",
@@ -84,6 +147,124 @@ const WhatsAppCreate = () => {
 
     try {
       const scheduledAt = new Date(`${sendDate}T${sendTime}`);
+      let message = "";
+      let filePath = null;
+      let caption = null;
+
+      switch (messageType) {
+        case "text":
+          message = textMessage;
+          break;
+
+        case "media":
+          if (!mediaMessage?.file) {
+            messageAlert({
+              type: "error",
+              message: "Selecione uma mídia para enviar.",
+            });
+            return;
+          }
+
+          const presignResponse = await api.post(
+            "/s3/upload-url",
+            {
+              file_name: mediaMessage.file.name,
+              file_type: mediaMessage.file.type,
+            },
+            {
+              headers: {
+                Authorization: `Bearer ${localStorage.getItem("accessToken")}`,
+              },
+            }
+          );
+
+          await fetch(presignResponse.data.upload_url, {
+            method: "PUT",
+            headers: {
+              "Content-Type": mediaMessage.file.type,
+            },
+            body: mediaMessage.file,
+          });
+
+          filePath = presignResponse.data.file_path;
+          caption = mediaMessage.caption || "";
+          break;
+
+        case "document":
+          if (!documentMessage?.file) {
+            messageAlert({
+              type: "error",
+              message: "Selecione um documento para enviar.",
+            });
+            return;
+          }
+
+          const presignResponseDoc = await api.post(
+            "/s3/upload-url",
+            {
+              file_name: documentMessage.file.name,
+              file_type: documentMessage.file.type,
+            },
+            {
+              headers: {
+                Authorization: `Bearer ${localStorage.getItem("accessToken")}`,
+              },
+            }
+          );
+
+          await fetch(presignResponseDoc.data.upload_url, {
+            method: "PUT",
+            headers: {
+              "Content-Type": documentMessage.file.type,
+            },
+            body: documentMessage.file,
+          });
+
+          filePath = presignResponseDoc.data.file_path;
+          caption = documentMessage.caption || "";
+          break;
+
+        case "contact":
+          if (!contactMessage.name || !contactMessage.phone) {
+            messageAlert({
+              type: "error",
+              message: "Preencha os dados do contato.",
+            });
+            return;
+          }
+          message = JSON.stringify(contactMessage);
+          break;
+
+        case "poll":
+          if (
+            !pollMessage.question ||
+            pollMessage.options.some((opt) => !opt.text)
+          ) {
+            messageAlert({
+              type: "error",
+              message: "Preencha a pergunta e todas as opções da enquete.",
+            });
+            return;
+          }
+          message = JSON.stringify(pollMessage);
+          break;
+
+        case "location":
+          if (!locationMessage.latitude || !locationMessage.longitude) {
+            messageAlert({
+              type: "error",
+              message: "Preencha os dados da localização.",
+            });
+            return;
+          }
+          message = JSON.stringify(locationMessage);
+          break;
+      }
+
+      // Se for mídia ou documento e não tiver message, preenche com caption
+      if (!message && caption) {
+        message = caption;
+      }
 
       const payload = {
         user_id: authUser?.id,
@@ -92,7 +273,9 @@ const WhatsAppCreate = () => {
         phone: clientData.phone,
         message,
         scheduled_at: scheduledAt.toISOString(),
-        file_path: null,
+        file_path: filePath,
+        caption,
+        message_type: messageType,
         status: "pending",
       };
 
@@ -130,6 +313,21 @@ const WhatsAppCreate = () => {
     setValueSelect(filtered);
   };
 
+  const handleAddPollOption = () => {
+    setPollMessage((prev) => ({
+      ...prev,
+      options: [...prev.options, { text: "" }],
+    }));
+  };
+
+  const handleRemovePollOption = (index: number) => {
+    if (pollMessage.options.length <= 2) return;
+    setPollMessage((prev) => ({
+      ...prev,
+      options: prev.options.filter((_, i) => i !== index),
+    }));
+  };
+
   useEffect(() => {
     if (rawClients.length) {
       const options = rawClients.map((client) => ({
@@ -149,6 +347,196 @@ const WhatsAppCreate = () => {
     );
   }
 
+  const renderMessageInput = () => {
+    switch (messageType) {
+      case "text":
+        return (
+          <textarea
+            value={textMessage}
+            onChange={(e) => setTextMessage(e.target.value)}
+            placeholder="Digite sua mensagem..."
+            className="w-full p-4 h-48 bg-white rounded-xl text-black placeholder-gray-500 resize-none focus:ring-2 focus:ring-green-400 outline-none"
+          />
+        );
+      case "media":
+        return (
+          <div className="space-y-4">
+            <Upload
+              accept="image/*,video/*"
+              beforeUpload={(file) => {
+                setMediaMessage({ file, caption: mediaMessage?.caption });
+                return false;
+              }}
+              maxCount={1}
+              className="w-[300px]"
+            >
+              <button className="w-full p-4 bg-white rounded-xl text-black border-2 border-dashed border-gray-300 hover:border-green-400 transition-colors">
+                <FiImage className="w-8 h-8 mx-auto mb-2" />
+                <span>Clique ou arraste para adicionar foto/vídeo</span>
+              </button>
+            </Upload>
+            {mediaMessage?.file && (
+              <textarea
+                value={mediaMessage.caption || ""}
+                onChange={(e) =>
+                  setMediaMessage({ ...mediaMessage, caption: e.target.value })
+                }
+                placeholder="Adicione uma legenda..."
+                className="w-full p-4 h-24 bg-white rounded-xl text-black placeholder-gray-500 resize-none focus:ring-2 focus:ring-green-400 outline-none"
+              />
+            )}
+          </div>
+        );
+      case "document":
+        return (
+          <div className="space-y-4">
+            <Upload
+              accept=".pdf,.doc,.docx,.xls,.xlsx,.txt"
+              beforeUpload={(file) => {
+                setDocumentMessage({ file, caption: documentMessage?.caption });
+                return false;
+              }}
+              maxCount={1}
+            >
+              <button className="w-full p-4 bg-white rounded-xl text-black border-2 border-dashed border-gray-300 hover:border-green-400 transition-colors">
+                <FiFile className="w-8 h-8 mx-auto mb-2" />
+                <span>Clique ou arraste para adicionar arquivo</span>
+              </button>
+            </Upload>
+            {documentMessage?.file && (
+              <textarea
+                value={documentMessage.caption || ""}
+                onChange={(e) =>
+                  setDocumentMessage({
+                    ...documentMessage,
+                    caption: e.target.value,
+                  })
+                }
+                placeholder="Adicione uma legenda..."
+                className="w-full p-4 h-24 bg-white rounded-xl text-black placeholder-gray-500 resize-none focus:ring-2 focus:ring-green-400 outline-none"
+              />
+            )}
+          </div>
+        );
+      case "contact":
+        return (
+          <div className="space-y-4">
+            <Input
+              placeholder="Nome do contato"
+              value={contactMessage.name}
+              onChange={(e) =>
+                setContactMessage({ ...contactMessage, name: e.target.value })
+              }
+              prefix={<FiUser className="text-gray-400" />}
+              className="bg-white rounded-xl h-[40px]"
+            />
+            <Input
+              placeholder="Número do telefone"
+              value={contactMessage.phone}
+              onChange={(e) =>
+                setContactMessage({ ...contactMessage, phone: e.target.value })
+              }
+              prefix={<FaWhatsapp className="text-gray-400" />}
+              className="bg-white rounded-xl h-[40px]"
+            />
+          </div>
+        );
+      case "poll":
+        return (
+          <div className="space-y-4">
+            <Input
+              placeholder="Pergunta da enquete"
+              value={pollMessage.question}
+              onChange={(e) =>
+                setPollMessage({ ...pollMessage, question: e.target.value })
+              }
+              className="bg-white rounded-xl h-[40px]"
+            />
+            {pollMessage.options.map((option, index) => (
+              <div key={index} className="flex gap-2">
+                <Input
+                  placeholder={`Opção ${index + 1}`}
+                  value={option.text}
+                  onChange={(e) => {
+                    const newOptions = [...pollMessage.options];
+                    newOptions[index] = { text: e.target.value };
+                    setPollMessage({ ...pollMessage, options: newOptions });
+                  }}
+                  className="bg-white rounded-xl h-[40px]"
+                />
+                {index >= 2 && (
+                  <button
+                    onClick={() => handleRemovePollOption(index)}
+                    className="p-2 text-red-500 hover:bg-red-50 rounded-lg transition-colors"
+                  >
+                    Remover
+                  </button>
+                )}
+              </div>
+            ))}
+            <button
+              onClick={handleAddPollOption}
+              className="w-full p-2 bg-green-500 text-white rounded-xl hover:bg-green-600 transition-colors"
+            >
+              Adicionar Opção
+            </button>
+          </div>
+        );
+      case "location":
+        return (
+          <div className="space-y-4">
+            <div className="grid grid-cols-2 gap-4">
+              <Input
+                type="number"
+                placeholder="Latitude"
+                value={locationMessage.latitude || ""}
+                onChange={(e) =>
+                  setLocationMessage({
+                    ...locationMessage,
+                    latitude: parseFloat(e.target.value),
+                  })
+                }
+                className="bg-white rounded-xl h-[40px]"
+              />
+              <Input
+                type="number"
+                placeholder="Longitude"
+                value={locationMessage.longitude || ""}
+                onChange={(e) =>
+                  setLocationMessage({
+                    ...locationMessage,
+                    longitude: parseFloat(e.target.value),
+                  })
+                }
+                className="bg-white rounded-xl h-[40px]"
+              />
+            </div>
+            <Input
+              placeholder="Nome do local (opcional)"
+              value={locationMessage.name || ""}
+              onChange={(e) =>
+                setLocationMessage({ ...locationMessage, name: e.target.value })
+              }
+              className="bg-white rounded-xl h-[40px]"
+            />
+            <Input
+              placeholder="Endereço (opcional)"
+              value={locationMessage.address || ""}
+              onChange={(e) =>
+                setLocationMessage({
+                  ...locationMessage,
+                  address: e.target.value,
+                })
+              }
+              className="bg-white rounded-xl h-[40px]"
+            />
+          </div>
+        );
+      default:
+        return null;
+    }
+  };
+
   return (
     <div className="text-white">
       <Header name={authUser?.nome_completo} />
@@ -162,7 +550,7 @@ const WhatsAppCreate = () => {
           Voltar para mensagens
         </button>
 
-        <div className="flex flex-col lg:flex-row gap-8">
+        <div className="flex items-start justify-between gap-8">
           <div className="flex-1 bg-white bg-opacity-10 backdrop-blur-lg rounded-2xl p-8">
             <h1 className="text-3xl font-bold flex items-center gap-3 mb-8">
               <FaWhatsapp className="text-green-400" />
@@ -191,67 +579,89 @@ const WhatsAppCreate = () => {
               <div>
                 <label className="text-sm text-white flex items-center gap-2 mb-2">
                   <FaWhatsapp />
-                  Mensagem
+                  Tipo de Mensagem
                 </label>
-                <textarea
-                  value={message}
-                  onChange={(e) => setMessage(e.target.value)}
-                  placeholder="Digite sua mensagem..."
-                  className="w-full p-4 h-48 bg-white rounded-xl text-black placeholder-gray-500 resize-none focus:ring-2 focus:ring-green-400 outline-none"
+                <Select
+                  value={messageType}
+                  onChange={(value: MessageType) => setMessageType(value)}
+                  style={{ width: "100%" }}
+                  className="mt-1 bg-gray-100 rounded-md text-black"
+                  options={[
+                    { value: "text", label: "Texto" },
+                    { value: "media", label: "Foto/Vídeo" },
+                    { value: "document", label: "Arquivo" },
+                    { value: "contact", label: "Contato" },
+                    { value: "poll", label: "Enquete" },
+                    { value: "location", label: "Localização" },
+                  ]}
                 />
               </div>
 
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                <div>
-                  <label className="text-sm text-white flex items-center gap-2 mb-2">
-                    <FiCalendar />
-                    Data de Envio
-                  </label>
-                  <ConfigProvider locale={antdLocale}>
-                    <DatePicker
-                      format={
-                        i18n.language === "en" ? "MM/DD/YYYY" : "DD/MM/YYYY"
-                      }
-                      placeholder="Data da Mensagem"
-                      value={sendDate ? dayjs(sendDate) : null}
-                      onChange={(date) =>
-                        setSendDate(
-                          date ? date.toISOString().split("T")[0] : ""
-                        )
-                      }
-                      className="w-full bg-white border-0 text-black"
-                    />
-                  </ConfigProvider>
-                </div>
-
-                <div>
-                  <label className="text-sm text-white flex items-center gap-2 mb-2">
-                    <FiClock />
-                    Horário de Envio
-                  </label>
-                  <ConfigProvider locale={antdLocale}>
-                    <TimePicker
-                      className="w-full bg-white border-0 text-black"
-                      value={sendTime ? dayjs(sendTime, timeFormat) : null}
-                      onChange={(time) =>
-                        setSendTime(time ? time.format(timeFormat) : "")
-                      }
-                      format={timeFormat}
-                      placeholder="Horário da Mensagem"
-                    />
-                  </ConfigProvider>
-                </div>
+              <div className="w-full">
+                <label className="text-sm text-white flex items-center gap-2 mb-2 w-full">
+                  {messageType === "text" && <FaWhatsapp />}
+                  {messageType === "media" && <FiImage />}
+                  {messageType === "document" && <FiFile />}
+                  {messageType === "contact" && <FiUser />}
+                  {messageType === "poll" && <FaPollH />}
+                  {messageType === "location" && <FiMapPin />}
+                  {messageType === "text" && "Mensagem"}
+                  {messageType === "media" && "Foto/Vídeo"}
+                  {messageType === "document" && "Arquivo"}
+                  {messageType === "contact" && "Contato"}
+                  {messageType === "poll" && "Enquete"}
+                  {messageType === "location" && "Localização"}
+                </label>
+                {renderMessageInput()}
               </div>
 
-              <button
-                onClick={handleSend}
-                disabled={!message || !selectedClient || !sendDate || !sendTime}
-                className="w-full mt-6 bg-green-500 hover:bg-green-600 disabled:bg-gray-600 disabled:cursor-not-allowed text-white font-medium py-3 px-6 rounded-xl flex items-center justify-center gap-2 transition-colors"
-              >
-                <FiSend />
-                Enviar Mensagem
-              </button>
+              <div>
+                <label className="text-sm text-white flex items-center gap-2 mb-2">
+                  <FiCalendar />
+                  Data de Envio
+                </label>
+                <ConfigProvider locale={antdLocale}>
+                  <DatePicker
+                    format={
+                      i18n.language === "en" ? "MM/DD/YYYY" : "DD/MM/YYYY"
+                    }
+                    placeholder="Data da Mensagem"
+                    value={sendDate ? dayjs(sendDate) : null}
+                    onChange={(date) =>
+                      setSendDate(date ? date.toISOString().split("T")[0] : "")
+                    }
+                    className="w-full bg-white border-0 text-black"
+                  />
+                </ConfigProvider>
+              </div>
+
+              <div>
+                <label className="text-sm text-white flex items-center gap-2 mb-2">
+                  <FiClock />
+                  Horário de Envio
+                </label>
+                <ConfigProvider locale={antdLocale}>
+                  <TimePicker
+                    className="w-full bg-white border-0 text-black"
+                    value={sendTime ? dayjs(sendTime, timeFormat) : null}
+                    onChange={(time) =>
+                      setSendTime(time ? time.format(timeFormat) : "")
+                    }
+                    format={timeFormat}
+                    placeholder="Horário da Mensagem"
+                  />
+                </ConfigProvider>
+              </div>
             </div>
+
+            <button
+              onClick={handleSend}
+              disabled={!selectedClient || !sendDate || !sendTime}
+              className="w-full mt-6 bg-green-500 hover:bg-green-600 disabled:bg-gray-600 disabled:cursor-not-allowed text-white font-medium py-3 px-6 rounded-xl flex items-center justify-center gap-2 transition-colors"
+            >
+              <FiSend />
+              Enviar Mensagem
+            </button>
           </div>
 
           <div className="lg:w-1/3 bg-white bg-opacity-10 backdrop-blur-lg rounded-2xl p-8 h-fit sticky top-8">
@@ -273,10 +683,82 @@ const WhatsAppCreate = () => {
               </div>
 
               <div>
-                <h3 className="text-sm text-blue-800 mb-2">Mensagem</h3>
-                <p className="text-sm whitespace-pre-line">
-                  {message || "Sua mensagem aparecerá aqui..."}
+                <h3 className="text-sm text-blue-800 mb-2">Tipo de Mensagem</h3>
+                <p className="text-sm">
+                  {messageType === "text" && "Texto"}
+                  {messageType === "media" && "Foto/Vídeo"}
+                  {messageType === "document" && "Arquivo"}
+                  {messageType === "contact" && "Contato"}
+                  {messageType === "poll" && "Enquete"}
+                  {messageType === "location" && "Localização"}
                 </p>
+              </div>
+
+              <div>
+                <h3 className="text-sm text-blue-800 mb-2">Conteúdo</h3>
+                <div className="text-sm whitespace-pre-line">
+                  {messageType === "text" &&
+                    (textMessage || "Sua mensagem aparecerá aqui...")}
+                  {messageType === "media" && (
+                    <>
+                      <p>
+                        Arquivo:{" "}
+                        {mediaMessage?.file?.name ||
+                          "Nenhum arquivo selecionado"}
+                      </p>
+                      {mediaMessage?.caption && (
+                        <p>Legenda: {mediaMessage.caption}</p>
+                      )}
+                    </>
+                  )}
+                  {messageType === "document" && (
+                    <>
+                      <p>
+                        Arquivo:{" "}
+                        {documentMessage?.file?.name ||
+                          "Nenhum arquivo selecionado"}
+                      </p>
+                      {documentMessage?.caption && (
+                        <p>Legenda: {documentMessage.caption}</p>
+                      )}
+                    </>
+                  )}
+                  {messageType === "contact" && (
+                    <>
+                      <p>Nome: {contactMessage.name || "Não definido"}</p>
+                      <p>Telefone: {contactMessage.phone || "Não definido"}</p>
+                    </>
+                  )}
+                  {messageType === "poll" && (
+                    <>
+                      <p>Pergunta: {pollMessage.question || "Não definida"}</p>
+                      <p>Opções:</p>
+                      <ul className="list-disc pl-4">
+                        {pollMessage.options.map((opt, i) => (
+                          <li key={i}>
+                            {opt.text || `Opção ${i + 1} não definida`}
+                          </li>
+                        ))}
+                      </ul>
+                    </>
+                  )}
+                  {messageType === "location" && (
+                    <>
+                      <p>
+                        Latitude: {locationMessage.latitude || "Não definida"}
+                      </p>
+                      <p>
+                        Longitude: {locationMessage.longitude || "Não definida"}
+                      </p>
+                      {locationMessage.name && (
+                        <p>Local: {locationMessage.name}</p>
+                      )}
+                      {locationMessage.address && (
+                        <p>Endereço: {locationMessage.address}</p>
+                      )}
+                    </>
+                  )}
+                </div>
               </div>
 
               <div>

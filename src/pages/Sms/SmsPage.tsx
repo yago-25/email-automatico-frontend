@@ -152,19 +152,19 @@ const SmsPage = () => {
   };
 
   const debouncedApplyFilters = useMemo(
-  () => debounce(applyFilters, 500),
-  [id, recipients, subject, status, date, data] 
-);
+    () => debounce(applyFilters, 500),
+    [id, recipients, subject, status, date, data]
+  );
 
-useEffect(() => {
-  if (data && data.length > 0) {
-    debouncedApplyFilters();
-  }
+  useEffect(() => {
+    if (data && data.length > 0) {
+      debouncedApplyFilters();
+    }
 
-  return () => {
-    debouncedApplyFilters.cancel();
-  };
-}, [id, recipients, subject, status, date, data]); 
+    return () => {
+      debouncedApplyFilters.cancel();
+    };
+  }, [id, recipients, subject, status, date, data]);
 
   const clearFilters = () => {
     setSubject("");
@@ -247,7 +247,7 @@ useEffect(() => {
   };
 
   return (
-    <div className="p-4 min-h-screen bg-gradient-to-br text-white relative overflow-hidden">
+    <div className="text-white">
       <Header name={authUser?.nome_completo} />
       <div className="max-w-1xl mx-auto py-7 z-10 relative">
         <div className="flex flex-col lg:flex-row gap-6">
@@ -436,13 +436,15 @@ useEffect(() => {
           </div>
 
           <div className="lg:w-1/4">
-            <div className="sticky" style={{ top: '118px' }}>
+            <div className="sticky" style={{ top: "118px" }}>
               <div className="bg-white/90 backdrop-blur-sm text-blue-900 rounded-2xl shadow-xl p-6 border border-blue-100/50">
                 <div className="mb-6 flex items-center gap-2">
                   <div className="bg-blue-100 p-2 rounded-xl">
                     <MdOutlineFormatListNumbered className="w-5 h-5 text-blue-600" />
                   </div>
-                  <h2 className="text-xl font-bold text-blue-900">{t("filters.title")}</h2>
+                  <h2 className="text-xl font-bold text-blue-900">
+                    {t("filters.title")}
+                  </h2>
                 </div>
 
                 <div className="space-y-5">
@@ -507,7 +509,12 @@ useEffect(() => {
                           <input
                             type="checkbox"
                             checked={status.sent}
-                            onChange={() => setStatus((prev) => ({ ...prev, sent: !prev.sent }))}
+                            onChange={() =>
+                              setStatus((prev) => ({
+                                ...prev,
+                                sent: !prev.sent,
+                              }))
+                            }
                             className="peer appearance-none w-5 h-5 border-2 border-green-200 rounded-lg checked:bg-green-500 checked:border-green-500 hover:border-green-400 transition-all duration-200"
                           />
                           <MdCheckCircle className="absolute w-3.5 h-3.5 text-white scale-0 peer-checked:scale-100 transition-transform duration-200" />
@@ -525,7 +532,12 @@ useEffect(() => {
                           <input
                             type="checkbox"
                             checked={status.pending}
-                            onChange={() => setStatus((prev) => ({ ...prev, pending: !prev.pending }))}
+                            onChange={() =>
+                              setStatus((prev) => ({
+                                ...prev,
+                                pending: !prev.pending,
+                              }))
+                            }
                             className="peer appearance-none w-5 h-5 border-2 border-yellow-200 rounded-lg checked:bg-yellow-500 checked:border-yellow-500 hover:border-yellow-400 transition-all duration-200"
                           />
                           <MdAccessTime className="absolute w-3.5 h-3.5 text-white scale-0 peer-checked:scale-100 transition-transform duration-200" />
@@ -543,7 +555,12 @@ useEffect(() => {
                           <input
                             type="checkbox"
                             checked={status.failed}
-                            onChange={() => setStatus((prev) => ({ ...prev, failed: !prev.failed }))}
+                            onChange={() =>
+                              setStatus((prev) => ({
+                                ...prev,
+                                failed: !prev.failed,
+                              }))
+                            }
                             className="peer appearance-none w-5 h-5 border-2 border-red-200 rounded-lg checked:bg-red-500 checked:border-red-500 hover:border-red-400 transition-all duration-200"
                           />
                           <MdErrorOutline className="absolute w-3.5 h-3.5 text-white scale-0 peer-checked:scale-100 transition-transform duration-200" />
