@@ -261,6 +261,8 @@
     "actions": "Ações",
     "add_user": "Adicionar Usuário",
     "edit_user": "Editar Usuário",
+    "edit_user_description": "Descrição do Usuário",
+    "select_cargo": "Selecione o Cargo",
     "save_changes": "Salvar Alterações",
     "register_user": "Registrar Usuário",
     "of": "de",
