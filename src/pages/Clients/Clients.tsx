@@ -7,7 +7,7 @@ import { messageAlert } from "../../utils/messageAlert";
 import Spin from "../../components/Spin/Spin";
 import { api } from "../../api/api";
 import Modal from "../../components/Modal/Modal";
-import Input from "../../components/Input/Input";
+// import Input from "../../components/Input/Input";
 import { MdArrowBackIos, MdArrowForwardIos } from "react-icons/md";
 import { User } from "../../models/User";
 import { useTranslation } from "react-i18next";
@@ -32,35 +32,35 @@ interface Client {
   mail: string;
 }
 
-interface ButtonProps {
-  text: string;
-  onClick: () => void;
-  className?: string;
-}
+// interface ButtonProps {
+//   text: string;
+//   onClick: () => void;
+//   className?: string;
+// }
 interface DeleteConfirmModal {
   isOpen: boolean;
   onClose: () => void;
   onConfirm: () => void;
 }
 
-const Button: React.FC<ButtonProps> = ({ text, onClick }) => {
-  return (
-    <button
-      onClick={onClick}
-      className="cursor-pointer w-44 h-12 bg-blue-600 text-white rounded-lg hover:bg-blue-700 hover:shadow-lg transition-all group active:w-11 active:h-11 active:rounded-full active:duration-300 ease-in-out"
-    >
-      <svg
-        className="animate-spin hidden group-active:block mx-auto"
-        width="33"
-        height="32"
-        viewBox="0 0 33 32"
-        fill="none"
-        xmlns="http://www.w3.org/2000/svg"
-      ></svg>
-      <span className="group-active:hidden">{text}</span>
-    </button>
-  );
-};
+// const Button: React.FC<ButtonProps> = ({ text, onClick }) => {
+//   return (
+//     <button
+//       onClick={onClick}
+//       className="cursor-pointer w-44 h-12 bg-blue-600 text-white rounded-lg hover:bg-blue-700 hover:shadow-lg transition-all group active:w-11 active:h-11 active:rounded-full active:duration-300 ease-in-out"
+//     >
+//       <svg
+//         className="animate-spin hidden group-active:block mx-auto"
+//         width="33"
+//         height="32"
+//         viewBox="0 0 33 32"
+//         fill="none"
+//         xmlns="http://www.w3.org/2000/svg"
+//       ></svg>
+//       <span className="group-active:hidden">{text}</span>
+//     </button>
+//   );
+// };
 
 const Clients = () => {
   const navigate = useNavigate();
@@ -400,7 +400,16 @@ const Clients = () => {
         </div>
 
         <Modal
-          title={t("clients.edit_client")}
+          title={
+            <div className="flex items-center gap-3 mb-4">
+              <div className="bg-gradient-to-br from-blue-500 to-blue-600 p-3 rounded-2xl shadow-md">
+                <Pencil className="w-6 h-6 text-white" />
+              </div>
+              <div>
+                <h2 className="text-2xl font-bold text-gray-800">{t("clients.edit_client")}</h2>
+              </div>
+            </div>
+          }
           isVisible={isModalOpen}
           onClose={() => setIsModalOpen(false)}
         >
@@ -409,47 +418,106 @@ const Clients = () => {
               <Spin />
             </div>
           ) : editingClient ? (
-            <div className="flex flex-col items-center justify-center w-full gap-4">
-              <div>
-                <p>{t("clients.name")}</p>
-                <Input
-                  text={t("clients.name")}
+            <div className="bg-gradient-to-br from-white to-blue-50/50 p-8 rounded-3xl shadow-lg space-y-6">
+              <div className="space-y-2">
+                <div className="flex items-center gap-3 mb-2">
+                  <div className="p-2.5 bg-gradient-to-br from-blue-500 to-blue-600 rounded-xl text-white shadow-sm">
+                    <HiUser className="w-5 h-5" />
+                  </div>
+                  <label className="text-sm font-semibold text-gray-700">
+                    {t("clients.name")}
+                  </label>
+                </div>
+                <input
                   type="text"
-                  required
+                  value={editingClient.name}
                   onChange={(e) =>
                     setEditingClient({ ...editingClient, name: e.target.value })
                   }
-                  value={editingClient.name}
+                  className="w-full border border-gray-200 rounded-2xl px-5 py-4 text-base shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-400 bg-white/70 backdrop-blur-sm transition-all duration-200 hover:border-blue-300"
+                  placeholder={t("clients.name")}
                 />
               </div>
-              <div>
-                <p>{t("clients.phone")}</p>
-                <Input
-                  text={t("clients.phone")}
-                  type="text"
-                  required
-                  onChange={(e) =>
-                    setEditingClient({
-                      ...editingClient,
-                      phone: e.target.value,
-                    })
-                  }
+
+              <div className="space-y-2">
+                <div className="flex items-center gap-3 mb-2">
+                  <div className="p-2.5 bg-gradient-to-br from-green-500 to-green-600 rounded-xl text-white shadow-sm">
+                    <HiPhone className="w-5 h-5" />
+                  </div>
+                  <label className="text-sm font-semibold text-gray-700">
+                    {t("clients.phone")}
+                  </label>
+                </div>
+                <PhoneInput
+                  country={"br"}
                   value={editingClient.phone}
+                  onChange={(phone) =>
+                    setEditingClient({ ...editingClient, phone })
+                  }
+                  prefix="+"
+                  inputProps={{
+                    required: true,
+                    className:
+                      "w-full border border-gray-200 rounded-2xl px-5 py-4 text-base shadow-sm focus:outline-none focus:ring-2 focus:ring-green-400 bg-white/70 backdrop-blur-sm transition-all duration-200 hover:border-green-300",
+                  }}
+                  containerStyle={{ width: "100%" }}
+                  inputStyle={{
+                    width: "100%",
+                    height: "56px",
+                    borderRadius: "1rem",
+                    border: "1px solid #E5E7EB",
+                    fontSize: "16px",
+                    paddingLeft: "48px",
+                  }}
+                  buttonStyle={{
+                    borderTopLeftRadius: "1rem",
+                    borderBottomLeftRadius: "1rem",
+                    backgroundColor: "#F3F4F6",
+                    border: "1px solid #E5E7EB",
+                    borderRight: "none",
+                  }}
+                  enableSearch={false}
+                  disableSearchIcon={true}
+                  countryCodeEditable={false}
                 />
               </div>
-              <div>
-                <p>{t("clients.email")}</p>
-                <Input
-                  text={t("clients.email")}
+
+              <div className="space-y-2">
+                <div className="flex items-center gap-3 mb-2">
+                  <div className="p-2.5 bg-gradient-to-br from-purple-500 to-purple-600 rounded-xl text-white shadow-sm">
+                    <HiMail className="w-5 h-5" />
+                  </div>
+                  <label className="text-sm font-semibold text-gray-700">
+                    {t("clients.email")}
+                  </label>
+                </div>
+                <input
                   type="email"
-                  required
+                  value={editingClient.mail}
                   onChange={(e) =>
                     setEditingClient({ ...editingClient, mail: e.target.value })
                   }
-                  value={editingClient.mail}
+                  className="w-full border border-gray-200 rounded-2xl px-5 py-4 text-base shadow-sm focus:outline-none focus:ring-2 focus:ring-purple-400 bg-white/70 backdrop-blur-sm transition-all duration-200 hover:border-purple-300"
+                  placeholder={t("clients.email")}
                 />
               </div>
-              <Button text={t("clients.save_changes")} onClick={handleEdit} />
+
+              <div className="flex gap-4 pt-6">
+                <button
+                  onClick={handleEdit}
+                  className="flex-1 flex items-center justify-center gap-2 py-4 bg-gradient-to-r from-blue-500 to-blue-600 text-white rounded-2xl hover:from-blue-600 hover:to-blue-700 transition-all duration-300 shadow-lg hover:shadow-xl font-medium transform hover:scale-[1.02] active:scale-[0.98]"
+                >
+                  <Pencil className="w-5 h-5" />
+                  {t("clients.save_changes")}
+                </button>
+                <button
+                  onClick={() => setIsModalOpen(false)}
+                  className="flex-1 flex items-center justify-center gap-2 py-4 bg-gradient-to-r from-gray-100 to-gray-200 text-gray-700 rounded-2xl hover:from-gray-200 hover:to-gray-300 transition-all duration-300 shadow-lg hover:shadow-xl font-medium transform hover:scale-[1.02] active:scale-[0.98] border border-gray-200"
+                >
+                  <HiX className="w-5 h-5" />
+                  {t("buttons.cancel")}
+                </button>
+              </div>
             </div>
           ) : (
             <div className="text-center text-red-500">
@@ -460,11 +528,13 @@ const Clients = () => {
 
         <Modal
           title={
-            <div className="flex items-center gap-3 text-blue-600">
-              <HiUserAdd className="w-6 h-6" />
-              <span className="text-2xl font-bold">
-                {t("dashboard.add_client")}
-              </span>
+            <div className="flex items-center gap-3 mb-4">
+              <div className="bg-gradient-to-br from-blue-500 to-blue-600 p-3 rounded-2xl shadow-md">
+                <HiUserAdd className="w-6 h-6 text-white" />
+              </div>
+              <div>
+                <h2 className="text-2xl font-bold text-gray-800">{t("dashboard.add_client")}</h2>
+              </div>
             </div>
           }
           isVisible={addClient}
@@ -475,10 +545,10 @@ const Clients = () => {
               <Spin />
             </div>
           ) : (
-            <div className="bg-gradient-to-br from-white to-blue-50/50 p-6 rounded-2xl shadow-lg space-y-6">
+            <div className="bg-gradient-to-br from-white to-blue-50/50 p-8 rounded-3xl shadow-lg space-y-6">
               <div className="space-y-2">
-                <div className="flex items-center gap-2 mb-2">
-                  <div className="p-2 bg-blue-100 rounded-xl text-blue-600">
+                <div className="flex items-center gap-3 mb-2">
+                  <div className="p-2.5 bg-gradient-to-br from-blue-500 to-blue-600 rounded-xl text-white shadow-sm">
                     <HiUser className="w-5 h-5" />
                   </div>
                   <label className="text-sm font-semibold text-gray-700">
@@ -489,14 +559,14 @@ const Clients = () => {
                   type="text"
                   value={clientName}
                   onChange={(e) => setClientName(e.target.value)}
-                  className="w-full border border-gray-200 rounded-xl px-4 py-3 text-sm shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-400 bg-white/70 backdrop-blur-sm transition-all duration-200"
+                  className="w-full border border-gray-200 rounded-2xl px-5 py-4 text-base shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-400 bg-white/70 backdrop-blur-sm transition-all duration-200 hover:border-blue-300"
                   placeholder={t("dashboard.name")}
                 />
               </div>
 
               <div className="space-y-2">
-                <div className="flex items-center gap-2 mb-2">
-                  <div className="p-2 bg-green-100 rounded-xl text-green-600">
+                <div className="flex items-center gap-3 mb-2">
+                  <div className="p-2.5 bg-gradient-to-br from-green-500 to-green-600 rounded-xl text-white shadow-sm">
                     <HiPhone className="w-5 h-5" />
                   </div>
                   <label className="text-sm font-semibold text-gray-700">
@@ -511,20 +581,20 @@ const Clients = () => {
                   inputProps={{
                     required: true,
                     className:
-                      "w-full border border-gray-200 rounded-xl px-4 py-3 text-sm shadow-sm focus:outline-none focus:ring-2 focus:ring-green-400 bg-white/70 backdrop-blur-sm transition-all duration-200",
+                      "w-full border border-gray-200 rounded-2xl px-5 py-4 text-base shadow-sm focus:outline-none focus:ring-2 focus:ring-green-400 bg-white/70 backdrop-blur-sm transition-all duration-200 hover:border-green-300",
                   }}
                   containerStyle={{ width: "100%" }}
                   inputStyle={{
                     width: "100%",
-                    height: "48px",
-                    borderRadius: "0.75rem",
+                    height: "56px",
+                    borderRadius: "1rem",
                     border: "1px solid #E5E7EB",
                     fontSize: "16px",
-                    paddingLeft: "43px",
+                    paddingLeft: "48px",
                   }}
                   buttonStyle={{
-                    borderTopLeftRadius: "0.75rem",
-                    borderBottomLeftRadius: "0.75rem",
+                    borderTopLeftRadius: "1rem",
+                    borderBottomLeftRadius: "1rem",
                     backgroundColor: "#F3F4F6",
                     border: "1px solid #E5E7EB",
                     borderRight: "none",
@@ -536,8 +606,8 @@ const Clients = () => {
               </div>
 
               <div className="space-y-2">
-                <div className="flex items-center gap-2 mb-2">
-                  <div className="p-2 bg-purple-100 rounded-xl text-purple-600">
+                <div className="flex items-center gap-3 mb-2">
+                  <div className="p-2.5 bg-gradient-to-br from-purple-500 to-purple-600 rounded-xl text-white shadow-sm">
                     <HiMail className="w-5 h-5" />
                   </div>
                   <label className="text-sm font-semibold text-gray-700">
@@ -548,22 +618,22 @@ const Clients = () => {
                   type="email"
                   value={clientMail}
                   onChange={(e) => setClientMail(e.target.value)}
-                  className="w-full border border-gray-200 rounded-xl px-4 py-3 text-sm shadow-sm focus:outline-none focus:ring-2 focus:ring-purple-400 bg-white/70 backdrop-blur-sm transition-all duration-200"
+                  className="w-full border border-gray-200 rounded-2xl px-5 py-4 text-base shadow-sm focus:outline-none focus:ring-2 focus:ring-purple-400 bg-white/70 backdrop-blur-sm transition-all duration-200 hover:border-purple-300"
                   placeholder={t("dashboard.email")}
                 />
               </div>
 
-              <div className="flex gap-4 pt-4">
+              <div className="flex gap-4 pt-6">
                 <button
                   onClick={handleAddClient}
-                  className="flex-1 flex items-center justify-center gap-2 py-3 bg-gradient-to-r from-blue-500 to-blue-600 text-white rounded-xl hover:from-blue-600 hover:to-blue-700 transition-all duration-300 shadow-lg hover:shadow-xl font-medium"
+                  className="flex-1 flex items-center justify-center gap-2 py-4 bg-gradient-to-r from-blue-500 to-blue-600 text-white rounded-2xl hover:from-blue-600 hover:to-blue-700 transition-all duration-300 shadow-lg hover:shadow-xl font-medium transform hover:scale-[1.02] active:scale-[0.98]"
                 >
                   <HiUserAdd className="w-5 h-5" />
                   {t("dashboard.add_client")}
                 </button>
                 <button
                   onClick={() => setAddClient(false)}
-                  className="flex-1 flex items-center justify-center gap-2 py-3 bg-gradient-to-r from-gray-500 to-gray-600 text-white rounded-xl hover:from-gray-600 hover:to-gray-700 transition-all duration-300 shadow-lg hover:shadow-xl font-medium"
+                  className="flex-1 flex items-center justify-center gap-2 py-4 bg-gradient-to-r from-gray-100 to-gray-200 text-gray-700 rounded-2xl hover:from-gray-200 hover:to-gray-300 transition-all duration-300 shadow-lg hover:shadow-xl font-medium transform hover:scale-[1.02] active:scale-[0.98] border border-gray-200"
                 >
                   <HiX className="w-5 h-5" />
                   {t("buttons.cancel")}
