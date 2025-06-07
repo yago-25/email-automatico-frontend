@@ -26,6 +26,7 @@ import { HiMail, HiPhone, HiUser } from "react-icons/hi";
 import PhoneInput from "react-phone-input-2";
 import "react-phone-input-2/lib/style.css";
 import { FiBriefcase } from "react-icons/fi";
+import { parsePhoneNumberFromString } from "libphonenumber-js";
 
 interface Option {
   label: string;
@@ -144,21 +145,20 @@ const Dashboard = () => {
   );
 
   const formatPhone = (phone: string): string => {
-    const cleaned = phone.replace(/\D/g, "");
+    try {
+      const parsed = parsePhoneNumberFromString(phone);
 
-    if (cleaned.length === 13 && cleaned.startsWith("55")) {
-      return cleaned.replace(/(\d{2})(\d{2})(\d{5})(\d{4})/, "+$1 ($2) $3-$4");
-    } else if (cleaned.length === 12 && cleaned.startsWith("55")) {
-      return cleaned.replace(/(\d{2})(\d{2})(\d{4})(\d{4})/, "+$1 ($2) $3-$4");
+      if (parsed && parsed.isValid()) {
+        const countryCode = parsed.countryCallingCode;
+        const national = parsed.formatNational();
+        return `+${countryCode} ${national}`;
+      }
+
+      return phone;
+    } catch (err) {
+      console.error("Erro ao formatar número:", err);
+      return phone;
     }
-
-    if (cleaned.length === 11) {
-      return cleaned.replace(/(\d{2})(\d{5})(\d{4})/, "($1) $2-$3");
-    } else if (cleaned.length === 10) {
-      return cleaned.replace(/(\d{2})(\d{4})(\d{4})/, "($1) $2-$3");
-    }
-
-    return phone;
   };
 
   const handleSelectChange = (value: string | number) => {

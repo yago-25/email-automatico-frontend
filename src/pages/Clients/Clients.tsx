@@ -24,6 +24,7 @@ import { HiUserAdd, HiX } from "react-icons/hi";
 import PhoneInput from "react-phone-input-2";
 import "react-phone-input-2/lib/style.css";
 import { FaEraser } from "react-icons/fa";
+import { parsePhoneNumberFromString } from "libphonenumber-js";
 
 interface Client {
   id: number;
@@ -87,14 +88,20 @@ const Clients = () => {
   const params = location?.state || [];
 
   const formatPhone = (phone: string): string => {
-    if (!phone) return "";
-    const cleaned = phone.replace(/\D/g, "");
-    if (cleaned.length === 11) {
-      return cleaned.replace(/(\d{2})(\d{5})(\d{4})/, "($1) $2-$3");
-    } else if (cleaned.length === 10) {
-      return cleaned.replace(/(\d{2})(\d{4})(\d{4})/, "($1) $2-$3");
+    try {
+      const parsed = parsePhoneNumberFromString(phone);
+
+      if (parsed && parsed.isValid()) {
+        const countryCode = parsed.countryCallingCode;
+        const national = parsed.formatNational();
+        return `+${countryCode} ${national}`;
+      }
+
+      return phone;
+    } catch (err) {
+      console.error("Erro ao formatar número:", err);
+      return phone;
     }
-    return phone;
   };
 
   const filteredClients = clients.filter(

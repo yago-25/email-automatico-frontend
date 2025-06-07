@@ -65,18 +65,6 @@ interface PollMessage {
   options: PollOption[];
 }
 
-interface LocationMessage {
-  latitude: number;
-  longitude: number;
-  name?: string;
-  address?: string;
-}
-
-interface ContactMessage {
-  name: string;
-  phone: string;
-}
-
 const localeMap = {
   pt: ptBR,
   en: enUS,
@@ -102,17 +90,9 @@ const WhatsAppCreate = () => {
   const [documentMessage, setDocumentMessage] = useState<MediaMessage | null>(
     null
   );
-  const [contactMessage, setContactMessage] = useState<ContactMessage>({
-    name: "",
-    phone: "",
-  });
   const [pollMessage, setPollMessage] = useState<PollMessage>({
     question: "",
     options: [{ text: "" }, { text: "" }],
-  });
-  const [locationMessage, setLocationMessage] = useState<LocationMessage>({
-    latitude: 0,
-    longitude: 0,
   });
   const [sendDate, setSendDate] = useState<string>("");
   const [sendTime, setSendTime] = useState<string>("");
@@ -224,17 +204,6 @@ const WhatsAppCreate = () => {
           caption = documentMessage.caption || "";
           break;
 
-        case "contact":
-          if (!contactMessage.name || !contactMessage.phone) {
-            messageAlert({
-              type: "error",
-              message: "Preencha os dados do contato.",
-            });
-            return;
-          }
-          message = JSON.stringify(contactMessage);
-          break;
-
         case "poll":
           if (
             !pollMessage.question ||
@@ -248,20 +217,8 @@ const WhatsAppCreate = () => {
           }
           message = JSON.stringify(pollMessage);
           break;
-
-        case "location":
-          if (!locationMessage.latitude || !locationMessage.longitude) {
-            messageAlert({
-              type: "error",
-              message: "Preencha os dados da localização.",
-            });
-            return;
-          }
-          message = JSON.stringify(locationMessage);
-          break;
       }
 
-      // Se for mídia ou documento e não tiver message, preenche com caption
       if (!message && caption) {
         message = caption;
       }
@@ -418,29 +375,6 @@ const WhatsAppCreate = () => {
             )}
           </div>
         );
-      case "contact":
-        return (
-          <div className="space-y-4">
-            <Input
-              placeholder="Nome do contato"
-              value={contactMessage.name}
-              onChange={(e) =>
-                setContactMessage({ ...contactMessage, name: e.target.value })
-              }
-              prefix={<FiUser className="text-gray-400" />}
-              className="bg-white rounded-xl h-[40px]"
-            />
-            <Input
-              placeholder="Número do telefone"
-              value={contactMessage.phone}
-              onChange={(e) =>
-                setContactMessage({ ...contactMessage, phone: e.target.value })
-              }
-              prefix={<FaWhatsapp className="text-gray-400" />}
-              className="bg-white rounded-xl h-[40px]"
-            />
-          </div>
-        );
       case "poll":
         return (
           <div className="space-y-4">
@@ -480,56 +414,6 @@ const WhatsAppCreate = () => {
             >
               Adicionar Opção
             </button>
-          </div>
-        );
-      case "location":
-        return (
-          <div className="space-y-4">
-            <div className="grid grid-cols-2 gap-4">
-              <Input
-                type="number"
-                placeholder="Latitude"
-                value={locationMessage.latitude || ""}
-                onChange={(e) =>
-                  setLocationMessage({
-                    ...locationMessage,
-                    latitude: parseFloat(e.target.value),
-                  })
-                }
-                className="bg-white rounded-xl h-[40px]"
-              />
-              <Input
-                type="number"
-                placeholder="Longitude"
-                value={locationMessage.longitude || ""}
-                onChange={(e) =>
-                  setLocationMessage({
-                    ...locationMessage,
-                    longitude: parseFloat(e.target.value),
-                  })
-                }
-                className="bg-white rounded-xl h-[40px]"
-              />
-            </div>
-            <Input
-              placeholder="Nome do local (opcional)"
-              value={locationMessage.name || ""}
-              onChange={(e) =>
-                setLocationMessage({ ...locationMessage, name: e.target.value })
-              }
-              className="bg-white rounded-xl h-[40px]"
-            />
-            <Input
-              placeholder="Endereço (opcional)"
-              value={locationMessage.address || ""}
-              onChange={(e) =>
-                setLocationMessage({
-                  ...locationMessage,
-                  address: e.target.value,
-                })
-              }
-              className="bg-white rounded-xl h-[40px]"
-            />
           </div>
         );
       default:
@@ -590,9 +474,7 @@ const WhatsAppCreate = () => {
                     { value: "text", label: "Texto" },
                     { value: "media", label: "Foto/Vídeo" },
                     { value: "document", label: "Arquivo" },
-                    { value: "contact", label: "Contato" },
                     { value: "poll", label: "Enquete" },
-                    { value: "location", label: "Localização" },
                   ]}
                 />
               </div>
@@ -723,12 +605,6 @@ const WhatsAppCreate = () => {
                       )}
                     </>
                   )}
-                  {messageType === "contact" && (
-                    <>
-                      <p>Nome: {contactMessage.name || "Não definido"}</p>
-                      <p>Telefone: {contactMessage.phone || "Não definido"}</p>
-                    </>
-                  )}
                   {messageType === "poll" && (
                     <>
                       <p>Pergunta: {pollMessage.question || "Não definida"}</p>
@@ -740,22 +616,6 @@ const WhatsAppCreate = () => {
                           </li>
                         ))}
                       </ul>
-                    </>
-                  )}
-                  {messageType === "location" && (
-                    <>
-                      <p>
-                        Latitude: {locationMessage.latitude || "Não definida"}
-                      </p>
-                      <p>
-                        Longitude: {locationMessage.longitude || "Não definida"}
-                      </p>
-                      {locationMessage.name && (
-                        <p>Local: {locationMessage.name}</p>
-                      )}
-                      {locationMessage.address && (
-                        <p>Endereço: {locationMessage.address}</p>
-                      )}
                     </>
                   )}
                 </div>
