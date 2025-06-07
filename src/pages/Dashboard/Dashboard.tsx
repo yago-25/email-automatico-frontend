@@ -21,7 +21,7 @@ import { IoTicketOutline } from "react-icons/io5";
 import { IoPersonSharp } from "react-icons/io5";
 import { useNavigate } from "react-router-dom";
 import { FaTags, FaClipboardList, FaRegStickyNote } from "react-icons/fa";
-import { HiUserAdd } from "react-icons/hi";
+import { HiUserAdd, HiX } from "react-icons/hi";
 import { HiMail, HiPhone, HiUser } from "react-icons/hi";
 import PhoneInput from "react-phone-input-2";
 import "react-phone-input-2/lib/style.css";
@@ -429,11 +429,13 @@ const Dashboard = () => {
 
       <Modal
         title={
-          <div className="flex items-center gap-3 text-blue-700">
-            <HiUserAdd className="w-7 h-7" />
-            <span className="text-xl font-bold">
-              {t("dashboard.add_client")}
-            </span>
+          <div className="flex items-center gap-3 mb-4">
+            <div className="bg-gradient-to-br from-blue-500 to-blue-600 p-3 rounded-2xl shadow-md">
+              <HiUserAdd className="w-6 h-6 text-white" />
+            </div>
+            <div>
+              <h2 className="text-2xl font-bold text-gray-800">{t("dashboard.add_client")}</h2>
+            </div>
           </div>
         }
         isVisible={addClient}
@@ -444,104 +446,99 @@ const Dashboard = () => {
             <Spin />
           </div>
         ) : (
-          <div className="flex flex-col items-center justify-center w-full gap-6 p-6 bg-gradient-to-br from-white to-blue-50 rounded-xl">
-            <div className="w-full space-y-6">
-              <div className="group">
-                <div className="flex items-center gap-2 mb-2">
-                  <div className="p-2 bg-blue-100 rounded-lg text-blue-600 group-hover:bg-blue-600 group-hover:text-white transition-all duration-300">
-                    <HiUser className="w-5 h-5" />
-                  </div>
-                  <p className="text-gray-700 font-semibold">
-                    {t("dashboard.name")}
-                  </p>
+          <div className="bg-gradient-to-br from-white to-blue-50/50 p-8 rounded-3xl shadow-lg space-y-6">
+            <div className="space-y-2">
+              <div className="flex items-center gap-3 mb-2">
+                <div className="p-2.5 bg-gradient-to-br from-blue-500 to-blue-600 rounded-xl text-white shadow-sm">
+                  <HiUser className="w-5 h-5" />
                 </div>
-                <div className="relative">
-                  <input
-                    placeholder={t("dashboard.name")}
-                    type="text"
-                    required
-                    onChange={(e) => setClientName(e.target.value)}
-                    value={clientName}
-                    className="w-full px-4 py-3 border border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-400 focus:border-transparent transition duration-200 shadow-sm"
-                  />
-                  <div className="absolute inset-y-0 right-4 flex items-center pointer-events-none text-gray-400">
-                    <HiUser className="w-5 h-5" />
-                  </div>
-                </div>
+                <label className="text-sm font-semibold text-gray-700">
+                  {t("dashboard.name")}
+                </label>
               </div>
+              <input
+                type="text"
+                value={clientName}
+                onChange={(e) => setClientName(e.target.value)}
+                className="w-full border border-gray-200 rounded-2xl px-5 py-4 text-base shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-400 bg-white/70 backdrop-blur-sm transition-all duration-200 hover:border-blue-300"
+                placeholder={t("dashboard.name")}
+              />
+            </div>
 
-              <div className="group">
-                <div className="flex items-center gap-2 mb-2">
-                  <div className="p-2 bg-green-100 rounded-lg text-green-600 group-hover:bg-green-600 group-hover:text-white transition-all duration-300">
-                    <HiPhone className="w-5 h-5" />
-                  </div>
-                  <p className="text-gray-700 font-semibold">
-                    {t("dashboard.phone")}
-                  </p>
+            <div className="space-y-2">
+              <div className="flex items-center gap-3 mb-2">
+                <div className="p-2.5 bg-gradient-to-br from-green-500 to-green-600 rounded-xl text-white shadow-sm">
+                  <HiPhone className="w-5 h-5" />
                 </div>
-                <PhoneInput
-                  country={"br"}
-                  value={clientPhone}
-                  onChange={setClientPhone}
-                  inputProps={{
-                    required: true,
-                    name: "phone",
-                    className:
-                      "w-full px-4 py-3 border border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-green-400 focus:border-transparent transition duration-200 shadow-sm",
-                  }}
-                  containerStyle={{ width: "100%" }}
-                  inputStyle={{
-                    width: "100%",
-                    height: "48px",
-                    borderRadius: "0.75rem",
-                    border: "1px solid #E5E7EB",
-                    paddingLeft: "48px",
-                    fontSize: "16px",
-                    boxShadow: "0 1px 2px rgba(0, 0, 0, 0.05)",
-                  }}
-                  buttonStyle={{
-                    borderTopLeftRadius: "0.75rem",
-                    borderBottomLeftRadius: "0.75rem",
-                    backgroundColor: "#F3F4F6",
-                    border: "1px solid #E5E7EB",
-                    borderRight: "none",
-                  }}
-                />
+                <label className="text-sm font-semibold text-gray-700">
+                  {t("dashboard.phone")}
+                </label>
               </div>
+              <PhoneInput
+                country={"br"}
+                value={clientPhone}
+                onChange={setClientPhone}
+                prefix="+"
+                inputProps={{
+                  required: true,
+                  className:
+                    "w-full border border-gray-200 rounded-2xl px-5 py-4 text-base shadow-sm focus:outline-none focus:ring-2 focus:ring-green-400 bg-white/70 backdrop-blur-sm transition-all duration-200 hover:border-green-300",
+                }}
+                containerStyle={{ width: "100%" }}
+                inputStyle={{
+                  width: "100%",
+                  height: "56px",
+                  borderRadius: "1rem",
+                  border: "1px solid #E5E7EB",
+                  fontSize: "16px",
+                  paddingLeft: "48px",
+                }}
+                buttonStyle={{
+                  borderTopLeftRadius: "1rem",
+                  borderBottomLeftRadius: "1rem",
+                  backgroundColor: "#F3F4F6",
+                  border: "1px solid #E5E7EB",
+                  borderRight: "none",
+                }}
+                enableSearch={false}
+                disableSearchIcon={true}
+                countryCodeEditable={false}
+              />
+            </div>
 
-              <div className="group">
-                <div className="flex items-center gap-2 mb-2">
-                  <div className="p-2 bg-purple-100 rounded-lg text-purple-600 group-hover:bg-purple-600 group-hover:text-white transition-all duration-300">
-                    <HiMail className="w-5 h-5" />
-                  </div>
-                  <p className="text-gray-700 font-semibold">
-                    {t("dashboard.email")}
-                  </p>
+            <div className="space-y-2">
+              <div className="flex items-center gap-3 mb-2">
+                <div className="p-2.5 bg-gradient-to-br from-purple-500 to-purple-600 rounded-xl text-white shadow-sm">
+                  <HiMail className="w-5 h-5" />
                 </div>
-                <div className="relative">
-                  <input
-                    placeholder={t("dashboard.email")}
-                    type="email"
-                    required
-                    onChange={(e) => setClientMail(e.target.value)}
-                    value={clientMail}
-                    className="w-full px-4 py-3 border border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-purple-400 focus:border-transparent transition duration-200 shadow-sm"
-                  />
-                  <div className="absolute inset-y-0 right-4 flex items-center pointer-events-none text-gray-400">
-                    <HiMail className="w-5 h-5" />
-                  </div>
-                </div>
+                <label className="text-sm font-semibold text-gray-700">
+                  {t("dashboard.email")}
+                </label>
               </div>
+              <input
+                type="email"
+                value={clientMail}
+                onChange={(e) => setClientMail(e.target.value)}
+                className="w-full border border-gray-200 rounded-2xl px-5 py-4 text-base shadow-sm focus:outline-none focus:ring-2 focus:ring-purple-400 bg-white/70 backdrop-blur-sm transition-all duration-200 hover:border-purple-300"
+                placeholder={t("dashboard.email")}
+              />
+            </div>
 
-              <div className="pt-4">
-                <button
-                  onClick={handleAddClient}
-                  className="w-full py-4 bg-gradient-to-r from-blue-600 to-blue-700 text-white rounded-xl shadow-lg hover:from-blue-700 hover:to-blue-800 transition-all duration-300 transform hover:scale-[1.02] active:scale-[0.98] flex items-center justify-center gap-3 font-semibold text-lg"
-                >
-                  <HiUserAdd className="w-6 h-6" />
-                  {t("dashboard.add_client")}
-                </button>
-              </div>
+            <div className="flex gap-4 pt-6">
+              <button
+                onClick={handleAddClient}
+                className="flex-1 flex items-center justify-center gap-2 py-4 bg-gradient-to-r from-blue-500 to-blue-600 text-white rounded-2xl hover:from-blue-600 hover:to-blue-700 transition-all duration-300 shadow-lg hover:shadow-xl font-medium transform hover:scale-[1.02] active:scale-[0.98]"
+              >
+                <HiUserAdd className="w-5 h-5" />
+                {t("dashboard.add_client")}
+              </button>
+              <button
+                onClick={() => setAddClient(false)}
+                className="flex-1 flex items-center justify-center gap-2 py-4 bg-gradient-to-r from-gray-100 to-gray-200 text-gray-700 rounded-2xl hover:from-gray-200 hover:to-gray-300 transition-all duration-300 shadow-lg hover:shadow-xl font-medium transform hover:scale-[1.02] active:scale-[0.98] border border-gray-200"
+              >
+                <HiX className="w-5 h-5" />
+                {t("buttons.cancel")}
+              </button>
             </div>
           </div>
         )}

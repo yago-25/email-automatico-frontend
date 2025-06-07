@@ -168,17 +168,17 @@ const Approve = () => {
 
               <div className="approve-actions">
                 <select
-                  value={selectedCargos[solicitacao.id] || ""}
-                  onChange={(e) => handleCargoChange(solicitacao.id, Number(e.target.value))}
-                  className="approve-select"
-                >
-                  <option value="">{t("approve_page.select_role")}</option>
-                  {cargos.map((cargo) => (
-                    <option key={cargo.id} value={cargo.id}>
-                      {cargo.nome}
-                    </option>
-                  ))}
-                </select>
+  value={selectedCargos[solicitacao.id] || ""}
+  onChange={(e) => handleCargoChange(solicitacao.id, Number(e.target.value))}
+  className="approve-select"
+>
+  <option value="">{t("approve_page.select_role")}</option>
+  {cargos.map((cargo) => (
+    <option key={cargo.id} value={cargo.id}>
+      {t(`roles.${cargo.nome}`)}
+    </option>
+  ))}
+</select>
 
                 <button
                   onClick={() => aprovar(solicitacao.id, selectedCargos[solicitacao.id])}

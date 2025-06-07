@@ -258,6 +258,8 @@
     "actions": "Acciones",
     "add_user": "Agregar Usuario",
     "edit_user": "Editar Usuario",
+    "edit_user_description": "Descripción de Usuario",
+    "select_cargo": "Seleccione la posición",
     "save_changes": "Guardar Cambios",
     "register_user": "Registrar Usuario",
     "of": "de",
@@ -517,5 +519,11 @@
       }
     },
     "full_message": "Mensaje Completo"
+  },
+  "roles": {
+    "Admin": "Admin",
+    "Acesso Total": "Acceso Total",
+    "Funcionário": "Empleado",
+    "Convidado": "Invitado"
   }
 }
