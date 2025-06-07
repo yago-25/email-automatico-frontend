@@ -521,5 +521,11 @@
       }
     },
     "full_message": "Full Message"
+  },
+  "roles": {
+    "Admin": "Admin",
+    "Acesso Total": "Full Access",
+    "Funcionário": "Employee",
+    "Convidado": "Guest"
   }
 }

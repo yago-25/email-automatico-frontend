@@ -520,5 +520,11 @@
       "failed": "Falha"
     },
     "full_message": "Mensagem Completa"
+  },
+   "roles": {
+    "Admin": "Admin",
+    "Acesso Total": "Acesso Total",
+    "Funcionário": "Funcionário",
+    "Convidado": "Convidado"
   }
 }

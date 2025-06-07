@@ -519,5 +519,11 @@
       }
     },
     "full_message": "Mensaje Completo"
+  },
+  "roles": {
+    "Admin": "Admin",
+    "Acesso Total": "Acceso Total",
+    "Funcionário": "Empleado",
+    "Convidado": "Invitado"
   }
 }
