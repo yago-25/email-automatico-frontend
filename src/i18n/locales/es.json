@@ -525,5 +525,19 @@
     "Acesso Total": "Acceso Total",
     "Funcionário": "Empleado",
     "Convidado": "Invitado"
+  },
+  "edit_sms": {
+    "title": "Editar SMS",
+    "message": "Mensaje",
+    "scheduled_at": "Programar para",
+    "cancel": "Cancelar",
+    "save": "Guardar",
+    "saving": "Guardando...",
+    "error_past_datetime": "No se puede programar un SMS para una fecha/hora pasada",
+    "error_updating": "Error al actualizar el SMS. Inténtalo de nuevo.",
+    "date": "Fecha",
+    "time": "Hora",
+    "error_min_time": "El SMS debe programarse con al menos 3 minutos de antelación",
+    "min_time_info": "Mínimo 3 minutos de antelación"
   }
 }

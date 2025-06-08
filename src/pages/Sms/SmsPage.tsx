@@ -23,11 +23,12 @@ import "dayjs/locale/es";
 import { api } from "../../api/api";
 import { messageAlert } from "../../utils/messageAlert";
 import { FiMessageCircle } from "react-icons/fi";
-import { Trash } from "lucide-react";
+import { Trash, Pencil } from "lucide-react";
 import DeleteConfirmModal from "../../components/DeleteConfirm/DeleteConfirmModal";
 import { MdArrowBackIos, MdArrowForwardIos } from "react-icons/md";
 import { MdCheckCircle, MdAccessTime, MdErrorOutline } from "react-icons/md";
 import { X } from "lucide-react";
+import EditSmsModal from "../../components/Modal/EditSmsModal";
 
 interface Sms {
   id: number;
@@ -81,6 +82,9 @@ const SmsPage = () => {
   const itemsPerPage = 10;
 
   const totalPages = Math.ceil(filteredSms.length / itemsPerPage);
+
+  const [isEditModalOpen, setIsEditModalOpen] = useState(false);
+  const [selectedSms, setSelectedSms] = useState<Sms | null>(null);
 
   useEffect(() => {
     if (data) {
@@ -246,6 +250,34 @@ const SmsPage = () => {
     }
   };
 
+  const handleEdit = (sms: Sms) => {
+    setSelectedSms(sms);
+    setIsEditModalOpen(true);
+  };
+
+  const handleUpdate = async (updatedSms: Sms) => {
+    try {
+      await api.put(`/sms/${updatedSms.id}`, updatedSms, {
+        headers: {
+          Authorization: `Bearer ${localStorage.getItem("accessToken")}`,
+        },
+      });
+
+      messageAlert({
+        type: "success",
+        message: t("alerts.update_success"),
+      });
+
+      mutate();
+    } catch (error) {
+      console.error("Error updating SMS:", error);
+      messageAlert({
+        type: "error",
+        message: t("alerts.update_error"),
+      });
+    }
+  };
+
   return (
     <div className="text-white">
       <Header name={authUser?.nome_completo} />
@@ -393,11 +425,19 @@ const SmsPage = () => {
                             </div>
                             <div className="flex justify-center gap-2">
                               {sms.status !== "sent" && (
-                                <MdScheduleSend
-                                  className="cursor-pointer w-5 h-5 text-blue-700 hover:text-blue-900"
-                                  title={t("sms_list.actions.send_now")}
-                                  onClick={() => handleSendNow(sms.id)}
-                                />
+                                <>
+                                  <MdScheduleSend
+                                    className="cursor-pointer w-5 h-5 text-blue-700 hover:text-blue-900"
+                                    title={t("sms_list.actions.send_now")}
+                                    onClick={() => handleSendNow(sms.id)}
+                                  />
+                                  <button
+                                    title={t("sms_list.actions.edit")}
+                                    onClick={() => handleEdit(sms)}
+                                  >
+                                    <Pencil className="h-5 w-5 text-blue-500 hover:text-blue-700" />
+                                  </button>
+                                </>
                               )}
                               <button
                                 onClick={() => openDeleteModal(sms.id)}
@@ -658,6 +698,16 @@ const SmsPage = () => {
               handleDelete(smsIdToDelete);
             }
           }}
+        />
+
+        <EditSmsModal
+          isVisible={isEditModalOpen}
+          onClose={() => {
+            setIsEditModalOpen(false);
+            setSelectedSms(null);
+          }}
+          sms={selectedSms}
+          onUpdate={handleUpdate}
         />
       </div>
     </div>

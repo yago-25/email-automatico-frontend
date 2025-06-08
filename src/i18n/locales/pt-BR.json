@@ -526,5 +526,19 @@
     "Acesso Total": "Acesso Total",
     "Funcionário": "Funcionário",
     "Convidado": "Convidado"
+  },
+   "edit_sms": {
+    "title": "Editar SMS",
+    "message": "Mensagem",
+    "scheduled_at": "Agendar para",
+    "cancel": "Cancelar",
+    "save": "Salvar",
+    "saving": "Salvando...",
+    "error_past_datetime": "Não é possível agendar SMS para uma data/hora no passado",
+    "error_updating": "Erro ao atualizar o SMS. Tente novamente.",
+    "date": "Data",
+    "time": "Hora",
+    "error_min_time": "O SMS deve ser agendado com no mínimo 3 minutos de antecedência", 
+    "min_time_info": "Mínimo 3 minutos de antecedência"
   }
 }

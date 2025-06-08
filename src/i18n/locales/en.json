@@ -527,5 +527,19 @@
     "Acesso Total": "Full Access",
     "Funcionário": "Employee",
     "Convidado": "Guest"
+  },
+  "edit_sms": {
+    "title": "Edit SMS",
+    "message": "Message",
+    "scheduled_at": "Schedule for",
+    "cancel": "Cancel",
+    "save": "Save",
+    "saving": "Saving...",
+    "error_past_datetime": "Cannot schedule SMS for a past date/time",
+    "error_updating": "Error updating SMS. Please try again.",
+    "date": "Date",
+    "time": "Time",
+    "error_min_time": "The SMS must be scheduled at least 3 minutes in advance",
+    "min_time_info": "Minimum 3 minutes in advance"
   }
 }
