@@ -33,7 +33,7 @@
     "clsx": "^2.1.1",
     "date-fns": "^4.1.0",
     "dayjs": "^1.11.13",
-    "framer-motion": "^12.11.3",
+    "framer-motion": "^12.16.0",
     "i18next": "^24.2.3",
     "i18next-browser-languagedetector": "^8.0.4",
     "libphonenumber-js": "^1.12.9",

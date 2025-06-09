@@ -1,6 +1,6 @@
 // import { Trash2 } from "lucide-react";
 import { AnimatePresence, motion } from "framer-motion";
-import { FiTrash2, FiX, FiMail, FiCalendar, FiClock, FiPaperclip, FiUser } from "react-icons/fi";
+import { FiX, FiMail, FiCalendar, FiClock, FiPaperclip, FiUser } from "react-icons/fi";
 import { useTranslation } from "react-i18next";
 
 interface EmailClient {
@@ -10,6 +10,7 @@ interface EmailClient {
 
 interface Attachment {
     name: string;
+    url: string;
 }
 
 interface EmailPreviewModalProps {
@@ -35,6 +36,13 @@ const EmailPreviewModal = ({
 
     const { t } = useTranslation();
 
+    console.log('Attachments in modal:', email?.attachments);
+
+    console.log("onRemoveAttachment:", onRemoveAttachment);
+
+    
+
+
     return (
         <AnimatePresence>
             {isVisible && email && (
@@ -51,7 +59,7 @@ const EmailPreviewModal = ({
                         exit={{ scale: 0.95, opacity: 0, y: 20 }}
                         transition={{ type: "spring", stiffness: 300, damping: 25 }}
                     >
-                        {/* Email Header */}
+
                         <div className="flex justify-between items-center px-6 py-3 border-b bg-gray-50">
                             <div className="flex items-center gap-3">
                                 <div className="bg-blue-100 p-2 rounded-full">
@@ -59,22 +67,20 @@ const EmailPreviewModal = ({
                                 </div>
                                 <span className="text-sm font-medium text-gray-500">{t("scheduled_emails.preview.title")}</span>
                             </div>
-                            <button 
-                                onClick={onClose} 
+                            <button
+                                onClick={onClose}
                                 className="p-1.5 rounded-full hover:bg-gray-200 transition-colors duration-200"
                             >
                                 <FiX className="w-5 h-5 text-gray-500" />
                             </button>
                         </div>
 
-                        {/* Email Content */}
                         <div className="overflow-y-auto bg-white" style={{ maxHeight: '75vh' }}>
-                            {/* Email Subject and Meta */}
                             <div className="px-6 py-5 border-b">
                                 <h1 className="text-xl font-semibold text-gray-900 mb-4">
                                     {email.subject}
                                 </h1>
-                                
+
                                 <div className="space-y-3">
                                     <div className="flex items-center gap-2 text-sm">
                                         <div className="min-w-[40px] text-gray-500">Para:</div>
@@ -101,14 +107,13 @@ const EmailPreviewModal = ({
                                 </div>
                             </div>
 
-                            {/* Email Body */}
+
                             <div className="px-6 py-6">
                                 <div className="text-gray-800 text-[15px] leading-relaxed whitespace-pre-line">
                                     {email.body}
                                 </div>
                             </div>
 
-                            {/* Attachments */}
                             {email.attachments?.length > 0 && (
                                 <div className="px-6 pb-6">
                                     <div className="border-t pt-4">
@@ -118,27 +123,30 @@ const EmailPreviewModal = ({
                                         </div>
                                         <div className="grid grid-cols-2 gap-2">
                                             {email.attachments.map((file, idx) => (
-                                                <div 
-                                                    key={idx} 
+                                                <div
+                                                    key={idx}
                                                     className="flex items-center justify-between bg-gray-50 px-3 py-2 rounded border border-gray-200 group hover:border-gray-300 transition-all duration-200"
                                                 >
                                                     <div className="flex items-center gap-2 min-w-0">
                                                         <div className="bg-blue-100 p-1.5 rounded">
                                                             <FiPaperclip className="w-3.5 h-3.5 text-blue-600" />
                                                         </div>
-                                                        <span className="truncate text-sm text-gray-700">
-                                                            {file.name}
-                                                        </span>
+                                                        <span className="truncate text-sm text-gray-700">{file.name}</span>
                                                     </div>
-                                                    {onRemoveAttachment && (
-                                                        <button
-                                                            onClick={() => onRemoveAttachment(idx)}
-                                                            className="p-1 rounded text-gray-400 hover:text-red-500 hover:bg-red-50 opacity-0 group-hover:opacity-100 transition-all duration-200 ml-2"
-                                                            title={t("scheduled_emails.preview.remove_attachment")}
-                                                        >
-                                                            <FiTrash2 size={14} />
-                                                        </button>
-                                                    )}
+
+                                                    <div className="flex items-center gap-2 ml-2">
+                                                        {file.url && (
+                                                            <a
+                                                                href={file.url}
+                                                                target="_blank"
+                                                                rel="noopener noreferrer"
+                                                                className="text-xs text-blue-600 hover:underline"
+                                                            >
+                                                                {t("scheduled_emails.preview.open")}
+                                                            </a>
+                                                        )}
+                                                        
+                                                    </div>
                                                 </div>
                                             ))}
                                         </div>
@@ -147,7 +155,6 @@ const EmailPreviewModal = ({
                             )}
                         </div>
 
-                        {/* Email Footer */}
                         <div className="flex justify-end items-center px-6 py-3 border-t bg-gray-50">
                             <button
                                 onClick={onClose}
