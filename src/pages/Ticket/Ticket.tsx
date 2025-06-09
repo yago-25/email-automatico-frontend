@@ -126,6 +126,9 @@ const Ticket = () => {
   const params = location?.state || [];
   const id = params?.ticket?.id;
 
+  const user = JSON.parse(localStorage.getItem("user") || "{}");
+  const cargo = user.cargo_id;
+
   const { t } = useTranslation();
 
   const statusTickets = [
@@ -510,13 +513,15 @@ const Ticket = () => {
       <Header name={authUser?.nome_completo} />
 
       <div className="filter-button-container flex items-center gap-4 mb-4 p-4">
-        <button
-          onClick={() => setAddTicket(true)}
-          className="flex items-center justify-center gap-2 min-w-[150px] px-4 py-2.5 bg-purple-600 text-white font-medium rounded-lg shadow-md hover:bg-purple-700 hover:shadow-lg transition-all duration-200"
-        >
-          <IoTicketOutline className="w-5 h-5" />
-          {t("dashboard.add_ticket")}
-        </button>
+        {(cargo === 1 || cargo === 2) && (
+          <button
+            onClick={() => setAddTicket(true)}
+            className="flex items-center justify-center gap-2 min-w-[150px] px-4 py-2.5 bg-purple-600 text-white font-medium rounded-lg shadow-md hover:bg-purple-700 hover:shadow-lg transition-all duration-200"
+          >
+            <IoTicketOutline className="w-5 h-5" />
+            {t("dashboard.add_ticket")}
+          </button>
+        )}
 
         <button
           onClick={() => setShowOnlyFinished((prev) => !prev)}
@@ -598,7 +603,6 @@ const Ticket = () => {
                     </div>
                   </div>
 
-                  {/* Tags */}
                   <div className="flex flex-wrap gap-2">
                     {Array.isArray(ticket.tags) &&
                       ticket.tags.map((tag, index) => (
@@ -611,7 +615,6 @@ const Ticket = () => {
                       ))}
                   </div>
 
-                  {/* Status Badge */}
                   <div className="flex items-center gap-2 mt-4">
                     <div
                       className={`
@@ -645,8 +648,8 @@ const Ticket = () => {
             ))
         ) : (
           <div className="col-span-full flex flex-col items-center justify-center py-12 text-gray-500">
-            <IoTicketOutline className="w-16 h-16 mb-4 text-gray-400" />
-            <p className="text-lg font-medium">
+            <IoTicketOutline className="w-16 h-16 mb-4 text-white" />
+            <p className="text-lg font-medium text-white">
               {t("messages.noTicketsFound")}
             </p>
           </div>

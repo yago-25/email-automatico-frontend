@@ -80,6 +80,9 @@ export const Button: React.FC<ButtonProps> = ({ text, onClick }) => {
 };
 
 const Dashboard = () => {
+  const user = JSON.parse(localStorage.getItem("user") || "{}");
+  const cargo = user.cargo_id;
+
   const { t } = useTranslation();
 
   const {
@@ -327,22 +330,24 @@ const Dashboard = () => {
           />
         </div>
 
-        <div className="flex gap-4 w-full max-w-md">
-          <button
-            onClick={() => setAddClient(true)}
-            className="flex items-center gap-2 bg-blue-600 text-white px-5 py-3 rounded-xl shadow-md hover:bg-blue-700 transition"
-          >
-            <HiUserAdd className="w-5 h-5" />
-            {t("dashboard.add_client")}
-          </button>
-          <button
-            onClick={() => setAddTicket(true)}
-            className="flex items-center gap-2 bg-white text-blue-500 px-5 py-3 rounded-xl shadow-md hover:hover:bg-gray-200 transition"
-          >
-            <IoTicketOutline className="w-5 h-5" />
-            {t("dashboard.add_ticket")}
-          </button>
-        </div>
+        {(cargo === 1 || cargo === 2) && (
+          <div className="flex gap-4 w-full max-w-md">
+            <button
+              onClick={() => setAddClient(true)}
+              className="flex items-center gap-2 bg-blue-600 text-white px-5 py-3 rounded-xl shadow-md hover:bg-blue-700 transition"
+            >
+              <HiUserAdd className="w-5 h-5" />
+              {t("dashboard.add_client")}
+            </button>
+            <button
+              onClick={() => setAddTicket(true)}
+              className="flex items-center gap-2 bg-white text-blue-500 px-5 py-3 rounded-xl shadow-md hover:hover:bg-gray-200 transition"
+            >
+              <IoTicketOutline className="w-5 h-5" />
+              {t("dashboard.add_ticket")}
+            </button>
+          </div>
+        )}
       </div>
 
       <div className="w-full max-w-[80rem] mx-auto mt-10 rounded-3xl overflow-hidden shadow-lg border border-gray-200 bg-white">
@@ -434,7 +439,9 @@ const Dashboard = () => {
               <HiUserAdd className="w-6 h-6 text-white" />
             </div>
             <div>
-              <h2 className="text-2xl font-bold text-gray-800">{t("dashboard.add_client")}</h2>
+              <h2 className="text-2xl font-bold text-gray-800">
+                {t("dashboard.add_client")}
+              </h2>
             </div>
           </div>
         }
