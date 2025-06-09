@@ -70,6 +70,7 @@ const MailsCreate = () => {
   const [subject, setSubject] = useState("");
   const [body, setBody] = useState("");
   const [attachments, setAttachments] = useState<EmailAttachment[]>([]);
+  const fileInputRef = useRef<HTMLInputElement | null>(null);
   const [sendDate, setSendDate] = useState<string>("");
   const [sendTime, setSendTime] = useState<string>("");
   const [recurrency, setRecurrency] = useState(false);
@@ -131,7 +132,7 @@ const MailsCreate = () => {
     e.preventDefault();
   };
 
-  const fileInputRef = useRef<HTMLInputElement | null>(null);
+  
 
   const handleRemoveAttachment = (index: number) => {
     const updated = attachments.filter((_, i) => i !== index);

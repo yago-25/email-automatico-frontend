@@ -1,8 +1,10 @@
-import { Trash2, X } from "lucide-react";
+import { X } from "lucide-react";
 import { HiOutlinePencil, HiOutlinePaperClip, HiOutlineCalendar, HiOutlineClock, HiOutlineMail, HiOutlineDocumentText } from "react-icons/hi";
 import { AnimatePresence, motion } from "framer-motion";
 import { useEffect, useState } from "react";
 import { useTranslation } from "react-i18next";
+import ConfirmationModal from "./ConfirmationModal";
+import { FiTrash2 } from "react-icons/fi";
 
 interface EmailClient {
     id: number;
@@ -12,6 +14,7 @@ interface EmailClient {
 
 interface Attachment {
     name: string;
+    url: string;
 }
 
 interface EmailItem {
@@ -42,6 +45,11 @@ const EditEmailModal = ({
 }: EmailPreviewModalProps) => {
     const [localEmail, setLocalEmail] = useState<EmailItem | null>(null);
 
+    const [deleteConfirmation, setDeleteConfirmation] = useState<{ isOpen: boolean; attachmentIndex: number }>({
+        isOpen: false,
+        attachmentIndex: -1,
+    });
+
     const { t } = useTranslation();
 
     useEffect(() => {
@@ -51,15 +59,15 @@ const EditEmailModal = ({
     if (!localEmail) return null;
 
     const handleChange = (field: keyof EmailItem, value: string) => {
-        console.log("handleCharge --- entrou")
         setLocalEmail({ ...localEmail, [field]: value });
     };
 
     const handleSave = () => {
-        console.log("handleSave --- salvou")
         if (localEmail) onUpdate?.(localEmail);
         onClose();
     };
+
+
 
     return (
         <AnimatePresence>
@@ -84,8 +92,8 @@ const EditEmailModal = ({
                                 </div>
                                 {t("scheduled_emails.edit.title")}
                             </h2>
-                            <button 
-                                onClick={onClose} 
+                            <button
+                                onClick={onClose}
                                 className="p-2 rounded-full hover:bg-gray-100/80 transition-colors duration-200"
                             >
                                 <X className="w-6 h-6 text-gray-400 hover:text-gray-600" />
@@ -175,11 +183,11 @@ const EditEmailModal = ({
                                                 </span>
                                                 {onRemoveAttachment && (
                                                     <button
-                                                        onClick={() => onRemoveAttachment(idx)}
-                                                        className="p-1.5 hover:bg-red-50 rounded-lg text-red-400 hover:text-red-500 opacity-0 group-hover:opacity-100 transition-all duration-200"
+                                                        onClick={() => setDeleteConfirmation({ isOpen: true, attachmentIndex: idx })}
+                                                        className="p-1.5 rounded-lg text-red-500 hover:bg-red-50 transition-colors"
                                                         title={t("scheduled_emails.edit.remove_attachment")}
                                                     >
-                                                        <Trash2 size={18} />
+                                                        <FiTrash2 className="w-4 h-4" />
                                                     </button>
                                                 )}
                                             </li>
@@ -207,6 +215,17 @@ const EditEmailModal = ({
                     </motion.div>
                 </motion.div>
             )}
+            <ConfirmationModal
+                isVisible={deleteConfirmation.isOpen}
+                onClose={() => setDeleteConfirmation({ isOpen: false, attachmentIndex: -1 })}
+                onConfirm={() => {
+                    if (onRemoveAttachment) {
+                        onRemoveAttachment(deleteConfirmation.attachmentIndex);
+                    }
+                }}
+                title={t("scheduled_emails.edit.delete_attachment")}
+                message={t("scheduled_emails.edit.delete_attachment_confirmation")}
+            />
         </AnimatePresence>
     );
 };

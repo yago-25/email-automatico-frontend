@@ -16,6 +16,7 @@ import { User } from "../../models/User";
 import EditEmailModal from "../../components/Modal/EditEmailModal";
 import { useTranslation } from "react-i18next";
 import { debounce } from "lodash";
+import { useRef } from "react";
 
 interface EmailClient {
   id: number;
@@ -33,9 +34,15 @@ interface EmailItem {
   clients: EmailClient[];
   attachments: Attachment[];
 }
-
+interface EmailAttachment {
+  name: string;
+  file: File;
+  mime_type?: string;
+  size?: number;
+}
 interface Attachment {
   name: string;
+  url: string;
 }
 
 const Mails = () => {
@@ -54,6 +61,8 @@ const Mails = () => {
   const [isPreviewModalOpen, setPreviewModalOpen] = useState(false);
   const [isPreviewModalOpenEdit, setPreviewModalOpenEdit] = useState(false);
   const [previewEmail, setPreviewEmail] = useState<EmailItem | null>(null);
+  const [attachments, setAttachments] = useState<EmailAttachment[]>([]);
+  const fileInputRef = useRef<HTMLInputElement | null>(null);
   const [subject, setSubject] = useState("");
   const [recipients, setRecipients] = useState("");
   const [status, setStatus] = useState({
@@ -181,29 +190,38 @@ const Mails = () => {
     }
   };
 
- const openDeleteModal = (id: number) => {
-  setClientIdToDelete(id);
-  setIsModalCrashOpen(true);
-};
+  const handleRemoveAttachment = (index: number) => {
+    const updated = attachments.filter((_, i) => i !== index);
+    setAttachments(updated);
 
-const debouncedApplyFilters = useMemo(
-  () => debounce(applyFilters, 500),
-  [id, recipients, subject, status, date, mails]
-);
-
-useEffect(() => {
-  if (mails.length > 0) {
-    debouncedApplyFilters();
-  }
-
-  return () => {
-    debouncedApplyFilters.cancel();
+    if (updated.length === 0 && fileInputRef.current) {
+      fileInputRef.current.value = "";
+    }
   };
-}, [id, recipients, subject, status, date, mails]);
 
-if (loading) {
-  return <Spin />;
-}
+  const openDeleteModal = (id: number) => {
+    setClientIdToDelete(id);
+    setIsModalCrashOpen(true);
+  };
+
+  const debouncedApplyFilters = useMemo(
+    () => debounce(applyFilters, 500),
+    [id, recipients, subject, status, date, mails]
+  );
+
+  useEffect(() => {
+    if (mails.length > 0) {
+      debouncedApplyFilters();
+    }
+
+    return () => {
+      debouncedApplyFilters.cancel();
+    };
+  }, [id, recipients, subject, status, date, mails]);
+
+  if (loading) {
+    return <Spin />;
+  }
 
   return (
     <div className="p-4 min-h-screen bg-gradient-to-br text-white relative overflow-hidden">
@@ -395,7 +413,9 @@ if (loading) {
                 setPreviewEmail(null);
               }}
               email={previewEmail}
+              onRemoveAttachment={handleRemoveAttachment}
             />
+
 
             <EditEmailModal
               isVisible={isPreviewModalOpenEdit}

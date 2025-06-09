@@ -384,62 +384,71 @@
     "unexpected_error": "Erro inesperado."
   },
   "scheduled_emails": {
-    "title": "E-mails Agendados",
-    "statuses": {
-      "sent": "Enviados",
-      "failed": "Falhas",
-      "pending": "Pendentes"
-    },
-    "new_email": "Agendar novo e-mail",
-    "table": {
-      "id": "ID",
-      "subject": "Assunto",
-      "recipients": "Destinatários",
-      "schedule": "Agendamento",
-      "status": "Status",
-      "actions": "Ações"
-    },
-    "view_recipients": "Visualizar destinatários",
-    "view": "Visualizar",
-    "edit_mail": "Editar",
-    "at": "às",
-    "statuses2": {
-      "pending": "Pendente",
-      "sent": "Enviado",
-      "failed": "Falha"
-    },
-    "modal": {
-      "title": "Destinatários",
-      "close": "Fechar",
-      "change_photo": "Alterar foto",
-      "select_file": "Selecione um arquivo",
-      "no_file_selected": "Nada selecionado",
-      "save": "Salvar"
-    },
-    "preview": {
-      "title": "Prévia do E-mail",
-      "close": "Fechar",
-      "subject": "Assunto:",
-      "to": "Para: ",
-      "send_date": "Data do envio: ",
-      "send_time": "Horário do envio: ",
-      "body": "Corpo do E-mail:",
-      "attachments": "Anexos:",
-      "remove_attachment": "Remover"
-    },
-    "edit": {
-      "title": "Edição do E-mail",
-      "subject": "Assunto:",
-      "to": "Para: ",
-      "send_date": "Data do envio: ",
-      "send_time": "Horário do envio: ",
-      "body": "Corpo do E-mail:",
-      "attachments": "Anexos:",
-      "remove_attachment": "Remover",
-      "cancel": "Cancelar",
-      "save": "Salvar"
-    }
+  "title": "E-mails Agendados",
+  "new_email": "Agendar novo e-mail",
+  "view_recipients": "Visualizar destinatários",
+  "view": "Visualizar",
+  "edit_mail": "Editar",
+  "at": "às",
+
+  "statuses": {
+    "sent": "Enviados",
+    "failed": "Falhas",
+    "pending": "Pendentes"
   },
+  "statuses2": {
+    "pending": "Pendente",
+    "sent": "Enviado",
+    "failed": "Falha"
+  },
+
+  "table": {
+    "id": "ID",
+    "subject": "Assunto",
+    "recipients": "Destinatários",
+    "schedule": "Agendamento",
+    "status": "Status",
+    "actions": "Ações"
+  },
+
+  "modal": {
+    "title": "Destinatários",
+    "close": "Fechar",
+    "change_photo": "Alterar foto",
+    "select_file": "Selecione um arquivo",
+    "no_file_selected": "Nada selecionado",
+    "save": "Salvar"
+  },
+
+  "preview": {
+    "title": "Prévia do E-mail",
+    "close": "Fechar",
+    "subject": "Assunto:",
+    "to": "Para: ",
+    "send_date": "Data do envio: ",
+    "send_time": "Horário do envio: ",
+    "body": "Corpo do E-mail:",
+    "attachments": "Anexos",
+    "remove_attachment": "Remover anexo",
+    "open": "Abrir"
+  },
+
+  "edit": {
+    "title": "Edição do E-mail",
+    "subject": "Assunto:",
+    "to": "Para: ",
+    "send_date": "Data do envio: ",
+    "send_time": "Horário do envio: ",
+    "body": "Corpo do E-mail:",
+    "attachments": "Anexos:",
+    "remove_attachment": "Remover anexo",
+    "cancel": "Cancelar",
+    "save": "Salvar",
+    "delete_attachment": "Excluir anexo",
+    "delete_attachment_confirmation": "Tem certeza que deseja excluir este anexo?"
+  }
+},
+
   "common": {
     "cancel": "Cancelar",
     "delete": {

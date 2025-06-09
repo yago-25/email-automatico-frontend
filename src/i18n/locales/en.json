@@ -383,62 +383,70 @@
     "unexpected_error": "Unexpected error."
   },
   "scheduled_emails": {
-    "title": "Scheduled Emails",
-    "statuses": {
-      "sent": "Sent",
-      "failed": "Failed",
-      "pending": "Pending"
-    },
-    "new_email": "Schedule new e-mail",
-    "table": {
-      "id": "ID",
-      "subject": "Subject",
-      "recipients": "Recipients",
-      "schedule": "Schedule",
-      "status": "Status",
-      "actions": "Actions"
-    },
-    "view_recipients": "View recipients",
-    "view": "View",
-    "edit_mail": "Edit",
-    "at": "at",
-    "statuses2": {
-      "pending": "Pending",
-      "sent": "Sent",
-      "failed": "Failed"
-    },
-    "modal": {
-      "title": "Recipients",
-      "close": "Close",
-      "change_photo": "Change photo",
-      "select_file": "Select a file",
-      "no_file_selected": "Nothing selected",
-      "save": "Save"
-    },
-    "preview": {
-      "title": "Email Preview",
-      "close": "Close",
-      "subject": "Subject:",
-      "to": "To",
-      "send_date": "Send Date: ",
-      "send_time": "Send Time: ",
-      "body": "Email Body:",
-      "attachments": "Attachments:",
-      "remove_attachment": "Remove"
-    },
-    "edit": {
-      "title": "Edit Email",
-      "subject": "Subject:",
-      "to": "To:",
-      "send_date": "Send Date: ",
-      "send_time": "Send Time: ",
-      "body": "Email Body:",
-      "attachments": "Attachments:",
-      "remove_attachment": "Remove",
-      "cancel": "Cancel",
-      "save": "Save"
-    }
+  "title": "Scheduled Emails",
+  "new_email": "Schedule new e-mail",
+  "view_recipients": "View recipients",
+  "view": "View",
+  "edit_mail": "Edit",
+  "at": "at",
+
+  "statuses": {
+    "sent": "Sent",
+    "failed": "Failed",
+    "pending": "Pending"
   },
+  "statuses2": {
+    "pending": "Pending",
+    "sent": "Sent",
+    "failed": "Failed"
+  },
+
+  "table": {
+    "id": "ID",
+    "subject": "Subject",
+    "recipients": "Recipients",
+    "schedule": "Schedule",
+    "status": "Status",
+    "actions": "Actions"
+  },
+
+  "modal": {
+    "title": "Recipients",
+    "close": "Close",
+    "change_photo": "Change photo",
+    "select_file": "Select a file",
+    "no_file_selected": "Nothing selected",
+    "save": "Save"
+  },
+
+  "preview": {
+    "title": "Email Preview",
+    "close": "Close",
+    "subject": "Subject:",
+    "to": "To:",
+    "send_date": "Send Date: ",
+    "send_time": "Send Time: ",
+    "body": "Email Body:",
+    "attachments": "Attachments:",
+    "remove_attachment": "Remove attachment",
+    "open": "Open"
+  },
+
+  "edit": {
+    "title": "Edit Email",
+    "subject": "Subject:",
+    "to": "To:",
+    "send_date": "Send Date: ",
+    "send_time": "Send Time: ",
+    "body": "Email Body:",
+    "attachments": "Attachments:",
+    "remove_attachment": "Remove attachment",
+    "cancel": "Cancel",
+    "save": "Save",
+    "delete_attachment": "Delete attachment",
+    "delete_attachment_confirmation": "Are you sure you want to delete this attachment?"
+  }
+},
   "common": {
     "cancel": "Cancel",
     "delete": {
