@@ -13,6 +13,7 @@ import { motion, AnimatePresence } from "framer-motion";
 import { useSwr } from "../../api/useSwr";
 import { IoChatboxEllipses } from "react-icons/io5";
 import { useNavigate } from "react-router-dom";
+import { Spin } from "antd";
 
 type WhatsAppInstance = {
   id: number;
@@ -55,7 +56,6 @@ const WhatsApp = () => {
     }
 
     setCreating(true);
-
     try {
       const response = await api.post(
         "/whatsapp/create",
@@ -220,8 +220,14 @@ const WhatsApp = () => {
               disabled={creating}
               className="h-12 px-6 bg-green-500 text-white rounded-xl flex items-center gap-2 hover:bg-green-600 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
             >
-              <AiOutlinePlus size={20} />
-              Adicionar Instância
+              {creating ? (
+                <Spin />
+              ) : (
+                <>
+                  <AiOutlinePlus size={20} />
+                  Adicionar Instância
+                </>
+              )}
             </button>
           </div>
         </div>

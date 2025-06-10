@@ -16,6 +16,7 @@ import { FaGear } from "react-icons/fa6";
 import { HiOutlineUser } from "react-icons/hi";
 import DeleteConfirmModal from "../../components/DeleteConfirm/DeleteConfirmModal";
 import { FiUser, FiPhone, FiMail, FiBriefcase } from "react-icons/fi";
+import { parsePhoneNumberFromString } from "libphonenumber-js";
 
 interface Cargo {
   id: number;
@@ -35,37 +36,12 @@ interface User {
   url: string;
 }
 
-// interface ButtonProps {
-//   text: string;
-//   onClick: () => void;
-//   className?: string;
-// }
-
 interface DeleteConfirmModal {
   isOpen: boolean;
   onClose: () => void;
   onConfirm: () => void;
   loading?: boolean;
 }
-
-// const Button: React.FC<ButtonProps> = ({ text, onClick }) => {
-//   return (
-//     <button
-//       onClick={onClick}
-//       className="cursor-pointer w-44 h-12 bg-blue-600 text-white rounded-lg hover:bg-blue-700 hover:shadow-lg transition-all group active:w-11 active:h-11 active:rounded-full active:duration-300 ease-in-out"
-//     >
-//       <svg
-//         className="animate-spin hidden group-active:block mx-auto"
-//         width="33"
-//         height="32"
-//         viewBox="0 0 33 32"
-//         fill="none"
-//         xmlns="http://www.w3.org/2000/svg"
-//       ></svg>
-//       <span className="group-active:hidden">{text}</span>
-//     </button>
-//   );
-// };
 
 const Users = () => {
   const { t } = useTranslation();
@@ -83,13 +59,20 @@ const Users = () => {
   const itemsPerPage = 5;
 
   const formatPhone = (phone: string): string => {
-    const cleaned = phone?.replace(/\D/g, "");
-    if (cleaned.length === 11) {
-      return cleaned.replace(/(\d{2})(\d{5})(\d{4})/, "($1) $2-$3");
-    } else if (cleaned.length === 10) {
-      return cleaned.replace(/(\d{2})(\d{4})(\d{4})/, "($1) $2-$3");
+    try {
+      const parsed = parsePhoneNumberFromString(phone);
+
+      if (parsed && parsed.isValid()) {
+        const countryCode = parsed.countryCallingCode;
+        const national = parsed.formatNational();
+        return `+${countryCode} ${national}`;
+      }
+
+      return phone;
+    } catch (err) {
+      console.error("Erro ao formatar número:", err);
+      return phone;
     }
-    return phone;
   };
 
   const filteredUsers = users.filter(
@@ -332,7 +315,9 @@ const Users = () => {
                 <FiUser className="w-5 h-5 text-white" />
               </div>
               <div className="animate-slide-in">
-                <h2 className="text-xl font-semibold text-gray-800">{t("users.edit_user")}</h2>
+                <h2 className="text-xl font-semibold text-gray-800">
+                  {t("users.edit_user")}
+                </h2>
               </div>
             </div>
           }
@@ -375,7 +360,10 @@ const Users = () => {
                     required
                     className="w-full border border-gray-300 p-3 rounded-xl focus:ring-2 focus:ring-blue-400 focus:border-blue-400 focus:outline-none transition-all duration-200 shadow-sm hover:border-gray-400 group-hover/field:shadow-md"
                     onChange={(e) =>
-                      setEditingUser({ ...editingUser, telefone: e.target.value })
+                      setEditingUser({
+                        ...editingUser,
+                        telefone: e.target.value,
+                      })
                     }
                     value={editingUser.telefone}
                   />
@@ -416,7 +404,9 @@ const Users = () => {
                     }
                     className="w-full px-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-blue-400 focus:border-blue-400 focus:outline-none transition-all duration-200 shadow-sm hover:border-gray-400 bg-white group-hover/field:shadow-md cursor-pointer"
                   >
-                    <option value="" disabled>{t("users.select_cargo")}</option>
+                    <option value="" disabled>
+                      {t("users.select_cargo")}
+                    </option>
                     {cargos.map((cargo) => (
                       <option key={cargo.id} value={cargo.id}>
                         {cargo.nome}
