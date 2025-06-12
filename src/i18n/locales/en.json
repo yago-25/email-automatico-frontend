@@ -485,7 +485,7 @@
     "errors": {
       "fill_all_fields": "Please fill in all fields.",
       "date_in_past": "Please select a date after today.",
-      "time_invalid": "Please select a time at least 5 minutes ahead of the current time."
+      "time_invalid": "Please select a time at least 3 minutes ahead of the current time."
     },
     "end_date": "End Date",
     "send_preview": "Send Preview",

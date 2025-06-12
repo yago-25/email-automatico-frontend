@@ -487,7 +487,7 @@
     "errors": {
       "fill_all_fields": "Por favor, preencha todos os campos.",
       "date_in_past": "Por favor, selecione uma data maior que a data atual.",
-      "time_invalid": "Por favor, selecione uma hora com no mínimo 5 minutos à frente do horário atual."
+      "time_invalid": "Por favor, selecione uma hora com no mínimo 3 minutos à frente do horário atual."
     },
     "end_date": "Data de Término",
     "send_preview": "Enviar Preview",

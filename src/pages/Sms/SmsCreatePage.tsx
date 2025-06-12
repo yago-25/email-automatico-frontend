@@ -395,7 +395,7 @@ const SmsCreatePage = () => {
 
           <div className="flex flex-col lg:flex-row gap-10 items-start justify-between w-full">
             <div className="bg-white p-8 rounded-3xl shadow-2xl w-full lg:w-2/3 flex flex-col gap-8 border border-gray-100">
-              {/* Data */}
+
               <div className="flex flex-col gap-2">
                 <label className="text-blue-700 text-sm font-semibold flex items-center gap-2">
                   <Calendar className="w-4 h-4" />
@@ -414,7 +414,6 @@ const SmsCreatePage = () => {
                 </ConfigProvider>
               </div>
 
-              {/* Hora */}
               <div className="flex flex-col gap-2">
                 <label className="text-blue-700 text-sm font-semibold flex items-center gap-2">
                   <Clock className="w-4 h-4" />
@@ -432,7 +431,6 @@ const SmsCreatePage = () => {
                 </ConfigProvider>
               </div>
 
-              {/* Cliente */}
               <div className="flex flex-col gap-2">
                 <label className="text-blue-700 text-sm font-semibold flex items-center gap-2">
                   <Users className="w-4 h-4" />
@@ -447,7 +445,6 @@ const SmsCreatePage = () => {
                 />
               </div>
 
-              {/* Mensagem */}
               <div className="flex flex-col gap-2">
                 <label className="text-blue-700 text-sm font-semibold flex items-center gap-2">
                   <MessageCircle className="w-4 h-4" />
@@ -515,7 +512,6 @@ const SmsCreatePage = () => {
                 </div>
               )}
 
-              {/* Botão */}
               <div className="flex justify-end">
                 <button
                   onClick={() => {
@@ -550,7 +546,7 @@ const SmsCreatePage = () => {
 
                     if (
                       selectedDate.isSame(now, "day") &&
-                      selectedDateTime.isBefore(now.add(5, "minute"))
+                      selectedDateTime.isBefore(now.add(3, "minute"))
                     ) {
                       messageAlert({
                         type: "error",
