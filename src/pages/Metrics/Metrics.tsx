@@ -1,4 +1,4 @@
-import { useTranslation } from "react-i18next";
+// import { useTranslation } from "react-i18next";
 import { FaEnvelope, FaUsers, FaCalendarAlt, FaWhatsapp } from "react-icons/fa";
 import { MdSms, MdAttachFile } from "react-icons/md";
 import { IoStatsChart } from "react-icons/io5";
@@ -27,7 +27,7 @@ import { MetricsSummary, getMetricsSummary } from "../../services/metricsService
 const COLORS = ["#0088FE", "#00C49F", "#FFBB28", "#FF8042", "#8884d8", "#82ca9d"];
 
 const Metrics = () => {
-  const { t } = useTranslation();
+  // const { t } = useTranslation();
   const [metrics, setMetrics] = useState<MetricsSummary | null>(null);
   const [loading, setLoading] = useState(true);
 
@@ -169,7 +169,7 @@ const Metrics = () => {
                     fill="#8884d8"
                     dataKey="value"
                   >
-                    {emailStatusData.map((entry, index) => (
+                    {emailStatusData.map((_, index) => (
                       <Cell key={`cell-${index}`} fill={COLORS[index % COLORS.length]} />
                     ))}
                   </Pie>
@@ -267,7 +267,7 @@ const Metrics = () => {
                     fill="#8884d8"
                     dataKey="value"
                   >
-                    {smsStatusData.map((entry, index) => (
+                    {smsStatusData.map((_, index) => (
                       <Cell key={`cell-${index}`} fill={COLORS[index % COLORS.length]} />
                     ))}
                   </Pie>
@@ -347,7 +347,7 @@ const Metrics = () => {
                     fill="#8884d8"
                     dataKey="value"
                   >
-                    {whatsappStatusData.map((entry, index) => (
+                    {whatsappStatusData.map((_, index) => (
                       <Cell key={`cell-${index}`} fill={COLORS[index % COLORS.length]} />
                     ))}
                   </Pie>
@@ -373,7 +373,7 @@ const Metrics = () => {
                     fill="#8884d8"
                     dataKey="value"
                   >
-                    {whatsappTypeData.map((entry, index) => (
+                    {whatsappTypeData.map((_, index) => (
                       <Cell key={`cell-${index}`} fill={COLORS[index % COLORS.length]} />
                     ))}
                   </Pie>
