@@ -132,7 +132,7 @@ const MailsCreate = () => {
     e.preventDefault();
   };
 
-  
+
 
   const handleRemoveAttachment = (index: number) => {
     const updated = attachments.filter((_, i) => i !== index);
@@ -222,7 +222,7 @@ const MailsCreate = () => {
       }
     } catch (error) {
       console.error("Erro no envio:", error);
- 
+
     }
   };
 
@@ -247,7 +247,7 @@ const MailsCreate = () => {
     <>
       <Header name={authUser?.nome_completo} />
       <div className="flex items-center justify-evenly w-full h-full mt-5">
-        <div className="flex flex-col items-start justify-start gap-3 h-[900px]">
+        <div className="flex flex-col items-start justify-start gap-3 h-auto">
           <h1 className="text-3xl font-bold text-white flex items-center gap-2">
             <CiMail className="w-8 h-8 animate-bounce" />
             {t("create_email.title")}
@@ -408,13 +408,13 @@ const MailsCreate = () => {
               />
 
               {attachments.length > 0 && (
-                <ul className="mt-2 text-sm text-gray-600 space-y-1">
+                <ul className="mt-2 text-sm text-gray-600 space-y-1 max-w-full overflow-auto">
                   {attachments.map((file, idx) => (
                     <li
                       key={idx}
                       className="flex items-center justify-between bg-gray-100 px-3 py-2 rounded-md"
                     >
-                      <span>{file.name}</span>
+                      <span className="break-all max-w-xs">{file.name}</span>
                       <button
                         type="button"
                         onClick={() => handleRemoveAttachment(idx)}
@@ -428,6 +428,7 @@ const MailsCreate = () => {
                 </ul>
               )}
             </div>
+
           </form>
         </div>
         <div className="flex flex-col items-start justify-start gap-3 h-[900px]">
