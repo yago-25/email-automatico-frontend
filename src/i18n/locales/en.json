@@ -337,7 +337,8 @@
       "wpp": "WhatsApp",
       "approve": "Registration Requests",
       "config": "Settings",
-      "logout": "Logout"
+      "logout": "Logout",
+      "metrics": "Metrics"
     }
   },
   "create_email": {
@@ -549,5 +550,19 @@
     "time": "Time",
     "error_min_time": "The SMS must be scheduled at least 3 minutes in advance",
     "min_time_info": "Minimum 3 minutes in advance"
+  },
+  "metrics": {
+    "dashboard_description": "Overview of system performance and communication metrics",
+    "total_emails": "Total Emails",
+    "total_sms": "Total SMS",
+    "total_whatsapp": "Total WhatsApp",
+    "total_tickets": "Total Tickets",
+    "sent": "Sent",
+    "failed": "Failed",
+    "pending": "Pending",
+    "completed": "Completed",
+    "in_progress": "In Progress",
+    "communication_distribution": "Communication Distribution",
+    "message_status_distribution": "Message Status Distribution"
   }
 }

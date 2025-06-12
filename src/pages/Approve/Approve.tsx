@@ -7,12 +7,12 @@ import Spin from "../../components/Spin/Spin";
 import Header from "../../components/Header/Header";
 import { User } from "../../models/User";
 import DeleteConfirmModal from "../../components/DeleteConfirm/DeleteConfirmModal";
-import { 
-  User as UserIcon, 
-  Mail, 
-  Phone, 
-  AtSign, 
-  CheckCircle, 
+import {
+  User as UserIcon,
+  Mail,
+  Phone,
+  AtSign,
+  CheckCircle,
   XCircle,
   ClipboardList
 } from "lucide-react";
@@ -50,27 +50,44 @@ const Approve = () => {
   }, []);
 
   const fetchData = async () => {
-    try {
-      const [solRes, cargosRes] = await Promise.all([
-        api.get<Solicitacao[]>("/solicitacoes"),
-        api.get<Cargo[]>("/cargos"),
-      ]);
-      setSolicitacoes(solRes.data);
-      setCargos(cargosRes.data);
-    } catch (err) {
-      messageAlert({
-        type: "error",
-        message: t("approve_page.fetch_error"),
-      });
-      console.log(err, "Error");
-    } finally {
-      setLoading(false);
-    }
-  };
+  try {
+    const token = localStorage.getItem("accessToken");
+    
+    const [solRes, cargosRes] = await Promise.all([
+      api.get<Solicitacao[]>("/solicitacoes", {
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      }),
+      api.get<Cargo[]>("/cargos", {
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      }),
+    ]);
+
+    setSolicitacoes(solRes.data);
+    setCargos(cargosRes.data);
+  } catch (err) {
+    messageAlert({
+      type: "error",
+      message: t("approve_page.fetch_error"),
+    });
+    console.log(err, "Error");
+  } finally {
+    setLoading(false);
+  }
+};
+
 
   const aprovar = async (id: number, cargoId: number) => {
     try {
-      await api.post(`/solicitacoes/aprovar/${id}`, { cargo_id: cargoId });
+      await api.post(`/solicitacoes/aprovar/${id}`, { cargo_id: cargoId },{
+          headers: {
+            Authorization: `Bearer ${localStorage.getItem("accessToken")}`,
+          },
+        }
+      );
       messageAlert({
         type: "success",
         message: t("approve_page.success"),
@@ -89,7 +106,13 @@ const Approve = () => {
     if (solicitacoesToDelete === null) return;
     setLoading(true);
     try {
-      await api.post(`/solicitacoes/rejeitar/${solicitacoesToDelete}`);
+      await api.post(`/solicitacoes/rejeitar/${solicitacoesToDelete}`,
+        {
+          headers: {
+            Authorization: `Bearer ${localStorage.getItem("accessToken")}`,
+          },
+        }
+      );
       messageAlert({
         type: "info",
         message: t("approve_page.rejected"),
@@ -146,7 +169,7 @@ const Approve = () => {
                   <span className="approve-info-label">{t("approve_page.name")}:</span>
                   <span className="approve-info-value">{solicitacao.nome_completo}</span>
                 </div>
-                
+
                 <div className="approve-info-item">
                   <Mail />
                   <span className="approve-info-label">{t("approve_page.email")}:</span>
@@ -168,17 +191,17 @@ const Approve = () => {
 
               <div className="approve-actions">
                 <select
-  value={selectedCargos[solicitacao.id] || ""}
-  onChange={(e) => handleCargoChange(solicitacao.id, Number(e.target.value))}
-  className="approve-select"
->
-  <option value="">{t("approve_page.select_role")}</option>
-  {cargos.map((cargo) => (
-    <option key={cargo.id} value={cargo.id}>
-      {t(`roles.${cargo.nome}`)}
-    </option>
-  ))}
-</select>
+                  value={selectedCargos[solicitacao.id] || ""}
+                  onChange={(e) => handleCargoChange(solicitacao.id, Number(e.target.value))}
+                  className="approve-select"
+                >
+                  <option value="">{t("approve_page.select_role")}</option>
+                  {cargos.map((cargo) => (
+                    <option key={cargo.id} value={cargo.id}>
+                      {t(`roles.${cargo.nome}`)}
+                    </option>
+                  ))}
+                </select>
 
                 <button
                   onClick={() => aprovar(solicitacao.id, selectedCargos[solicitacao.id])}

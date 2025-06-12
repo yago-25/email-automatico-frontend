@@ -1,4 +1,3 @@
-/* eslint-disable react-hooks/exhaustive-deps */
 import { useEffect, useState } from "react";
 import Header from "../../components/Header/Header";
 import "./clients.css";
@@ -7,7 +6,6 @@ import { messageAlert } from "../../utils/messageAlert";
 import Spin from "../../components/Spin/Spin";
 import { api } from "../../api/api";
 import Modal from "../../components/Modal/Modal";
-// import Input from "../../components/Input/Input";
 import { MdArrowBackIos, MdArrowForwardIos } from "react-icons/md";
 import { User } from "../../models/User";
 import { useTranslation } from "react-i18next";
@@ -24,6 +22,7 @@ import { HiUserAdd, HiX } from "react-icons/hi";
 import PhoneInput from "react-phone-input-2";
 import "react-phone-input-2/lib/style.css";
 import { FaEraser } from "react-icons/fa";
+import useSwr from "swr";
 
 interface Client {
   id: number;
@@ -32,35 +31,11 @@ interface Client {
   mail: string;
 }
 
-// interface ButtonProps {
-//   text: string;
-//   onClick: () => void;
-//   className?: string;
-// }
 interface DeleteConfirmModal {
   isOpen: boolean;
   onClose: () => void;
   onConfirm: () => void;
 }
-
-// const Button: React.FC<ButtonProps> = ({ text, onClick }) => {
-//   return (
-//     <button
-//       onClick={onClick}
-//       className="cursor-pointer w-44 h-12 bg-blue-600 text-white rounded-lg hover:bg-blue-700 hover:shadow-lg transition-all group active:w-11 active:h-11 active:rounded-full active:duration-300 ease-in-out"
-//     >
-//       <svg
-//         className="animate-spin hidden group-active:block mx-auto"
-//         width="33"
-//         height="32"
-//         viewBox="0 0 33 32"
-//         fill="none"
-//         xmlns="http://www.w3.org/2000/svg"
-//       ></svg>
-//       <span className="group-active:hidden">{text}</span>
-//     </button>
-//   );
-// };
 
 const Clients = () => {
   const navigate = useNavigate();
@@ -68,7 +43,7 @@ const Clients = () => {
 
   const storedUser = localStorage.getItem("user");
   const authUser: User | null = storedUser ? JSON.parse(storedUser) : null;
-  const [clients, setClients] = useState<Client[]>([]);
+  // const [clients, setClients] = useState<Client[]>([]);
   const [addClient, setAddClient] = useState(false);
   const [clientName, setClientName] = useState("");
   const [clientPhone, setClientPhone] = useState("");
@@ -76,7 +51,7 @@ const Clients = () => {
   const [editingClient, setEditingClient] = useState<Client | null>(null);
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [isModalCrashOpen, setIsModalCrashOpen] = useState(false);
-  const [loading, setLoading] = useState(false);
+ 
   const [filteredTxt, setFilteredTxt] = useState("");
   const itemsPerPage = 5;
   const [currentPage, setCurrentPage] = useState(1);
@@ -97,6 +72,47 @@ const Clients = () => {
     return phone;
   };
 
+  // const getClients = async () => {
+  //   setLoading(true);
+  //   try {
+  //     const response = await api.get("/clients", {
+  //       headers: {
+  //         Authorization: `Bearer ${localStorage.getItem("accessToken")}`,
+  //       },
+  //     });
+  //     setClients(response.data);
+  //   } catch (e) {
+  //     console.log("Erro ao listar clientes: ", e);
+  //     messageAlert({
+  //       type: "error",
+  //       message: t("clients.fetch_error"),
+  //     });
+  //   } finally {
+  //     setLoading(false);
+  //   }
+  // };
+
+  const {
+    data: clients = [],
+    isLoading,
+    mutate,
+  } = useSwr<Client[]>("/clients", {
+    fetcher: (url) =>
+      api
+        .get(url, {
+          headers: {
+            Authorization: `Bearer ${localStorage.getItem("accessToken")}`,
+          },
+        })
+        .then((res) => res.data),
+  });
+
+  useEffect(() => {
+    if (params?.client?.id && params?.client) {
+      mutate();
+    }
+  }, [params?.client?.id, params.client]);
+
   const filteredClients = clients.filter(
     (client: Client) =>
       client.name.toLowerCase().includes(filteredTxt.toLowerCase()) ||
@@ -115,36 +131,6 @@ const Clients = () => {
       setCurrentPage(page);
     }
   };
-
-  const getClients = async () => {
-    setLoading(true);
-    try {
-      const response = await api.get("/clients", {
-        headers: {
-          Authorization: `Bearer ${localStorage.getItem("accessToken")}`,
-        },
-      });
-      setClients(response.data);
-    } catch (e) {
-      console.log("Erro ao listar clientes: ", e);
-      messageAlert({
-        type: "error",
-        message: t("clients.fetch_error"),
-      });
-    } finally {
-      setLoading(false);
-    }
-  };
-
-  useEffect(() => {
-    if (params?.client?.id && params?.client) {
-      if (clients.length !== 1 || clients[0].id !== params?.client?.id) {
-        setClients([params.client]);
-      }
-    } else {
-      getClients();
-    }
-  }, [params?.client?.id, params.client]);
 
   const handleAddClient = async () => {
     setLoadingPost(true);
@@ -175,45 +161,38 @@ const Clients = () => {
         type: "success",
         message: t("clients.created_successfully"),
       });
+
+      await mutate();
       setAddClient(false);
       setClientName("");
       setClientPhone("");
       setClientMail("");
     } catch (e) {
-      console.log("Erro ao criar usuário: ", e);
       messageAlert({
         type: "error",
         message: t("clients.create_error"),
       });
+      console.log("Erro ao criar cliente:", e);
     } finally {
       setLoadingPost(false);
     }
   };
 
+
   const handleDelete = async () => {
     if (clientIdToDelete === null) return;
-
-    setLoading(true);
     try {
       await api.delete(`/clients/${clientIdToDelete}`, {
         headers: {
           Authorization: `Bearer ${localStorage.getItem("accessToken")}`,
         },
       });
-
-      setClients(clients.filter((client) => client.id !== clientIdToDelete));
-      messageAlert({
-        type: "success",
-        message: t("clients.deleted_successfully"),
-      });
+      messageAlert({ type: "success", message: t("clients.deleted_successfully") });
+      await mutate();
     } catch (error) {
-      messageAlert({
-        type: "error",
-        message: t("clients.delete_error"),
-      });
+      messageAlert({ type: "error", message: t("clients.delete_error") });
       console.log(error, "Error");
     } finally {
-      setLoading(false);
       setIsModalCrashOpen(false);
       setClientIdToDelete(null);
     }
@@ -223,37 +202,24 @@ const Clients = () => {
     setClientIdToDelete(id);
     setIsModalCrashOpen(true);
   };
-  if (loading) {
+  if (isLoading) {
     return <Spin />;
   }
 
   const handleEdit = async () => {
     if (!editingClient) return;
-
-    setLoading(true);
     try {
       await api.put(`/clients/${editingClient.id}`, editingClient, {
         headers: {
           Authorization: `Bearer ${localStorage.getItem("accessToken")}`,
         },
       });
-
-      setClients(
-        clients.map((c) => (c.id === editingClient.id ? editingClient : c))
-      );
-      messageAlert({
-        type: "success",
-        message: t("clients.updated_successfully"),
-      });
+      messageAlert({ type: "success", message: t("clients.updated_successfully") });
+      await mutate();
       setIsModalOpen(false);
     } catch (error) {
-      messageAlert({
-        type: "error",
-        message: t("clients.update_error"),
-      });
+      messageAlert({ type: "error", message: t("clients.update_error") });
       console.log(error, "Error");
-    } finally {
-      setLoading(false);
     }
   };
 
@@ -266,7 +232,7 @@ const Clients = () => {
     navigate("/clients", { replace: true, state: null });
   };
 
-  if (loading) {
+  if (isLoading) {
     return <Spin />;
   }
 
@@ -413,7 +379,7 @@ const Clients = () => {
           isVisible={isModalOpen}
           onClose={() => setIsModalOpen(false)}
         >
-          {loading ? (
+          {isLoading ? (
             <div className="flex flex-col items-center justify-center w-full gap-4">
               <Spin />
             </div>

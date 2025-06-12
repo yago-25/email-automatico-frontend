@@ -15,7 +15,6 @@ import EmailVerification from "./pages/ResetPassword/EmailVerification";
 import ResetPassword from "./pages/ResetPassword/ResetPassword";
 import Approve from "./pages/Approve/Approve";
 import Settings from "./pages/Settings/UserTable";
-
 import Clients from "./pages/Clients/Clients";
 import Profile from "./pages/Profile/Profile";
 import Calendar from "./pages/Calendar/Calendar";
@@ -26,6 +25,7 @@ import MailsCreate from "./pages/Mails/MailsCreate";
 import WhatsApp from "./pages/WhatsApp/WhatsApp";
 import WhatsAppList from "./pages/WhatsApp/WhatsAppList";
 import WhatsAppCreate from "./pages/WhatsApp/WhatsAppCreate";
+import Metrics from "./pages/Metrics/Metrics"
 
 function App() {
   return (
@@ -157,6 +157,14 @@ function App() {
               element={
                 <AuthenticatedLayout>
                   <WhatsAppCreate />
+                </AuthenticatedLayout>
+              }
+            />
+            <Route
+              path="/metrics"
+              element={
+                <AuthenticatedLayout>
+                  <Metrics />
                 </AuthenticatedLayout>
               }
             />
