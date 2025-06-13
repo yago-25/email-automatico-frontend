@@ -610,7 +610,7 @@ const SmsCreatePage = () => {
               <div className="flex justify-center">
                 <button
                   onClick={handleSaveSms}
-                  className="flex items-center gap-2 bg-blue-600 text-white px-6 py-2 rounded-xl shadow hover:bg-blue-700 transition duration-200"
+                  className="flex items-center gap-2 bg-green-500 text-white px-6 py-2 rounded-xl shadow hover:bg-green-600 transition duration-200"
                 >
                   <Save className="w-5 h-5" />
                   {t("common.save")}
