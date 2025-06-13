@@ -95,7 +95,7 @@ const COLORS = ["#3B82F6", "#10B981", "#F59E0B", "#EF4444", "#8B5CF6", "#EC4899"
 
 const Metrics = () => {
   // const { t } = useTranslation();
-  const [metrics, setMetrics] = useState<MetricsSummary | null>(null);
+  const [, setMetrics] = useState<MetricsSummary | null>(null);
   const [loading, setLoading] = useState(true);
   const { instance } = useParams<{ instance: string }>();
   const [openCharts, setOpenCharts] = useState({
@@ -121,11 +121,7 @@ const Metrics = () => {
     }).then(res => res.data)
   );
 
-  const {
-    data: sms = [],
-    error: smsError,
-    mutate: mutateSms,
-  } = useSwr<Sms[]>("/sms", () =>
+  const { data: sms = [] } = useSwr<Sms[]>("/sms", () =>
     api.get("/sms", {
       headers: {
         Authorization: `Bearer ${localStorage.getItem("accessToken")}`,
@@ -133,11 +129,10 @@ const Metrics = () => {
     }).then(res => res.data)
   );
 
-  const isLoading = !sms && !smsError;
+
 
   const {
     data: wppMessages = [],
-    error: wppError,
   } = useSwr<WppScheduleData[]>(`/wpp?instance_id=${instance}`, () =>
     api.get("/wpp?instance_id=${instance}", {
       headers: {
@@ -146,12 +141,8 @@ const Metrics = () => {
     }).then(res => res.data)
   );
 
-  const wppLoading = !wppMessages && !wppError;
-
   const {
     data: clients = [],
-    isLoading: isClientsLoading,
-    mutate: mutateClients,
   } = useSwr<Client[]>("/clients", {
     fetcher: (url) =>
       api
@@ -165,8 +156,6 @@ const Metrics = () => {
 
   const {
     data: rawTickets = [],
-    isLoading: isTicketsLoading,
-    mutate: mutateTickets,
   } = useSwr<Ticket[]>("/tickets", {
     fetcher: (url) =>
       api
@@ -214,7 +203,7 @@ const Metrics = () => {
   const sentSMS = sms.filter(item => item.status === "sent").length;
   const pendingSMS = sms.filter(item => item.status === "pending").length;
   const failedSMS = sms.filter(item => item.status === "failed").length;
-  const futureSchedules = sms.filter(item => new Date(item.scheduled_at) > new Date()).length;
+  // const futureSchedules = sms.filter(item => new Date(item.scheduled_at) > new Date()).length;
   const smsDeliveryRate = totalSMS > 0 ? Math.round((sentSMS / totalSMS) * 100) : 0;
 
   const smsStatusData = [
@@ -310,7 +299,6 @@ const Metrics = () => {
 
   return (
     <div className="flex min-h-screen from-gray-900 to-gray-800">
-      {/* Sidebar */}
       <div className="fixed w-72 h-screen bg-gray-800/50 backdrop-blur-lg rounded-2xl border border-gray-700/50 p-6 space-y-6 overflow-y-auto">
         <div className="flex items-center gap-3 mb-8">
           <div className="p-2 rounded-xl bg-blue-500/20">
@@ -417,11 +405,8 @@ const Metrics = () => {
           </button>
         </div>
       </div>
-
-      {/* Main Content */}
       <div className="flex-1 ml-72 p-8 overflow-y-auto">
         <div className="space-y-8">
-          {/* Clientes Section */}
           <div className="bg-gray-800/50 backdrop-blur-lg rounded-2xl p-6 border border-gray-700/50">
             <h2 className="text-2xl font-semibold text-white mb-6 flex items-center gap-3">
               <div className="p-2 rounded-xl bg-purple-500/20">
@@ -453,8 +438,6 @@ const Metrics = () => {
               </div>
             )}
           </div>
-
-          {/* Tickets Section */}
           <div className="bg-gray-800/50 backdrop-blur-lg rounded-2xl p-6 border border-gray-700/50">
             <h2 className="text-2xl font-semibold text-white mb-6 flex items-center gap-3">
               <div className="p-2 rounded-xl bg-blue-500/20">
@@ -509,7 +492,6 @@ const Metrics = () => {
                 <div className="p-2 rounded-xl bg-indigo-500/20">
                   <IoStatsChart className="text-indigo-400 w-5 h-5" />
                 </div>
-                Distribuição por Status de Ticket
               </h3>
               {openCharts.tickets && (
                 <div className="h-80">
@@ -548,8 +530,6 @@ const Metrics = () => {
               )}
             </div>
           </div>
-
-          {/* Emails Section */}
           <div className="bg-gray-800/50 backdrop-blur-lg rounded-2xl p-6 border border-gray-700/50">
             <h2 className="text-2xl font-semibold text-white mb-6 flex items-center gap-3">
               <div className="p-2 rounded-xl bg-green-500/20">
@@ -631,8 +611,6 @@ const Metrics = () => {
               )}
             </div>
           </div>
-
-          {/* SMS Section */}
           <div className="bg-gray-800/50 backdrop-blur-lg rounded-2xl p-6 border border-gray-700/50">
             <h2 className="text-2xl font-semibold text-white mb-6 flex items-center gap-3">
               <div className="p-2 rounded-xl bg-teal-500/20">
@@ -714,8 +692,6 @@ const Metrics = () => {
               )}
             </div>
           </div>
-
-          {/* WhatsApp Section */}
           <div className="bg-gray-800/50 backdrop-blur-lg rounded-2xl p-6 border border-gray-700/50">
             <h2 className="text-2xl font-semibold text-white mb-6 flex items-center gap-3">
               <div className="p-2 rounded-xl bg-emerald-500/20">
