@@ -13,6 +13,7 @@ import { useState } from "react";
 import { Tooltip } from "antd";
 import { useTranslation } from "react-i18next";
 import { LogOut } from "lucide-react";
+import { MdAnalytics     } from "react-icons/md";
 
 const Sidebar = () => {
   const { t } = useTranslation();
@@ -189,6 +190,14 @@ const Sidebar = () => {
                   onClick={() => handleNavigation("/approve")}
                 />
               </Tooltip>
+              <Tooltip title={t("sidebar.tooltips.metrics")} placement="right">
+                <MdAnalytics    
+                  className={`icon ${
+                    isActiveRoute("/metrics") ? "active-icon" : ""
+                  }`}
+                  onClick={() => handleNavigation("/metrics")}
+                />
+              </Tooltip>
               <Tooltip title={t("sidebar.tooltips.config")} placement="right">
                 <FaGear
                   className={`icon ${
@@ -197,6 +206,7 @@ const Sidebar = () => {
                   onClick={() => handleNavigation("/settings")}
                 />
               </Tooltip>
+
             </>
           )}
         </div>

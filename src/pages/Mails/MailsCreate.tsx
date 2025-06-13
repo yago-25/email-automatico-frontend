@@ -132,7 +132,7 @@ const MailsCreate = () => {
     e.preventDefault();
   };
 
-  
+
 
   const handleRemoveAttachment = (index: number) => {
     const updated = attachments.filter((_, i) => i !== index);
@@ -145,86 +145,95 @@ const MailsCreate = () => {
 
 
   const handleSend = async () => {
-    try {
-      const token = localStorage.getItem("accessToken");
-      if (!token) throw new Error("Token de autenticação não encontrado.");
+  try {
+    const now = dayjs();
+    const selectedDateTime = dayjs(`${sendDate}T${sendTime}`);
 
-      const uploadedAttachments = await Promise.all(
-        attachments.map(async (attachment) => {
-          if (!(attachment.file instanceof File)) {
-            console.warn("Attachment inválido:", attachment.file);
-            return null;
-          }
-
-          const { data: uploadData } = await api.post(
-            "/s3/upload-url/email",
-            {
-              file_name: attachment.file.name,
-              file_type: attachment.file.type,
-            },
-            {
-              headers: {
-                Authorization: `Bearer ${token}`,
-              },
-            }
-          );
-
-          await fetch(uploadData.upload_url, {
-            method: "PUT",
-            headers: {
-              "Content-Type": attachment.file.type,
-            },
-            body: attachment.file,
-          });
-
-          return {
-            name: attachment.file.name,
-            url: uploadData.file_path,
-          };
-        })
-      );
-
-      const validAttachments = uploadedAttachments.filter((a) => a !== null);
-
-      const sanitizedAttachments = validAttachments.map((att) => ({
-        name: att.name,
-        url: encodeURI(att.url),
-      }));
-
-      const payload = {
-        subject,
-        body,
-        send_date: sendDate,
-        send_time: sendTime,
-        client_id: selectedClients,
-        attachments: sanitizedAttachments,
-      };
-
-      console.log("Payload final:", payload);
-
-      const { data } = await api.post("/agendar-email", payload, {
-        headers: {
-          Authorization: `Bearer ${token}`,
-        },
+    if (selectedDateTime.isBefore(now.add(3, "minute"))) {
+      messageAlert({
+        type: "error",
+        message: t("text_message.errors.time_invalid"),
       });
-
-      if (data.success) {
-        messageAlert({
-          type: "success",
-          message: "E-mail agendado com sucesso!",
-        });
-        navigate("/mails");
-      } else {
-        messageAlert({
-          type: "error",
-          message: "Erro ao agendar e-mail.",
-        });
-      }
-    } catch (error) {
-      console.error("Erro no envio:", error);
- 
+      return;
     }
-  };
+
+    const token = localStorage.getItem("accessToken");
+    if (!token) throw new Error("Token de autenticação não encontrado.");
+
+    const uploadedAttachments = await Promise.all(
+      attachments.map(async (attachment) => {
+        if (!(attachment.file instanceof File)) {
+          console.warn("Attachment inválido:", attachment.file);
+          return null;
+        }
+
+        const { data: uploadData } = await api.post(
+          "/s3/upload-url/email",
+          {
+            file_name: attachment.file.name,
+            file_type: attachment.file.type,
+          },
+          {
+            headers: {
+              Authorization: `Bearer ${token}`,
+            },
+          }
+        );
+
+        await fetch(uploadData.upload_url, {
+          method: "PUT",
+          headers: {
+            "Content-Type": attachment.file.type,
+          },
+          body: attachment.file,
+        });
+
+        return {
+          name: attachment.file.name,
+          url: uploadData.file_path,
+        };
+      })
+    );
+
+    const validAttachments = uploadedAttachments.filter((a) => a !== null);
+
+    const sanitizedAttachments = validAttachments.map((att) => ({
+      name: att.name,
+      url: encodeURI(att.url),
+    }));
+
+    const payload = {
+      subject,
+      body,
+      send_date: sendDate,
+      send_time: sendTime,
+      client_id: selectedClients,
+      attachments: sanitizedAttachments,
+    };
+
+    const { data } = await api.post("/agendar-email", payload, {
+      headers: {
+        Authorization: `Bearer ${token}`,
+      },
+    });
+
+    if (data.success) {
+      messageAlert({
+        type: "success",
+        message: "E-mail agendado com sucesso!",
+      });
+      navigate("/mails");
+    } else {
+      messageAlert({
+        type: "error",
+        message: "Erro ao agendar e-mail.",
+      });
+    }
+  } catch (error) {
+    console.error("Erro no envio:", error);
+  }
+};
+
 
   useEffect(() => {
     if (!loadingClients && rawClients.length > 0) {
@@ -247,7 +256,7 @@ const MailsCreate = () => {
     <>
       <Header name={authUser?.nome_completo} />
       <div className="flex items-center justify-evenly w-full h-full mt-5">
-        <div className="flex flex-col items-start justify-start gap-3 h-[900px]">
+        <div className="flex flex-col items-start justify-start gap-3 h-auto mb-auto">
           <h1 className="text-3xl font-bold text-white flex items-center gap-2">
             <CiMail className="w-8 h-8 animate-bounce" />
             {t("create_email.title")}
@@ -408,13 +417,13 @@ const MailsCreate = () => {
               />
 
               {attachments.length > 0 && (
-                <ul className="mt-2 text-sm text-gray-600 space-y-1">
+                <ul className="mt-2 text-sm text-gray-600 space-y-1 max-w-full overflow-auto">
                   {attachments.map((file, idx) => (
                     <li
                       key={idx}
                       className="flex items-center justify-between bg-gray-100 px-3 py-2 rounded-md"
                     >
-                      <span>{file.name}</span>
+                      <span className="break-all max-w-xs">{file.name}</span>
                       <button
                         type="button"
                         onClick={() => handleRemoveAttachment(idx)}
@@ -428,6 +437,7 @@ const MailsCreate = () => {
                 </ul>
               )}
             </div>
+
           </form>
         </div>
         <div className="flex flex-col items-start justify-start gap-3 h-[900px]">

@@ -5,6 +5,8 @@ import { useEffect, useState } from "react";
 import { useTranslation } from "react-i18next";
 import ConfirmationModal from "./ConfirmationModal";
 import { FiTrash2 } from "react-icons/fi";
+import dayjs from "dayjs";
+import { messageAlert } from "../../utils/messageAlert";
 
 interface EmailClient {
     id: number;
@@ -63,9 +65,48 @@ const EditEmailModal = ({
     };
 
     const handleSave = () => {
-        if (localEmail) onUpdate?.(localEmail);
+        if (!localEmail) return;
+
+        const now = dayjs();
+        const selectedDate = dayjs(localEmail.send_date);
+        const selectedTime = localEmail.send_time;
+
+        // Verifica se time está no formato HH:mm
+        if (!/^\d{2}:\d{2}$/.test(selectedTime)) {
+            messageAlert({
+                type: "error",
+                message: t("text_message.errors.time_invalid"),
+            });
+            return;
+        }
+
+        const [hour, minute] = selectedTime.split(":").map(Number);
+        const selectedDateTime = selectedDate.hour(hour).minute(minute);
+
+        if (selectedDate.isBefore(now, "day")) {
+            messageAlert({
+                type: "error",
+                message: t("text_message.errors.date_in_past"),
+            });
+            return;
+        }
+
+        if (
+            selectedDate.isSame(now, "day") &&
+            selectedDateTime.isBefore(now.add(3, "minute"))
+        ) {
+            messageAlert({
+                type: "error",
+                message: t("text_message.errors.time_invalid"),
+            });
+            return;
+        }
+
+        onUpdate?.(localEmail);
         onClose();
     };
+
+
 
 
 

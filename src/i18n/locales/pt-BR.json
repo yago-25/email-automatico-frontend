@@ -205,7 +205,7 @@
     "not_started": "Não iniciada",
     "waiting": "Esperando",
     "in_progress": "Em progresso",
-    "discarded": "Fechado",
+    "discarded": "Descartado",
     "finished": "Resolvido",
     "completed": "Completo"
   },
@@ -339,7 +339,8 @@
       "wpp": "WhatsApp",
       "approve": "Pedidos de Cadastro",
       "config": "Configurações",
-      "logout": "Sair"
+      "logout": "Sair",
+      "metrics": "Métricas"
     }
   },
   "create_email": {
@@ -487,7 +488,7 @@
     "errors": {
       "fill_all_fields": "Por favor, preencha todos os campos.",
       "date_in_past": "Por favor, selecione uma data maior que a data atual.",
-      "time_invalid": "Por favor, selecione uma hora com no mínimo 5 minutos à frente do horário atual."
+      "time_invalid": "Por favor, selecione horário com no mínimo 3 minutos à frente do horário atual."
     },
     "end_date": "Data de Término",
     "send_preview": "Enviar Preview",
@@ -550,5 +551,19 @@
     "time": "Hora",
     "error_min_time": "O SMS deve ser agendado com no mínimo 3 minutos de antecedência", 
     "min_time_info": "Mínimo 3 minutos de antecedência"
+  },
+  "metrics": {
+    "dashboard_description": "Visão geral do desempenho do sistema e métricas de comunicação",
+    "total_emails": "Total de Emails",
+    "total_sms": "Total de SMS",
+    "total_whatsapp": "Total de WhatsApp",
+    "total_tickets": "Total de Tickets",
+    "sent": "Enviados",
+    "failed": "Falhas",
+    "pending": "Pendentes",
+    "completed": "Concluídos",
+    "in_progress": "Em Andamento",
+    "communication_distribution": "Distribuição de Comunicação",
+    "message_status_distribution": "Distribuição por Status"
   }
 }

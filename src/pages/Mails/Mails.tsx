@@ -17,6 +17,7 @@ import EditEmailModal from "../../components/Modal/EditEmailModal";
 import { useTranslation } from "react-i18next";
 import { debounce } from "lodash";
 import { useRef } from "react";
+import useSwr from "swr";
 
 interface EmailClient {
   id: number;
@@ -55,7 +56,7 @@ const Mails = () => {
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [isModalCrashOpen, setIsModalCrashOpen] = useState(false);
   const [clientIdToDelete, setClientIdToDelete] = useState<number | null>(null);
-  const [mails, setMails] = useState<EmailItem[]>([]);
+  // const [mails, setMails] = useState<EmailItem[]>([]);
   const [filteredMails, setFilteredMails] = useState<EmailItem[]>([]);
   const [loading, setLoading] = useState(false);
   const [isPreviewModalOpen, setPreviewModalOpen] = useState(false);
@@ -84,15 +85,27 @@ const Mails = () => {
     }
   };
 
+  const { data: mails = [], mutate } = useSwr<EmailItem[]>("/emails", () =>
+    api.get("/emails", {
+      headers: {
+        Authorization: `Bearer ${localStorage.getItem("accessToken")}`,
+      },
+    }).then(res => res.data)
+  );
+
+  useEffect(() => {
+    setFilteredMails(mails);
+  }, [mails]);
+
   const fetchEmails = async () => {
-    setLoading(true);
     try {
+      setLoading(true);
       const response = await api.get("/emails", {
         headers: {
           Authorization: `Bearer ${localStorage.getItem("accessToken")}`,
         },
       });
-      setMails(response.data);
+      mutate(response.data, false);
       setFilteredMails(response.data);
     } catch (error) {
       console.error("Erro ao carregar e-mails", error);
@@ -109,40 +122,35 @@ const Mails = () => {
     let filtered = mails;
 
     if (subject) {
-      filtered = filtered.filter((email) =>
+      filtered = filtered.filter(email =>
         email.subject.toLowerCase().includes(subject.toLowerCase())
       );
     }
 
     if (recipients) {
-      filtered = filtered.filter((email) =>
-        email.clients.some((client) =>
+      filtered = filtered.filter(email =>
+        email.clients.some(client =>
           client.mail.toLowerCase().includes(recipients.toLowerCase())
         )
       );
     }
 
-    const selectedStatuses: string[] = [];
-    if (status.sent) selectedStatuses.push("sent");
-    if (status.pending) selectedStatuses.push("pending");
-    if (status.failed) selectedStatuses.push("failed");
+    const selectedStatuses = Object.entries(status)
+      .filter(([, value]) => value)
+      .map(([key]) => key);
 
     if (selectedStatuses.length > 0) {
-      filtered = filtered.filter((email) =>
+      filtered = filtered.filter(email =>
         selectedStatuses.includes(email.status)
       );
     }
 
-    if (selectedStatuses.length > 0) {
-      filtered = filtered.filter((email) => selectedStatuses.includes(email.status));
-    }
-
     if (date) {
-      filtered = filtered.filter((email) => email.send_date === date);
+      filtered = filtered.filter(email => email.send_date === date);
     }
 
     if (id) {
-      filtered = filtered.filter((email) => email.id === Number(id));
+      filtered = filtered.filter(email => email.id === Number(id));
     }
 
     setFilteredMails(filtered);
@@ -171,24 +179,26 @@ const Mails = () => {
   };
 
   const handleDelete = async () => {
-    if (!clientIdToDelete) return;
-    setLoading(true);
-    try {
-      await api.delete(`/emails/${clientIdToDelete}`, {
-        headers: {
-          Authorization: `Bearer ${localStorage.getItem("accessToken")}`,
-        },
-      });
-      await fetchEmails();
-    } catch (error) {
-      console.error("Erro ao deletar:", error);
-      alert("Erro ao deletar o e-mail.");
-    } finally {
-      setIsModalCrashOpen(false);
-      setClientIdToDelete(null);
-      setLoading(false);
-    }
-  };
+  if (clientIdToDelete === null || clientIdToDelete === undefined) return;
+
+  setLoading(true);
+  try {
+    await api.delete(`/emails/${clientIdToDelete}`, {
+      headers: {
+        Authorization: `Bearer ${localStorage.getItem("accessToken")}`,
+      },
+    });
+    await mutate();
+  } catch (error) {
+    console.error("Erro ao deletar:", error);
+    alert("Erro ao deletar o e-mail.");
+  } finally {
+    setIsModalCrashOpen(false);
+    setClientIdToDelete(null);
+    setLoading(false);
+  }
+};
+
 
   const handleRemoveAttachment = (index: number) => {
     const updated = attachments.filter((_, i) => i !== index);

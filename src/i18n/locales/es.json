@@ -335,7 +335,8 @@
       "wpp": "WhatsApp",
       "approve": "Solicitudes de Registro",
       "config": "Configuraciones",
-      "logout": "Cerrar Sesión"
+      "logout": "Cerrar Sesión",
+      "metrics": "Métrica"
     }
   },
   "create_email": {
@@ -482,7 +483,7 @@
     "errors": {
       "fill_all_fields": "Por favor, complete todos los campos.",
       "date_in_past": "Por favor, seleccione una fecha posterior a la actual.",
-      "time_invalid": "Por favor, seleccione una hora al menos 5 minutos después de la hora actual."
+      "time_invalid": "Por favor, seleccione una tiempo al menos 3 minutos después de la hora actual."
     },
     "end_date": "Fecha de Finalización",
     "send_preview": "Enviar Vista Previa",
@@ -547,5 +548,19 @@
     "time": "Hora",
     "error_min_time": "El SMS debe programarse con al menos 3 minutos de antelación",
     "min_time_info": "Mínimo 3 minutos de antelación"
+  },
+  "metrics": {
+    "dashboard_description": "Resumen del rendimiento del sistema y métricas de comunicación",
+    "total_emails": "Total de Emails",
+    "total_sms": "Total de SMS",
+    "total_whatsapp": "Total de WhatsApp",
+    "total_tickets": "Total de Tickets",
+    "sent": "Enviados",
+    "failed": "Fallidos",
+    "pending": "Pendientes",
+    "completed": "Completados",
+    "in_progress": "En Progreso",
+    "communication_distribution": "Distribución de Comunicación",
+    "message_status_distribution": "Distribución por Estado"
   }
 }
