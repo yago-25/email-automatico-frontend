@@ -1,11 +1,12 @@
+/* eslint-disable react-hooks/exhaustive-deps */
 import { useEffect, useState } from "react";
 import Header from "../../components/Header/Header";
 import { FaEdit } from "react-icons/fa";
 import { api } from "../../api/api";
 import { useTranslation } from "react-i18next";
 import Modal from "../../components/Modal/Modal";
-import './profile.css';
-// import axios from "axios";
+import "./profile.css";
+import { parsePhoneNumberFromString } from "libphonenumber-js";
 import Spin from "../../components/Spin/Spin";
 import { messageAlert } from "../../utils/messageAlert";
 import { useSwr } from "../../api/useSwr";
@@ -30,31 +31,38 @@ interface User {
   url: string;
 }
 interface ButtonProps {
-  text: any;
+  text: string;
   onClick: () => void;
   className?: string;
 }
 
 const Button: React.FC<ButtonProps> = ({ text, onClick }) => {
   return (
-    <button onClick={onClick} className="cursor-pointer w-44 h-12 bg-blue-600 text-white rounded-lg hover:bg-blue-700 hover:shadow-lg transition-all group active:w-11 active:h-11 active:rounded-full active:duration-300 ease-in-out">
-      <svg className="animate-spin hidden group-active:block mx-auto" width="33" height="32" viewBox="0 0 33 32" fill="none" xmlns="http://www.w3.org/2000/svg">
-      </svg>
+    <button
+      onClick={onClick}
+      className="cursor-pointer w-44 h-12 bg-blue-600 text-white rounded-lg hover:bg-blue-700 hover:shadow-lg transition-all group active:w-11 active:h-11 active:rounded-full active:duration-300 ease-in-out"
+    >
+      <svg
+        className="animate-spin hidden group-active:block mx-auto"
+        width="33"
+        height="32"
+        viewBox="0 0 33 32"
+        fill="none"
+        xmlns="http://www.w3.org/2000/svg"
+      ></svg>
       <span className="group-active:hidden">{text}</span>
     </button>
   );
 };
 
-
 const Profile = () => {
-
   useEffect(() => {
     const fetchUser = async () => {
       try {
         const response = await api.get(`/usersTable/${authUser?.id}`, {
           headers: {
-            Authorization: `Bearer ${localStorage.getItem("accessToken")}`
-          }
+            Authorization: `Bearer ${localStorage.getItem("accessToken")}`,
+          },
         });
 
         setEditingUser(response.data);
@@ -74,14 +82,11 @@ const Profile = () => {
     }
   }, []);
 
-  const { mutate: mutateUsers } = useSwr('/usersTable');
-
+  const { mutate: mutateUsers } = useSwr("/usersTable");
 
   const { t } = useTranslation();
   const storedUser = localStorage.getItem("user");
   const authUser: User | null = storedUser ? JSON.parse(storedUser) : null;
-
-
 
   const [name, setName] = useState("");
   const [mail, setMail] = useState("");
@@ -92,18 +97,18 @@ const Profile = () => {
   const [openModalPhoto, setOpenModalPhoto] = useState(false);
   const [loading, setLoading] = useState(false);
   const [editingUser, setEditingUser] = useState<User | null>(null);
-  const [_users, setUsers] = useState<User[]>([]);
   const [loadingPost, setLoadingPost] = useState(false);
   const [loadingUser, setLoadingUser] = useState(true);
+  const [newUrl, setNewUrl] = useState<string>("");
 
   const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (file) {
-      const isImage = file.type.startsWith('image/');
+      const isImage = file.type.startsWith("image/");
       if (!isImage) {
         messageAlert({
-          type: 'error',
-          message: 'Por favor, selecione um arquivo de imagem.',
+          type: "error",
+          message: "Por favor, selecione um arquivo de imagem.",
         });
         return;
       }
@@ -113,132 +118,105 @@ const Profile = () => {
   };
 
   const formatPhone = (phone: string): string => {
-    if (!phone) return "";
-    const cleaned = phone.replace(/\D/g, "");
-    if (cleaned.length === 11) {
-      return cleaned.replace(/(\d{2})(\d{5})(\d{4})/, "($1) $2-$3");
-    } else if (cleaned.length === 10) {
-      return cleaned.replace(/(\d{2})(\d{4})(\d{4})/, "($1) $2-$3");
+    try {
+      const parsed = parsePhoneNumberFromString(phone);
+
+      if (parsed && parsed.isValid()) {
+        const countryCode = parsed.countryCallingCode;
+        const national = parsed.formatNational();
+        return `+${countryCode} ${national}`;
+      }
+
+      return phone;
+    } catch (err) {
+      console.error("Erro ao formatar número:", err);
+      return phone;
     }
-    return phone;
   };
 
-
   const handleUploadPhoto = async () => {
-    console.log('[Upload] Iniciando processo de upload da imagem...');
     setLoading(true);
 
     if (!profileFile || !authUser) {
-      console.log('[Upload] Falha: arquivo ou usuário não definidos.');
+      console.log("[Upload] Falha: arquivo ou usuário não definidos.");
       messageAlert({
-        type: 'error',
-        message: 'Por favor, selecione um arquivo.',
+        type: "error",
+        message: "Por favor, selecione um arquivo.",
       });
       setLoading(false);
       return;
     }
 
     if (!(profileFile instanceof File)) {
-      console.log('[Upload] Falha: profileFile não é uma instância de File.');
       messageAlert({
-        type: 'error',
-        message: 'O arquivo selecionado é inválido.',
+        type: "error",
+        message: "O arquivo selecionado é inválido.",
       });
       setLoading(false);
       return;
     }
 
-    console.log('[Upload] Arquivo válido:', profileFile);
-    console.log('[Upload] Usuário autenticado:', authUser);
-
     try {
-      const formData = new FormData();
-      formData.append('image', profileFile);
-
-      console.log('[Upload] FormData montado. Conteúdo:');
-      for (const [key, value] of formData.entries()) {
-        console.log(`- ${key}:`, value);
-      }
-
-      const accessToken = localStorage.getItem('accessToken');
-      console.log('[Upload] Token de acesso:', accessToken);
-
-      console.log(`[Upload] Enviando POST para /users/${authUser.id}/photo...`);
-
-      const response = await fetch(`${import.meta.env.VITE_API_URL}/api/users/${authUser.id}/photo`, {
-        method: "POST",
-        headers: {
-          Authorization: `Bearer ${accessToken}`,
+      const presignResponse = await api.post(
+        "/s3/upload-url/profile",
+        {
+          file_name: profileFile.name,
+          file_type: profileFile.type,
+          user_id: String(authUser.id),
         },
-        body: formData,
+        {
+          headers: {
+            Authorization: `Bearer ${localStorage.getItem("accessToken")}`,
+          },
+        }
+      );
+
+      await fetch(presignResponse.data.upload_url, {
+        method: "PUT",
+        headers: {
+          "Content-Type": profileFile.type,
+        },
+        body: profileFile,
       });
 
-      console.log('[Upload] Resposta recebida da API:', response);
+      const filePath = presignResponse.data.file_path;
+      const encodedFilePath = encodeURI(filePath);
+      setNewUrl(encodedFilePath);
 
-      const data = await response.json();
-
-      if (!response.ok) {
-        console.error('[Upload] Erro na resposta da API:', data);
-        throw new Error(data?.message || 'Erro ao enviar imagem.');
-      }
-
-      const updatedUser = { ...authUser, url: data.url };
-      localStorage.setItem('user', JSON.stringify(updatedUser));
-      setProfilePreview(data.url);
+      const updatedUser = { ...authUser, url: encodedFilePath };
+      localStorage.setItem("user", JSON.stringify(updatedUser));
+      mutateUsers();
+      setProfilePreview(encodedFilePath);
       setOpenModalPhoto(false);
       setLoading(false);
 
-      console.log('[Upload] Upload concluído com sucesso. Foto atualizada.');
-
       messageAlert({
-        type: 'success',
-        message: 'Imagem de perfil atualizada com sucesso!',
+        type: "success",
+        message: "Imagem de perfil atualizada com sucesso!",
       });
-
     } catch (error) {
-      console.log('[Upload] Erro capturado no catch:');
-
       if (error instanceof Error) {
-        console.error('Erro:', error.message);
+        console.error("Erro:", error.message);
         messageAlert({
-          type: 'error',
+          type: "error",
           message: error.message,
         });
       } else {
-        console.error('Erro inesperado:', error);
+        console.error("Erro inesperado:", error);
         messageAlert({
-          type: 'error',
-          message: 'Erro inesperado. Tente novamente.',
+          type: "error",
+          message: "Erro inesperado. Tente novamente.",
         });
       }
-    } finally {
-      setLoading(false);
-      console.log('[Upload] Processo finalizado (finally).');
-    }
-  };
-
-  const getUsers = async () => {
-    setLoading(true);
-    try {
-      const response = await api.get("/usersTable", {
-        headers: {
-          Authorization: `Bearer ${localStorage.getItem("accessToken")}`
-        },
-      });
-      setUsers(response.data);
-    } catch (e) {
-      messageAlert({ type: "error", message: t("users.fetch_error") });
     } finally {
       setLoading(false);
     }
   };
 
   const handleEdit = async () => {
-    console.log("clicou em Salvar");
     setLoadingPost(true);
 
     if (!editingUser) {
-      console.log("Nenhum usuário em edição.");
       setLoadingPost(false);
       return;
     }
@@ -260,11 +238,12 @@ const Profile = () => {
             Authorization: `Bearer ${localStorage.getItem("accessToken")}`,
           },
         }
-
       );
 
-      messageAlert({ type: "success", message: t("users.updated_successfully") });
-      getUsers();
+      messageAlert({
+        type: "success",
+        message: t("users.updated_successfully"),
+      });
       mutateUsers();
     } catch (error) {
       console.log("Erro ao salvar:", error);
@@ -274,7 +253,6 @@ const Profile = () => {
       setLoadingPost(false);
     }
   };
-
 
   useEffect(() => {
     if (authUser) {
@@ -288,7 +266,7 @@ const Profile = () => {
 
   return (
     <div className="flex flex-col items-center justify-center  to-blue-900 w-full p-4">
-      <Header name={authUser?.nome_completo} />
+      <Header name={authUser?.nome_completo} url={newUrl} />
 
       {loadingPost || loadingUser ? (
         <div className="flex items-center justify-center w-full h-96">
@@ -296,7 +274,6 @@ const Profile = () => {
         </div>
       ) : (
         <div className="w-full max-w-md bg-white/10 backdrop-blur-md border border-white/30 rounded-2xl shadow-2xl p-8 flex flex-col items-center gap-6 mt-[6rem]">
-
           <div
             className="relative group"
             onClick={() => setOpenModalPhoto(true)}
@@ -304,7 +281,8 @@ const Profile = () => {
             <img
               className="w-32 h-32 rounded-full border-4 border-white object-cover shadow-md transition-opacity duration-300 group-hover:opacity-80"
               src={
-                profilePreview || authUser?.url ||
+                profilePreview ||
+                authUser?.url ||
                 `https://ui-avatars.com/api/?name=${authUser?.nome_completo}&background=0D8ABC&color=fff&size=128&rounded=true`
               }
               alt="Avatar"
@@ -314,7 +292,6 @@ const Profile = () => {
             </div>
           </div>
 
-          {/* Input: Nome */}
           <div className="relative w-full">
             <FaUser className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400" />
             <input
@@ -326,7 +303,6 @@ const Profile = () => {
             />
           </div>
 
-          {/* Input: Email */}
           <div className="relative w-full">
             <MdEmail className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400" />
             <input
@@ -338,7 +314,6 @@ const Profile = () => {
             />
           </div>
 
-          {/* Input: Telefone */}
           <div className="relative w-full">
             <FaPhone className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400" />
             <input
@@ -350,7 +325,6 @@ const Profile = () => {
             />
           </div>
 
-          {/* Input: Nome de usuário */}
           <div className="relative w-full">
             <FaUserCircle className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400" />
             <input
@@ -362,7 +336,6 @@ const Profile = () => {
             />
           </div>
 
-          {/* Botão */}
           <Button
             text={t("common.save")}
             onClick={() => {
@@ -419,7 +392,9 @@ const Profile = () => {
                     <path d="M18.153 6h-.009v5.342H23.5v-.002z"></path>
                   </g>
                 </svg>
-                 <p>{profileFile ? profileFile.name : t("modal.no_file_selected")}</p>
+                <p>
+                  {profileFile ? profileFile.name : t("modal.no_file_selected")}
+                </p>
                 <svg
                   viewBox="0 0 24 24"
                   fill="none"
@@ -427,7 +402,7 @@ const Profile = () => {
                   onClick={(e) => {
                     e.preventDefault();
                     e.stopPropagation();
-                    setProfilePreview('');
+                    setProfilePreview("");
                     setProfileFile(null);
                   }}
                 >
@@ -458,7 +433,12 @@ const Profile = () => {
                   </g>
                 </svg>
               </label>
-              <input id="file" type="file" accept="image/*" onChange={handleFileChange} />
+              <input
+                id="file"
+                type="file"
+                accept="image/*"
+                onChange={handleFileChange}
+              />
             </div>
             <Button text={t("modal.save")} onClick={handleUploadPhoto} />
           </div>

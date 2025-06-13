@@ -259,11 +259,6 @@ const SmsCreatePage = () => {
     }
   };
 
-  const formatPhoneNumber = (phone: string, countryCode = "55") => {
-    const digitsOnly = phone.replace(/\D/g, "");
-    return `+${countryCode}${digitsOnly}`;
-  };
-
   const handleSaveSms = async () => {
     setLoading(true);
     try {
@@ -295,10 +290,6 @@ const SmsCreatePage = () => {
       const selectedTime = dayjs(hourMessage).format("HH:mm");
       const startDateTime = dayjs(
         `${selectedDate.format("YYYY-MM-DD")}T${selectedTime}`
-      );
-
-      const formattedPhones = phones?.map((phone) =>
-        formatPhoneNumber(phone, "55")
       );
 
       const generateDates = (): string[] => {
@@ -340,7 +331,7 @@ const SmsCreatePage = () => {
             {
               user_id: authUser?.id,
               names,
-              phones: formattedPhones,
+              phones: phones,
               message: textMessage,
               scheduled_at: scheduledAt,
               file_path: null,

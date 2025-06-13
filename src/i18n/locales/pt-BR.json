@@ -121,6 +121,7 @@
     "add_ticket": "Adicionar Ticket",
     "modal_title": "Adicionar Cliente",
     "register_client": "Cadastrar Cliente",
+    "import_clients": "Importar Clientes",
     "total_clients": "Total de Clientes"
   },
   "modal": {

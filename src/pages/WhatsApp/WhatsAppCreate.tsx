@@ -1,7 +1,7 @@
 /* eslint-disable no-case-declarations */
 import { useEffect, useState } from "react";
 import { useNavigate, useParams } from "react-router-dom";
-import { FaPollH, FaWhatsapp } from "react-icons/fa";
+import { FaHourglassEnd, FaPollH, FaWhatsapp } from "react-icons/fa";
 import {
   FiUsers,
   FiCalendar,
@@ -23,6 +23,7 @@ import {
   Select,
   Upload,
   Input,
+  Switch,
 } from "antd";
 import ptBR from "antd/lib/locale/pt_BR";
 import enUS from "antd/lib/locale/en_US";
@@ -65,18 +66,6 @@ interface PollMessage {
   options: PollOption[];
 }
 
-interface LocationMessage {
-  latitude: number;
-  longitude: number;
-  name?: string;
-  address?: string;
-}
-
-interface ContactMessage {
-  name: string;
-  phone: string;
-}
-
 const localeMap = {
   pt: ptBR,
   en: enUS,
@@ -90,6 +79,8 @@ interface Option {
 }
 
 const WhatsAppCreate = () => {
+  const { t } = useTranslation();
+
   const navigate = useNavigate();
   const { instance } = useParams<{ instance: string }>();
   const { i18n } = useTranslation();
@@ -102,22 +93,22 @@ const WhatsAppCreate = () => {
   const [documentMessage, setDocumentMessage] = useState<MediaMessage | null>(
     null
   );
-  const [contactMessage, setContactMessage] = useState<ContactMessage>({
-    name: "",
-    phone: "",
-  });
   const [pollMessage, setPollMessage] = useState<PollMessage>({
     question: "",
     options: [{ text: "" }, { text: "" }],
-  });
-  const [locationMessage, setLocationMessage] = useState<LocationMessage>({
-    latitude: 0,
-    longitude: 0,
   });
   const [sendDate, setSendDate] = useState<string>("");
   const [sendTime, setSendTime] = useState<string>("");
   const [selectedClient, setSelectedClient] = useState<string | undefined>();
   const [valueSelect, setValueSelect] = useState<Option[]>([]);
+  const [recurrency, setRecurrency] = useState<boolean>(false);
+  const [recurrencyType, setRecurrencyType] = useState<
+    "daily" | "weekly" | "monthly" | "yearly" | null
+  >(null);
+  const [recurrencyEndDate, setRecurrencyEndDate] = useState<string | null>(
+    null
+  );
+
   const antdLocale = localeMap[i18n.language as "pt" | "en" | "es"] || ptBR;
   const timeFormat = "HH:mm";
 
@@ -146,7 +137,6 @@ const WhatsAppCreate = () => {
     }
 
     try {
-      const scheduledAt = new Date(`${sendDate}T${sendTime}`);
       let message = "";
       let filePath = null;
       let caption = null;
@@ -224,17 +214,6 @@ const WhatsAppCreate = () => {
           caption = documentMessage.caption || "";
           break;
 
-        case "contact":
-          if (!contactMessage.name || !contactMessage.phone) {
-            messageAlert({
-              type: "error",
-              message: "Preencha os dados do contato.",
-            });
-            return;
-          }
-          message = JSON.stringify(contactMessage);
-          break;
-
         case "poll":
           if (
             !pollMessage.question ||
@@ -248,42 +227,84 @@ const WhatsAppCreate = () => {
           }
           message = JSON.stringify(pollMessage);
           break;
-
-        case "location":
-          if (!locationMessage.latitude || !locationMessage.longitude) {
-            messageAlert({
-              type: "error",
-              message: "Preencha os dados da localização.",
-            });
-            return;
-          }
-          message = JSON.stringify(locationMessage);
-          break;
       }
 
-      // Se for mídia ou documento e não tiver message, preenche com caption
       if (!message && caption) {
         message = caption;
       }
 
-      const payload = {
-        user_id: authUser?.id,
-        instance_id: instance,
-        name: clientData.label,
-        phone: clientData.phone,
-        message,
-        scheduled_at: scheduledAt.toISOString(),
-        file_path: filePath,
-        caption,
-        message_type: messageType,
-        status: "pending",
+      const startDateTime = dayjs(`${sendDate}T${sendTime}`);
+
+      const generateDates = (): string[] => {
+        if (!recurrency || !recurrencyType || !recurrencyEndDate) {
+          return [startDateTime.format("YYYY-MM-DD HH:mm:ss")];
+        }
+
+        const endDate = dayjs(recurrencyEndDate);
+
+        const dates: string[] = [];
+        let current = startDateTime;
+
+        while (current.isSameOrBefore(endDate)) {
+          dates.push(current.format("YYYY-MM-DD HH:mm:ss"));
+
+          switch (recurrencyType) {
+            case "daily":
+              current = current.add(1, "day");
+              break;
+            case "weekly":
+              current = current.add(1, "week");
+              break;
+            case "monthly":
+              current = current.add(1, "month");
+              break;
+            case "yearly":
+              current = current.add(1, "year");
+              break;
+            default:
+              return dates;
+          }
+        }
+
+        return dates;
       };
 
-      await api.post("/wpp", payload, {
-        headers: {
-          Authorization: `Bearer ${localStorage.getItem("accessToken")}`,
-        },
-      });
+      const allDates = generateDates();
+
+      await Promise.all(
+        allDates.map((scheduledAt) => {
+          try {
+            api.post(
+              "/wpp",
+              {
+                user_id: authUser?.id,
+                instance_id: instance,
+                name: clientData.label,
+                phone: clientData.phone,
+                message,
+                scheduled_at: scheduledAt,
+                file_path: filePath,
+                caption,
+                message_type: messageType,
+                status: "pending",
+                recurrency,
+                recurrencyType,
+                recurrencyEndDate,
+              },
+              {
+                headers: {
+                  Authorization: `Bearer ${localStorage.getItem(
+                    "accessToken"
+                  )}`,
+                },
+              }
+            );
+          } catch (e) {
+            console.error("Erro ao enviar para a data", scheduledAt, e);
+            throw e;
+          }
+        })
+      );
 
       messageAlert({
         type: "success",
@@ -418,29 +439,6 @@ const WhatsAppCreate = () => {
             )}
           </div>
         );
-      case "contact":
-        return (
-          <div className="space-y-4">
-            <Input
-              placeholder="Nome do contato"
-              value={contactMessage.name}
-              onChange={(e) =>
-                setContactMessage({ ...contactMessage, name: e.target.value })
-              }
-              prefix={<FiUser className="text-gray-400" />}
-              className="bg-white rounded-xl h-[40px]"
-            />
-            <Input
-              placeholder="Número do telefone"
-              value={contactMessage.phone}
-              onChange={(e) =>
-                setContactMessage({ ...contactMessage, phone: e.target.value })
-              }
-              prefix={<FaWhatsapp className="text-gray-400" />}
-              className="bg-white rounded-xl h-[40px]"
-            />
-          </div>
-        );
       case "poll":
         return (
           <div className="space-y-4">
@@ -480,56 +478,6 @@ const WhatsAppCreate = () => {
             >
               Adicionar Opção
             </button>
-          </div>
-        );
-      case "location":
-        return (
-          <div className="space-y-4">
-            <div className="grid grid-cols-2 gap-4">
-              <Input
-                type="number"
-                placeholder="Latitude"
-                value={locationMessage.latitude || ""}
-                onChange={(e) =>
-                  setLocationMessage({
-                    ...locationMessage,
-                    latitude: parseFloat(e.target.value),
-                  })
-                }
-                className="bg-white rounded-xl h-[40px]"
-              />
-              <Input
-                type="number"
-                placeholder="Longitude"
-                value={locationMessage.longitude || ""}
-                onChange={(e) =>
-                  setLocationMessage({
-                    ...locationMessage,
-                    longitude: parseFloat(e.target.value),
-                  })
-                }
-                className="bg-white rounded-xl h-[40px]"
-              />
-            </div>
-            <Input
-              placeholder="Nome do local (opcional)"
-              value={locationMessage.name || ""}
-              onChange={(e) =>
-                setLocationMessage({ ...locationMessage, name: e.target.value })
-              }
-              className="bg-white rounded-xl h-[40px]"
-            />
-            <Input
-              placeholder="Endereço (opcional)"
-              value={locationMessage.address || ""}
-              onChange={(e) =>
-                setLocationMessage({
-                  ...locationMessage,
-                  address: e.target.value,
-                })
-              }
-              className="bg-white rounded-xl h-[40px]"
-            />
           </div>
         );
       default:
@@ -590,9 +538,7 @@ const WhatsAppCreate = () => {
                     { value: "text", label: "Texto" },
                     { value: "media", label: "Foto/Vídeo" },
                     { value: "document", label: "Arquivo" },
-                    { value: "contact", label: "Contato" },
                     { value: "poll", label: "Enquete" },
-                    { value: "location", label: "Localização" },
                   ]}
                 />
               </div>
@@ -651,6 +597,66 @@ const WhatsAppCreate = () => {
                     placeholder="Horário da Mensagem"
                   />
                 </ConfigProvider>
+              </div>
+
+              <div>
+                <label className="text-sm text-white flex items-center gap-2 mb-2">
+                  <FiClock />
+                  Recorrência
+                </label>
+                <Switch
+                  onChange={(e) => setRecurrency(e)}
+                  value={recurrency}
+                  checked={recurrency}
+                  style={{
+                    backgroundColor: !recurrency ? "#666666" : undefined,
+                  }}
+                />
+                {recurrency && (
+                  <div className="flex flex-col gap-4 w-full mt-4">
+                    <div className="flex w-full flex-col gap-2">
+                      <label className="text-white text-sm font-semibold flex items-center justify-start gap-2">
+                        <FaHourglassEnd />
+                        {t("create_email.frequency")}
+                      </label>
+                      <Select
+                        value={recurrencyType}
+                        onChange={(value) => setRecurrencyType(value)}
+                        placeholder={t("create_email.select_frequency")}
+                        options={[
+                          { label: t("create_email.daily"), value: "daily" },
+                          { label: t("create_email.weekly"), value: "weekly" },
+                          {
+                            label: t("create_email.monthly"),
+                            value: "monthly",
+                          },
+                          { label: t("create_email.yearly"), value: "yearly" },
+                        ]}
+                        className="w-full h-[40px]"
+                      />
+                    </div>
+                    <div className="flex w-full flex-col gap-2">
+                      <label className="text-white text-sm font-semibold">
+                        {t("create_email.end_date")}
+                      </label>
+                      <ConfigProvider locale={antdLocale}>
+                        <DatePicker
+                          format={
+                            i18n.language === "en" ? "MM/DD/YYYY" : "DD/MM/YYYY"
+                          }
+                          placeholder={t("create_email.select_end_date")}
+                          value={
+                            recurrencyEndDate ? dayjs(recurrencyEndDate) : null
+                          }
+                          onChange={(d) =>
+                            setRecurrencyEndDate(d ? d.toISOString() : null)
+                          }
+                          className="bg-white border border-gray-300 rounded-xl px-4 py-2 outline-none w-full shadow-sm focus:border-blue-500 transition"
+                        />
+                      </ConfigProvider>
+                    </div>
+                  </div>
+                )}
               </div>
             </div>
 
@@ -723,12 +729,6 @@ const WhatsAppCreate = () => {
                       )}
                     </>
                   )}
-                  {messageType === "contact" && (
-                    <>
-                      <p>Nome: {contactMessage.name || "Não definido"}</p>
-                      <p>Telefone: {contactMessage.phone || "Não definido"}</p>
-                    </>
-                  )}
                   {messageType === "poll" && (
                     <>
                       <p>Pergunta: {pollMessage.question || "Não definida"}</p>
@@ -740,22 +740,6 @@ const WhatsAppCreate = () => {
                           </li>
                         ))}
                       </ul>
-                    </>
-                  )}
-                  {messageType === "location" && (
-                    <>
-                      <p>
-                        Latitude: {locationMessage.latitude || "Não definida"}
-                      </p>
-                      <p>
-                        Longitude: {locationMessage.longitude || "Não definida"}
-                      </p>
-                      {locationMessage.name && (
-                        <p>Local: {locationMessage.name}</p>
-                      )}
-                      {locationMessage.address && (
-                        <p>Endereço: {locationMessage.address}</p>
-                      )}
                     </>
                   )}
                 </div>

@@ -26,6 +26,8 @@ import { HiMail, HiPhone, HiUser } from "react-icons/hi";
 import PhoneInput from "react-phone-input-2";
 import "react-phone-input-2/lib/style.css";
 import { FiBriefcase } from "react-icons/fi";
+import { RiFileExcel2Line } from "react-icons/ri";
+import { parsePhoneNumberFromString } from "libphonenumber-js";
 
 
 interface Option {
@@ -80,6 +82,9 @@ export const Button: React.FC<ButtonProps> = ({ text, onClick }) => {
 };
 
 const Dashboard = () => {
+  const user = JSON.parse(localStorage.getItem("user") || "{}");
+  const cargo = user.cargo_id;
+
   const { t } = useTranslation();
 
   const {
@@ -119,16 +124,19 @@ const Dashboard = () => {
   const [currentPage, setCurrentPage] = useState(1);
   const [addClient, setAddClient] = useState(false);
   const [addTicket, setAddTicket] = useState(false);
+  const [importClients, setImportClients] = useState(false);
   const [clientName, setClientName] = useState("");
   const [typeName, setTypeName] = useState("");
   const [clientPhone, setClientPhone] = useState("");
   const [clientMail, setClientMail] = useState("");
   const [statusTicket, setStatusTicket] = useState("");
   const [loadingPost, setLoadingPost] = useState(false);
+  const [loadingImport, setLoadingImport] = useState(false);
   const [selected, setSelected] = useState<string>("");
   const [selectedAdmin, setSelectedAdmin] = useState<string>("");
   const [tags, setTags] = useState<string[]>([]);
   const [observation, setObservation] = useState("");
+  const [profileFile, setProfileFile] = useState<File | null>(null);
   const itemsPerPage = 5;
 
   const filteredClients = rawClients.filter(
@@ -145,21 +153,20 @@ const Dashboard = () => {
   );
 
   const formatPhone = (phone: string): string => {
-    const cleaned = phone.replace(/\D/g, "");
+    try {
+      const parsed = parsePhoneNumberFromString(phone);
 
-    if (cleaned.length === 13 && cleaned.startsWith("55")) {
-      return cleaned.replace(/(\d{2})(\d{2})(\d{5})(\d{4})/, "+$1 ($2) $3-$4");
-    } else if (cleaned.length === 12 && cleaned.startsWith("55")) {
-      return cleaned.replace(/(\d{2})(\d{2})(\d{4})(\d{4})/, "+$1 ($2) $3-$4");
+      if (parsed && parsed.isValid()) {
+        const countryCode = parsed.countryCallingCode;
+        const national = parsed.formatNational();
+        return `+${countryCode} ${national}`;
+      }
+
+      return phone;
+    } catch (err) {
+      console.error("Erro ao formatar número:", err);
+      return phone;
     }
-
-    if (cleaned.length === 11) {
-      return cleaned.replace(/(\d{2})(\d{5})(\d{4})/, "($1) $2-$3");
-    } else if (cleaned.length === 10) {
-      return cleaned.replace(/(\d{2})(\d{4})(\d{4})/, "($1) $2-$3");
-    }
-
-    return phone;
   };
 
   const handleSelectChange = (value: string | number) => {
@@ -275,12 +282,66 @@ const Dashboard = () => {
     }
   };
 
-  const handleTicket = (ticketName: string) => {
-    navigate(`/ticket/${ticketName}`);
+  const handleTicket = (ticket: Clients) => {
+    navigate("/ticket", { state: { ticket } });
   };
 
   const handleClient = (client: Clients) => {
     navigate(`/clients`, { state: { client } });
+  };
+
+  const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (file) {
+      setProfileFile(file);
+    }
+  };
+
+  const handleUploadArchive = async () => {
+    if (!profileFile || !authUser) {
+      messageAlert({
+        type: "error",
+        message: "Por favor, selecione um arquivo.",
+      });
+      return;
+    }
+
+    if (!(profileFile instanceof File)) {
+      messageAlert({
+        type: "error",
+        message: "O arquivo selecionado é inválido.",
+      });
+      return;
+    }
+
+    setLoadingImport(true);
+    try {
+      const formData = new FormData();
+      formData.append("file", profileFile);
+
+      await api.post("/import-clients", formData, {
+        headers: {
+          "Content-Type": "multipart/form-data",
+          Authorization: `Bearer ${localStorage.getItem("accessToken")}`,
+        },
+      });
+      mutateClients();
+      messageAlert({
+        type: "success",
+        message: "Clientes importados com sucesso!",
+      });
+
+      setImportClients(false);
+      setProfileFile(null);
+    } catch (e) {
+      console.log("Erro ao importar clientes: ", e);
+      messageAlert({
+        type: "error",
+        message: "Erro ao importar clientes.",
+      });
+    } finally {
+      setLoadingImport(false);
+    }
   };
 
   if (loadingClients || loadingAdmins) {
@@ -299,8 +360,8 @@ const Dashboard = () => {
         <p>Martins Adviser</p>
       </div>
 
-      <div className="flex flex-col md:flex-row items-center justify-center gap-4 mt-6 w-full max-w-4xl mx-auto px-4">
-        <div className="relative w-full md:max-w-2xl">
+      <div className="flex flex-col items-center justify-center gap-4 mt-6 w-full max-w-4xl mx-auto px-4">
+        <div className="relative w-full">
           <span className="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none text-gray-400">
             <svg
               className="w-5 h-5"
@@ -328,22 +389,31 @@ const Dashboard = () => {
           />
         </div>
 
-        <div className="flex gap-4 w-full max-w-md">
-          <button
-            onClick={() => setAddClient(true)}
-            className="flex items-center gap-2 bg-blue-600 text-white px-5 py-3 rounded-xl shadow-md hover:bg-blue-700 transition"
-          >
-            <HiUserAdd className="w-5 h-5" />
-            {t("dashboard.add_client")}
-          </button>
-          <button
-            onClick={() => setAddTicket(true)}
-            className="flex items-center gap-2 bg-white text-blue-500 px-5 py-3 rounded-xl shadow-md hover:hover:bg-gray-200 transition"
-          >
-            <IoTicketOutline className="w-5 h-5" />
-            {t("dashboard.add_ticket")}
-          </button>
-        </div>
+        {(cargo === 1 || cargo === 2) && (
+          <div className="flex gap-4 w-full">
+            <button
+              onClick={() => setAddClient(true)}
+              className="flex items-center justify-center gap-2 bg-blue-600 text-white px-5 py-3 rounded-xl w-full shadow-md hover:bg-blue-700 transition"
+            >
+              <HiUserAdd className="w-5 h-5" />
+              {t("dashboard.add_client")}
+            </button>
+            <button
+              onClick={() => setAddTicket(true)}
+              className="flex items-center justify-center gap-2 bg-white text-blue-500 px-5 py-3 rounded-xl w-full shadow-md hover:hover:bg-gray-200 transition"
+            >
+              <IoTicketOutline className="w-5 h-5" />
+              {t("dashboard.add_ticket")}
+            </button>
+            <button
+              onClick={() => setImportClients(true)}
+              className="flex items-center justify-center gap-2 bg-green-700 text-white px-5 py-3 rounded-xl w-full shadow-md hover:hover:bg-green-800 transition"
+            >
+              <RiFileExcel2Line className="w-5 h-5" />
+              {t("dashboard.import_clients")}
+            </button>
+          </div>
+        )}
       </div>
 
       <div className="w-full max-w-[80rem] mx-auto mt-10 rounded-3xl overflow-hidden shadow-lg border border-gray-200 bg-white">
@@ -397,7 +467,7 @@ const Dashboard = () => {
                 <IoPersonSharp className="h-5 w-5" />
               </button>
               <button
-                onClick={() => handleTicket(client.name)}
+                onClick={() => handleTicket(client)}
                 className="text-red-600 hover:text-red-800 transition-colors duration-200"
                 title="Ver tickets"
               >
@@ -435,14 +505,16 @@ const Dashboard = () => {
               <HiUserAdd className="w-6 h-6 text-white" />
             </div>
             <div>
-              <h2 className="text-2xl font-bold text-gray-800">{t("dashboard.add_client")}</h2>
+              <h2 className="text-2xl font-bold text-gray-800">
+                {t("dashboard.add_client")}
+              </h2>
             </div>
           </div>
         }
         isVisible={addClient}
         onClose={() => setAddClient(false)}
       >
-        {loadingPost ? (
+        {loadingPost || loadingImport ? (
           <div className="flex flex-col items-center justify-center w-full gap-4">
             <Spin />
           </div>
@@ -549,7 +621,7 @@ const Dashboard = () => {
         isVisible={addTicket}
         onClose={() => setAddTicket(false)}
       >
-        {loadingPost ? (
+        {loadingPost || loadingImport ? (
           <div className="flex flex-col items-center justify-center w-full gap-4">
             <Spin />
           </div>
@@ -678,6 +750,102 @@ const Dashboard = () => {
                 onClick={handleAddTicket}
               />
             </div>
+          </div>
+        )}
+      </Modal>
+      <Modal
+        title={`${t("dashboard.import_clients")}`}
+        isVisible={importClients}
+        onClose={() => setImportClients(false)}
+      >
+        {loadingImport || loadingPost ? (
+          <Spin />
+        ) : (
+          <div className="flex flex-col gap-5 items-center justify-center">
+            <div className="container-input-doc">
+              <div className="header-input-doc">
+                <svg
+                  viewBox="0 0 24 24"
+                  fill="none"
+                  xmlns="http://www.w3.org/2000/svg"
+                >
+                  <g id="SVGRepo_iconCarrier">
+                    <path
+                      d="M7 10V9C7 6.23858 9.23858 4 12 4C14.7614 4 17 6.23858 17 9V10C19.2091 10 21 11.7909 21 14C21 15.4806 20.1956 16.8084 19 17.5M7 10C4.79086 10 3 11.7909 3 14C3 15.4806 3.8044 16.8084 5 17.5M7 10C7.43285 10 7.84965 10.0688 8.24006 10.1959M12 12V21M12 12L15 15M12 12L9 15"
+                      stroke="#000000"
+                      strokeWidth="1.5"
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
+                    />
+                  </g>
+                </svg>
+                <p>{t("modal.select_file")}</p>
+              </div>
+              <label htmlFor="file" className="footer">
+                <svg
+                  fill="#000000"
+                  viewBox="0 0 32 32"
+                  xmlns="http://www.w3.org/2000/svg"
+                >
+                  <g id="SVGRepo_bgCarrier" stroke-width="0"></g>
+                  <g
+                    id="SVGRepo_tracerCarrier"
+                    stroke-linecap="round"
+                    stroke-linejoin="round"
+                  ></g>
+                  <g id="SVGRepo_iconCarrier">
+                    <path d="M15.331 6H8.5v20h15V14.154h-8.169z"></path>
+                    <path d="M18.153 6h-.009v5.342H23.5v-.002z"></path>
+                  </g>
+                </svg>
+                <p>
+                  {profileFile ? profileFile.name : t("modal.no_file_selected")}
+                </p>
+                <svg
+                  viewBox="0 0 24 24"
+                  fill="none"
+                  xmlns="http://www.w3.org/2000/svg"
+                  onClick={(e) => {
+                    e.preventDefault();
+                    e.stopPropagation();
+                    setProfileFile(null);
+                  }}
+                >
+                  <g id="SVGRepo_bgCarrier" stroke-width="0"></g>
+                  <g
+                    id="SVGRepo_tracerCarrier"
+                    stroke-linecap="round"
+                    stroke-linejoin="round"
+                  ></g>
+                  <g id="SVGRepo_iconCarrier">
+                    {" "}
+                    <path
+                      d="M5.16565 10.1534C5.07629 8.99181 5.99473 8 7.15975 8H16.8402C18.0053 8 18.9237 8.9918 18.8344 10.1534L18.142 19.1534C18.0619 20.1954 17.193 21 16.1479 21H7.85206C6.80699 21 5.93811 20.1954 5.85795 19.1534L5.16565 10.1534Z"
+                      stroke="#000000"
+                      stroke-width="2"
+                    ></path>{" "}
+                    <path
+                      d="M19.5 5H4.5"
+                      stroke="#000000"
+                      stroke-width="2"
+                      stroke-linecap="round"
+                    ></path>{" "}
+                    <path
+                      d="M10 3C10 2.44772 10.4477 2 11 2H13C13.5523 2 14 2.44772 14 3V5H10V3Z"
+                      stroke="#000000"
+                      stroke-width="2"
+                    ></path>{" "}
+                  </g>
+                </svg>
+              </label>
+              <input
+                id="file"
+                type="file"
+                accept=".xlsx,.xls"
+                onChange={handleFileChange}
+              />
+            </div>
+            <Button text="Importar" onClick={handleUploadArchive} />
           </div>
         )}
       </Modal>

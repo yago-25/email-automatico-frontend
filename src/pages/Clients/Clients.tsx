@@ -23,6 +23,7 @@ import PhoneInput from "react-phone-input-2";
 import "react-phone-input-2/lib/style.css";
 import { FaEraser } from "react-icons/fa";
 import useSwr from "swr";
+import { parsePhoneNumberFromString } from "libphonenumber-js";
 
 interface Client {
   id: number;
@@ -38,6 +39,9 @@ interface DeleteConfirmModal {
 }
 
 const Clients = () => {
+  const user = JSON.parse(localStorage.getItem("user") || "{}");
+  const cargo = user.cargo_id;
+
   const navigate = useNavigate();
   const { t } = useTranslation();
 
@@ -62,14 +66,20 @@ const Clients = () => {
   const params = location?.state || [];
 
   const formatPhone = (phone: string): string => {
-    if (!phone) return "";
-    const cleaned = phone.replace(/\D/g, "");
-    if (cleaned.length === 11) {
-      return cleaned.replace(/(\d{2})(\d{5})(\d{4})/, "($1) $2-$3");
-    } else if (cleaned.length === 10) {
-      return cleaned.replace(/(\d{2})(\d{4})(\d{4})/, "($1) $2-$3");
+    try {
+      const parsed = parsePhoneNumberFromString(phone);
+
+      if (parsed && parsed.isValid()) {
+        const countryCode = parsed.countryCallingCode;
+        const national = parsed.formatNational();
+        return `+${countryCode} ${national}`;
+      }
+
+      return phone;
+    } catch (err) {
+      console.error("Erro ao formatar número:", err);
+      return phone;
     }
-    return phone;
   };
 
   // const getClients = async () => {
@@ -264,13 +274,15 @@ const Clients = () => {
               <FaEraser className="w-5 h-5" />
               {t("filters.clear")}
             </button>
-            <button
-              onClick={() => setAddClient(true)}
-              className="flex items-center gap-2 bg-blue-600 text-white px-5 py-3 rounded-xl shadow-md hover:bg-blue-700 transition"
-            >
-              <HiUserAdd className="w-5 h-5" />
-              {t("dashboard.add_client")}
-            </button>
+            {(cargo === 1 || cargo === 2) && (
+              <button
+                onClick={() => setAddClient(true)}
+                className="flex items-center gap-2 bg-blue-600 text-white px-5 py-3 rounded-xl shadow-md hover:bg-blue-700 transition"
+              >
+                <HiUserAdd className="w-5 h-5" />
+                {t("dashboard.add_client")}
+              </button>
+            )}
           </div>
         </div>
 
@@ -315,22 +327,26 @@ const Clients = () => {
                   <IoTicketOutline className="h-5 w-5" />
                 </button>
 
-                <button
-                  onClick={() => {
-                    setEditingClient(client);
-                    setIsModalOpen(true);
-                  }}
-                  className="text-blue-500 hover:text-blue-700"
-                >
-                  <Pencil className="h-5 w-5" />
-                </button>
+                {(cargo === 1 || cargo === 2) && (
+                  <button
+                    onClick={() => {
+                      setEditingClient(client);
+                      setIsModalOpen(true);
+                    }}
+                    className="text-blue-500 hover:text-blue-700"
+                  >
+                    <Pencil className="h-5 w-5" />
+                  </button>
+                )}
 
-                <button
-                  onClick={() => openDeleteModal(client.id)}
-                  className="text-red-500 hover:text-red-700"
-                >
-                  <Trash className="h-5 w-5" />
-                </button>
+                {(cargo === 1 || cargo === 2) && (
+                  <button
+                    onClick={() => openDeleteModal(client.id)}
+                    className="text-red-500 hover:text-red-700"
+                  >
+                    <Trash className="h-5 w-5" />
+                  </button>
+                )}
               </div>
             </div>
           ))}
@@ -372,7 +388,9 @@ const Clients = () => {
                 <Pencil className="w-6 h-6 text-white" />
               </div>
               <div>
-                <h2 className="text-2xl font-bold text-gray-800">{t("clients.edit_client")}</h2>
+                <h2 className="text-2xl font-bold text-gray-800">
+                  {t("clients.edit_client")}
+                </h2>
               </div>
             </div>
           }
@@ -499,7 +517,9 @@ const Clients = () => {
                 <HiUserAdd className="w-6 h-6 text-white" />
               </div>
               <div>
-                <h2 className="text-2xl font-bold text-gray-800">{t("dashboard.add_client")}</h2>
+                <h2 className="text-2xl font-bold text-gray-800">
+                  {t("dashboard.add_client")}
+                </h2>
               </div>
             </div>
           }
