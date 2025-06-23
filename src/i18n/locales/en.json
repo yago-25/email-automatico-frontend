@@ -177,6 +177,7 @@
     "titleup": "Filters",
     "user": "User",
     "client": "Client",
+    "type": "Type",
     "status": "Status",
     "tag": "Tag",
     "date": "Creation Date",

@@ -7,7 +7,7 @@ import { api } from "../../api/api";
 import { messageAlert } from "../../utils/messageAlert";
 import Spin from "../../components/Spin/Spin";
 import useSwr from "swr";
-import { FaFilter, FaEraser } from "react-icons/fa";
+import { FaFilter, FaEraser, FaTicketAlt } from "react-icons/fa";
 import { useLocation } from "react-router-dom";
 import Input from "../../components/Input/Input";
 import Select from "../../components/Select/Select";
@@ -200,6 +200,7 @@ const Ticket = () => {
   const [__, setFilteredTickets] = useState<Ticket[]>([]);
   const [filterUser, setFilterUser] = useState("");
   const [filterClient, setFilterClient] = useState<string>("");
+  const [filterType, setFilterType] = useState("");
   const [addTicket, setAddTicket] = useState(false);
   const [loadingPost, setLoadingPost] = useState(false);
   const [clientName, setClientName] = useState("");
@@ -385,6 +386,14 @@ const Ticket = () => {
           : ticket.tags.toLowerCase().includes(filterTag.toLowerCase())
         : true;
 
+      const matchesType = filterType
+        ? Array.isArray(ticket.type)
+          ? ticket.type.some((type) =>
+            type.toLowerCase().includes(filterType.toLowerCase())
+          )
+          : ticket.type.toLowerCase().includes(filterType.toLowerCase())
+        : true;
+
       const matchesDate = filterDate
         ? new Date(ticket.created_at).toLocaleDateString() ===
         new Date(filterDate).toLocaleDateString()
@@ -408,7 +417,8 @@ const Ticket = () => {
         matchesDate &&
         matchesTicket &&
         matchesUser &&
-        matchesClient
+        matchesClient &&
+        matchesType
       );
     });
 
@@ -419,6 +429,7 @@ const Ticket = () => {
     setFilterStatus("");
     setFilterTag("");
     setFilterDate("");
+    setFilterType("")
     setFilterTicket("");
     setSelectedStatuses([]);
     setFilterUser("");
@@ -440,6 +451,14 @@ const Ticket = () => {
           : ticket.tags.toLowerCase().includes(filterTag.toLowerCase())
         : true;
 
+      const matchesType = filterType
+        ? Array.isArray(ticket.type)
+          ? ticket.type.some((type) =>
+            type.toLowerCase().includes(filterType.toLowerCase())
+          )
+          : ticket.type.toLowerCase().includes(filterType.toLowerCase())
+        : true;
+
       const matchesDate = filterDate
         ? new Date(ticket.created_at).toLocaleDateString() ===
         new Date(filterDate).toLocaleDateString()
@@ -463,12 +482,14 @@ const Ticket = () => {
         matchesDate &&
         matchesTicket &&
         matchesUser &&
-        matchesClient
+        matchesClient &&
+        matchesType
       );
     });
   }, [
     rawTickets,
     selectedStatuses,
+    filterType,
     filterTag,
     filterDate,
     filterTicket,
@@ -534,6 +555,7 @@ const Ticket = () => {
       setTypeName("");
       setSelected("");
       setSelectedAdmin("");
+      setFilterType("")
       setTags([]);
       setObservation("");
       setAddTicket(false);
@@ -557,12 +579,19 @@ const Ticket = () => {
   };
 
   const availableTickets = useMemo(() => {
-    if (!filterClient) return rawTickets;
-    return rawTickets.filter(
-      (ticket) =>
-        ticket.client?.name.toLowerCase() === filterClient.toLowerCase()
-    );
-  }, [filterClient, rawTickets]);
+  return rawTickets.filter((ticket) => {
+    const matchesClient = filterClient
+      ? ticket.client?.name.toLowerCase() === filterClient.toLowerCase()
+      : true;
+
+    const matchesUser = filterUser
+      ? ticket.user?.id === Number(filterUser)
+      : true;
+
+    return matchesClient && matchesUser;
+  });
+}, [filterClient, filterUser, rawTickets]);
+
 
   const availableTags = useMemo(() => {
     const tagsSet = new Set<string>();
@@ -577,16 +606,6 @@ const Ticket = () => {
 
     return Array.from(tagsSet);
   }, [availableTickets]);
-
-  const availableAdmins = useMemo(() => {
-    const userIds = new Set(
-      availableTickets
-        .map((ticket) => ticket.user?.id)
-        .filter((id): id is number => Boolean(id))
-    );
-
-    return rawAdmins.filter((admin) => userIds.has(admin.id));
-  }, [availableTickets, rawAdmins]);
 
   const availableTicketOptions = useMemo(() => {
     return availableTickets.map((ticket) => ({
@@ -608,6 +627,19 @@ const Ticket = () => {
     return rawClients.filter((client) => clientNames.has(client.name));
   }, [filterUser, rawClients, rawTickets]);
 
+  const availableTypes = useMemo(() => {
+    const typesSet = new Set<string>();
+
+    availableTickets.forEach((ticket) => {
+      if (ticket.type) {
+        typesSet.add(ticket.type);
+      }
+    });
+
+    return Array.from(typesSet);
+  }, [availableTickets]);
+
+  
 
   const updateTicketStatus = async (ticketId: number, newStatus: string) => {
     await api.put(
@@ -885,6 +917,28 @@ const Ticket = () => {
                 </option>
               ))}
 
+            </select>
+          </div>
+          <div className="mt-4">
+            <div className="flex items-center gap-2 mb-2">
+              <div className="p-2 bg-indigo-100 rounded-xl text-indigo-600">
+                <FaTicketAlt className="w-5 h-5" />
+              </div>
+              <label className="text-sm font-semibold text-gray-700">
+                {t("filters.type")}
+              </label>
+            </div>
+            <select
+              value={filterType}
+              onChange={(e) => setFilterType(e.target.value)}
+              className="w-full border border-gray-200 rounded-xl px-4 py-3 text-sm shadow-sm focus:outline-none focus:ring-2 focus:ring-indigo-400 bg-white/70 backdrop-blur-sm"
+            >
+              <option value="">{t("filters.all")}</option>
+              {availableTypes.map((type, index) => (
+                <option key={index} value={type}>
+                  {type}
+                </option>
+              ))}
             </select>
           </div>
 
