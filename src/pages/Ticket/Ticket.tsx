@@ -182,10 +182,10 @@ const Ticket = () => {
 
   const statusTranslations = {
     "Não iniciada": "status.not_started",
-    Esperando: "status.waiting",
+    "Esperando": "status.waiting",
     "Em progresso": "status.in_progress",
-    Completo: "status.completed",
-    Descartada: "status.discarded",
+    "Completo": "status.resolved",
+    "Descartada": "status.discarded",
   };
 
   const storedUser = localStorage.getItem("user");
@@ -254,13 +254,13 @@ const Ticket = () => {
   );
 
 
-  const allTags = Array.from(
-    new Set(
-      rawTickets.flatMap((ticket) =>
-        Array.isArray(ticket.tags) ? ticket.tags : [ticket.tags]
-      )
-    )
-  );
+  // const allTags = Array.from(
+  //   new Set(
+  //     rawTickets.flatMap((ticket) =>
+  //       Array.isArray(ticket.tags) ? ticket.tags : [ticket.tags]
+  //     )
+  //   )
+  // );
 
   const optionsClient: Option[] = rawClients.map((client: Clients) => ({
     value: String(client.id),
@@ -272,10 +272,10 @@ const Ticket = () => {
     label: admin.nome_completo,
   }));
 
-  const optionsTicket: Option[] = rawTickets.map((ticket) => ({
-    value: String(ticket.id),
-    label: ticket.name,
-  }));
+  // const optionsTicket: Option[] = rawTickets.map((ticket) => ({
+  //   value: String(ticket.id),
+  //   label: ticket.name,
+  // }));
 
   const formatDate = (dateString: string, t: (key: string) => string) => {
     const date = new Date(dateString);
@@ -415,16 +415,16 @@ const Ticket = () => {
     setFilteredTickets(filtered);
   };
 
- const handleClearFilters = () => {
-  setFilterStatus("");
-  setFilterTag("");
-  setFilterDate("");
-  setFilterTicket("");
-  setSelectedStatuses([]);
-  setFilterUser("");
-  setFilterClient("");
-  mutate(); 
-};
+  const handleClearFilters = () => {
+    setFilterStatus("");
+    setFilterTag("");
+    setFilterDate("");
+    setFilterTicket("");
+    setSelectedStatuses([]);
+    setFilterUser("");
+    setFilterClient("");
+    mutate();
+  };
 
   const filteredTickets = useMemo(() => {
     return rawTickets.filter((ticket) => {
@@ -555,6 +555,59 @@ const Ticket = () => {
   const handleSelectChangeAdmin = (value: string | number) => {
     setSelectedAdmin(value.toString());
   };
+
+  const availableTickets = useMemo(() => {
+    if (!filterClient) return rawTickets;
+    return rawTickets.filter(
+      (ticket) =>
+        ticket.client?.name.toLowerCase() === filterClient.toLowerCase()
+    );
+  }, [filterClient, rawTickets]);
+
+  const availableTags = useMemo(() => {
+    const tagsSet = new Set<string>();
+
+    availableTickets.forEach((ticket) => {
+      if (Array.isArray(ticket.tags)) {
+        ticket.tags.forEach((tag) => tagsSet.add(tag));
+      } else if (ticket.tags) {
+        tagsSet.add(ticket.tags);
+      }
+    });
+
+    return Array.from(tagsSet);
+  }, [availableTickets]);
+
+  const availableAdmins = useMemo(() => {
+    const userIds = new Set(
+      availableTickets
+        .map((ticket) => ticket.user?.id)
+        .filter((id): id is number => Boolean(id))
+    );
+
+    return rawAdmins.filter((admin) => userIds.has(admin.id));
+  }, [availableTickets, rawAdmins]);
+
+  const availableTicketOptions = useMemo(() => {
+    return availableTickets.map((ticket) => ({
+      value: ticket.id,
+      label: `${ticket.id} - ${ticket.client?.name || "Sem Cliente"}`,
+    }));
+  }, [availableTickets]);
+
+  const availableClients = useMemo(() => {
+    if (!filterUser) return rawClients;
+
+    const clientNames = new Set(
+      rawTickets
+        .filter((ticket) => ticket.user?.id === Number(filterUser))
+        .map((ticket) => ticket.client?.name)
+        .filter(Boolean)
+    );
+
+    return rawClients.filter((client) => clientNames.has(client.name));
+  }, [filterUser, rawClients, rawTickets]);
+
 
   const updateTicketStatus = async (ticketId: number, newStatus: string) => {
     await api.put(
@@ -826,11 +879,12 @@ const Ticket = () => {
               className="w-full border border-gray-200 rounded-xl px-4 py-3 text-sm shadow-sm focus:outline-none focus:ring-2 focus:ring-purple-400 bg-white/70 backdrop-blur-sm"
             >
               <option value="">{t("filters.all")}</option>
-              {rawClients.map((client) => (
+              {availableClients.map((client) => (
                 <option key={client.name} value={client.name}>
                   {client.name}
                 </option>
               ))}
+
             </select>
           </div>
 
@@ -849,11 +903,12 @@ const Ticket = () => {
               className="w-full border border-gray-200 rounded-xl px-4 py-3 text-sm shadow-sm focus:outline-none focus:ring-2 focus:ring-yellow-400 bg-white/70 backdrop-blur-sm"
             >
               <option value="">{t("filters.all")}</option>
-              {allTags.map((tag, index) => (
+              {availableTags.map((tag, index) => (
                 <option key={index} value={tag}>
                   {tag}
                 </option>
               ))}
+
             </select>
           </div>
 
@@ -889,11 +944,12 @@ const Ticket = () => {
               className="w-full border border-gray-200 rounded-xl px-4 py-3 text-sm shadow-sm focus:outline-none focus:ring-2 focus:ring-indigo-400 bg-white/70 backdrop-blur-sm"
             >
               <option value="">{t("filters.all")}</option>
-              {optionsTicket.map((option) => (
+              {availableTicketOptions.map((option) => (
                 <option key={option.value} value={option.value}>
                   {option.label}
                 </option>
               ))}
+
             </select>
           </div>
 
