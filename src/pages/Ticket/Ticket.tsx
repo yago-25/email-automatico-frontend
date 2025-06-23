@@ -213,6 +213,8 @@ const Ticket = () => {
   const [loadingModal, setLoadingModal] = useState(false);
   const [_, setFilterStatus] = useState<string>("");
   const [selectedStatuses, setSelectedStatuses] = useState<string[]>([]);
+  const [tagInputValue, setTagInputValue] = useState("");
+  const [isFocused, setIsFocused] = useState(false);
   // const [filteredTxt, setFilteredTxt] = useState("");
 
   const { data: rawClients = [], isLoading: loadingClients } = useSwr<
@@ -579,18 +581,18 @@ const Ticket = () => {
   };
 
   const availableTickets = useMemo(() => {
-  return rawTickets.filter((ticket) => {
-    const matchesClient = filterClient
-      ? ticket.client?.name.toLowerCase() === filterClient.toLowerCase()
-      : true;
+    return rawTickets.filter((ticket) => {
+      const matchesClient = filterClient
+        ? ticket.client?.name.toLowerCase() === filterClient.toLowerCase()
+        : true;
 
-    const matchesUser = filterUser
-      ? ticket.user?.id === Number(filterUser)
-      : true;
+      const matchesUser = filterUser
+        ? ticket.user?.id === Number(filterUser)
+        : true;
 
-    return matchesClient && matchesUser;
-  });
-}, [filterClient, filterUser, rawTickets]);
+      return matchesClient && matchesUser;
+    });
+  }, [filterClient, filterUser, rawTickets]);
 
 
   const availableTags = useMemo(() => {
@@ -606,6 +608,15 @@ const Ticket = () => {
 
     return Array.from(tagsSet);
   }, [availableTickets]);
+
+  const filteredAvailableTags = useMemo(() => {
+    const input = tagInputValue.toLowerCase();
+    return availableTags.filter(
+      (tag) =>
+        (input === "" || tag.toLowerCase().includes(input)) &&
+        !tags.includes(tag)
+    );
+  }, [availableTags, tagInputValue, tags]);
 
   const availableTicketOptions = useMemo(() => {
     return availableTickets.map((ticket) => ({
@@ -638,8 +649,6 @@ const Ticket = () => {
 
     return Array.from(typesSet);
   }, [availableTickets]);
-
-  
 
   const updateTicketStatus = async (ticketId: number, newStatus: string) => {
     await api.put(
@@ -733,10 +742,10 @@ const Ticket = () => {
                   checked={selectedStatuses.includes(status.name)}
                   onChange={() => handleToggleStatus(status.name)}
                   className="peer appearance-none w-5 h-5 border-2 border-white/50 rounded-md
-            checked:bg-blue-500 checked:border-blue-500
-            hover:border-white/80
-            focus:outline-none focus:ring-2 focus:ring-blue-300 focus:ring-offset-1
-            transition-all duration-200 ease-in-out"
+                  checked:bg-blue-500 checked:border-blue-500
+                  hover:border-white/80
+                  focus:outline-none focus:ring-2 focus:ring-blue-300 focus:ring-offset-1
+                  transition-all duration-200 ease-in-out"
                 />
                 <MdCheckCircle
                   className="absolute w-3.5 h-3.5 text-white scale-0 peer-checked:scale-100 transition-transform duration-200"
@@ -1312,15 +1321,73 @@ const Ticket = () => {
                 <FaRegStickyNote /> {t("modal.tags_notes")}
               </h3>
               <div className="flex flex-col gap-2 mt-2">
-                <label className="text-sm font-medium text-gray-700">
-                  {t("modal.tags")}
-                </label>
-                <TagInput
-                  tags={tags}
-                  setTags={setTags}
-                  placeholder={t("modal.add_tags")}
-                />
+                <div className="flex flex-col gap-2 mt-2">
+                  <label className="text-sm font-medium text-gray-700">
+                    {t("modal.tags")}
+                  </label>
+
+                  <div className="relative">
+                    <input
+                      type="text"
+                      value={tagInputValue}
+                      onChange={(e) => setTagInputValue(e.target.value)}
+                      onFocus={() => setIsFocused(true)}
+                      onBlur={() => {
+                        setTimeout(() => setIsFocused(false), 150);
+                      }}
+                      onKeyDown={(e) => {
+                        if (e.key === "Enter" && tagInputValue.trim() !== "") {
+                          e.preventDefault();
+                          if (!tags.includes(tagInputValue.trim())) {
+                            setTags([...tags, tagInputValue.trim()]);
+                          }
+                          setTagInputValue("");
+                        }
+                      }}
+                      placeholder={t("modal.add_tags")}
+                      className="w-full border border-gray-300 rounded-xl px-4 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-yellow-400"
+                    />
+
+                    {isFocused && filteredAvailableTags.length > 0 && (
+                      <ul className="absolute z-10 bg-white border border-gray-200 mt-1 rounded-xl w-full max-h-40 overflow-y-auto shadow-md">
+                        {filteredAvailableTags.map((tag, idx) => (
+                          <li
+                            key={idx}
+                            onClick={() => {
+                              setTags([...tags, tag]);
+                              setTagInputValue("");
+                            }}
+                            className="px-4 py-2 cursor-pointer hover:bg-yellow-100"
+                          >
+                            {tag}
+                          </li>
+                        ))}
+                      </ul>
+                    )}
+                  </div>
+
+                  {/* Tags selecionadas */}
+                  <div className="flex flex-wrap gap-2 mt-2">
+                    {tags.map((tag, idx) => (
+                      <div
+                        key={idx}
+                        className="bg-yellow-100 text-yellow-700 px-3 py-1 rounded-full text-xs flex items-center gap-2"
+                      >
+                        {tag}
+                        <button
+                          onClick={() =>
+                            setTags(tags.filter((t) => t !== tag))
+                          }
+                          className="text-yellow-700 hover:text-yellow-900"
+                        >
+                          &times;
+                        </button>
+                      </div>
+                    ))}
+                  </div>
+                </div>
               </div>
+
               <div className="flex flex-col gap-2 mt-2">
                 <label className="text-sm font-medium text-gray-700">
                   {t("modal.notes")}
