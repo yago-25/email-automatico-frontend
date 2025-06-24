@@ -359,7 +359,6 @@ const Dashboard = () => {
         <FiBriefcase className="icon" />
         <p>Martins Adviser</p>
       </div>
-
       <div className="flex flex-col items-center justify-center gap-4 mt-6 w-full max-w-4xl mx-auto px-4">
         <div className="relative w-full">
           <span className="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none text-gray-400">
@@ -438,9 +437,8 @@ const Dashboard = () => {
         {currentClients.map((client, index) => (
           <div
             key={client.id}
-            className={`grid grid-cols-5 gap-x-6 items-center justify-items-center px-6 py-4 text-sm border-b transition duration-200 ${
-              index % 2 === 0 ? "bg-gray-50" : "bg-white"
-            } hover:bg-blue-50`}
+            className={`grid grid-cols-5 gap-x-6 items-center justify-items-center px-6 py-4 text-sm border-b transition duration-200 ${index % 2 === 0 ? "bg-gray-50" : "bg-white"
+              } hover:bg-blue-50`}
           >
             <p className="text-center text-gray-800 font-medium">{client.id}</p>
             <p
