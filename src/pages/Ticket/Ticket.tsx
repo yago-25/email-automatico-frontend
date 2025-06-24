@@ -7,7 +7,7 @@ import { api } from "../../api/api";
 import { messageAlert } from "../../utils/messageAlert";
 import Spin from "../../components/Spin/Spin";
 import useSwr from "swr";
-import { FaFilter, FaEraser } from "react-icons/fa";
+import { FaFilter, FaEraser, FaTicketAlt } from "react-icons/fa";
 import { useLocation } from "react-router-dom";
 import Input from "../../components/Input/Input";
 import Select from "../../components/Select/Select";
@@ -182,10 +182,10 @@ const Ticket = () => {
 
   const statusTranslations = {
     "Não iniciada": "status.not_started",
-    Esperando: "status.waiting",
+    "Esperando": "status.waiting",
     "Em progresso": "status.in_progress",
-    Completo: "status.completed",
-    Descartada: "status.discarded",
+    "Completo": "status.resolved",
+    "Descartada": "status.discarded",
   };
 
   const storedUser = localStorage.getItem("user");
@@ -200,6 +200,7 @@ const Ticket = () => {
   const [__, setFilteredTickets] = useState<Ticket[]>([]);
   const [filterUser, setFilterUser] = useState("");
   const [filterClient, setFilterClient] = useState<string>("");
+  const [filterType, setFilterType] = useState("");
   const [addTicket, setAddTicket] = useState(false);
   const [loadingPost, setLoadingPost] = useState(false);
   const [clientName, setClientName] = useState("");
@@ -212,6 +213,8 @@ const Ticket = () => {
   const [loadingModal, setLoadingModal] = useState(false);
   const [_, setFilterStatus] = useState<string>("");
   const [selectedStatuses, setSelectedStatuses] = useState<string[]>([]);
+  const [tagInputValue, setTagInputValue] = useState("");
+  const [isFocused, setIsFocused] = useState(false);
   // const [filteredTxt, setFilteredTxt] = useState("");
 
   const { data: rawClients = [], isLoading: loadingClients } = useSwr<
@@ -254,13 +257,13 @@ const Ticket = () => {
   );
 
 
-  const allTags = Array.from(
-    new Set(
-      rawTickets.flatMap((ticket) =>
-        Array.isArray(ticket.tags) ? ticket.tags : [ticket.tags]
-      )
-    )
-  );
+  // const allTags = Array.from(
+  //   new Set(
+  //     rawTickets.flatMap((ticket) =>
+  //       Array.isArray(ticket.tags) ? ticket.tags : [ticket.tags]
+  //     )
+  //   )
+  // );
 
   const optionsClient: Option[] = rawClients.map((client: Clients) => ({
     value: String(client.id),
@@ -272,10 +275,10 @@ const Ticket = () => {
     label: admin.nome_completo,
   }));
 
-  const optionsTicket: Option[] = rawTickets.map((ticket) => ({
-    value: String(ticket.id),
-    label: ticket.name,
-  }));
+  // const optionsTicket: Option[] = rawTickets.map((ticket) => ({
+  //   value: String(ticket.id),
+  //   label: ticket.name,
+  // }));
 
   const formatDate = (dateString: string, t: (key: string) => string) => {
     const date = new Date(dateString);
@@ -385,6 +388,14 @@ const Ticket = () => {
           : ticket.tags.toLowerCase().includes(filterTag.toLowerCase())
         : true;
 
+      const matchesType = filterType
+        ? Array.isArray(ticket.type)
+          ? ticket.type.some((type) =>
+            type.toLowerCase().includes(filterType.toLowerCase())
+          )
+          : ticket.type.toLowerCase().includes(filterType.toLowerCase())
+        : true;
+
       const matchesDate = filterDate
         ? new Date(ticket.created_at).toLocaleDateString() ===
         new Date(filterDate).toLocaleDateString()
@@ -408,23 +419,25 @@ const Ticket = () => {
         matchesDate &&
         matchesTicket &&
         matchesUser &&
-        matchesClient
+        matchesClient &&
+        matchesType
       );
     });
 
     setFilteredTickets(filtered);
   };
 
- const handleClearFilters = () => {
-  setFilterStatus("");
-  setFilterTag("");
-  setFilterDate("");
-  setFilterTicket("");
-  setSelectedStatuses([]);
-  setFilterUser("");
-  setFilterClient("");
-  mutate(); 
-};
+  const handleClearFilters = () => {
+    setFilterStatus("");
+    setFilterTag("");
+    setFilterDate("");
+    setFilterType("")
+    setFilterTicket("");
+    setSelectedStatuses([]);
+    setFilterUser("");
+    setFilterClient("");
+    mutate();
+  };
 
   const filteredTickets = useMemo(() => {
     return rawTickets.filter((ticket) => {
@@ -440,6 +453,14 @@ const Ticket = () => {
           : ticket.tags.toLowerCase().includes(filterTag.toLowerCase())
         : true;
 
+      const matchesType = filterType
+        ? Array.isArray(ticket.type)
+          ? ticket.type.some((type) =>
+            type.toLowerCase().includes(filterType.toLowerCase())
+          )
+          : ticket.type.toLowerCase().includes(filterType.toLowerCase())
+        : true;
+
       const matchesDate = filterDate
         ? new Date(ticket.created_at).toLocaleDateString() ===
         new Date(filterDate).toLocaleDateString()
@@ -463,12 +484,14 @@ const Ticket = () => {
         matchesDate &&
         matchesTicket &&
         matchesUser &&
-        matchesClient
+        matchesClient &&
+        matchesType
       );
     });
   }, [
     rawTickets,
     selectedStatuses,
+    filterType,
     filterTag,
     filterDate,
     filterTicket,
@@ -534,6 +557,7 @@ const Ticket = () => {
       setTypeName("");
       setSelected("");
       setSelectedAdmin("");
+      setFilterType("")
       setTags([]);
       setObservation("");
       setAddTicket(false);
@@ -555,6 +579,76 @@ const Ticket = () => {
   const handleSelectChangeAdmin = (value: string | number) => {
     setSelectedAdmin(value.toString());
   };
+
+  const availableTickets = useMemo(() => {
+    return rawTickets.filter((ticket) => {
+      const matchesClient = filterClient
+        ? ticket.client?.name.toLowerCase() === filterClient.toLowerCase()
+        : true;
+
+      const matchesUser = filterUser
+        ? ticket.user?.id === Number(filterUser)
+        : true;
+
+      return matchesClient && matchesUser;
+    });
+  }, [filterClient, filterUser, rawTickets]);
+
+
+  const availableTags = useMemo(() => {
+    const tagsSet = new Set<string>();
+
+    availableTickets.forEach((ticket) => {
+      if (Array.isArray(ticket.tags)) {
+        ticket.tags.forEach((tag) => tagsSet.add(tag));
+      } else if (ticket.tags) {
+        tagsSet.add(ticket.tags);
+      }
+    });
+
+    return Array.from(tagsSet);
+  }, [availableTickets]);
+
+  const filteredAvailableTags = useMemo(() => {
+    const input = tagInputValue.toLowerCase();
+    return availableTags.filter(
+      (tag) =>
+        (input === "" || tag.toLowerCase().includes(input)) &&
+        !tags.includes(tag)
+    );
+  }, [availableTags, tagInputValue, tags]);
+
+  const availableTicketOptions = useMemo(() => {
+    return availableTickets.map((ticket) => ({
+      value: ticket.id,
+      label: `${ticket.id} - ${ticket.client?.name || "Sem Cliente"}`,
+    }));
+  }, [availableTickets]);
+
+  const availableClients = useMemo(() => {
+    if (!filterUser) return rawClients;
+
+    const clientNames = new Set(
+      rawTickets
+        .filter((ticket) => ticket.user?.id === Number(filterUser))
+        .map((ticket) => ticket.client?.name)
+        .filter(Boolean)
+    );
+
+    return rawClients.filter((client) => clientNames.has(client.name));
+  }, [filterUser, rawClients, rawTickets]);
+
+  const availableTypes = useMemo(() => {
+    const typesSet = new Set<string>();
+
+    availableTickets.forEach((ticket) => {
+      if (ticket.type) {
+        typesSet.add(ticket.type);
+      }
+    });
+
+    return Array.from(typesSet);
+  }, [availableTickets]);
 
   const updateTicketStatus = async (ticketId: number, newStatus: string) => {
     await api.put(
@@ -648,10 +742,10 @@ const Ticket = () => {
                   checked={selectedStatuses.includes(status.name)}
                   onChange={() => handleToggleStatus(status.name)}
                   className="peer appearance-none w-5 h-5 border-2 border-white/50 rounded-md
-            checked:bg-blue-500 checked:border-blue-500
-            hover:border-white/80
-            focus:outline-none focus:ring-2 focus:ring-blue-300 focus:ring-offset-1
-            transition-all duration-200 ease-in-out"
+                  checked:bg-blue-500 checked:border-blue-500
+                  hover:border-white/80
+                  focus:outline-none focus:ring-2 focus:ring-blue-300 focus:ring-offset-1
+                  transition-all duration-200 ease-in-out"
                 />
                 <MdCheckCircle
                   className="absolute w-3.5 h-3.5 text-white scale-0 peer-checked:scale-100 transition-transform duration-200"
@@ -826,9 +920,32 @@ const Ticket = () => {
               className="w-full border border-gray-200 rounded-xl px-4 py-3 text-sm shadow-sm focus:outline-none focus:ring-2 focus:ring-purple-400 bg-white/70 backdrop-blur-sm"
             >
               <option value="">{t("filters.all")}</option>
-              {rawClients.map((client) => (
+              {availableClients.map((client) => (
                 <option key={client.name} value={client.name}>
                   {client.name}
+                </option>
+              ))}
+
+            </select>
+          </div>
+          <div className="mt-4">
+            <div className="flex items-center gap-2 mb-2">
+              <div className="p-2 bg-indigo-100 rounded-xl text-indigo-600">
+                <FaTicketAlt className="w-5 h-5" />
+              </div>
+              <label className="text-sm font-semibold text-gray-700">
+                {t("filters.type")}
+              </label>
+            </div>
+            <select
+              value={filterType}
+              onChange={(e) => setFilterType(e.target.value)}
+              className="w-full border border-gray-200 rounded-xl px-4 py-3 text-sm shadow-sm focus:outline-none focus:ring-2 focus:ring-indigo-400 bg-white/70 backdrop-blur-sm"
+            >
+              <option value="">{t("filters.all")}</option>
+              {availableTypes.map((type, index) => (
+                <option key={index} value={type}>
+                  {type}
                 </option>
               ))}
             </select>
@@ -849,11 +966,12 @@ const Ticket = () => {
               className="w-full border border-gray-200 rounded-xl px-4 py-3 text-sm shadow-sm focus:outline-none focus:ring-2 focus:ring-yellow-400 bg-white/70 backdrop-blur-sm"
             >
               <option value="">{t("filters.all")}</option>
-              {allTags.map((tag, index) => (
+              {availableTags.map((tag, index) => (
                 <option key={index} value={tag}>
                   {tag}
                 </option>
               ))}
+
             </select>
           </div>
 
@@ -889,11 +1007,12 @@ const Ticket = () => {
               className="w-full border border-gray-200 rounded-xl px-4 py-3 text-sm shadow-sm focus:outline-none focus:ring-2 focus:ring-indigo-400 bg-white/70 backdrop-blur-sm"
             >
               <option value="">{t("filters.all")}</option>
-              {optionsTicket.map((option) => (
+              {availableTicketOptions.map((option) => (
                 <option key={option.value} value={option.value}>
                   {option.label}
                 </option>
               ))}
+
             </select>
           </div>
 
@@ -1202,15 +1321,73 @@ const Ticket = () => {
                 <FaRegStickyNote /> {t("modal.tags_notes")}
               </h3>
               <div className="flex flex-col gap-2 mt-2">
-                <label className="text-sm font-medium text-gray-700">
-                  {t("modal.tags")}
-                </label>
-                <TagInput
-                  tags={tags}
-                  setTags={setTags}
-                  placeholder={t("modal.add_tags")}
-                />
+                <div className="flex flex-col gap-2 mt-2">
+                  <label className="text-sm font-medium text-gray-700">
+                    {t("modal.tags")}
+                  </label>
+
+                  <div className="relative">
+                    <input
+                      type="text"
+                      value={tagInputValue}
+                      onChange={(e) => setTagInputValue(e.target.value)}
+                      onFocus={() => setIsFocused(true)}
+                      onBlur={() => {
+                        setTimeout(() => setIsFocused(false), 150);
+                      }}
+                      onKeyDown={(e) => {
+                        if (e.key === "Enter" && tagInputValue.trim() !== "") {
+                          e.preventDefault();
+                          if (!tags.includes(tagInputValue.trim())) {
+                            setTags([...tags, tagInputValue.trim()]);
+                          }
+                          setTagInputValue("");
+                        }
+                      }}
+                      placeholder={t("modal.add_tags")}
+                      className="w-full border border-gray-300 rounded-xl px-4 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-yellow-400"
+                    />
+
+                    {isFocused && filteredAvailableTags.length > 0 && (
+                      <ul className="absolute z-10 bg-white border border-gray-200 mt-1 rounded-xl w-full max-h-40 overflow-y-auto shadow-md">
+                        {filteredAvailableTags.map((tag, idx) => (
+                          <li
+                            key={idx}
+                            onClick={() => {
+                              setTags([...tags, tag]);
+                              setTagInputValue("");
+                            }}
+                            className="px-4 py-2 cursor-pointer hover:bg-yellow-100"
+                          >
+                            {tag}
+                          </li>
+                        ))}
+                      </ul>
+                    )}
+                  </div>
+
+                  {/* Tags selecionadas */}
+                  <div className="flex flex-wrap gap-2 mt-2">
+                    {tags.map((tag, idx) => (
+                      <div
+                        key={idx}
+                        className="bg-yellow-100 text-yellow-700 px-3 py-1 rounded-full text-xs flex items-center gap-2"
+                      >
+                        {tag}
+                        <button
+                          onClick={() =>
+                            setTags(tags.filter((t) => t !== tag))
+                          }
+                          className="text-yellow-700 hover:text-yellow-900"
+                        >
+                          &times;
+                        </button>
+                      </div>
+                    ))}
+                  </div>
+                </div>
               </div>
+
               <div className="flex flex-col gap-2 mt-2">
                 <label className="text-sm font-medium text-gray-700">
                   {t("modal.notes")}

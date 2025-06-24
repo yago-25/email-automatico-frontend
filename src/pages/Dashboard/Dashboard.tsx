@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useMemo } from "react";
 import { useTranslation } from "react-i18next";
 import Header from "../../components/Header/Header";
 import { User } from "../../models/User";
@@ -11,7 +11,7 @@ import Modal from "../../components/Modal/Modal";
 import Input from "../../components/Input/Input";
 import Select from "../../components/Select/Select";
 import { useSwr } from "../../api/useSwr";
-import TagInput from "../../components/TagInput/TagInput";
+// import TagInput from "../../components/TagInput/TagInput";
 import { MdOutlineFormatListNumbered } from "react-icons/md";
 import { CiPhone } from "react-icons/ci";
 import { CiMail } from "react-icons/ci";
@@ -135,6 +135,8 @@ const Dashboard = () => {
   const [selected, setSelected] = useState<string>("");
   const [selectedAdmin, setSelectedAdmin] = useState<string>("");
   const [tags, setTags] = useState<string[]>([]);
+  const [tagInputValue, setTagInputValue] = useState("");
+  const [isFocused, setIsFocused] = useState(false);
   const [observation, setObservation] = useState("");
   const [profileFile, setProfileFile] = useState<File | null>(null);
   const itemsPerPage = 5;
@@ -343,6 +345,32 @@ const Dashboard = () => {
       setLoadingImport(false);
     }
   };
+
+  const availableTickets = rawTickets;
+
+  const availableTags = useMemo(() => {
+  const tagsSet = new Set<string>();
+
+  availableTickets.forEach((ticket) => {
+    if (Array.isArray(ticket.tags)) {
+      ticket.tags.forEach((tag) => tagsSet.add(tag));
+    } else if (ticket.tags) {
+      tagsSet.add(ticket.tags);
+    }
+  });
+
+  return Array.from(tagsSet);
+}, [availableTickets]);
+
+
+  const filteredAvailableTags = useMemo(() => {
+    const input = tagInputValue.toLowerCase();
+    return availableTags.filter(
+      (tag) =>
+        (input === "" || tag.toLowerCase().includes(input)) &&
+        !tags.includes(tag)
+    );
+  }, [availableTags, tagInputValue, tags]);
 
   if (loadingClients || loadingAdmins) {
     return (
@@ -723,11 +751,66 @@ const Dashboard = () => {
                 <label className="text-sm font-medium text-gray-700">
                   {t("modal.tags")}
                 </label>
-                <TagInput
-                  tags={tags}
-                  setTags={setTags}
-                  placeholder={t("modal.add_tags")}
-                />
+
+                <div className="relative">
+                  <input
+                    type="text"
+                    value={tagInputValue}
+                    onChange={(e) => setTagInputValue(e.target.value)}
+                    onFocus={() => setIsFocused(true)}
+                    onBlur={() => {
+                      setTimeout(() => setIsFocused(false), 150);
+                    }}
+                    onKeyDown={(e) => {
+                      if (e.key === "Enter" && tagInputValue.trim() !== "") {
+                        e.preventDefault();
+                        if (!tags.includes(tagInputValue.trim())) {
+                          setTags([...tags, tagInputValue.trim()]);
+                        }
+                        setTagInputValue("");
+                      }
+                    }}
+                    placeholder={t("modal.add_tags")}
+                    className="w-full border border-gray-300 rounded-xl px-4 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-yellow-400"
+                  />
+
+                  {isFocused && filteredAvailableTags.length > 0 && (
+                    <ul className="absolute z-10 bg-white border border-gray-200 mt-1 rounded-xl w-full max-h-40 overflow-y-auto shadow-md">
+                      {filteredAvailableTags.map((tag, idx) => (
+                        <li
+                          key={idx}
+                          onClick={() => {
+                            setTags([...tags, tag]);
+                            setTagInputValue("");
+                          }}
+                          className="px-4 py-2 cursor-pointer hover:bg-yellow-100"
+                        >
+                          {tag}
+                        </li>
+                      ))}
+                    </ul>
+                  )}
+                </div>
+
+                {/* Tags selecionadas */}
+                <div className="flex flex-wrap gap-2 mt-2">
+                  {tags.map((tag, idx) => (
+                    <div
+                      key={idx}
+                      className="bg-yellow-100 text-yellow-700 px-3 py-1 rounded-full text-xs flex items-center gap-2"
+                    >
+                      {tag}
+                      <button
+                        onClick={() =>
+                          setTags(tags.filter((t) => t !== tag))
+                        }
+                        className="text-yellow-700 hover:text-yellow-900"
+                      >
+                        &times;
+                      </button>
+                    </div>
+                  ))}
+                </div>
               </div>
               <div className="flex flex-col gap-2 mt-2">
                 <label className="text-sm font-medium text-gray-700">

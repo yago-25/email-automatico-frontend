@@ -179,6 +179,7 @@
     "user": "Usuário",
     "client": "Cliente",
     "status": "Status",
+    "type": "Tipo", 
     "tag": "Tag",
     "date": "Data de Criação",
     "ticket": "Ticket",
