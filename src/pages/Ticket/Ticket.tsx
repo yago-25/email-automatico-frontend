@@ -12,7 +12,7 @@ import { useLocation } from "react-router-dom";
 import Input from "../../components/Input/Input";
 import Select from "../../components/Select/Select";
 // import { useSwre } from "../../api/useSwr";
-import TagInput from "../../components/TagInput/TagInput";
+// import TagInput from "../../components/TagInput/TagInput";
 import { useTranslation } from "react-i18next";
 import { IoTicketOutline, IoPersonSharp } from "react-icons/io5";
 import { AlertCircle } from "lucide-react";
@@ -130,14 +130,6 @@ const Ticket = () => {
 
   const { t } = useTranslation();
 
-  // const statusTickets = [
-  //   { name: "Não iniciada", title: t("tickets.types.not_started") },
-  //   { name: "Esperando", title: t("tickets.types.waiting") },
-  //   { name: "Em progresso", title: t("tickets.types.in_progress") },
-  //   { name: "Completo", title: t("tickets.types.completed") },
-  //   { name: "Descartada", title: t("tickets.types.discarded") },
-  // ];
-
   const statusTickets = [
     { name: "Não iniciada", title: t("tickets.types.not_started"), color: "bg-gray-500" },
     { name: "Esperando", title: t("tickets.types.waiting"), color: "bg-yellow-500" },
@@ -145,40 +137,6 @@ const Ticket = () => {
     { name: "Completo", title: t("tickets.types.completed"), color: "bg-green-500" },
     { name: "Descartada", title: t("tickets.types.discarded"), color: "bg-red-500" },
   ];
-
-  // const statusTickets = [
-  //   {
-  //     name: "Não iniciada",
-  //     title: t("tickets.types.not_started"),
-  //     color: "bg-gray-500",
-  //     icon: <FaRegPauseCircle className="w-4 h-4" />,
-  //   },
-  //   {
-  //     name: "Esperando",
-  //     title: t("tickets.types.waiting"),
-  //     color: "bg-yellow-500",
-  //     icon: <MdPending className="w-4 h-4" />,
-  //   },
-  //   {
-  //     name: "Em progresso",
-  //     title: t("tickets.types.in_progress"),
-  //     color: "bg-blue-500",
-  //     icon: <MdHourglassEmpty className="w-4 h-4" />,
-  //   },
-  //   {
-  //     name: "Completo",
-  //     title: t("tickets.types.completed"),
-  //     color: "bg-green-500",
-  //     icon: <MdDone className="w-4 h-4" />,
-  //   },
-  //   {
-  //     name: "Descartada",
-  //     title: t("tickets.types.discarded"),
-  //     color: "bg-red-500",
-  //     icon: <MdCancel className="w-4 h-4" />,
-  //   },
-  // ];
-
 
   const statusTranslations = {
     "Não iniciada": "status.not_started",

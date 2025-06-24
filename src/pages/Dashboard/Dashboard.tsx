@@ -54,6 +54,22 @@ interface Admins {
   created_at: string;
   updated_at: string;
 }
+interface Ticket {
+  id: number;
+  name: string;
+  type: string;
+  status: string;
+  tags: string[] | string;
+  client: {
+    id: number;
+    name: string;
+  };
+  user: User;
+  create: User;
+  message: string;
+  created_at: string;
+  observation?: string;
+}
 
 interface ButtonProps {
   text: string;
@@ -92,11 +108,16 @@ const Dashboard = () => {
     loading: loadingClients,
     mutate: mutateClients,
   } = useSwr<Clients[]>("/clients");
+
   const {
     data: rawAdmins = [],
     loading: loadingAdmins,
     mutate: mutateAdmins,
   } = useSwr<Admins[]>("/admins");
+
+  const {
+    data: rawTickets = []
+  } = useSwr<Ticket[]>("/tickets");
 
   const optionsClient: Option[] = rawClients.map((client: Clients) => ({
     value: String(client.id),
@@ -120,6 +141,7 @@ const Dashboard = () => {
   const authUser: User | null = storedUser ? JSON.parse(storedUser) : null;
 
   const navigate = useNavigate();
+  // const [selectedTicket, setSelectedTicket] = useState<Ticket | null>(null);
   const [filteredTxt, setFilteredTxt] = useState("");
   const [currentPage, setCurrentPage] = useState(1);
   const [addClient, setAddClient] = useState(false);
@@ -349,18 +371,18 @@ const Dashboard = () => {
   const availableTickets = rawTickets;
 
   const availableTags = useMemo(() => {
-  const tagsSet = new Set<string>();
+    const tagsSet = new Set<string>();
 
-  availableTickets.forEach((ticket) => {
-    if (Array.isArray(ticket.tags)) {
-      ticket.tags.forEach((tag) => tagsSet.add(tag));
-    } else if (ticket.tags) {
-      tagsSet.add(ticket.tags);
-    }
-  });
+    availableTickets.forEach((ticket) => {
+      if (Array.isArray(ticket.tags)) {
+        ticket.tags.forEach((tag) => tagsSet.add(tag));
+      } else if (ticket.tags) {
+        tagsSet.add(ticket.tags);
+      }
+    });
 
-  return Array.from(tagsSet);
-}, [availableTickets]);
+    return Array.from(tagsSet);
+  }, [availableTickets]);
 
 
   const filteredAvailableTags = useMemo(() => {
@@ -371,6 +393,7 @@ const Dashboard = () => {
         !tags.includes(tag)
     );
   }, [availableTags, tagInputValue, tags]);
+
 
   if (loadingClients || loadingAdmins) {
     return (
