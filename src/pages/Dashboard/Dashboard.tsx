@@ -163,11 +163,14 @@ const Dashboard = () => {
   const [profileFile, setProfileFile] = useState<File | null>(null);
   const itemsPerPage = 5;
 
-  const filteredClients = rawClients.filter(
-    (client: Clients) =>
-      client.name.toLowerCase().includes(filteredTxt.toLowerCase()) ||
-      client.mail.toLowerCase().includes(filteredTxt.toLowerCase())
-  );
+  const filteredClients = rawClients
+    .slice()
+    .sort((a, b) => a.id - b.id)
+    .filter(
+      (client: Clients) =>
+        client.name.toLowerCase().includes(filteredTxt.toLowerCase()) ||
+        client.mail.toLowerCase().includes(filteredTxt.toLowerCase())
+    );
 
   const totalPages = Math.ceil(filteredClients.length / itemsPerPage);
   const startIndex = (currentPage - 1) * itemsPerPage;

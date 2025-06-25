@@ -18,7 +18,9 @@
     "success": "Login realizado com sucesso!",
     "success_google": "Login com Google realizado com sucesso!",
     "error": "Erro ao fazer login",
-    "error_google": "Erro ao fazer login com Google"
+    "error_google": "Erro ao fazer login com Google",
+    "request_sent": "Solicitação enviada. Aguarde aprovação.",
+    "request_already_sent": "Solicitação já enviada. Aguarde aprovação."
   },
   "register_page": {
     "title": "Criar Conta",
@@ -179,7 +181,7 @@
     "user": "Usuário",
     "client": "Cliente",
     "status": "Status",
-    "type": "Tipo", 
+    "type": "Tipo",
     "tag": "Tag",
     "date": "Data de Criação",
     "ticket": "Ticket",
@@ -387,71 +389,65 @@
     "unexpected_error": "Erro inesperado."
   },
   "scheduled_emails": {
-  "title": "E-mails Agendados",
-  "new_email": "Agendar novo e-mail",
-  "view_recipients": "Visualizar destinatários",
-  "view": "Visualizar",
-  "edit_mail": "Editar",
-  "at": "às",
-
-  "statuses": {
-    "sent": "Enviados",
-    "failed": "Falhas",
-    "pending": "Pendentes"
+    "title": "E-mails Agendados",
+    "new_email": "Agendar novo e-mail",
+    "view_recipients": "Visualizar destinatários",
+    "view": "Visualizar",
+    "edit_mail": "Editar",
+    "at": "às",
+    "statuses": {
+      "sent": "Enviados",
+      "failed": "Falhas",
+      "pending": "Pendentes"
+    },
+    "statuses2": {
+      "pending": "Pendente",
+      "sent": "Enviado",
+      "failed": "Falha"
+    },
+    "table": {
+      "id": "ID",
+      "subject": "Assunto",
+      "recipients": "Destinatários",
+      "schedule": "Agendamento",
+      "status": "Status",
+      "actions": "Ações"
+    },
+    "modal": {
+      "title": "Destinatários",
+      "close": "Fechar",
+      "change_photo": "Alterar foto",
+      "select_file": "Selecione um arquivo",
+      "no_file_selected": "Nada selecionado",
+      "save": "Salvar"
+    },
+    "preview": {
+      "title": "Prévia do E-mail",
+      "close": "Fechar",
+      "subject": "Assunto:",
+      "to": "Para: ",
+      "send_date": "Data do envio: ",
+      "send_time": "Horário do envio: ",
+      "body": "Corpo do E-mail:",
+      "attachments": "Anexos",
+      "remove_attachment": "Remover anexo",
+      "open": "Abrir"
+    },
+    "edit": {
+      "title": "Edição do E-mail",
+      "subject": "Assunto:",
+      "to": "Para: ",
+      "send_date": "Data do envio: ",
+      "send_time": "Horário do envio: ",
+      "body": "Corpo do E-mail:",
+      "attachments": "Anexos:",
+      "remove_attachment": "Remover anexo",
+      "cancel": "Cancelar",
+      "save": "Salvar",
+      "delete_attachment": "Excluir anexo",
+      "delete_attachment_confirmation": "Tem certeza que deseja excluir este anexo?"
+    }
   },
-  "statuses2": {
-    "pending": "Pendente",
-    "sent": "Enviado",
-    "failed": "Falha"
-  },
-
-  "table": {
-    "id": "ID",
-    "subject": "Assunto",
-    "recipients": "Destinatários",
-    "schedule": "Agendamento",
-    "status": "Status",
-    "actions": "Ações"
-  },
-
-  "modal": {
-    "title": "Destinatários",
-    "close": "Fechar",
-    "change_photo": "Alterar foto",
-    "select_file": "Selecione um arquivo",
-    "no_file_selected": "Nada selecionado",
-    "save": "Salvar"
-  },
-
-  "preview": {
-    "title": "Prévia do E-mail",
-    "close": "Fechar",
-    "subject": "Assunto:",
-    "to": "Para: ",
-    "send_date": "Data do envio: ",
-    "send_time": "Horário do envio: ",
-    "body": "Corpo do E-mail:",
-    "attachments": "Anexos",
-    "remove_attachment": "Remover anexo",
-    "open": "Abrir"
-  },
-
-  "edit": {
-    "title": "Edição do E-mail",
-    "subject": "Assunto:",
-    "to": "Para: ",
-    "send_date": "Data do envio: ",
-    "send_time": "Horário do envio: ",
-    "body": "Corpo do E-mail:",
-    "attachments": "Anexos:",
-    "remove_attachment": "Remover anexo",
-    "cancel": "Cancelar",
-    "save": "Salvar",
-    "delete_attachment": "Excluir anexo",
-    "delete_attachment_confirmation": "Tem certeza que deseja excluir este anexo?"
-  }
-},
-
   "common": {
     "cancel": "Cancelar",
     "delete": {
@@ -533,13 +529,13 @@
     },
     "full_message": "Mensagem Completa"
   },
-   "roles": {
+  "roles": {
     "Admin": "Admin",
     "Acesso Total": "Acesso Total",
     "Funcionário": "Funcionário",
     "Convidado": "Convidado"
   },
-   "edit_sms": {
+  "edit_sms": {
     "title": "Editar SMS",
     "message": "Mensagem",
     "scheduled_at": "Agendar para",
@@ -550,7 +546,7 @@
     "error_updating": "Erro ao atualizar o SMS. Tente novamente.",
     "date": "Data",
     "time": "Hora",
-    "error_min_time": "O SMS deve ser agendado com no mínimo 3 minutos de antecedência", 
+    "error_min_time": "O SMS deve ser agendado com no mínimo 3 minutos de antecedência",
     "min_time_info": "Mínimo 3 minutos de antecedência"
   },
   "metrics": {
@@ -565,10 +561,8 @@
     "completed": "Concluídos",
     "in_progress": "Em Andamento",
     "communication_distribution": "Distribuição de Comunicação",
-    "message_status_distribution": "Distribuição por Status"
-  },
-  "metrics": {
-     "systemMetrics": "Métricas do Sistema",
+    "message_status_distribution": "Distribuição por Status",
+    "systemMetrics": "Métricas do Sistema",
     "title": "Métricas",
     "charts": "Gráficos",
     "openClients": "Abrir Clientes",
@@ -605,7 +599,7 @@
     "discarded": "Descartados",
     "completed": "Finalizados"
   },
-   "emailMetrics": {
+  "emailMetrics": {
     "title": "Métricas de E-mails",
     "total": "Total de E-mails",
     "sent": "E-mails Enviados",

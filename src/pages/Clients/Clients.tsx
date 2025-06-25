@@ -123,11 +123,14 @@ const Clients = () => {
     }
   }, [params?.client?.id, params.client]);
 
-  const filteredClients = clients.filter(
+  const filteredClients = clients
+  .filter(
     (client: Client) =>
       client.name.toLowerCase().includes(filteredTxt.toLowerCase()) ||
       client.mail.toLowerCase().includes(filteredTxt.toLowerCase())
-  );
+  )
+  .sort((a, b) => a.id - b.id);
+
 
   const totalPages = Math.ceil(filteredClients.length / itemsPerPage);
   const startIndex = (currentPage - 1) * itemsPerPage;
