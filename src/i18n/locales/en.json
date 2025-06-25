@@ -506,7 +506,12 @@
     "ticketError": "Error adding ticket",
     "clientOrOperatorNotFound": "Client or operator not found",
     "ticketUpdated": "Ticket updated successfully!",
-    "ticketUpdateError": "Error updating ticket"
+    "ticketUpdateError": "Error updating ticket",
+    "ticketCreateError": "Error adding ticket",
+    "selectFile": "Please select a file.",
+    "invalidFile": "The selected file is invalid.",
+    "clientsImported": "Clients successfully imported!",
+    "clientsImportError": "Error importing clients."
   },
   "photo_upload": {
     "file_label": "Photo File"

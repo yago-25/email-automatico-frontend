@@ -508,7 +508,12 @@
     "ticketError": "Erro ao adicionar ticket",
     "clientOrOperatorNotFound": "Cliente ou operador não encontrado",
     "ticketUpdated": "Ticket atualizado com sucesso!",
-    "ticketUpdateError": "Erro ao atualizar ticket"
+    "ticketUpdateError": "Erro ao atualizar ticket",
+    "ticketCreateError": "Erro ao adicionar ticket",
+    "selectFile": "Por favor, selecione um arquivo.",
+    "invalidFile": "O arquivo selecionado é inválido.",
+    "clientsImported": "Clientes importados com sucesso!",
+    "clientsImportError": "Erro ao importar clientes."
   },
   "photo_upload": {
     "file_label": "Arquivo Foto"
@@ -609,7 +614,7 @@
     "discarded": "Descartados",
     "completed": "Finalizados"
   },
-   "ticketCharts": {
+  "ticketCharts": {
     "statusDistribution": "Distribuição por Status de Ticket"
   },
   "emailMetrics": {

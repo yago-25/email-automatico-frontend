@@ -504,7 +504,12 @@
     "ticketError": "Error al agregar el ticket",
     "clientOrOperatorNotFound": "Cliente u operador no encontrado",
     "ticketUpdated": "¡Ticket actualizado con éxito!",
-    "ticketUpdateError": "Error al actualizar el ticket"
+    "ticketUpdateError": "Error al actualizar el ticket",
+    "ticketCreateError": "Error al agregar el ticket",
+    "selectFile": "Por favor, selecciona un archivo.",
+    "invalidFile": "El archivo seleccionado no es válido.",
+    "clientsImported": "¡Clientes importados con éxito!",
+    "clientsImportError": "Error al importar clientes."
   },
   "photo_upload": {
     "file_label": "Archivo de Foto"
