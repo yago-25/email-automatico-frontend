@@ -667,5 +667,13 @@
   "placeholders": {
     "selectClient": "Selecione um cliente",
     "selectOperator": "Selecione um operador"
+  },
+  "ticketsStats": {
+    "total": "Total de Tickets",
+    "open": "Tickets Abertos",
+    "inProgress": "Em Andamento",
+    "notStarted": "Não Iniciados",
+    "discarded": "Descartados",
+    "completed": "Finalizados"
   }
 }
