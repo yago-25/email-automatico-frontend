@@ -479,6 +479,14 @@ const Ticket = () => {
   };
 
   const handleAddTicket = async () => {
+    if (tags.length > 7) {
+      messageAlert({
+        type: "error",
+        message: "Limite máximo de 7 tags por ticket atingido.",
+      });
+      return;
+    }
+
     setLoadingPost(true);
     try {
       if (
@@ -520,16 +528,17 @@ const Ticket = () => {
         type: "success",
         message: "Ticket cadastrado com sucesso!",
       });
-
+      
+      setAddTicket(false);
+      
       setStatusTicket("");
       setClientName("");
       setTypeName("");
       setSelected("");
       setSelectedAdmin("");
-      setFilterType("")
+      setFilterType("");
       setTags([]);
       setObservation("");
-      setAddTicket(false);
     } catch (e) {
       console.log("Erro ao adicionar ticket: ", e);
       messageAlert({
@@ -540,6 +549,7 @@ const Ticket = () => {
       setLoadingPost(false);
     }
   };
+
 
   const handleSelectChange = (value: string | number) => {
     setSelected(value.toString());
@@ -749,7 +759,7 @@ const Ticket = () => {
     }
   };
 
- const handleEditTagAdd = (tag: string) => {
+  const handleEditTagAdd = (tag: string) => {
     if (tag.trim() && !editTags.includes(tag.trim())) {
       if (editTags.length >= 7) {
         messageAlert({
