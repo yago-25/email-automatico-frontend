@@ -18,7 +18,9 @@
     "success": "¡Inicio de sesión exitoso!",
     "success_google": "¡Inicio de sesión con Google exitoso!",
     "error": "Error al iniciar sesión",
-    "error_google": "Error al iniciar sesión con Google"
+    "error_google": "Error al iniciar sesión con Google",
+    "request_sent": "Solicitud enviada. Por favor, espera la aprobación.",
+    "request_already_sent": "Solicitud ya enviada. Por favor, espera la aprobación."
   },
   "register_page": {
     "title": "Registro",
@@ -245,7 +247,10 @@
   "buttons": {
     "backToActive": "Voltar para ativos",
     "showFinished": "Mostrar finalizados",
-    "cancel": "Cancelar"
+    "cancel": "Cancelar",
+    "save": "Guardar",
+    "saving": "Guardando...",
+    "edit": "Editar"
   },
   "messages": {
     "noTicketsFound": "No se encontraron tickets"
@@ -383,70 +388,65 @@
     "unexpected_error": "Error inesperado."
   },
   "scheduled_emails": {
-  "title": "E-mails Agendados",
-  "new_email": "Agendar nuevo e-mail",
-  "view_recipients": "Ver destinatarios",
-  "view": "Ver",
-  "edit_mail": "Editar",
-  "at": "a las",
-
-  "statuses": {
-    "sent": "Enviados",
-    "failed": "Fallos",
-    "pending": "Pendientes"
+    "title": "E-mails Agendados",
+    "new_email": "Agendar nuevo e-mail",
+    "view_recipients": "Ver destinatarios",
+    "view": "Ver",
+    "edit_mail": "Editar",
+    "at": "a las",
+    "statuses": {
+      "sent": "Enviados",
+      "failed": "Fallos",
+      "pending": "Pendientes"
+    },
+    "statuses2": {
+      "pending": "Pendiente",
+      "sent": "Enviado",
+      "failed": "Fallido"
+    },
+    "table": {
+      "id": "ID",
+      "subject": "Asunto",
+      "recipients": "Destinatarios",
+      "schedule": "Agendamiento",
+      "status": "Estado",
+      "actions": "Acciones"
+    },
+    "modal": {
+      "title": "Destinatarios",
+      "close": "Cerrar",
+      "change_photo": "Cambiar foto",
+      "select_file": "Selecciona un archivo",
+      "no_file_selected": "Nada seleccionado",
+      "save": "Guardar"
+    },
+    "preview": {
+      "title": "Vista previa del correo",
+      "close": "Cerrar",
+      "subject": "Asunto:",
+      "to": "Para: ",
+      "send_date": "Fecha de envío: ",
+      "send_time": "Hora de envío: ",
+      "body": "Cuerpo del correo:",
+      "attachments": "Archivos adjuntos",
+      "remove_attachment": "Eliminar archivo adjunto",
+      "open": "Abrir"
+    },
+    "edit": {
+      "title": "Edición del Correo",
+      "subject": "Asunto:",
+      "to": "Para: ",
+      "send_date": "Fecha de envío: ",
+      "send_time": "Hora de envío: ",
+      "body": "Cuerpo del correo:",
+      "attachments": "Archivos adjuntos:",
+      "remove_attachment": "Eliminar archivo adjunto",
+      "cancel": "Cancelar",
+      "save": "Guardar",
+      "delete_attachment": "Eliminar archivo adjunto",
+      "delete_attachment_confirmation": "¿Estás seguro de que deseas eliminar este archivo adjunto?"
+    }
   },
-  "statuses2": {
-    "pending": "Pendiente",
-    "sent": "Enviado",
-    "failed": "Fallido"
-  },
-
-  "table": {
-    "id": "ID",
-    "subject": "Asunto",
-    "recipients": "Destinatarios",
-    "schedule": "Agendamiento",
-    "status": "Estado",
-    "actions": "Acciones"
-  },
-
-  "modal": {
-    "title": "Destinatarios",
-    "close": "Cerrar",
-    "change_photo": "Cambiar foto",
-    "select_file": "Selecciona un archivo",
-    "no_file_selected": "Nada seleccionado",
-    "save": "Guardar"
-  },
-
-  "preview": {
-    "title": "Vista previa del correo",
-    "close": "Cerrar",
-    "subject": "Asunto:",
-    "to": "Para: ",
-    "send_date": "Fecha de envío: ",
-    "send_time": "Hora de envío: ",
-    "body": "Cuerpo del correo:",
-    "attachments": "Archivos adjuntos",
-    "remove_attachment": "Eliminar archivo adjunto",
-    "open": "Abrir"
-  },
-
-  "edit": {
-    "title": "Edición del Correo",
-    "subject": "Asunto:",
-    "to": "Para: ",
-    "send_date": "Fecha de envío: ",
-    "send_time": "Hora de envío: ",
-    "body": "Cuerpo del correo:",
-    "attachments": "Archivos adjuntos:",
-    "remove_attachment": "Eliminar archivo adjunto",
-    "cancel": "Cancelar",
-    "save": "Guardar",
-    "delete_attachment": "Eliminar archivo adjunto",
-    "delete_attachment_confirmation": "¿Estás seguro de que deseas eliminar este archivo adjunto?"
-  }
-},
   "common": {
     "cancel": "Cancelar",
     "delete": {
@@ -497,7 +497,19 @@
     "send_success": "¡Mensaje enviado con éxito!",
     "send_error": "Error al enviar el mensaje.",
     "delete_success": "¡SMS eliminado con éxito!",
-    "delete_error": "Error al eliminar el SMS."
+    "delete_error": "Error al eliminar el SMS.",
+    "maxTags": "Se alcanzó el límite máximo de 7 etiquetas por ticket.",
+    "fillAllFields": "Por favor, completa todos los campos.",
+    "ticketCreated": "¡Ticket registrado con éxito!",
+    "ticketError": "Error al agregar el ticket",
+    "clientOrOperatorNotFound": "Cliente u operador no encontrado",
+    "ticketUpdated": "¡Ticket actualizado con éxito!",
+    "ticketUpdateError": "Error al actualizar el ticket",
+    "ticketCreateError": "Error al agregar el ticket",
+    "selectFile": "Por favor, selecciona un archivo.",
+    "invalidFile": "El archivo seleccionado no es válido.",
+    "clientsImported": "¡Clientes importados con éxito!",
+    "clientsImportError": "Error al importar clientes."
   },
   "photo_upload": {
     "file_label": "Archivo de Foto"
@@ -562,9 +574,7 @@
     "completed": "Completados",
     "in_progress": "En Progreso",
     "communication_distribution": "Distribución de Comunicación",
-    "message_status_distribution": "Distribución por Estado"
-  },
-   "metrics": {
+    "message_status_distribution": "Distribución por Estado",
     "systemMetrics": "Métricas del Sistema",
     "title": "Métricas",
     "charts": "Gráficos",
@@ -612,7 +622,7 @@
   "emailCharts": {
     "statusDistribution": "Distribución por Estado de Correo"
   },
-   "smsMetrics": {
+  "smsMetrics": {
     "title": "Métricas de SMS",
     "total": "Total de SMS",
     "sent": "SMS Enviados",
@@ -653,5 +663,23 @@
     "sent": "Enviadas",
     "pending": "Pendientes",
     "failed": "Fallaron"
+  },
+  "labels": {
+    "noClient": "Sin Cliente"
+  },
+  "placeholders": {
+    "selectClient": "Selecciona un cliente",
+    "selectOperator": "Selecciona un operador"
+  },
+  "ticketsStats": {
+    "total": "Total de Tickets",
+    "open": "Tickets Abiertos",
+    "inProgress": "En Progreso",
+    "notStarted": "No Iniciados",
+    "discarded": "Descartados",
+    "completed": "Finalizados"
+  },
+   "ticketCharts": {
+    "statusDistribution": "Distribución por Estado del Ticket"
   }
 }

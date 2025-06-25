@@ -171,7 +171,6 @@ const Ticket = () => {
   const [selectedStatuses, setSelectedStatuses] = useState<string[]>([]);
   const [tagInputValue, setTagInputValue] = useState("");
   const [isFocused, setIsFocused] = useState(false);
-
   const [isEditing, setIsEditing] = useState(false);
   const [editingTicket, setEditingTicket] = useState<Ticket | null>(null);
   const [editName, setEditName] = useState("");
@@ -482,7 +481,7 @@ const Ticket = () => {
     if (tags.length > 7) {
       messageAlert({
         type: "error",
-        message: "Limite máximo de 7 tags por ticket atingido.",
+        message: t('alerts.maxTags')
       });
       return;
     }
@@ -498,7 +497,7 @@ const Ticket = () => {
       ) {
         messageAlert({
           type: "error",
-          message: "Por favor, preencha todos os campos.",
+          message: t('alerts.fillAllFields')
         });
         return;
       }
@@ -526,11 +525,11 @@ const Ticket = () => {
 
       messageAlert({
         type: "success",
-        message: "Ticket cadastrado com sucesso!",
+        message: t('alerts.ticketCreated')
       });
-      
+
       setAddTicket(false);
-      
+
       setStatusTicket("");
       setClientName("");
       setTypeName("");
@@ -540,10 +539,9 @@ const Ticket = () => {
       setTags([]);
       setObservation("");
     } catch (e) {
-      console.log("Erro ao adicionar ticket: ", e);
       messageAlert({
         type: "error",
-        message: "Erro ao adicionar ticket",
+        message: t('alerts.ticketError')
       });
     } finally {
       setLoadingPost(false);
@@ -600,7 +598,7 @@ const Ticket = () => {
   const availableTicketOptions = useMemo(() => {
     return availableTickets.map((ticket) => ({
       value: ticket.id,
-      label: `${ticket.id} - ${ticket.client?.name || "Sem Cliente"}`,
+      label: `${ticket.id} - ${ticket.client?.name || t('labels.noClient')}`,
     }));
   }, [availableTickets]);
 
@@ -706,7 +704,7 @@ const Ticket = () => {
       if (!selectedClient || !selectedOperator) {
         messageAlert({
           type: "error",
-          message: "Cliente ou operador não encontrado",
+          message: t('alerts.clientOrOperatorNotFound')
         });
         return;
       }
@@ -746,13 +744,13 @@ const Ticket = () => {
 
       messageAlert({
         type: "success",
-        message: "Ticket atualizado com sucesso!",
+        message: t('alerts.ticketUpdated')
       });
     } catch (error) {
       console.error("Erro ao atualizar ticket:", error);
       messageAlert({
         type: "error",
-        message: "Erro ao atualizar ticket",
+        message: t('alerts.ticketUpdateError')
       });
     } finally {
       setLoadingEdit(false);
@@ -764,7 +762,7 @@ const Ticket = () => {
       if (editTags.length >= 7) {
         messageAlert({
           type: "error",
-          message: "Limite máximo de 7 tags por ticket atingido.",
+          message: t('alerts.maxTags')
         });
         return;
       }
@@ -1148,7 +1146,7 @@ const Ticket = () => {
                       className="flex items-center gap-1.5 px-2.5 py-1 bg-green-500 text-white text-xs font-medium rounded-lg hover:bg-green-600 transition-all duration-200 disabled:opacity-50 disabled:cursor-not-allowed shadow-sm hover:shadow-md"
                     >
                       <MdSave className="w-3.5 h-3.5" />
-                      {loadingEdit ? "Salvando..." : "Salvar"}
+                      {loadingEdit ? t('buttons.saving') : t('buttons.save')}
                     </button>
                     <button
                       onClick={handleCancelEdit}
@@ -1156,7 +1154,7 @@ const Ticket = () => {
                       className="flex items-center gap-1.5 px-2.5 py-1 bg-red-500 text-white text-xs font-medium rounded-lg hover:bg-red-600 transition-all duration-200 disabled:opacity-50 disabled:cursor-not-allowed shadow-sm hover:shadow-md"
                     >
                       <MdCancel className="w-3.5 h-3.5" />
-                      Cancelar
+                      {t('buttons.cancel')}
                     </button>
                   </>
                 ) : (
@@ -1165,7 +1163,7 @@ const Ticket = () => {
                     className="flex items-center gap-1.5 px-2.5 py-1 bg-blue-500 text-white text-xs font-medium rounded-lg hover:bg-blue-600 transition-all duration-200 shadow-sm hover:shadow-md"
                   >
                     <MdEdit className="w-3.5 h-3.5" />
-                    Editar
+                    {t('buttons.edit')}
                   </button>
                 )}
               </div>
@@ -1226,7 +1224,7 @@ const Ticket = () => {
                             onChange={(e) => setEditClient(e.target.value)}
                             className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-400"
                           >
-                            <option value="">Selecione um cliente</option>
+                            <option value="">{t('placeholders.selectClient')}</option>
                             {rawClients.map((client) => (
                               <option key={client.id} value={client.name}>
                                 {client.name}
@@ -1243,7 +1241,7 @@ const Ticket = () => {
                             onChange={(e) => setEditOperator(e.target.value)}
                             className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-400"
                           >
-                            <option value="">Selecione um operador</option>
+                            <option value="">{t('placeholders.selectOperator')}</option>
                             {rawAdmins.map((admin) => (
                               <option key={admin.id} value={admin.nome_completo}>
                                 {admin.nome_completo}

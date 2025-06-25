@@ -209,7 +209,6 @@ const Metrics = () => {
   const sentSMS = sms.filter(item => item.status === "sent").length;
   const pendingSMS = sms.filter(item => item.status === "pending").length;
   const failedSMS = sms.filter(item => item.status === "failed").length;
-  // const futureSchedules = sms.filter(item => new Date(item.scheduled_at) > new Date()).length;
   const smsDeliveryRate = totalSMS > 0 ? Math.round((sentSMS / totalSMS) * 100) : 0;
 
   const smsStatusData = [
@@ -486,41 +485,42 @@ const Metrics = () => {
               {openMetrics.tickets && (
                 <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
                   <StatCard
-                    title="Total de Tickets"
+                    title={t('ticketsStats.total')}
                     value={totalTickets.toString()}
                     icon={FaEnvelope}
                     color="#3B82F6"
                   />
                   <StatCard
-                    title="Tickets Abertos"
+                    title={t('ticketsStats.open')}
                     value={openTickets.toString()}
                     icon={BsCheckCircleFill}
                     color="#10B981"
                   />
                   <StatCard
-                    title="Em Andamento"
+                    title={t('ticketsStats.inProgress')}
                     value={inProgressTickets.toString()}
                     icon={IoStatsChart}
                     color="#F59E0B"
                   />
                   <StatCard
-                    title="Não Iniciados"
+                    title={t('ticketsStats.notStarted')}
                     value={notStartedTickets.toString()}
                     icon={FaHourglassHalf}
                     color="#8B5CF6"
                   />
                   <StatCard
-                    title="Descartados"
+                    title={t('ticketsStats.discarded')}
                     value={discardedTickets.toString()}
                     icon={FaHourglassHalf}
                     color="#8B5CF6"
                   />
                   <StatCard
-                    title="Finalizados"
+                    title={t('ticketsStats.completed')}
                     value={completedTickets.toString()}
                     icon={FaHourglassHalf}
                     color="#8B5CF6"
                   />
+
                 </div>
               )}
 
@@ -529,6 +529,7 @@ const Metrics = () => {
                   <div className="p-2 rounded-xl bg-indigo-500/20">
                     <IoStatsChart className="text-indigo-400 w-5 h-5" />
                   </div>
+                     {t('ticketCharts.statusDistribution')} 
                 </h3>
                 {openCharts.tickets && (
                   <div className="h-80">
@@ -609,7 +610,7 @@ const Metrics = () => {
                   <div className="p-2 rounded-xl bg-blue-500/20">
                     <IoStatsChart className="text-blue-400 w-5 h-5" />
                   </div>
-                  {t('emailCharts.statusDistribution')}
+                  {t('emailCharts.statusDistribution')} 
                 </h3>
 
                 {openCharts.emails && (
@@ -655,31 +656,31 @@ const Metrics = () => {
                 <div className="p-2 rounded-xl bg-teal-500/20">
                   <MdSms className="text-teal-400 w-5 h-5" />
                 </div>
-                Métricas de SMS
+                {t('smsMetrics.title')}
               </h2>
 
               {openMetrics.sms && (
                 <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
                   <StatCard
-                    title="Total de SMS"
+                    title={t('smsMetrics.total')}
                     value={totalSMS.toString()}
                     icon={MdSms}
                     color="#10B981"
                   />
                   <StatCard
-                    title="SMS Enviados"
+                    title={t('smsMetrics.sent')}
                     value={sentSMS.toString()}
                     icon={BsCheckCircleFill}
                     color="#3B82F6"
                   />
                   <StatCard
-                    title="SMS Pendentes"
+                    title={t('smsMetrics.pending')}
                     value={pendingSMS.toString()}
                     icon={FaHourglassHalf}
                     color="#F59E0B"
                   />
                   <StatCard
-                    title="Taxa de Entrega"
+                    title={t('smsMetrics.deliveryRate')}
                     value={`${smsDeliveryRate}%`}
                     icon={IoStatsChart}
                     color="#8B5CF6"

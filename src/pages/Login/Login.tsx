@@ -31,15 +31,15 @@ const Login = () => {
       if (inputRef && inputRef.current) inputRef.current.focus();
       return;
     }
-  
+
     setLoading(true);
-  
+
     try {
-      const { accessToken, cargo } = await login(user, password); 
-      
-      localStorage.setItem('token', accessToken);  
-      localStorage.setItem('cargo', cargo); 
-  
+      const { accessToken, cargo } = await login(user, password);
+
+      localStorage.setItem('token', accessToken);
+      localStorage.setItem('cargo', cargo);
+
       messageAlert({
         type: 'success',
         message: t('login_page.success')
@@ -55,20 +55,41 @@ const Login = () => {
       setLoading(false);
     }
   };
-  
+
   const handleGoogleSuccess = async (credentialResponse: CredentialResponse) => {
-    if (credentialResponse.credential) {
-      setLoading(true);
-      try {
-        await loginWithGoogle(credentialResponse.credential);
+  if (credentialResponse.credential) {
+    setLoading(true);
+    try {
+      const res = await loginWithGoogle(credentialResponse.credential);
+
+      if (res.status === 200) {
         messageAlert({ type: 'success', message: t('login_page.success_google') });
-      } catch {
-        messageAlert({ type: 'error', message: t('login_page.error_google') });
-      } finally {
-        setLoading(false);
+      } else if (res.status === 202) {
+        messageAlert({ type: 'info', message: t('login_page.request_sent') });
       }
+    } catch (error: any) {
+      // ⬇️ Adicione isso pra debug (temporariamente)
+      console.error("ERRO GOOGLE:", error.response?.status, error.response?.data);
+
+      if (error.response) {
+        const status = error.response.status;
+        const message = error.response.data?.message;
+
+        if (status === 409) {
+          messageAlert({ type: 'info', message: message || t('login_page.request_already_sent') });
+        } else if (status === 401 || status === 422) {
+          messageAlert({ type: 'error', message: message || t('login_page.error_google') });
+        } else {
+          messageAlert({ type: 'error', message: t('login_page.error_google') });
+        }
+      } else {
+        messageAlert({ type: 'error', message: t('login_page.error_google') });
+      }
+    } finally {
+      setLoading(false);
     }
-  };
+  }
+};
 
   const handleGoogleError = () => {
     messageAlert({ type: 'error', message: t('login_page.error_google') });

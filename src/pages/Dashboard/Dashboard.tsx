@@ -11,7 +11,6 @@ import Modal from "../../components/Modal/Modal";
 import Input from "../../components/Input/Input";
 import Select from "../../components/Select/Select";
 import { useSwr } from "../../api/useSwr";
-// import TagInput from "../../components/TagInput/TagInput";
 import { MdOutlineFormatListNumbered } from "react-icons/md";
 import { CiPhone } from "react-icons/ci";
 import { CiMail } from "react-icons/ci";
@@ -141,7 +140,6 @@ const Dashboard = () => {
   const authUser: User | null = storedUser ? JSON.parse(storedUser) : null;
 
   const navigate = useNavigate();
-  // const [selectedTicket, setSelectedTicket] = useState<Ticket | null>(null);
   const [filteredTxt, setFilteredTxt] = useState("");
   const [currentPage, setCurrentPage] = useState(1);
   const [addClient, setAddClient] = useState(false);
@@ -256,10 +254,10 @@ const Dashboard = () => {
         !selected ||
         !selectedAdmin
       ) {
-        messageAlert({
-          type: "error",
-          message: "Por favor, preencha todos os campos.",
-        });
+       messageAlert({
+  type: "error",
+  message: t('alerts.fillAllFields')
+});
         return;
       }
 
@@ -283,9 +281,9 @@ const Dashboard = () => {
       );
 
       messageAlert({
-        type: "success",
-        message: "Ticket cadastrado com sucesso!",
-      });
+  type: "success",
+  message: t('alerts.ticketCreated')
+});
 
       setStatusTicket("");
       setClientName("");
@@ -298,9 +296,9 @@ const Dashboard = () => {
     } catch (e) {
       console.log("Erro ao adicionar ticket: ", e);
       messageAlert({
-        type: "error",
-        message: "Erro ao adicionar ticket",
-      });
+  type: "error",
+  message: t('alerts.ticketCreateError')
+});
     } finally {
       setLoadingPost(false);
     }
@@ -324,17 +322,17 @@ const Dashboard = () => {
   const handleUploadArchive = async () => {
     if (!profileFile || !authUser) {
       messageAlert({
-        type: "error",
-        message: "Por favor, selecione um arquivo.",
-      });
+  type: "error",
+  message: t('alerts.selectFile')
+});
       return;
     }
 
     if (!(profileFile instanceof File)) {
       messageAlert({
-        type: "error",
-        message: "O arquivo selecionado é inválido.",
-      });
+  type: "error",
+  message: t('alerts.invalidFile')
+});
       return;
     }
 
@@ -351,18 +349,18 @@ const Dashboard = () => {
       });
       mutateClients();
       messageAlert({
-        type: "success",
-        message: "Clientes importados com sucesso!",
-      });
+  type: "success",
+  message: t('alerts.clientsImported')
+});
 
       setImportClients(false);
       setProfileFile(null);
     } catch (e) {
       console.log("Erro ao importar clientes: ", e);
       messageAlert({
-        type: "error",
-        message: "Erro ao importar clientes.",
-      });
+  type: "error",
+  message: t('alerts.clientsImportError')
+});
     } finally {
       setLoadingImport(false);
     }

@@ -1,5 +1,5 @@
 import { ReactNode, createContext, useContext, useEffect, useState } from "react";
-import axios from "axios";
+import axios, { AxiosResponse } from "axios";
 import { useNavigate } from "react-router-dom";
 import { User } from "../types/User";
 import { api } from "../api/api";
@@ -8,8 +8,8 @@ interface AuthContextType {
   accessToken: string | null;
   user: User | null;
   isAuthenticated: boolean;
-  login: (email: string, password: string) => Promise<{ accessToken: string; cargo: any }>; 
-  loginWithGoogle: (googleJwt: string) => Promise<void>;
+  login: (email: string, password: string) => Promise<{ accessToken: string; cargo: any }>;
+  loginWithGoogle: (googleJwt: string) => Promise<AxiosResponse<any>>;
   logout: () => void;
   refreshToken: () => Promise<void>;
 }
@@ -39,17 +39,17 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
         { email, password },
         { withCredentials: true }
       );
-      
-      const { accessToken, user } = res.data; 
-  
+
+      const { accessToken, user } = res.data;
+
       setAccessToken(accessToken);
       setUser(user);
-  
+
       localStorage.setItem("accessToken", accessToken);
       localStorage.setItem("user", JSON.stringify(user));
-  
+
       return { accessToken, cargo: user.cargo };
-  
+
       navigate("/dashboard");
     } catch (error: any) {
       if (error.response && error.response.status === 401) {
@@ -58,14 +58,18 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
       throw new Error('Erro ao realizar login');
     }
   };
-  
-  
-  const loginWithGoogle = async (googleJwt: string) => {
+
+
+  const loginWithGoogle = async (
+    googleJwt: string
+  ): Promise<AxiosResponse<any>> => {
     try {
-      const res = await api.post("/auth/google/token",
+      const res = await api.post(
+        "/auth/google/token",
         { token: googleJwt },
-        { withCredentials: true },
+        { withCredentials: true }
       );
+
       const { accessToken: token, user: googleUser } = res.data;
 
       setAccessToken(token);
@@ -76,9 +80,11 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
       setTimeout(() => {
         navigate("/dashboard");
       }, 300);
+
+      return res; // Retornando a resposta para o chamador
     } catch (error: any) {
       console.error("Erro no login com Google:", error);
-      throw new Error('Erro ao autenticar com Google');
+      throw new Error("Erro ao autenticar com Google");
     }
   };
 
@@ -105,7 +111,7 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
   useEffect(() => {
     const token = localStorage.getItem("accessToken");
     const storedUser = localStorage.getItem("user");
-  
+
     if (token && storedUser) {
       try {
         setAccessToken(token);
