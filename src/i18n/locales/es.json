@@ -247,7 +247,10 @@
   "buttons": {
     "backToActive": "Voltar para ativos",
     "showFinished": "Mostrar finalizados",
-    "cancel": "Cancelar"
+    "cancel": "Cancelar",
+    "save": "Guardar",
+    "saving": "Guardando...",
+    "edit": "Editar"
   },
   "messages": {
     "noTicketsFound": "No se encontraron tickets"
@@ -494,7 +497,14 @@
     "send_success": "¡Mensaje enviado con éxito!",
     "send_error": "Error al enviar el mensaje.",
     "delete_success": "¡SMS eliminado con éxito!",
-    "delete_error": "Error al eliminar el SMS."
+    "delete_error": "Error al eliminar el SMS.",
+    "maxTags": "Se alcanzó el límite máximo de 7 etiquetas por ticket.",
+    "fillAllFields": "Por favor, completa todos los campos.",
+    "ticketCreated": "¡Ticket registrado con éxito!",
+    "ticketError": "Error al agregar el ticket",
+    "clientOrOperatorNotFound": "Cliente u operador no encontrado",
+    "ticketUpdated": "¡Ticket actualizado con éxito!",
+    "ticketUpdateError": "Error al actualizar el ticket"
   },
   "photo_upload": {
     "file_label": "Archivo de Foto"
@@ -648,5 +658,12 @@
     "sent": "Enviadas",
     "pending": "Pendientes",
     "failed": "Fallaron"
+  },
+  "labels": {
+    "noClient": "Sin Cliente"
+  },
+  "placeholders": {
+    "selectClient": "Selecciona un cliente",
+    "selectOperator": "Selecciona un operador"
   }
 }

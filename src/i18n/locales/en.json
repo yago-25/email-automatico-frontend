@@ -249,7 +249,10 @@
   "buttons": {
     "backToActive": "Back to active",
     "showFinished": "Show finished",
-    "cancel": "Cancel"
+    "cancel": "Cancel",
+    "save": "Save",
+    "saving": "Saving...",
+    "edit": "Edit"
   },
   "messages": {
     "noTicketsFound": "No tickets found"
@@ -496,7 +499,14 @@
     "send_success": "Message sent successfully!",
     "send_error": "Error sending message.",
     "delete_success": "SMS deleted successfully!",
-    "delete_error": "Error deleting SMS."
+    "delete_error": "Error deleting SMS.",
+    "maxTags": "Maximum of 7 tags per ticket reached.",
+    "fillAllFields": "Please fill in all fields.",
+    "ticketCreated": "Ticket successfully created!",
+    "ticketError": "Error adding ticket",
+    "clientOrOperatorNotFound": "Client or operator not found",
+    "ticketUpdated": "Ticket updated successfully!",
+    "ticketUpdateError": "Error updating ticket"
   },
   "photo_upload": {
     "file_label": "Photo File"
@@ -650,5 +660,12 @@
     "sent": "Sent",
     "pending": "Pending",
     "failed": "Failed"
+  },
+  "labels": {
+    "noClient": "No Client"
+  },
+  "placeholders": {
+    "selectClient": "Select a client",
+    "selectOperator": "Select an operator"
   }
 }
