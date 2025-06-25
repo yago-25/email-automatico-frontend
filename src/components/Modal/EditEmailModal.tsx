@@ -71,7 +71,6 @@ const EditEmailModal = ({
         const selectedDate = dayjs(localEmail.send_date);
         const selectedTime = localEmail.send_time;
 
-        // Verifica se time está no formato HH:mm
         if (!/^\d{2}:\d{2}$/.test(selectedTime)) {
             messageAlert({
                 type: "error",
@@ -105,10 +104,6 @@ const EditEmailModal = ({
         onUpdate?.(localEmail);
         onClose();
     };
-
-
-
-
 
     return (
         <AnimatePresence>

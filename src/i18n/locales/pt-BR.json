@@ -179,6 +179,7 @@
     "user": "Usuário",
     "client": "Cliente",
     "status": "Status",
+    "type": "Tipo", 
     "tag": "Tag",
     "date": "Data de Criação",
     "ticket": "Ticket",
@@ -565,5 +566,95 @@
     "in_progress": "Em Andamento",
     "communication_distribution": "Distribuição de Comunicação",
     "message_status_distribution": "Distribuição por Status"
+  },
+  "metrics": {
+     "systemMetrics": "Métricas do Sistema",
+    "title": "Métricas",
+    "charts": "Gráficos",
+    "openClients": "Abrir Clientes",
+    "closeClients": "Fechar Clientes",
+    "openTickets": "Abrir Tickets",
+    "closeTickets": "Fechar Tickets",
+    "openEmails": "Abrir E-mails",
+    "closeEmails": "Fechar E-mails",
+    "openSms": "Abrir SMS",
+    "closeSms": "Fechar SMS",
+    "openWhatsapp": "Abrir WhatsApp",
+    "closeWhatsapp": "Fechar WhatsApp",
+    "openTicketChart": "Abrir Gráfico Tickets",
+    "closeTicketChart": "Fechar Gráfico Tickets",
+    "openEmailChart": "Abrir Gráfico E-mails",
+    "closeEmailChart": "Fechar Gráfico E-mails",
+    "openSmsChart": "Abrir Gráfico SMS",
+    "closeSmsChart": "Fechar Gráfico SMS",
+    "openWhatsappChart": "Abrir Gráfico WhatsApp",
+    "closeWhatsappChart": "Fechar Gráfico WhatsApp"
+  },
+  "clientMetrics": {
+    "title": "Métricas de Clientes",
+    "total": "Total de Clientes",
+    "withPhone": "Clientes com Telefone",
+    "withEmail": "Clientes com Email"
+  },
+  "ticketMetrics": {
+    "title": "Métricas de Ticket",
+    "total": "Total de Tickets",
+    "open": "Tickets Abertos",
+    "inProgress": "Em Andamento",
+    "notStarted": "Não Iniciados",
+    "discarded": "Descartados",
+    "completed": "Finalizados"
+  },
+   "emailMetrics": {
+    "title": "Métricas de E-mails",
+    "total": "Total de E-mails",
+    "sent": "E-mails Enviados",
+    "pending": "E-mails Pendentes",
+    "deliveryRate": "Taxa de Entrega"
+  },
+  "emailCharts": {
+    "statusDistribution": "Distribuição por Status de E-mail"
+  },
+  "smsMetrics": {
+    "title": "Métricas de SMS",
+    "total": "Total de SMS",
+    "sent": "SMS Enviados",
+    "pending": "SMS Pendentes",
+    "deliveryRate": "Taxa de Entrega"
+  },
+  "smsStatusDistribution": {
+    "title": "Distribuição por Status de SMS"
+  },
+  "whatsappMetrics": {
+    "title": "Métricas do WhatsApp",
+    "totalMessages": "Total de Mensagens",
+    "mediaMessages": "Mensagens com Mídia",
+    "deliveryRate": "Taxa de Entrega",
+    "textMessages": "Mensagens de Texto"
+  },
+  "whatsappStatusDistribution": {
+    "title": "Distribuição por Status do WhatsApp"
+  },
+  "ticketsStatus": {
+    "notStarted": "Não iniciados",
+    "open": "Abertos",
+    "inProgress": "Em Andamento",
+    "completed": "Finalizados",
+    "discarded": "Descartados"
+  },
+  "emailStatus": {
+    "sent": "Enviados",
+    "pending": "Pendentes",
+    "failed": "Falharam"
+  },
+  "smsStatus": {
+    "sent": "Enviados",
+    "pending": "Pendentes",
+    "failed": "Falharam"
+  },
+  "whatsappStatus": {
+    "sent": "Enviadas",
+    "pending": "Pendentes",
+    "failed": "Falharam"
   }
 }
