@@ -529,6 +529,7 @@ const Metrics = () => {
                   <div className="p-2 rounded-xl bg-indigo-500/20">
                     <IoStatsChart className="text-indigo-400 w-5 h-5" />
                   </div>
+                     {t('ticketCharts.statusDistribution')} 
                 </h3>
                 {openCharts.tickets && (
                   <div className="h-80">
@@ -609,7 +610,7 @@ const Metrics = () => {
                   <div className="p-2 rounded-xl bg-blue-500/20">
                     <IoStatsChart className="text-blue-400 w-5 h-5" />
                   </div>
-                  {t('emailCharts.statusDistribution')}
+                  {t('emailCharts.statusDistribution')} 
                 </h3>
 
                 {openCharts.emails && (
@@ -655,31 +656,31 @@ const Metrics = () => {
                 <div className="p-2 rounded-xl bg-teal-500/20">
                   <MdSms className="text-teal-400 w-5 h-5" />
                 </div>
-                Métricas de SMS
+                {t('smsMetrics.title')}
               </h2>
 
               {openMetrics.sms && (
                 <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
                   <StatCard
-                    title="Total de SMS"
+                    title={t('smsMetrics.total')}
                     value={totalSMS.toString()}
                     icon={MdSms}
                     color="#10B981"
                   />
                   <StatCard
-                    title="SMS Enviados"
+                    title={t('smsMetrics.sent')}
                     value={sentSMS.toString()}
                     icon={BsCheckCircleFill}
                     color="#3B82F6"
                   />
                   <StatCard
-                    title="SMS Pendentes"
+                    title={t('smsMetrics.pending')}
                     value={pendingSMS.toString()}
                     icon={FaHourglassHalf}
                     color="#F59E0B"
                   />
                   <StatCard
-                    title="Taxa de Entrega"
+                    title={t('smsMetrics.deliveryRate')}
                     value={`${smsDeliveryRate}%`}
                     icon={IoStatsChart}
                     color="#8B5CF6"

@@ -646,6 +646,9 @@
     "completed": "Completed",
     "discarded": "Discarded"
   },
+   "ticketCharts": {
+    "statusDistribution": "Ticket Status Distribution"
+  },
   "emailStatus": {
     "sent": "Sent",
     "pending": "Pending",

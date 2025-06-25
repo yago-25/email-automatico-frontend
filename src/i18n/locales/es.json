@@ -673,5 +673,8 @@
     "notStarted": "No Iniciados",
     "discarded": "Descartados",
     "completed": "Finalizados"
+  },
+   "ticketCharts": {
+    "statusDistribution": "Distribución por Estado del Ticket"
   }
 }

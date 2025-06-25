@@ -609,6 +609,9 @@
     "discarded": "Descartados",
     "completed": "Finalizados"
   },
+   "ticketCharts": {
+    "statusDistribution": "Distribuição por Status de Ticket"
+  },
   "emailMetrics": {
     "title": "Métricas de E-mails",
     "total": "Total de E-mails",
