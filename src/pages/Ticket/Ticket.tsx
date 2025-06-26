@@ -409,7 +409,7 @@ const Ticket = () => {
     setFilterUser("");
     setFilterClient("");
 
-    setClientFromState(undefined);  // limpa filtro vindo da navegação
+    setClientFromState(undefined); 
   };
 
   const filteredTickets = useMemo(() => {
