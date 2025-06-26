@@ -462,7 +462,19 @@ const Ticket = () => {
       );
     });
 
-    return filtered.sort((a, b) => new Date(a.created_at).getTime() - new Date(b.created_at).getTime());
+    return filtered.sort((a, b) => {
+  const dateA = new Date(a.created_at);
+  const dateB = new Date(b.created_at);
+
+  const onlyDateA = new Date(dateA.getFullYear(), dateA.getMonth(), dateA.getDate());
+  const onlyDateB = new Date(dateB.getFullYear(), dateB.getMonth(), dateB.getDate());
+
+  const diff = onlyDateA.getTime() - onlyDateB.getTime();
+
+  if (diff !== 0) return diff;
+
+  return a.id - b.id;
+});
   }, [
     rawTickets,
     selectedStatuses,
@@ -474,6 +486,7 @@ const Ticket = () => {
     filterClient,
     clientFromState,
   ]);
+
 
 
   const handleToggleStatus = (status: string) => {
