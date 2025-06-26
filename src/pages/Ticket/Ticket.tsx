@@ -122,8 +122,12 @@ export const Button: React.FC<ButtonProps> = ({ text, onClick, disabled }) => {
 
 const Ticket = () => {
   const location = useLocation();
-  const params = location?.state || [];
-  const id = params?.ticket?.id;
+  const [clientFromState, setClientFromState] = useState<Clients | undefined>(location.state?.ticket);
+  const id = clientFromState?.id;
+
+  const clearNavigationState = () => {
+    window.history.replaceState({}, document.title);
+  };
 
   const user = JSON.parse(localStorage.getItem("user") || "{}");
   const cargo = user.cargo_id;
@@ -399,16 +403,21 @@ const Ticket = () => {
     setFilterStatus("");
     setFilterTag("");
     setFilterDate("");
-    setFilterType("")
+    setFilterType("");
     setFilterTicket("");
     setSelectedStatuses([]);
     setFilterUser("");
     setFilterClient("");
-    mutate();
+
+    setClientFromState(undefined);  // limpa filtro vindo da navegação
   };
 
   const filteredTickets = useMemo(() => {
-    return rawTickets.filter((ticket) => {
+    const ticketsByClient = clientFromState && !filterClient
+      ? rawTickets.filter(ticket => ticket.client?.id === clientFromState.id)
+      : rawTickets;
+
+    return ticketsByClient.filter((ticket) => {
       const matchesStatus = selectedStatuses.length > 0
         ? selectedStatuses.includes(ticket.status)
         : true;
@@ -418,7 +427,7 @@ const Ticket = () => {
           ? ticket.tags.some((tag) =>
             tag.toLowerCase().includes(filterTag.toLowerCase())
           )
-          : ticket.tags.toLowerCase().includes(filterTag.toLowerCase())
+          : ticket.tags?.toLowerCase().includes(filterTag.toLowerCase())
         : true;
 
       const matchesType = filterType
@@ -426,7 +435,7 @@ const Ticket = () => {
           ? ticket.type.some((type) =>
             type.toLowerCase().includes(filterType.toLowerCase())
           )
-          : ticket.type.toLowerCase().includes(filterType.toLowerCase())
+          : ticket.type?.toLowerCase().includes(filterType.toLowerCase())
         : true;
 
       const matchesDate = filterDate
@@ -465,8 +474,8 @@ const Ticket = () => {
     filterTicket,
     filterUser,
     filterClient,
+    clientFromState,
   ]);
-
 
   const handleToggleStatus = (status: string) => {
     setSelectedStatuses((prev) => {
@@ -638,6 +647,12 @@ const Ticket = () => {
       }
     );
   };
+
+  useEffect(() => {
+    if (location.state) {
+      window.history.replaceState({}, document.title);
+    }
+  }, []);
 
   useEffect(() => {
     if (showModal && selectedTicket?.id) {
