@@ -3,7 +3,11 @@ import { useTranslation } from "react-i18next";
 import Header from "../../components/Header/Header";
 import { User } from "../../models/User";
 import "./dashboard.css";
-import { MdArrowBackIos, MdArrowForwardIos } from "react-icons/md";
+import {
+  MdArrowBackIos,
+  MdArrowForwardIos,
+  MdOutlinePassword,
+} from "react-icons/md";
 import { api } from "../../api/api";
 import { messageAlert } from "../../utils/messageAlert";
 import Spin from "../../components/Spin/Spin";
@@ -12,7 +16,7 @@ import Input from "../../components/Input/Input";
 import Select from "../../components/Select/Select";
 import { useSwr } from "../../api/useSwr";
 import { MdOutlineFormatListNumbered } from "react-icons/md";
-import { CiPhone } from "react-icons/ci";
+import { CiPhone, CiUser } from "react-icons/ci";
 import { CiMail } from "react-icons/ci";
 import { FaGear } from "react-icons/fa6";
 import { HiOutlineUser } from "react-icons/hi";
@@ -27,7 +31,7 @@ import "react-phone-input-2/lib/style.css";
 import { FiBriefcase } from "react-icons/fi";
 import { RiFileExcel2Line } from "react-icons/ri";
 import { parsePhoneNumberFromString } from "libphonenumber-js";
-
+import { Eye, EyeOff } from "lucide-react";
 
 interface Option {
   label: string;
@@ -40,6 +44,8 @@ interface Clients {
   phone: string;
   mail: string;
   value?: string;
+  user?: string;
+  password?: string;
 }
 
 interface Admins {
@@ -74,6 +80,31 @@ interface ButtonProps {
   text: string;
   onClick: () => void;
 }
+
+const PasswordCell = ({ password }: { password: string }) => {
+  const [visible, setVisible] = useState(false);
+  const toggleVisibility = () => setVisible((prev) => !prev);
+
+  return (
+    <div className="flex items-center justify-center gap-2 max-w-[100px] group">
+      <p
+        className="text-center text-gray-700 max-w-[100px] truncate"
+        title={password}
+      >
+        {password ? (visible ? password : "*".repeat(password.length)) : "-"}
+      </p>
+      {password && (
+        <button
+          type="button"
+          onClick={toggleVisibility}
+          className="text-gray-500 hover:text-gray-800 transition"
+        >
+          {visible ? <EyeOff size={16} /> : <Eye size={16} />}
+        </button>
+      )}
+    </div>
+  );
+};
 
 export const Button: React.FC<ButtonProps> = ({ text, onClick }) => {
   return (
@@ -114,9 +145,7 @@ const Dashboard = () => {
     mutate: mutateAdmins,
   } = useSwr<Admins[]>("/admins");
 
-  const {
-    data: rawTickets = []
-  } = useSwr<Ticket[]>("/tickets");
+  const { data: rawTickets = [] } = useSwr<Ticket[]>("/tickets");
 
   const optionsClient: Option[] = rawClients.map((client: Clients) => ({
     value: String(client.id),
@@ -382,7 +411,6 @@ const Dashboard = () => {
     return Array.from(tagsSet);
   }, [availableTickets]);
 
-
   const filteredAvailableTags = useMemo(() => {
     const input = tagInputValue.toLowerCase();
     return availableTags.filter(
@@ -391,7 +419,6 @@ const Dashboard = () => {
         !tags.includes(tag)
     );
   }, [availableTags, tagInputValue, tags]);
-
 
   if (loadingClients || loadingAdmins) {
     return (
@@ -465,7 +492,7 @@ const Dashboard = () => {
       </div>
 
       <div className="w-full max-w-[80rem] mx-auto mt-10 rounded-3xl overflow-hidden shadow-lg border border-gray-200 bg-white">
-        <div className="grid grid-cols-5 gap-x-6 items-center justify-items-center px-6 py-4 bg-gradient-to-r from-blue-100 to-blue-200 border-b font-semibold text-blue-900 text-sm uppercase tracking-wide">
+        <div className="grid grid-cols-7 gap-x-6 items-center justify-items-center px-6 py-4 bg-gradient-to-r from-blue-100 to-blue-200 border-b font-semibold text-blue-900 text-sm uppercase tracking-wide">
           <p className="flex items-center gap-2 justify-center">
             <MdOutlineFormatListNumbered className="text-blue-700" /> ID
           </p>
@@ -479,6 +506,13 @@ const Dashboard = () => {
             <CiPhone className="text-blue-700" /> {t("clients.phone")}
           </p>
           <p className="flex items-center gap-2 justify-center">
+            <CiUser className="text-blue-700" /> {t("clients.user")}
+          </p>
+          <p className="flex items-center gap-2 justify-center">
+            <MdOutlinePassword className="text-blue-700" />{" "}
+            {t("clients.password")}
+          </p>
+          <p className="flex items-center gap-2 justify-center">
             <FaGear className="text-blue-700" /> {t("clients.actions")}
           </p>
         </div>
@@ -486,8 +520,9 @@ const Dashboard = () => {
         {currentClients.map((client, index) => (
           <div
             key={client.id}
-            className={`grid grid-cols-5 gap-x-6 items-center justify-items-center px-6 py-4 text-sm border-b transition duration-200 ${index % 2 === 0 ? "bg-gray-50" : "bg-white"
-              } hover:bg-blue-50`}
+            className={`grid grid-cols-7 gap-x-6 items-center justify-items-center px-6 py-4 text-sm border-b transition duration-200 ${
+              index % 2 === 0 ? "bg-gray-50" : "bg-white"
+            } hover:bg-blue-50`}
           >
             <p className="text-center text-gray-800 font-medium">{client.id}</p>
             <p
@@ -505,6 +540,13 @@ const Dashboard = () => {
             <p className="text-center text-gray-700" title={client.phone}>
               {formatPhone(client.phone)}
             </p>
+            <p
+              className="text-center max-w-[100px] truncate text-gray-700"
+              title={client.user}
+            >
+              {client.user ?? "-"}
+            </p>
+            <PasswordCell key={client.id} password={client.password ?? ""} />
             <div className="flex justify-center items-center gap-3">
               <button
                 onClick={() => handleClient(client)}
@@ -822,9 +864,7 @@ const Dashboard = () => {
                     >
                       {tag}
                       <button
-                        onClick={() =>
-                          setTags(tags.filter((t) => t !== tag))
-                        }
+                        onClick={() => setTags(tags.filter((t) => t !== tag))}
                         className="text-yellow-700 hover:text-yellow-900"
                       >
                         &times;
