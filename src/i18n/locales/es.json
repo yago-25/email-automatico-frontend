@@ -681,5 +681,9 @@
   },
    "ticketCharts": {
     "statusDistribution": "Distribución por Estado del Ticket"
+  },
+  "tooltips": {
+    "viewClients": "Ver Clientes",
+    "viewTickets": "Ver Tickets"
   }
 }

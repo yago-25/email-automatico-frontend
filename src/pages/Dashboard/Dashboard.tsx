@@ -254,10 +254,10 @@ const Dashboard = () => {
         !selected ||
         !selectedAdmin
       ) {
-       messageAlert({
-  type: "error",
-  message: t('alerts.fillAllFields')
-});
+        messageAlert({
+          type: "error",
+          message: t('alerts.fillAllFields')
+        });
         return;
       }
 
@@ -281,9 +281,9 @@ const Dashboard = () => {
       );
 
       messageAlert({
-  type: "success",
-  message: t('alerts.ticketCreated')
-});
+        type: "success",
+        message: t('alerts.ticketCreated')
+      });
 
       setStatusTicket("");
       setClientName("");
@@ -296,9 +296,9 @@ const Dashboard = () => {
     } catch (e) {
       console.log("Erro ao adicionar ticket: ", e);
       messageAlert({
-  type: "error",
-  message: t('alerts.ticketCreateError')
-});
+        type: "error",
+        message: t('alerts.ticketCreateError')
+      });
     } finally {
       setLoadingPost(false);
     }
@@ -322,17 +322,17 @@ const Dashboard = () => {
   const handleUploadArchive = async () => {
     if (!profileFile || !authUser) {
       messageAlert({
-  type: "error",
-  message: t('alerts.selectFile')
-});
+        type: "error",
+        message: t('alerts.selectFile')
+      });
       return;
     }
 
     if (!(profileFile instanceof File)) {
       messageAlert({
-  type: "error",
-  message: t('alerts.invalidFile')
-});
+        type: "error",
+        message: t('alerts.invalidFile')
+      });
       return;
     }
 
@@ -349,18 +349,18 @@ const Dashboard = () => {
       });
       mutateClients();
       messageAlert({
-  type: "success",
-  message: t('alerts.clientsImported')
-});
+        type: "success",
+        message: t('alerts.clientsImported')
+      });
 
       setImportClients(false);
       setProfileFile(null);
     } catch (e) {
       console.log("Erro ao importar clientes: ", e);
       messageAlert({
-  type: "error",
-  message: t('alerts.clientsImportError')
-});
+        type: "error",
+        message: t('alerts.clientsImportError')
+      });
     } finally {
       setLoadingImport(false);
     }
@@ -509,14 +509,14 @@ const Dashboard = () => {
               <button
                 onClick={() => handleClient(client)}
                 className="text-blue-600 hover:text-blue-800 transition-colors duration-200"
-                title="Ver tickets"
+                title={t('tooltips.viewClients')}
               >
                 <IoPersonSharp className="h-5 w-5" />
               </button>
               <button
                 onClick={() => handleTicket(client)}
                 className="text-red-600 hover:text-red-800 transition-colors duration-200"
-                title="Ver tickets"
+                title={t('tooltips.viewTickets')}
               >
                 <IoTicketOutline className="h-5 w-5" />
               </button>
