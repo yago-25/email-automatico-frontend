@@ -32,6 +32,7 @@ import { FiBriefcase } from "react-icons/fi";
 import { RiFileExcel2Line } from "react-icons/ri";
 import { parsePhoneNumberFromString } from "libphonenumber-js";
 import { Eye, EyeOff } from "lucide-react";
+import { Tooltip } from "antd";
 
 interface Option {
   label: string;
@@ -87,12 +88,15 @@ const PasswordCell = ({ password }: { password: string }) => {
 
   return (
     <div className="flex items-center justify-center gap-2 max-w-[100px] group">
-      <p
-        className="text-center text-gray-700 max-w-[100px] truncate"
-        title={password}
+      <Tooltip
+        title={
+          password ? (visible ? password : "*".repeat(password.length)) : null
+        }
       >
-        {password ? (visible ? password : "*".repeat(password.length)) : "-"}
-      </p>
+        <p className="text-center text-gray-700 max-w-[100px] truncate">
+          {password ? (visible ? password : "*".repeat(password.length)) : "-"}
+        </p>
+      </Tooltip>
       {password && (
         <button
           type="button"
@@ -178,6 +182,8 @@ const Dashboard = () => {
   const [typeName, setTypeName] = useState("");
   const [clientPhone, setClientPhone] = useState("");
   const [clientMail, setClientMail] = useState("");
+  const [clientUser, setClientUser] = useState("");
+  const [clientPassword, setClientPassword] = useState("");
   const [statusTicket, setStatusTicket] = useState("");
   const [loadingPost, setLoadingPost] = useState(false);
   const [loadingImport, setLoadingImport] = useState(false);
@@ -247,7 +253,13 @@ const Dashboard = () => {
 
       await api.post(
         "/clients",
-        { name: clientName, phone: clientPhone, mail: clientMail },
+        {
+          name: clientName,
+          phone: clientPhone,
+          mail: clientMail,
+          user: clientUser,
+          password: clientPassword,
+        },
         {
           headers: {
             Authorization: `Bearer ${localStorage.getItem("accessToken")}`,
@@ -525,27 +537,27 @@ const Dashboard = () => {
             } hover:bg-blue-50`}
           >
             <p className="text-center text-gray-800 font-medium">{client.id}</p>
-            <p
-              className="text-center truncate text-gray-700"
-              title={client.name}
-            >
-              {client.name}
-            </p>
-            <p
-              className="text-center truncate text-gray-700"
-              title={client.mail}
-            >
-              {client.mail}
-            </p>
+            <Tooltip title={client.name}>
+              <p className="text-center max-w-[100px] truncate text-gray-700">
+                {client.name}
+              </p>
+            </Tooltip>
+            <Tooltip title={client.mail}>
+              <p
+                className="text-center truncate text-gray-700"
+                title={client.mail}
+              >
+                {client.mail}
+              </p>
+            </Tooltip>
             <p className="text-center text-gray-700" title={client.phone}>
               {formatPhone(client.phone)}
             </p>
-            <p
-              className="text-center max-w-[100px] truncate text-gray-700"
-              title={client.user}
-            >
-              {client.user ?? "-"}
-            </p>
+            <Tooltip title={client.user ?? null}>
+              <p className="text-center max-w-[100px] truncate text-gray-700">
+                {client.user ?? "-"}
+              </p>
+            </Tooltip>
             <PasswordCell key={client.id} password={client.password ?? ""} />
             <div className="flex justify-center items-center gap-3">
               <button
@@ -683,6 +695,42 @@ const Dashboard = () => {
                 onChange={(e) => setClientMail(e.target.value)}
                 className="w-full border border-gray-200 rounded-2xl px-5 py-4 text-base shadow-sm focus:outline-none focus:ring-2 focus:ring-purple-400 bg-white/70 backdrop-blur-sm transition-all duration-200 hover:border-purple-300"
                 placeholder={t("dashboard.email")}
+              />
+            </div>
+
+            <div className="space-y-2">
+              <div className="flex items-center gap-3 mb-2">
+                <div className="p-2.5 bg-gradient-to-br from-red-500 to-red-600 rounded-xl text-white shadow-sm">
+                  <HiUser className="w-5 h-5" />
+                </div>
+                <label className="text-sm font-semibold text-gray-700">
+                  {t("clients.user")} (Opcional)
+                </label>
+              </div>
+              <input
+                type="text"
+                value={clientUser}
+                onChange={(e) => setClientUser(e.target.value)}
+                className="w-full border border-gray-200 rounded-2xl px-5 py-4 text-base shadow-sm focus:outline-none focus:ring-2 focus:ring-purple-400 bg-white/70 backdrop-blur-sm transition-all duration-200 hover:border-purple-300"
+                placeholder={t("clients.user")}
+              />
+            </div>
+
+            <div className="space-y-2">
+              <div className="flex items-center gap-3 mb-2">
+                <div className="p-2.5 bg-gradient-to-br from-yellow-500 to-yellow-600 rounded-xl text-white shadow-sm">
+                  <MdOutlinePassword className="w-5 h-5" />
+                </div>
+                <label className="text-sm font-semibold text-gray-700">
+                  {t("clients.password")} (Opcional)
+                </label>
+              </div>
+              <input
+                type="email"
+                value={clientPassword}
+                onChange={(e) => setClientPassword(e.target.value)}
+                className="w-full border border-gray-200 rounded-2xl px-5 py-4 text-base shadow-sm focus:outline-none focus:ring-2 focus:ring-purple-400 bg-white/70 backdrop-blur-sm transition-all duration-200 hover:border-purple-300"
+                placeholder={t("clients.password")}
               />
             </div>
 

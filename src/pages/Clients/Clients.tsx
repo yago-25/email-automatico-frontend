@@ -29,6 +29,7 @@ import "react-phone-input-2/lib/style.css";
 import { FaEraser } from "react-icons/fa";
 import useSwr from "swr";
 import { parsePhoneNumberFromString } from "libphonenumber-js";
+import { Tooltip } from "antd";
 
 interface Client {
   id: number;
@@ -51,12 +52,15 @@ const PasswordCell = ({ password }: { password: string }) => {
 
   return (
     <div className="flex items-center justify-center gap-2 max-w-[220px] group">
-      <p
-        className="text-center text-gray-700 max-w-[100px] truncate"
-        title={password}
+      <Tooltip
+        title={
+          password ? (visible ? password : "*".repeat(password.length)) : null
+        }
       >
-        {password ? (visible ? password : "*".repeat(password.length)) : "-"}
-      </p>
+        <p className="text-center text-gray-700 max-w-[100px] truncate">
+          {password ? (visible ? password : "*".repeat(password.length)) : "-"}
+        </p>
+      </Tooltip>
       {password && (
         <button
           type="button"
@@ -84,6 +88,8 @@ const Clients = () => {
   const [clientName, setClientName] = useState("");
   const [clientPhone, setClientPhone] = useState("");
   const [clientMail, setClientMail] = useState("");
+  const [clientUser, setClientUser] = useState("");
+  const [clientPassword, setClientPassword] = useState("");
   const [editingClient, setEditingClient] = useState<Client | null>(null);
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [isModalCrashOpen, setIsModalCrashOpen] = useState(false);
@@ -156,13 +162,12 @@ const Clients = () => {
   }, [params?.client?.id, params.client]);
 
   const filteredClients = clients
-  .filter(
-    (client: Client) =>
-      client.name.toLowerCase().includes(filteredTxt.toLowerCase()) ||
-      client.mail.toLowerCase().includes(filteredTxt.toLowerCase())
-  )
-  .sort((a, b) => a.id - b.id);
-
+    .filter(
+      (client: Client) =>
+        client.name.toLowerCase().includes(filteredTxt.toLowerCase()) ||
+        client.mail.toLowerCase().includes(filteredTxt.toLowerCase())
+    )
+    .sort((a, b) => a.id - b.id);
 
   const totalPages = Math.ceil(filteredClients.length / itemsPerPage);
   const startIndex = (currentPage - 1) * itemsPerPage;
@@ -194,6 +199,8 @@ const Clients = () => {
           name: clientName,
           phone: clientPhone,
           mail: clientMail,
+          user: clientUser,
+          password: clientPassword,
         },
         {
           headers: {
@@ -358,20 +365,20 @@ const Clients = () => {
               className="grid grid-cols-7 gap-x-6 items-center px-6 py-4 bg-white border-b hover:bg-gray-50 text-sm"
             >
               <p>{client.id}</p>
-              <p title={client.name}>{client.name}</p>
-              <p
-                title={client.mail}
-                className="max-w-96 overflow-hidden text-ellipsis truncate"
-              >
-                {client.mail}
-              </p>
+              <Tooltip title={client.name}>
+                <p>{client.name}</p>
+              </Tooltip>
+              <Tooltip title={client.mail}>
+                <p className="max-w-96 overflow-hidden text-ellipsis truncate">
+                  {client.mail}
+                </p>
+              </Tooltip>
               <p title={client.phone}>{formatPhone(client.phone)}</p>
-              <p
-                className="text-center truncate text-gray-700"
-                title={client.user}
-              >
-                {client.user ?? "-"}
-              </p>
+              <Tooltip title={client.user ?? null}>
+                <p className="text-center truncate text-gray-700">
+                  {client.user ?? "-"}
+                </p>
+              </Tooltip>
               <PasswordCell key={client.id} password={client.password ?? ""} />
               <div className="flex justify-center gap-4">
                 <button
@@ -660,6 +667,42 @@ const Clients = () => {
                   onChange={(e) => setClientMail(e.target.value)}
                   className="w-full border border-gray-200 rounded-2xl px-5 py-4 text-base shadow-sm focus:outline-none focus:ring-2 focus:ring-purple-400 bg-white/70 backdrop-blur-sm transition-all duration-200 hover:border-purple-300"
                   placeholder={t("dashboard.email")}
+                />
+              </div>
+
+              <div className="space-y-2">
+                <div className="flex items-center gap-3 mb-2">
+                  <div className="p-2.5 bg-gradient-to-br from-red-500 to-red-600 rounded-xl text-white shadow-sm">
+                    <HiUser className="w-5 h-5" />
+                  </div>
+                  <label className="text-sm font-semibold text-gray-700">
+                    {t("clients.user")} (Opcional)
+                  </label>
+                </div>
+                <input
+                  type="text"
+                  value={clientUser}
+                  onChange={(e) => setClientUser(e.target.value)}
+                  className="w-full border border-gray-200 rounded-2xl px-5 py-4 text-base shadow-sm focus:outline-none focus:ring-2 focus:ring-purple-400 bg-white/70 backdrop-blur-sm transition-all duration-200 hover:border-purple-300"
+                  placeholder={t("clients.user")}
+                />
+              </div>
+
+              <div className="space-y-2">
+                <div className="flex items-center gap-3 mb-2">
+                  <div className="p-2.5 bg-gradient-to-br from-yellow-500 to-yellow-600 rounded-xl text-white shadow-sm">
+                    <MdOutlinePassword className="w-5 h-5" />
+                  </div>
+                  <label className="text-sm font-semibold text-gray-700">
+                    {t("clients.password")} (Opcional)
+                  </label>
+                </div>
+                <input
+                  type="email"
+                  value={clientPassword}
+                  onChange={(e) => setClientPassword(e.target.value)}
+                  className="w-full border border-gray-200 rounded-2xl px-5 py-4 text-base shadow-sm focus:outline-none focus:ring-2 focus:ring-purple-400 bg-white/70 backdrop-blur-sm transition-all duration-200 hover:border-purple-300"
+                  placeholder={t("clients.password")}
                 />
               </div>
 
