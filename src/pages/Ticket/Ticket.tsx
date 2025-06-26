@@ -413,7 +413,7 @@ const Ticket = () => {
       ? rawTickets.filter(ticket => ticket.client?.id === clientFromState.id)
       : rawTickets;
 
-    return ticketsByClient.filter((ticket) => {
+    const filtered = ticketsByClient.filter((ticket) => {
       const matchesStatus = selectedStatuses.length > 0
         ? selectedStatuses.includes(ticket.status)
         : true;
@@ -461,6 +461,8 @@ const Ticket = () => {
         matchesType
       );
     });
+
+    return filtered.sort((a, b) => new Date(a.created_at).getTime() - new Date(b.created_at).getTime());
   }, [
     rawTickets,
     selectedStatuses,
@@ -472,6 +474,7 @@ const Ticket = () => {
     filterClient,
     clientFromState,
   ]);
+
 
   const handleToggleStatus = (status: string) => {
     setSelectedStatuses((prev) => {
