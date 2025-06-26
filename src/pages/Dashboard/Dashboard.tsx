@@ -297,7 +297,7 @@ const Dashboard = () => {
       ) {
         messageAlert({
           type: "error",
-          message: t('alerts.fillAllFields')
+          message: t("alerts.fillAllFields"),
         });
         return;
       }
@@ -323,7 +323,7 @@ const Dashboard = () => {
 
       messageAlert({
         type: "success",
-        message: t('alerts.ticketCreated')
+        message: t("alerts.ticketCreated"),
       });
 
       setStatusTicket("");
@@ -338,7 +338,7 @@ const Dashboard = () => {
       console.log("Erro ao adicionar ticket: ", e);
       messageAlert({
         type: "error",
-        message: t('alerts.ticketCreateError')
+        message: t("alerts.ticketCreateError"),
       });
     } finally {
       setLoadingPost(false);
@@ -360,11 +360,23 @@ const Dashboard = () => {
     }
   };
 
+  const handleClearFile = (e?: React.MouseEvent) => {
+    if (e) {
+      e.preventDefault();
+      e.stopPropagation();
+    }
+    setProfileFile(null);
+    const fileInput = document.getElementById("file") as HTMLInputElement;
+    if (fileInput) {
+      fileInput.value = "";
+    }
+  };
+
   const handleUploadArchive = async () => {
     if (!profileFile || !authUser) {
       messageAlert({
         type: "error",
-        message: t('alerts.selectFile')
+        message: t("alerts.selectFile"),
       });
       return;
     }
@@ -372,7 +384,7 @@ const Dashboard = () => {
     if (!(profileFile instanceof File)) {
       messageAlert({
         type: "error",
-        message: t('alerts.invalidFile')
+        message: t("alerts.invalidFile"),
       });
       return;
     }
@@ -391,16 +403,16 @@ const Dashboard = () => {
       mutateClients();
       messageAlert({
         type: "success",
-        message: t('alerts.clientsImported')
+        message: t("alerts.clientsImported"),
       });
 
       setImportClients(false);
-      setProfileFile(null);
+      handleClearFile();
     } catch (e) {
       console.log("Erro ao importar clientes: ", e);
       messageAlert({
         type: "error",
-        message: t('alerts.clientsImportError')
+        message: t("alerts.clientsImportError"),
       });
     } finally {
       setLoadingImport(false);
@@ -563,14 +575,14 @@ const Dashboard = () => {
               <button
                 onClick={() => handleClient(client)}
                 className="text-blue-600 hover:text-blue-800 transition-colors duration-200"
-                title={t('tooltips.viewClients')}
+                title={t("tooltips.viewClients")}
               >
                 <IoPersonSharp className="h-5 w-5" />
               </button>
               <button
                 onClick={() => handleTicket(client)}
                 className="text-red-600 hover:text-red-800 transition-colors duration-200"
-                title={t('tooltips.viewTickets')}
+                title={t("tooltips.viewTickets")}
               >
                 <IoTicketOutline className="h-5 w-5" />
               </button>
@@ -946,7 +958,10 @@ const Dashboard = () => {
       <Modal
         title={`${t("dashboard.import_clients")}`}
         isVisible={importClients}
-        onClose={() => setImportClients(false)}
+        onClose={() => {
+          setImportClients(false);
+          handleClearFile();
+        }}
       >
         {loadingImport || loadingPost ? (
           <Spin />
@@ -995,11 +1010,7 @@ const Dashboard = () => {
                   viewBox="0 0 24 24"
                   fill="none"
                   xmlns="http://www.w3.org/2000/svg"
-                  onClick={(e) => {
-                    e.preventDefault();
-                    e.stopPropagation();
-                    setProfileFile(null);
-                  }}
+                  onClick={(e) => handleClearFile(e)}
                 >
                   <g id="SVGRepo_bgCarrier" stroke-width="0"></g>
                   <g
