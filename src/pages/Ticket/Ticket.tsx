@@ -125,10 +125,6 @@ const Ticket = () => {
   const [clientFromState, setClientFromState] = useState<Clients | undefined>(location.state?.ticket);
   const id = clientFromState?.id;
 
-  const clearNavigationState = () => {
-    window.history.replaceState({}, document.title);
-  };
-
   const user = JSON.parse(localStorage.getItem("user") || "{}");
   const cargo = user.cargo_id;
 
@@ -409,7 +405,7 @@ const Ticket = () => {
     setFilterUser("");
     setFilterClient("");
 
-    setClientFromState(undefined); 
+    setClientFromState(undefined);
   };
 
   const filteredTickets = useMemo(() => {
