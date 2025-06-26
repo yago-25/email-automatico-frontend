@@ -93,15 +93,14 @@ const Clients = () => {
   const [editingClient, setEditingClient] = useState<Client | null>(null);
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [isModalCrashOpen, setIsModalCrashOpen] = useState(false);
-
   const [filteredTxt, setFilteredTxt] = useState("");
   const itemsPerPage = 5;
   const [currentPage, setCurrentPage] = useState(1);
   const [loadingPost, setLoadingPost] = useState(false);
   const [clientIdToDelete, setClientIdToDelete] = useState<number | null>(null);
 
-  const location = useLocation();
-  const params = location?.state || [];
+  const { state } = useLocation();
+  const clientFromState = state?.client;
 
   const formatPhone = (phone: string): string => {
     try {
@@ -156,18 +155,20 @@ const Clients = () => {
   });
 
   useEffect(() => {
-    if (params?.client?.id && params?.client) {
+    if (clientFromState?.id) {
       mutate();
     }
-  }, [params?.client?.id, params.client]);
+  }, [clientFromState?.id]);
 
-  const filteredClients = clients
-    .filter(
-      (client: Client) =>
-        client.name.toLowerCase().includes(filteredTxt.toLowerCase()) ||
-        client.mail.toLowerCase().includes(filteredTxt.toLowerCase())
-    )
-    .sort((a, b) => a.id - b.id);
+  const filteredClients = clientFromState
+    ? clients.filter((client) => client.id === clientFromState.id)
+    : clients
+      .filter(
+        (client) =>
+          client.name.toLowerCase().includes(filteredTxt.toLowerCase()) ||
+          client.mail.toLowerCase().includes(filteredTxt.toLowerCase())
+      )
+      .sort((a, b) => a.id - b.id);
 
   const totalPages = Math.ceil(filteredClients.length / itemsPerPage);
   const startIndex = (currentPage - 1) * itemsPerPage;

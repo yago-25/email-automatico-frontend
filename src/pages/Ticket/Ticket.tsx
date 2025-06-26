@@ -122,8 +122,8 @@ export const Button: React.FC<ButtonProps> = ({ text, onClick, disabled }) => {
 
 const Ticket = () => {
   const location = useLocation();
-  const params = location?.state || [];
-  const id = params?.ticket?.id;
+  const [clientFromState, setClientFromState] = useState<Clients | undefined>(location.state?.ticket);
+  const id = clientFromState?.id;
 
   const user = JSON.parse(localStorage.getItem("user") || "{}");
   const cargo = user.cargo_id;
@@ -399,16 +399,21 @@ const Ticket = () => {
     setFilterStatus("");
     setFilterTag("");
     setFilterDate("");
-    setFilterType("")
+    setFilterType("");
     setFilterTicket("");
     setSelectedStatuses([]);
     setFilterUser("");
     setFilterClient("");
-    mutate();
+
+    setClientFromState(undefined);
   };
 
   const filteredTickets = useMemo(() => {
-    return rawTickets.filter((ticket) => {
+    const ticketsByClient = clientFromState && !filterClient
+      ? rawTickets.filter(ticket => ticket.client?.id === clientFromState.id)
+      : rawTickets;
+
+    const filtered = ticketsByClient.filter((ticket) => {
       const matchesStatus = selectedStatuses.length > 0
         ? selectedStatuses.includes(ticket.status)
         : true;
@@ -418,7 +423,7 @@ const Ticket = () => {
           ? ticket.tags.some((tag) =>
             tag.toLowerCase().includes(filterTag.toLowerCase())
           )
-          : ticket.tags.toLowerCase().includes(filterTag.toLowerCase())
+          : ticket.tags?.toLowerCase().includes(filterTag.toLowerCase())
         : true;
 
       const matchesType = filterType
@@ -426,7 +431,7 @@ const Ticket = () => {
           ? ticket.type.some((type) =>
             type.toLowerCase().includes(filterType.toLowerCase())
           )
-          : ticket.type.toLowerCase().includes(filterType.toLowerCase())
+          : ticket.type?.toLowerCase().includes(filterType.toLowerCase())
         : true;
 
       const matchesDate = filterDate
@@ -456,6 +461,20 @@ const Ticket = () => {
         matchesType
       );
     });
+
+    return filtered.sort((a, b) => {
+      const dateA = new Date(a.created_at);
+      const dateB = new Date(b.created_at);
+
+      const onlyDateA = new Date(dateA.getFullYear(), dateA.getMonth(), dateA.getDate());
+      const onlyDateB = new Date(dateB.getFullYear(), dateB.getMonth(), dateB.getDate());
+
+      const diff = onlyDateA.getTime() - onlyDateB.getTime();
+
+      if (diff !== 0) return diff;
+
+      return a.id - b.id;
+    });
   }, [
     rawTickets,
     selectedStatuses,
@@ -465,7 +484,9 @@ const Ticket = () => {
     filterTicket,
     filterUser,
     filterClient,
+    clientFromState,
   ]);
+
 
 
   const handleToggleStatus = (status: string) => {
@@ -638,6 +659,12 @@ const Ticket = () => {
       }
     );
   };
+
+  useEffect(() => {
+    if (location.state) {
+      window.history.replaceState({}, document.title);
+    }
+  }, []);
 
   useEffect(() => {
     if (showModal && selectedTicket?.id) {

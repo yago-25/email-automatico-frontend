@@ -540,7 +540,7 @@ const Dashboard = () => {
             <FaGear className="text-blue-700" /> {t("clients.actions")}
           </p>
         </div>
-
+ 
         {currentClients.map((client, index) => (
           <div
             key={client.id}
