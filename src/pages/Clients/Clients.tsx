@@ -547,6 +547,49 @@ const Clients = () => {
                 />
               </div>
 
+              <div className="space-y-2">
+                <div className="flex items-center gap-3 mb-2">
+                  <div className="p-2.5 bg-gradient-to-br from-red-500 to-red-600 rounded-xl text-white shadow-sm">
+                    <HiUser className="w-5 h-5" />
+                  </div>
+                  <label className="text-sm font-semibold text-gray-700">
+                    {t("clients.user")} (Opcional)
+                  </label>
+                </div>
+                <input
+                  type="text"
+                  value={editingClient.user}
+                  onChange={(e) =>
+                    setEditingClient({ ...editingClient, user: e.target.value })
+                  }
+                  className="w-full border border-gray-200 rounded-2xl px-5 py-4 text-base shadow-sm focus:outline-none focus:ring-2 focus:ring-purple-400 bg-white/70 backdrop-blur-sm transition-all duration-200 hover:border-purple-300"
+                  placeholder={t("clients.user")}
+                />
+              </div>
+
+              <div className="space-y-2">
+                <div className="flex items-center gap-3 mb-2">
+                  <div className="p-2.5 bg-gradient-to-br from-yellow-500 to-yellow-600 rounded-xl text-white shadow-sm">
+                    <MdOutlinePassword className="w-5 h-5" />
+                  </div>
+                  <label className="text-sm font-semibold text-gray-700">
+                    {t("clients.password")} (Opcional)
+                  </label>
+                </div>
+                <input
+                  type="text"
+                  value={editingClient.password}
+                  onChange={(e) =>
+                    setEditingClient({
+                      ...editingClient,
+                      password: e.target.value,
+                    })
+                  }
+                  className="w-full border border-gray-200 rounded-2xl px-5 py-4 text-base shadow-sm focus:outline-none focus:ring-2 focus:ring-purple-400 bg-white/70 backdrop-blur-sm transition-all duration-200 hover:border-purple-300"
+                  placeholder={t("clients.password")}
+                />
+              </div>
+
               <div className="flex gap-4 pt-6">
                 <button
                   onClick={handleEdit}
