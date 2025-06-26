@@ -685,5 +685,9 @@
     "notStarted": "Not Started",
     "discarded": "Discarded",
     "completed": "Completed"
+  },
+  "tooltips": {
+    "viewClients": "View Clients",
+    "viewTickets": "View Tickets"
   }
 }

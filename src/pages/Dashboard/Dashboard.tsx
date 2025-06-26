@@ -297,7 +297,7 @@ const Dashboard = () => {
       ) {
         messageAlert({
           type: "error",
-          message: t("alerts.fillAllFields"),
+          message: t('alerts.fillAllFields')
         });
         return;
       }
@@ -323,7 +323,7 @@ const Dashboard = () => {
 
       messageAlert({
         type: "success",
-        message: t("alerts.ticketCreated"),
+        message: t('alerts.ticketCreated')
       });
 
       setStatusTicket("");
@@ -338,7 +338,7 @@ const Dashboard = () => {
       console.log("Erro ao adicionar ticket: ", e);
       messageAlert({
         type: "error",
-        message: t("alerts.ticketCreateError"),
+        message: t('alerts.ticketCreateError')
       });
     } finally {
       setLoadingPost(false);
@@ -364,7 +364,7 @@ const Dashboard = () => {
     if (!profileFile || !authUser) {
       messageAlert({
         type: "error",
-        message: t("alerts.selectFile"),
+        message: t('alerts.selectFile')
       });
       return;
     }
@@ -372,7 +372,7 @@ const Dashboard = () => {
     if (!(profileFile instanceof File)) {
       messageAlert({
         type: "error",
-        message: t("alerts.invalidFile"),
+        message: t('alerts.invalidFile')
       });
       return;
     }
@@ -391,7 +391,7 @@ const Dashboard = () => {
       mutateClients();
       messageAlert({
         type: "success",
-        message: t("alerts.clientsImported"),
+        message: t('alerts.clientsImported')
       });
 
       setImportClients(false);
@@ -400,7 +400,7 @@ const Dashboard = () => {
       console.log("Erro ao importar clientes: ", e);
       messageAlert({
         type: "error",
-        message: t("alerts.clientsImportError"),
+        message: t('alerts.clientsImportError')
       });
     } finally {
       setLoadingImport(false);
@@ -563,14 +563,14 @@ const Dashboard = () => {
               <button
                 onClick={() => handleClient(client)}
                 className="text-blue-600 hover:text-blue-800 transition-colors duration-200"
-                title="Ver tickets"
+                title={t('tooltips.viewClients')}
               >
                 <IoPersonSharp className="h-5 w-5" />
               </button>
               <button
                 onClick={() => handleTicket(client)}
                 className="text-red-600 hover:text-red-800 transition-colors duration-200"
-                title="Ver tickets"
+                title={t('tooltips.viewTickets')}
               >
                 <IoTicketOutline className="h-5 w-5" />
               </button>
