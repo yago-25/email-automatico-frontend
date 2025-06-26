@@ -1,16 +1,21 @@
+/* eslint-disable react-hooks/exhaustive-deps */
 import { useEffect, useState } from "react";
 import Header from "../../components/Header/Header";
 import "./clients.css";
-import { Pencil, Trash } from "lucide-react";
+import { Eye, EyeOff, Pencil, Trash } from "lucide-react";
 import { messageAlert } from "../../utils/messageAlert";
 import Spin from "../../components/Spin/Spin";
 import { api } from "../../api/api";
 import Modal from "../../components/Modal/Modal";
-import { MdArrowBackIos, MdArrowForwardIos } from "react-icons/md";
+import {
+  MdArrowBackIos,
+  MdArrowForwardIos,
+  MdOutlinePassword,
+} from "react-icons/md";
 import { User } from "../../models/User";
 import { useTranslation } from "react-i18next";
 import { MdOutlineFormatListNumbered } from "react-icons/md";
-import { CiPhone } from "react-icons/ci";
+import { CiPhone, CiUser } from "react-icons/ci";
 import { CiMail } from "react-icons/ci";
 import { FaGear } from "react-icons/fa6";
 import { HiOutlineUser } from "react-icons/hi";
@@ -30,6 +35,8 @@ interface Client {
   name: string;
   phone: string;
   mail: string;
+  user?: string;
+  password?: string;
 }
 
 interface DeleteConfirmModal {
@@ -37,6 +44,31 @@ interface DeleteConfirmModal {
   onClose: () => void;
   onConfirm: () => void;
 }
+
+const PasswordCell = ({ password }: { password: string }) => {
+  const [visible, setVisible] = useState(false);
+  const toggleVisibility = () => setVisible((prev) => !prev);
+
+  return (
+    <div className="flex items-center justify-center gap-2 max-w-[220px] group">
+      <p
+        className="text-center text-gray-700 max-w-[100px] truncate"
+        title={password}
+      >
+        {password ? (visible ? password : "*".repeat(password.length)) : "-"}
+      </p>
+      {password && (
+        <button
+          type="button"
+          onClick={toggleVisibility}
+          className="text-gray-500 hover:text-gray-800 transition"
+        >
+          {visible ? <EyeOff size={16} /> : <Eye size={16} />}
+        </button>
+      )}
+    </div>
+  );
+};
 
 const Clients = () => {
   const user = JSON.parse(localStorage.getItem("user") || "{}");
@@ -55,7 +87,7 @@ const Clients = () => {
   const [editingClient, setEditingClient] = useState<Client | null>(null);
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [isModalCrashOpen, setIsModalCrashOpen] = useState(false);
- 
+
   const [filteredTxt, setFilteredTxt] = useState("");
   const itemsPerPage = 5;
   const [currentPage, setCurrentPage] = useState(1);
@@ -191,7 +223,6 @@ const Clients = () => {
     }
   };
 
-
   const handleDelete = async () => {
     if (clientIdToDelete === null) return;
     try {
@@ -200,7 +231,10 @@ const Clients = () => {
           Authorization: `Bearer ${localStorage.getItem("accessToken")}`,
         },
       });
-      messageAlert({ type: "success", message: t("clients.deleted_successfully") });
+      messageAlert({
+        type: "success",
+        message: t("clients.deleted_successfully"),
+      });
       await mutate();
     } catch (error) {
       messageAlert({ type: "error", message: t("clients.delete_error") });
@@ -227,7 +261,10 @@ const Clients = () => {
           Authorization: `Bearer ${localStorage.getItem("accessToken")}`,
         },
       });
-      messageAlert({ type: "success", message: t("clients.updated_successfully") });
+      messageAlert({
+        type: "success",
+        message: t("clients.updated_successfully"),
+      });
       await mutate();
       setIsModalOpen(false);
     } catch (error) {
@@ -290,7 +327,7 @@ const Clients = () => {
         </div>
 
         <div className="w-full rounded-xl overflow-hidden shadow-md">
-          <div className="grid grid-cols-5 gap-x-6 items-center px-6 py-4 bg-blue-100 border-b text-blue-900 font-semibold text-sm">
+          <div className="grid grid-cols-7 gap-x-6 items-center px-6 py-4 bg-blue-100 border-b text-blue-900 font-semibold text-sm">
             <p className="flex items-center gap-2">
               <MdOutlineFormatListNumbered /> ID
             </p>
@@ -303,6 +340,13 @@ const Clients = () => {
             <p className="flex items-center gap-2">
               <CiPhone /> {t("clients.phone")}
             </p>
+            <p className="flex items-center gap-2 justify-center">
+              <CiUser className="text-blue-700" /> {t("clients.user")}
+            </p>
+            <p className="flex items-center gap-2 justify-center">
+              <MdOutlinePassword className="text-blue-700" />{" "}
+              {t("clients.password")}
+            </p>
             <p className="flex items-center justify-center gap-2">
               <FaGear /> {t("clients.actions")}
             </p>
@@ -311,7 +355,7 @@ const Clients = () => {
           {currentClients.map((client) => (
             <div
               key={client.id}
-              className="grid grid-cols-5 gap-x-6 items-center px-6 py-4 bg-white border-b hover:bg-gray-50 text-sm"
+              className="grid grid-cols-7 gap-x-6 items-center px-6 py-4 bg-white border-b hover:bg-gray-50 text-sm"
             >
               <p>{client.id}</p>
               <p title={client.name}>{client.name}</p>
@@ -322,6 +366,13 @@ const Clients = () => {
                 {client.mail}
               </p>
               <p title={client.phone}>{formatPhone(client.phone)}</p>
+              <p
+                className="text-center truncate text-gray-700"
+                title={client.user}
+              >
+                {client.user ?? "-"}
+              </p>
+              <PasswordCell key={client.id} password={client.password ?? ""} />
               <div className="flex justify-center gap-4">
                 <button
                   onClick={() => handleTicket(client)}

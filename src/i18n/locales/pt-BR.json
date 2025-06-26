@@ -98,6 +98,8 @@
     "name": "Nome",
     "email": "Email",
     "phone": "Telefone",
+    "user": "Usuário",
+    "password": "Senha",
     "actions": "Ações",
     "edit_client": "Editar Cliente",
     "add_client": "Adicionar Cliente",

@@ -97,6 +97,8 @@
     "name": "Nombre",
     "email": "Correo electrónico",
     "phone": "Teléfono",
+    "user": "Usuario",
+    "password": "Contraseña",
     "actions": "Acciones",
     "edit_client": "Editar Cliente",
     "add_client": "Agregar Cliente",
