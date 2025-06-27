@@ -18,6 +18,7 @@ import { IoTicketOutline, IoPersonSharp } from "react-icons/io5";
 import { AlertCircle } from "lucide-react";
 import { motion } from "framer-motion";
 import { MdCheckCircle, MdEdit, MdSave, MdCancel } from "react-icons/md";
+import { FiTrash2 } from "react-icons/fi";
 
 import {
   FaCalendarAlt,
@@ -184,6 +185,7 @@ const Ticket = () => {
   const [loadingEdit, setLoadingEdit] = useState(false);
   const [_, setFilteredTickets] = useState<Ticket[]>([]);
   const [__, setFilterStatus] = useState<string>("");
+  const [showOnlyDeleted, setShowOnlyDeleted] = useState(false);
 
   const { data: rawClients = [], isLoading: loadingClients } = useSwr<
     Clients[]
@@ -224,6 +226,15 @@ const Ticket = () => {
         .then((res) => res.data)
   );
 
+  const { data: trashedTickets = [], isLoading: loadingTrashed } = useSwr<Ticket[]>(
+    "/tickets/trashed",
+    (url: string) =>
+      api
+        .get(url, {
+          headers: { Authorization: `Bearer ${localStorage.getItem("accessToken")}` },
+        })
+        .then((res) => res.data)
+  );
 
   // const allTags = Array.from(
   //   new Set(
@@ -487,8 +498,6 @@ const Ticket = () => {
     clientFromState,
   ]);
 
-
-
   const handleToggleStatus = (status: string) => {
     setSelectedStatuses((prev) => {
       if (prev.includes(status)) {
@@ -569,7 +578,6 @@ const Ticket = () => {
     }
   };
 
-
   const handleSelectChange = (value: string | number) => {
     setSelected(value.toString());
   };
@@ -591,7 +599,6 @@ const Ticket = () => {
       return matchesClient && matchesUser;
     });
   }, [filterClient, filterUser, rawTickets]);
-
 
   const availableTags = useMemo(() => {
     const tagsSet = new Set<string>();
@@ -801,6 +808,29 @@ const Ticket = () => {
     setEditTags(editTags.filter(tag => tag !== tagToRemove));
   };
 
+  const handleDelete = async (ticketId: number) => {
+    try {
+      await api.delete(`/tickets/${ticketId}`, {
+        headers: {
+          Authorization: `Bearer ${localStorage.getItem("accessToken")}`,
+        },
+      });
+
+      messageAlert({
+        type: "success",
+        message: t("messages.ticketDeleted"),
+      });
+
+      setShowModal(false);
+      mutate();
+    } catch (error) {
+      messageAlert({
+        type: "error",
+        message: t("messages.errorDeletingTicket"),
+      });
+    }
+  };
+
   const filteredEditTags = useMemo(() => {
     const input = editTagInputValue.toLowerCase();
     return availableTags.filter(
@@ -809,6 +839,14 @@ const Ticket = () => {
         !editTags.includes(tag)
     );
   }, [availableTags, editTagInputValue, editTags]);
+
+  const statusToShow = showOnlyDeleted
+    ? []
+    : ["Em progresso", "Não iniciada", "Esperando", "Descartada", "Completo"];
+    
+  const visibleTickets = showOnlyDeleted
+    ? trashedTickets
+    : filteredTickets.filter(ticket => statusToShow.includes(ticket.status));
 
   if (!filteredTickets || isLoading || loadingAdmins || loadingClients) {
     return (
@@ -849,6 +887,15 @@ const Ticket = () => {
           <FaEraser className="w-5 h-5" />
           {t("filters.clear")}
         </button>
+        <button
+          onClick={() => setShowOnlyDeleted((prev) => !prev)}
+          className="flex items-center justify-center gap-2 min-w-[150px] px-4 py-2.5 bg-blue-600 text-white font-medium rounded-lg shadow-md hover:bg-blue-700 hover:shadow-lg transition-all duration-200"
+        >
+          {showOnlyDeleted
+            ? t("Deletados")
+            : t("Ativos")}
+        </button>
+
         <div className="flex items-center gap-4 flex-wrap">
           {statusTickets.map((status) => (
             <label
@@ -884,12 +931,12 @@ const Ticket = () => {
       </div>
 
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6 p-6 w-full">
-        {isLoading ? (
+        {(isLoading || (showOnlyDeleted && loadingTrashed)) ? (
           <div className="col-span-full flex justify-center items-center py-12">
             <Spin />
           </div>
         ) : filteredTickets.length > 0 ? (
-          filteredTickets.map((ticket) => (
+          (showOnlyDeleted ? trashedTickets : filteredTickets).map((ticket) => (
             <motion.div
               key={ticket.id}
               initial={{ opacity: 0, y: 20 }}
@@ -977,14 +1024,15 @@ const Ticket = () => {
               </div>
             </motion.div>
           ))
-        ) : (
+        ) : ((showOnlyDeleted && trashedTickets.length === 0) || (!showOnlyDeleted && filteredTickets.length === 0)) ? (
           <div className="col-span-full flex flex-col items-center justify-center py-12 text-gray-500">
             <IoTicketOutline className="w-16 h-16 mb-4 text-white" />
             <p className="text-lg font-medium text-white">
               {t("messages.noTicketsFound")}
             </p>
           </div>
-        )}
+        ) : null}
+
       </div>
 
       <Modal
@@ -1194,9 +1242,14 @@ const Ticket = () => {
                   </button>
                 )}
               </div>
+              <button
+                onClick={() => handleDelete(selectedTicket.id)}
+                className="flex items-center gap-1.5 px-2.5 py-1 bg-red-500 text-white text-xs font-medium rounded-lg hover:bg-red-600 transition-all duration-200 shadow-sm hover:shadow-md"
+              >
+                <FiTrash2 className="w-3.5 h-3.5" />
+                {t('buttons.delete')}
+              </button>
             </div>
-
-
           }
           isVisible={showModal}
           onClose={() => {

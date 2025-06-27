@@ -256,10 +256,13 @@
     "cancel": "Cancelar",
     "save": "Salvar",
     "saving": "Salvando...",
-    "edit": "Editar"
+    "edit": "Editar",
+    "delete": "Excluir"
   },
   "messages": {
-    "noTicketsFound": "Nenhum ticket encontrado"
+    "noTicketsFound": "Nenhum ticket encontrado",
+    "ticketDeleted": "Ticket excluído com sucesso.",
+    "errorDeletingTicket": "Erro ao excluir o ticket."
   },
   "users": {
     "users": "Usuários",

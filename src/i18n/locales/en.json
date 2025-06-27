@@ -254,10 +254,13 @@
     "cancel": "Cancel",
     "save": "Save",
     "saving": "Saving...",
-    "edit": "Edit"
+    "edit": "Edit",
+    "delete": "Delete"
   },
   "messages": {
-    "noTicketsFound": "No tickets found"
+    "noTicketsFound": "No tickets found",
+    "ticketDeleted": "Ticket deleted successfully.",
+    "errorDeletingTicket": "Error deleting the ticket."
   },
   "users": {
     "users": "Users",
@@ -653,7 +656,7 @@
     "completed": "Completed",
     "discarded": "Discarded"
   },
-   "ticketCharts": {
+  "ticketCharts": {
     "statusDistribution": "Ticket Status Distribution"
   },
   "emailStatus": {

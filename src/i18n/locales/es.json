@@ -252,10 +252,13 @@
     "cancel": "Cancelar",
     "save": "Guardar",
     "saving": "Guardando...",
-    "edit": "Editar"
+    "edit": "Editar",
+    "delete": "Eliminar"
   },
   "messages": {
-    "noTicketsFound": "No se encontraron tickets"
+    "noTicketsFound": "No se encontraron tickets",
+    "ticketDeleted": "Ticket eliminado con éxito.",
+    "errorDeletingTicket": "Error al eliminar el ticket."
   },
   "users": {
     "users": "Usuarios",
@@ -681,7 +684,7 @@
     "discarded": "Descartados",
     "completed": "Finalizados"
   },
-   "ticketCharts": {
+  "ticketCharts": {
     "statusDistribution": "Distribución por Estado del Ticket"
   },
   "tooltips": {
