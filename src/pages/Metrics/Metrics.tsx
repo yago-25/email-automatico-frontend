@@ -6,8 +6,8 @@ import { HiDocumentText } from "react-icons/hi";
 import { RiMessage2Fill } from "react-icons/ri";
 import Spin from "../../components/Spin/Spin";
 import { Tooltip, Legend, ResponsiveContainer, PieChart, Pie, Cell, } from "recharts";
-import { useEffect, useState } from "react";
-import { MetricsSummary, getMetricsSummary } from "../../services/metricsService";
+import { useState } from "react";
+// import { getMetricsSummary } from "../../services/metricsService";
 import useSwr from "swr";
 import { api } from "../../api/api";
 import { useParams } from "react-router-dom";
@@ -15,90 +15,127 @@ import { User } from "../../models/User";
 import { useTranslation } from "react-i18next";
 import Header from "../../components/Header/Header";
 
-interface EmailClient {
-  id: number;
-  name: string;
-  mail: string;
-}
-interface EmailItem {
-  id: number;
-  subject: string;
-  body: string;
-  send_date: string;
-  send_time: string;
-  status: string;
-  clients: EmailClient[];
-  attachments: Attachment[];
-}
+// interface EmailClient {
+//   id: number;
+//   name: string;
+//   mail: string;
+// }
+// interface EmailItem {
+//   id: number;
+//   subject: string;
+//   body: string;
+//   send_date: string;
+//   send_time: string;
+//   status: string;
+//   clients: EmailClient[];
+//   attachments: Attachment[];
+// }
 
-interface Attachment {
-  name: string;
-  url: string;
-}
-interface Sms {
-  id: number;
-  user_name: string;
-  names: string[];
-  phones: string[];
-  message: string;
-  scheduled_at: string;
-  file_path: string | null;
-  status: string;
-}
-type WppScheduleData = {
-  id: number;
-  instance_id: string;
-  name: string;
-  phone: string;
-  message: string;
-  user_id: number;
-  user_name: string;
-  status: "sent" | "failed" | "pending";
-  scheduled_at: string;
-  file_path?: string;
+// interface Attachment {
+//   name: string;
+//   url: string;
+// }
+// interface Sms {
+//   id: number;
+//   user_name: string;
+//   names: string[];
+//   phones: string[];
+//   message: string;
+//   scheduled_at: string;
+//   file_path: string | null;
+//   status: string;
+// }
+// type WppScheduleData = {
+//   id: number;
+//   instance_id: string;
+//   name: string;
+//   phone: string;
+//   message: string;
+//   user_id: number;
+//   user_name: string;
+//   status: "sent" | "failed" | "pending";
+//   scheduled_at: string;
+//   file_path?: string;
+// };
+
+// interface Client {
+//   id: number;
+//   name: string;
+//   phone: string;
+//   mail: string;
+// }
+// interface Ticket {
+//   id: number;
+//   name: string;
+//   type: string;
+//   status: string;
+//   tags: string[] | string;
+//   client: {
+//     id: number;
+//     name: string;
+//   };
+//   user: User;
+//   create: User;
+//   message: string;
+//   created_at: string;
+//   observation?: string;
+//   histories?: TicketHistory[];
+// }
+// interface TicketHistory {
+//   id: number;
+//   ticket_id: number;
+//   user_id: number;
+//   field_modified: string;
+//   old_value: string | null;
+//   new_value: string | null;
+//   created_at: string;
+//   updated_at: string;
+//   user?: User;
+// }
+
+type MetricsSummary = {
+  emails: {
+    totalEmails: number;
+    sentEmails: number;
+    pendingEmails: number;
+    failedEmails: number;
+  };
+  sms: {
+    totalSMS: number;
+    sentSMS: number;
+    pendingSMS: number;
+    failedSMS: number;
+  };
+  whatsapp: {
+    totalWpp: number;
+    deliveredWpp: number;
+    pendingWpp: number;
+    failedWpp: number;
+    mediaWpp: number;
+    textWpp: number;
+  };
+  clients: {
+    totalClients: number;
+    clientsWithPhone: number;
+    clientsWithEmail: number;
+  };
+  tickets: {
+    totalTickets: number;
+    notStarted: number;
+    open: number;
+    inProgress: number;
+    completed: number;
+    discarded: number;
+  };
 };
 
-interface Client {
-  id: number;
-  name: string;
-  phone: string;
-  mail: string;
-}
-interface Ticket {
-  id: number;
-  name: string;
-  type: string;
-  status: string;
-  tags: string[] | string;
-  client: {
-    id: number;
-    name: string;
-  };
-  user: User;
-  create: User;
-  message: string;
-  created_at: string;
-  observation?: string;
-  histories?: TicketHistory[];
-}
-interface TicketHistory {
-  id: number;
-  ticket_id: number;
-  user_id: number;
-  field_modified: string;
-  old_value: string | null;
-  new_value: string | null;
-  created_at: string;
-  updated_at: string;
-  user?: User;
-}
 
 const COLORS = ["#3B82F6", "#10B981", "#F59E0B", "#EF4444", "#8B5CF6", "#EC4899", "#14B8A6", "#F97316"];
 
 const Metrics = () => {
   const { t } = useTranslation();
-  const [, setMetrics] = useState<MetricsSummary | null>(null);
-  const [loading, setLoading] = useState(true);
+  // const [, setMetrics] = useState<MetricsSummary | null>(null);
+  // const [loading, setLoading] = useState(true);
   const storedUser = localStorage.getItem("user");
   const authUser: User | null = storedUser ? JSON.parse(storedUser) : null;
   const { instance } = useParams<{ instance: string }>();
@@ -117,118 +154,105 @@ const Metrics = () => {
     whatsapp: false
   });
 
-  const { data: mails = [] } = useSwr<EmailItem[]>("/emails", () =>
-    api.get("/emails", {
+  const apiUrl = instance
+  ? `/metrics-summary?instance_id=${instance}`
+  : `/metrics-summary`;
+
+const { data: metrics, isLoading } = useSwr<MetricsSummary>(
+  apiUrl,
+  () =>
+    api.get(apiUrl, {
       headers: {
         Authorization: `Bearer ${localStorage.getItem("accessToken")}`,
       },
-    }).then(res => res.data)
-  );
+    }).then((res) => res.data)
+);
 
-  const { data: sms = [] } = useSwr<Sms[]>("/sms", () =>
-    api.get("/sms", {
-      headers: {
-        Authorization: `Bearer ${localStorage.getItem("accessToken")}`,
-      },
-    }).then(res => res.data)
-  );
-
-
+  if (isLoading) {
+    return (
+      <div className="flex items-center justify-center h-full">
+        <Spin />
+      </div>
+    );
+  }
 
   const {
-    data: wppMessages = [],
-  } = useSwr<WppScheduleData[]>(`/wpp?instance_id=${instance}`, () =>
-    api.get("/wpp?instance_id=${instance}", {
-      headers: {
-        Authorization: `Bearer ${localStorage.getItem("accessToken")}`,
-      },
-    }).then(res => res.data)
-  );
-
-  const {
-    data: clients = [],
-  } = useSwr<Client[]>("/clients", {
-    fetcher: (url) =>
-      api
-        .get(url, {
-          headers: {
-            Authorization: `Bearer ${localStorage.getItem("accessToken")}`,
-          },
-        })
-        .then((res) => res.data),
-  });
-
-  const {
-    data: rawTickets = [],
-  } = useSwr<Ticket[]>("/tickets", {
-    fetcher: (url) =>
-      api
-        .get(url, {
-          headers: {
-            Authorization: `Bearer ${localStorage.getItem("accessToken")}`,
-          },
-        })
-        .then((res) => res.data),
-  });
-
-  const totalTickets = rawTickets.length;
-
-  const notStartedTickets = rawTickets.filter(ticket => ticket.status === "Não iniciada").length;
-  const openTickets = rawTickets.filter(ticket => ticket.status === "Esperando").length;
-  const inProgressTickets = rawTickets.filter(ticket => ticket.status === "Em progresso").length;
-  const completedTickets = rawTickets.filter(ticket => ticket.status === "Completo").length;
-  const discardedTickets = rawTickets.filter(ticket => ticket.status === "Descartada").length;
-
-  const ticketStatusData = [
-    { name: t('ticketsStatus.notStarted'), value: notStartedTickets },
-    { name: t('ticketsStatus.open'), value: openTickets },
-    { name: t('ticketsStatus.inProgress'), value: inProgressTickets },
-    { name: t('ticketsStatus.completed'), value: completedTickets },
-    { name: t('ticketsStatus.discarded'), value: discardedTickets }
-  ];
-
-
-  const totalClients = clients.length;
-  const clientsWithPhone = clients.filter(client => !!client.phone).length;
-  const clientsWithEmail = clients.filter(client => !!client.mail).length;
-
-  const totalEmails = mails.length;
-  const sentEmails = mails.filter(mail => mail.status === "sent").length;
-  const pendingEmails = mails.filter(mail => mail.status === "pending").length;
-  const failedEmails = mails.filter(mail => mail.status === "failed").length;
-  const emailDeliveryRate = totalEmails > 0 ? Math.round((sentEmails / totalEmails) * 100) : 0;
+    emails,
+    sms,
+    whatsapp,
+    clients,
+    tickets,
+  } = metrics!; 
 
   const emailStatusData = [
-    { name: t('emailStatus.sent'), value: sentEmails },
-    { name: t('emailStatus.pending'), value: pendingEmails },
-    { name: t('emailStatus.failed'), value: failedEmails }
+    { name: t('emailStatus.sent'), value: emails.sentEmails },
+    { name: t('emailStatus.pending'), value: emails.pendingEmails },
+    { name: t('emailStatus.failed'), value: emails.failedEmails },
   ];
-
-
-  const totalSMS = sms.length;
-  const sentSMS = sms.filter(item => item.status === "sent").length;
-  const pendingSMS = sms.filter(item => item.status === "pending").length;
-  const failedSMS = sms.filter(item => item.status === "failed").length;
-  const smsDeliveryRate = totalSMS > 0 ? Math.round((sentSMS / totalSMS) * 100) : 0;
 
   const smsStatusData = [
-    { name: t('smsStatus.sent'), value: sentSMS },
-    { name: t('smsStatus.pending'), value: pendingSMS },
-    { name: t('smsStatus.failed'), value: failedSMS }
+    { name: t('smsStatus.sent'), value: sms.sentSMS },
+    { name: t('smsStatus.pending'), value: sms.pendingSMS },
+    { name: t('smsStatus.failed'), value: sms.failedSMS },
   ];
-
-  const totalMessages = wppMessages.length;
-  const mediaMessages = wppMessages.filter(msg => msg.file_path).length;
-  const deliveredMessages = wppMessages.filter(msg => msg.status === "sent").length;
-  const textMessages = wppMessages.filter(msg => msg.message === "text").length;
-  const deliveryRate = totalMessages > 0 ? Math.round((deliveredMessages / totalMessages) * 100) : 0;
 
   const whatsappStatusData = [
-    { name: t('whatsappStatus.sent'), value: wppMessages.filter(msg => msg.status === "sent").length },
-    { name: t('whatsappStatus.pending'), value: wppMessages.filter(msg => msg.status === "pending").length },
-    { name: t('whatsappStatus.failed'), value: wppMessages.filter(msg => msg.status === "failed").length }
+    { name: t('whatsappStatus.sent'), value: whatsapp.deliveredWpp },
+    { name: t('whatsappStatus.pending'), value: whatsapp.pendingWpp },
+    { name: t('whatsappStatus.failed'), value: whatsapp.failedWpp },
   ];
 
+  const ticketStatusData = [
+    { name: t('ticketsStatus.notStarted'), value: tickets.notStarted },
+    { name: t('ticketsStatus.open'), value: tickets.open },
+    { name: t('ticketsStatus.inProgress'), value: tickets.inProgress },
+    { name: t('ticketsStatus.completed'), value: tickets.completed },
+    { name: t('ticketsStatus.discarded'), value: tickets.discarded },
+  ];
+
+  const {
+    totalClients,
+    clientsWithPhone,
+    clientsWithEmail,
+  } = clients;
+
+  const {
+    totalTickets,
+    open,
+    inProgress,
+    notStarted,
+    discarded,
+    completed,
+  } = tickets;
+
+  const {
+    totalEmails,
+    sentEmails,
+    pendingEmails,
+    // failedEmails,
+  } = emails;
+
+  const emailDeliveryRate = totalEmails > 0 ? Math.round((sentEmails / totalEmails) * 100) : 0;
+
+  const {
+    totalSMS,
+    sentSMS,
+    pendingSMS,
+    // failedSMS,
+  } = sms;
+
+  const smsDeliveryRate = totalSMS > 0 ? Math.round((sentSMS / totalSMS) * 100) : 0;
+
+  const {
+    totalWpp: totalMessages,
+    mediaWpp: mediaMessages,
+    deliveredWpp,
+    // pendingWpp,
+    // failedWpp,
+    textWpp: textMessages
+  } = whatsapp;
+
+  const deliveryRate = totalMessages > 0 ? Math.round((deliveredWpp / totalMessages) * 100) : 0;
 
   const toggleChart = (chartName: keyof typeof openCharts) => {
     setOpenCharts(prev => ({
@@ -244,20 +268,6 @@ const Metrics = () => {
     }));
   };
 
-  useEffect(() => {
-    const fetchMetrics = async () => {
-      try {
-        const data = await getMetricsSummary();
-        setMetrics(data);
-      } catch (error) {
-        console.error("Error fetching metrics:", error);
-      } finally {
-        setLoading(false);
-      }
-    };
-
-    fetchMetrics();
-  }, []);
 
   const StatCard = ({
     title,
@@ -294,14 +304,6 @@ const Metrics = () => {
       </div>
     </div>
   );
-
-  if (loading) {
-    return (
-      <div className="flex items-center justify-center h-full">
-        <Spin />
-      </div>
-    );
-  }
 
   return (
     <>
@@ -492,34 +494,35 @@ const Metrics = () => {
                   />
                   <StatCard
                     title={t('ticketsStats.open')}
-                    value={openTickets.toString()}
+                    value={open.toString()}
                     icon={BsCheckCircleFill}
                     color="#10B981"
                   />
                   <StatCard
                     title={t('ticketsStats.inProgress')}
-                    value={inProgressTickets.toString()}
+                    value={inProgress.toString()}
                     icon={IoStatsChart}
                     color="#F59E0B"
                   />
                   <StatCard
                     title={t('ticketsStats.notStarted')}
-                    value={notStartedTickets.toString()}
+                    value={notStarted.toString()}
                     icon={FaHourglassHalf}
                     color="#8B5CF6"
                   />
                   <StatCard
                     title={t('ticketsStats.discarded')}
-                    value={discardedTickets.toString()}
+                    value={discarded.toString()}
                     icon={FaHourglassHalf}
                     color="#8B5CF6"
                   />
                   <StatCard
                     title={t('ticketsStats.completed')}
-                    value={completedTickets.toString()}
+                    value={completed.toString()}
                     icon={FaHourglassHalf}
                     color="#8B5CF6"
                   />
+
 
                 </div>
               )}
@@ -529,7 +532,7 @@ const Metrics = () => {
                   <div className="p-2 rounded-xl bg-indigo-500/20">
                     <IoStatsChart className="text-indigo-400 w-5 h-5" />
                   </div>
-                     {t('ticketCharts.statusDistribution')} 
+                  {t('ticketCharts.statusDistribution')}
                 </h3>
                 {openCharts.tickets && (
                   <div className="h-80">
@@ -610,7 +613,7 @@ const Metrics = () => {
                   <div className="p-2 rounded-xl bg-blue-500/20">
                     <IoStatsChart className="text-blue-400 w-5 h-5" />
                   </div>
-                  {t('emailCharts.statusDistribution')} 
+                  {t('emailCharts.statusDistribution')}
                 </h3>
 
                 {openCharts.emails && (
@@ -766,6 +769,7 @@ const Metrics = () => {
                     icon={HiDocumentText}
                     color="#F59E0B"
                   />
+
                 </div>
               )}
 
