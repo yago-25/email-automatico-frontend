@@ -255,8 +255,8 @@ const MailsCreate = () => {
   return (
     <>
       <Header name={authUser?.nome_completo} />
-      <div className="flex items-center justify-evenly w-full h-full mt-5">
-        <div className="flex flex-col items-start justify-start gap-3 h-auto mb-auto">
+      <div className="flex items-start justify-start gap-6 w-full mt-5">
+        <div className="flex flex-col gap-3 h-auto w-auto">
           <h1 className="text-3xl font-bold text-white flex items-center gap-2">
             <CiMail className="w-8 h-8 animate-bounce" />
             {t("create_email.title")}
@@ -440,7 +440,7 @@ const MailsCreate = () => {
 
           </form>
         </div>
-        <div className="flex flex-col items-start justify-start gap-3 h-[900px]">
+        <div className="flex flex-col gap-3 h-auto w-auto"> 
           <h1 className="text-3xl font-bold text-white flex items-center gap-2">
             <CiMail className="w-8 h-8 animate-bounce" />
             {t("email_preview.title")}
