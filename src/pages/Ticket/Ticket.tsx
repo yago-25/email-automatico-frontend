@@ -7,7 +7,7 @@ import { api } from "../../api/api";
 import { messageAlert } from "../../utils/messageAlert";
 import Spin from "../../components/Spin/Spin";
 import useSwr from "swr";
-import { FaFilter, FaEraser, FaTicketAlt } from "react-icons/fa";
+import { FaFilter, FaEraser, FaTicketAlt, FaTrash } from "react-icons/fa";
 import { useLocation } from "react-router-dom";
 import Input from "../../components/Input/Input";
 import Select from "../../components/Select/Select";
@@ -921,11 +921,10 @@ const Ticket = () => {
         </button>
         <button
           onClick={() => setShowOnlyDeleted((prev) => !prev)}
-          className="flex items-center justify-center gap-2 min-w-[150px] px-4 py-2.5 bg-blue-600 text-white font-medium rounded-lg shadow-md hover:bg-blue-700 hover:shadow-lg transition-all duration-200"
+          className="flex items-center justify-center gap-2 min-w-[150px] px-4 py-2.5 bg-red-600 text-white font-medium rounded-lg shadow-md hover:bg-red-700 hover:shadow-lg transition-all duration-200"
         >
-          {showOnlyDeleted
-            ? t("statusFilter.active")
-            : t("statusFilter.deleted")}
+          <FaTrash size={20} />
+          {showOnlyDeleted ? t("statusFilter.active") : t("statusFilter.deleted")}
         </button>
 
         <div className="flex items-center gap-4 flex-wrap">
