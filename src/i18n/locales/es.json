@@ -252,10 +252,17 @@
     "cancel": "Cancelar",
     "save": "Guardar",
     "saving": "Guardando...",
-    "edit": "Editar"
+    "edit": "Editar",
+    "delete": "Eliminar",
+    "restore": "Restaurar"
   },
   "messages": {
-    "noTicketsFound": "No se encontraron tickets"
+    "noTicketsFound": "No se encontraron tickets",
+    "ticketDeleted": "Ticket eliminado con éxito.",
+    "errorDeletingTicket": "Error al eliminar el ticket.",
+    "ticketRestored": "Ticket restaurado con éxito.",
+    "errorRestoringTicket": "Error al restaurar el ticket.",
+    "expiresInDays": "Expira en {{days}} días"
   },
   "users": {
     "users": "Usuarios",
@@ -681,11 +688,15 @@
     "discarded": "Descartados",
     "completed": "Finalizados"
   },
-   "ticketCharts": {
+  "ticketCharts": {
     "statusDistribution": "Distribución por Estado del Ticket"
   },
   "tooltips": {
     "viewClients": "Ver Clientes",
     "viewTickets": "Ver Tickets"
+  },
+  "statusFilter": {
+    "active": "Activos",
+    "deleted": "Eliminados"
   }
 }
