@@ -17,8 +17,10 @@ import { useTranslation } from "react-i18next";
 import { IoTicketOutline, IoPersonSharp } from "react-icons/io5";
 import { AlertCircle } from "lucide-react";
 import { motion } from "framer-motion";
-import { MdCheckCircle, MdEdit, MdSave, MdCancel } from "react-icons/md";
+import { MdCheckCircle, MdEdit, MdSave, MdCancel, MdRestore } from "react-icons/md";
 import { FiTrash2 } from "react-icons/fi";
+import { differenceInDays } from 'date-fns';
+import dayjs from "dayjs";
 
 import {
   FaCalendarAlt,
@@ -58,6 +60,7 @@ interface Ticket {
   created_at: string;
   observation?: string;
   histories?: TicketHistory[];
+  deleted_at?: string | null;
 }
 
 interface Option {
@@ -186,6 +189,8 @@ const Ticket = () => {
   const [_, setFilteredTickets] = useState<Ticket[]>([]);
   const [__, setFilterStatus] = useState<string>("");
   const [showOnlyDeleted, setShowOnlyDeleted] = useState(false);
+  const expirationDays = 30;
+  let daysLeft: number | null = null;
 
   const { data: rawClients = [], isLoading: loadingClients } = useSwr<
     Clients[]
@@ -226,7 +231,7 @@ const Ticket = () => {
         .then((res) => res.data)
   );
 
-  const { data: trashedTickets = [], isLoading: loadingTrashed } = useSwr<Ticket[]>(
+  const { data: trashedTickets = [], isLoading: loadingTrashed, mutate: mutateTrashed } = useSwr<Ticket[]>(
     "/tickets/trashed",
     (url: string) =>
       api
@@ -235,14 +240,6 @@ const Ticket = () => {
         })
         .then((res) => res.data)
   );
-
-  // const allTags = Array.from(
-  //   new Set(
-  //     rawTickets.flatMap((ticket) =>
-  //       Array.isArray(ticket.tags) ? ticket.tags : [ticket.tags]
-  //     )
-  //   )
-  // );
 
   const optionsClient: Option[] = rawClients.map((client: Clients) => ({
     value: String(client.id),
@@ -253,8 +250,6 @@ const Ticket = () => {
     value: String(admin.id),
     label: admin.nome_completo,
   }));
-
-  // const optionsTicket: Option[] = rawTickets.map((ticket) => ({
   //   value: String(ticket.id),
   //   label: ticket.name,
   // }));
@@ -823,6 +818,7 @@ const Ticket = () => {
 
       setShowModal(false);
       mutate();
+      mutateTrashed();
     } catch (error) {
       messageAlert({
         type: "error",
@@ -830,6 +826,33 @@ const Ticket = () => {
       });
     }
   };
+  const handleRestore = async (ticketId: number) => {
+    try {
+      await api.put(`/tickets/${ticketId}/restore`, {}, {
+        headers: {
+          Authorization: `Bearer ${localStorage.getItem("accessToken")}`,
+        },
+      });
+
+      messageAlert({
+        type: "success",
+        message: t("messages.ticketRestored"),
+      });
+
+      setShowModal(false);
+      mutate();
+      mutateTrashed();
+    } catch (error) {
+      messageAlert({
+        type: "error",
+        message: t("messages.errorRestoringTicket"),
+      });
+    }
+  };
+
+  if (selectedTicket?.deleted_at) {
+    daysLeft = 30 - dayjs().diff(dayjs(selectedTicket.deleted_at), "day");
+  }
 
   const filteredEditTags = useMemo(() => {
     const input = editTagInputValue.toLowerCase();
@@ -843,10 +866,19 @@ const Ticket = () => {
   const statusToShow = showOnlyDeleted
     ? []
     : ["Em progresso", "Não iniciada", "Esperando", "Descartada", "Completo"];
-    
+
   const visibleTickets = showOnlyDeleted
     ? trashedTickets
     : filteredTickets.filter(ticket => statusToShow.includes(ticket.status));
+
+
+  if (selectedTicket?.deleted_at) {
+    const deletedDate = new Date(selectedTicket.deleted_at);
+    const now = new Date();
+    const daysPassed = differenceInDays(now, deletedDate);
+    daysLeft = expirationDays - daysPassed;
+    if (daysLeft < 0) daysLeft = 0;
+  }
 
   if (!filteredTickets || isLoading || loadingAdmins || loadingClients) {
     return (
@@ -892,8 +924,8 @@ const Ticket = () => {
           className="flex items-center justify-center gap-2 min-w-[150px] px-4 py-2.5 bg-blue-600 text-white font-medium rounded-lg shadow-md hover:bg-blue-700 hover:shadow-lg transition-all duration-200"
         >
           {showOnlyDeleted
-            ? t("Deletados")
-            : t("Ativos")}
+            ? t("statusFilter.active")
+            : t("statusFilter.deleted")}
         </button>
 
         <div className="flex items-center gap-4 flex-wrap">
@@ -936,7 +968,7 @@ const Ticket = () => {
             <Spin />
           </div>
         ) : filteredTickets.length > 0 ? (
-          (showOnlyDeleted ? trashedTickets : filteredTickets).map((ticket) => (
+          visibleTickets.map((ticket) => (
             <motion.div
               key={ticket.id}
               initial={{ opacity: 0, y: 20 }}
@@ -1243,12 +1275,39 @@ const Ticket = () => {
                 )}
               </div>
               <button
-                onClick={() => handleDelete(selectedTicket.id)}
-                className="flex items-center gap-1.5 px-2.5 py-1 bg-red-500 text-white text-xs font-medium rounded-lg hover:bg-red-600 transition-all duration-200 shadow-sm hover:shadow-md"
+                onClick={() => {
+                  if (selectedTicket.deleted_at) {
+                    handleRestore(selectedTicket.id);
+                  } else {
+                    handleDelete(selectedTicket.id);
+                  }
+                }}
+                className={`flex items-center gap-1.5 px-2.5 py-1 text-xs font-medium rounded-lg transition-all duration-200 shadow-sm hover:shadow-md ${selectedTicket.deleted_at
+                  ? 'bg-green-500 hover:bg-green-600 text-white'
+                  : 'bg-red-500 hover:bg-red-600 text-white'
+                  }`}
               >
-                <FiTrash2 className="w-3.5 h-3.5" />
-                {t('buttons.delete')}
+                {selectedTicket.deleted_at ? (
+                  <>
+                    <MdRestore className="w-3.5 h-3.5" />
+                    {t('buttons.restore')}
+                  </>
+                ) : (
+                  <>
+                    <FiTrash2 className="w-3.5 h-3.5" />
+                    {t('buttons.delete')}
+                  </>
+                )}
               </button>
+
+              {selectedTicket?.deleted_at && daysLeft !== null && (
+                <p
+                  className={`mt-1 text-sm ${daysLeft <= 5 ? "text-red-600" : "text-gray-500"
+                    }`}
+                >
+                  {t("messages.expiresInDays", { days: daysLeft })}
+                </p>
+              )}
             </div>
           }
           isVisible={showModal}

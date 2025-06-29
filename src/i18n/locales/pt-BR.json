@@ -257,12 +257,16 @@
     "save": "Salvar",
     "saving": "Salvando...",
     "edit": "Editar",
-    "delete": "Excluir"
+    "delete": "Excluir",
+    "restore": "Restaurar"
   },
   "messages": {
     "noTicketsFound": "Nenhum ticket encontrado",
     "ticketDeleted": "Ticket excluído com sucesso.",
-    "errorDeletingTicket": "Erro ao excluir o ticket."
+    "errorDeletingTicket": "Erro ao excluir o ticket.",
+    "ticketRestored": "Ticket restaurado com sucesso.",
+    "errorRestoringTicket": "Erro ao restaurar o ticket.",
+    "expiresInDays": "Expira em {{days}} dias"
   },
   "users": {
     "users": "Usuários",
@@ -692,5 +696,9 @@
   "tooltips": {
     "viewClients": "Ver Clientes",
     "viewTickets": "Ver Tickets"
+  },
+  "statusFilter": {
+    "active": "Ativos",
+    "deleted": "Deletados"
   }
 }

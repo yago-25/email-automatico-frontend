@@ -255,12 +255,16 @@
     "save": "Save",
     "saving": "Saving...",
     "edit": "Edit",
-    "delete": "Delete"
+    "delete": "Delete",
+    "restore": "Restore"
   },
   "messages": {
     "noTicketsFound": "No tickets found",
     "ticketDeleted": "Ticket deleted successfully.",
-    "errorDeletingTicket": "Error deleting the ticket."
+    "errorDeletingTicket": "Error deleting the ticket.",
+    "ticketRestored": "Ticket restored successfully.",
+    "errorRestoringTicket": "Error restoring ticket.",
+    "expiresInDays": "Expires in {{days}} days"
   },
   "users": {
     "users": "Users",
@@ -692,5 +696,9 @@
   "tooltips": {
     "viewClients": "View Clients",
     "viewTickets": "View Tickets"
+  },
+   "statusFilter": {
+    "active": "Active",
+    "deleted": "Deleted"
   }
 }
