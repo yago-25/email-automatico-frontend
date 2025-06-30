@@ -21,6 +21,7 @@ import { MdCheckCircle, MdEdit, MdSave, MdCancel, MdRestore } from "react-icons/
 import { FiTrash2 } from "react-icons/fi";
 import { differenceInDays } from 'date-fns';
 import dayjs from "dayjs";
+import DeleteConfirmModal from "../../components/DeleteConfirm/DeleteConfirmModal";
 
 import {
   FaCalendarAlt,
@@ -189,6 +190,9 @@ const Ticket = () => {
   const [_, setFilteredTickets] = useState<Ticket[]>([]);
   const [__, setFilterStatus] = useState<string>("");
   const [showOnlyDeleted, setShowOnlyDeleted] = useState(false);
+  const [isDeleteModalVisible, setIsDeleteModalVisible] = useState(false);
+  const [ticketToDelete, setTicketToDelete] = useState<number | null>(null);
+  const [isDeleting, setIsDeleting] = useState(false);
   const expirationDays = 30;
   let daysLeft: number | null = null;
 
@@ -803,9 +807,13 @@ const Ticket = () => {
     setEditTags(editTags.filter(tag => tag !== tagToRemove));
   };
 
-  const handleDelete = async (ticketId: number) => {
+  const handleDelete = async () => {
+    if (ticketToDelete === null) return;
+
     try {
-      await api.delete(`/tickets/${ticketId}`, {
+      setIsDeleting(true);
+
+      await api.delete(`/tickets/${ticketToDelete}`, {
         headers: {
           Authorization: `Bearer ${localStorage.getItem("accessToken")}`,
         },
@@ -816,16 +824,23 @@ const Ticket = () => {
         message: t("messages.ticketDeleted"),
       });
 
-      setShowModal(false);
-      mutate();
-      mutateTrashed();
+      setTimeout(() => {
+        setIsDeleting(false);
+        setIsDeleteModalVisible(false);
+        setTicketToDelete(null);
+        setShowModal(false);
+        mutate();
+        mutateTrashed();
+      }, 400);
     } catch (error) {
+      setIsDeleting(false);
       messageAlert({
         type: "error",
         message: t("messages.errorDeletingTicket"),
       });
     }
   };
+
   const handleRestore = async (ticketId: number) => {
     try {
       await api.put(`/tickets/${ticketId}/restore`, {}, {
@@ -1278,7 +1293,8 @@ const Ticket = () => {
                   if (selectedTicket.deleted_at) {
                     handleRestore(selectedTicket.id);
                   } else {
-                    handleDelete(selectedTicket.id);
+                    setTicketToDelete(selectedTicket.id);
+                    setIsDeleteModalVisible(true);
                   }
                 }}
                 className={`flex items-center gap-1.5 px-2.5 py-1 text-xs font-medium rounded-lg transition-all duration-200 shadow-sm hover:shadow-md ${selectedTicket.deleted_at
@@ -1815,6 +1831,18 @@ const Ticket = () => {
           </div>
         )}
       </Modal>
+      <DeleteConfirmModal
+        isVisible={isDeleteModalVisible}
+        onClose={() => {
+          if (!isDeleting) {
+            setIsDeleteModalVisible(false);
+            setTicketToDelete(null);
+          }
+        }}
+        onConfirm={handleDelete}
+        loading={isDeleting}
+      />
+
     </div>
   );
 };
