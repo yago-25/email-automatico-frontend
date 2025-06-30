@@ -20,7 +20,8 @@
     "error": "Error while logging in",
     "error_google": "Google login failed",
     "request_sent": "Request sent. Please wait for approval.",
-    "request_already_sent": "Request already sent. Please wait for approval."
+    "request_already_sent": "Request already sent. Please wait for approval.",
+    "loginorpassword": "Incorrect username or password."
   },
   "register_page": {
     "title": "Create Account",
@@ -62,7 +63,9 @@
     "console_failed": "Token verification failed for email:",
     "console_error": "Error verifying token:",
     "console_verification_end": "Verification process completed.",
-    "console_resend": "Resending token for email:"
+    "console_resend": "Resending token for email:",
+    "instructions": "Check your email by clicking the link we sent. If you can't find it, check your spam folder.",
+    "token_error": "Invalid token"
   },
   "password_reset": {
     "title": "Password Reset",
@@ -73,7 +76,8 @@
     "fill_all_fields": "Please fill in all fields.",
     "passwords_do_not_match": "Passwords do not match.",
     "success": "Password reset successfully!",
-    "error": "Error resetting password. Please try again later."
+    "error": "Error resetting password. Please try again later.",
+    "min": "The password must be at least 6 characters long."
   },
   "password_reset_email": {
     "title": "Password Reset",
@@ -697,7 +701,7 @@
     "viewClients": "View Clients",
     "viewTickets": "View Tickets"
   },
-   "statusFilter": {
+  "statusFilter": {
     "active": "Active",
     "deleted": "Deleted"
   }

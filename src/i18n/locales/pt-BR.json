@@ -20,7 +20,8 @@
     "error": "Erro ao fazer login",
     "error_google": "Erro ao fazer login com Google",
     "request_sent": "Solicitação enviada. Aguarde aprovação.",
-    "request_already_sent": "Solicitação já enviada. Aguarde aprovação."
+    "request_already_sent": "Solicitação já enviada. Aguarde aprovação.",
+    "loginorpassword": "Usuário ou senha incorretos."
   },
   "register_page": {
     "title": "Criar Conta",
@@ -62,7 +63,9 @@
     "console_failed": "Falha na verificação do token para o e-mail",
     "console_error": "Erro ao verificar token:",
     "console_verification_end": "Processo de verificação finalizado.",
-    "console_resend": "Reenviando token para o e-mail:"
+    "console_resend": "Reenviando token para o e-mail:",
+    "instructions": "Verifique seu e-mail clicando no link que enviamos. Se não encontrar, verifique sua caixa de spam.",
+    "token_error": "Token inválido"
   },
   "password_reset": {
     "title": "Redefinição de Senha",
@@ -73,7 +76,8 @@
     "fill_all_fields": "Por favor, preencha todos os campos.",
     "passwords_do_not_match": "As senhas não coincidem.",
     "success": "Senha redefinida com sucesso!",
-    "error": "Erro ao redefinir senha. Tente novamente mais tarde."
+    "error": "Erro ao redefinir senha. Tente novamente mais tarde.",
+    "min": "A senha deve ter no mínimo 6 caracteres."
   },
   "password_reset_email": {
     "title": "Redefinição de Senha",
