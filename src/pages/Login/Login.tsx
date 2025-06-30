@@ -49,7 +49,7 @@ const Login = () => {
     } catch (e) {
       messageAlert({
         type: 'error',
-        message: t('login_page.error')
+        message: t('login_page.loginorpassword')
       });
     } finally {
       setLoading(false);

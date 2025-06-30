@@ -5,14 +5,15 @@ import { useTranslation } from "react-i18next";
 import Spin from "../../components/Spin/Spin";
 import { api } from "../../api/api";
 import { messageAlert } from "../../utils/messageAlert";
-import { HiMail, HiLockClosed, HiUser, HiPhone, HiUserAdd, HiArrowLeft } from 'react-icons/hi';
+import { HiMail, HiLockClosed, HiUser, HiUserAdd, HiArrowLeft } from 'react-icons/hi';
 import { BsShieldLock } from 'react-icons/bs';
+import PhoneInput from "react-phone-input-2";
 
 const Register = () => {
   const navigate = useNavigate();
   const { t, i18n } = useTranslation();
   const [loading, setLoading] = useState(false);
-
+  const [isValidEmail, setIsValidEmail] = useState<boolean | null>(null);
   const [fullName, setFullName] = useState("");
   const [email, setEmail] = useState("");
   const [phone, setPhone] = useState("");
@@ -59,7 +60,7 @@ const Register = () => {
       }
     } catch (error) {
       console.error("Erro ao cadastrar:", error);
-      messageAlert({ type: "error", message: t("register_page.server_error") });
+      messageAlert({ type: "error", message: t("register_page.error") });
     } finally {
       setLoading(false);
     }
@@ -109,18 +110,45 @@ const Register = () => {
             </div>
 
             <div className="relative">
-              <div className="absolute inset-y-0 left-3 flex items-center pointer-events-none">
-                <HiPhone className="h-5 w-5 text-blue-200" />
-              </div>
-              <Input
-                type="text"
-                text={t("register_page.phone")}
-                required
+              <PhoneInput
+                country={"br"}
                 value={phone}
-                onChange={(e) => setPhone(e.target.value)}
-                className="pl-10 w-full bg-white/10 border border-blue-200/20 text-white placeholder-blue-200/50 focus:ring-2 focus:ring-blue-500"
+                onChange={(value) => {
+                  const onlyNums = value.replace(/\D/g, "");
+                  setPhone(onlyNums);
+                }}
+                prefix="+"
+                inputProps={{
+                  required: true,
+                  className:
+                    "pl-10 w-full bg-white/10 border border-blue-200/20 text-white placeholder-blue-200/50 focus:ring-2 focus:ring-blue-500 rounded-xl py-3 text-base focus:outline-none",
+                  style: { backgroundColor: "transparent" },
+                  placeholder: t("register_page.phone"),
+                }}
+                containerStyle={{ width: "100%" }}
+                inputStyle={{
+                  width: "100%",
+                  height: "48px",
+                  backgroundColor: "transparent",
+                  border: "none",
+                  color: "#fff",
+                  paddingLeft: "2.5rem",
+                  borderRadius: "0.75rem",
+                  fontSize: "16px",
+                  boxShadow: "none",
+                }}
+                buttonStyle={{
+                  borderTopLeftRadius: "0.75rem",
+                  borderBottomLeftRadius: "0.75rem",
+                  backgroundColor: "rgba(255, 255, 255, 0.1)",
+                  border: "none",
+                }}
+                enableSearch={false}
+                disableSearchIcon={true}
+                countryCodeEditable={false}
               />
             </div>
+
           </div>
 
           <div className="relative">
@@ -132,10 +160,19 @@ const Register = () => {
               text={t("register_page.email")}
               required
               value={email}
-              onChange={(e) => setEmail(e.target.value)}
-              className="pl-10 w-full bg-white/10 border border-blue-200/20 text-white placeholder-blue-200/50 focus:ring-2 focus:ring-blue-500"
+              onChange={(e) => {
+                const value = e.target.value;
+                setEmail(value);
+
+                const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+                setIsValidEmail(emailRegex.test(value));
+              }}
+              className={`pl-10 w-full bg-white/10 border ${isValidEmail === false ? "border-red-500" : "border-blue-200/20"
+                } text-white placeholder-blue-200/50 focus:ring-2 ${isValidEmail === false ? "focus:ring-red-500" : "focus:ring-blue-500"
+                }`}
             />
           </div>
+
 
           <div className="relative mt-8">
             <div className="absolute inset-y-0 left-3 flex items-center pointer-events-none">

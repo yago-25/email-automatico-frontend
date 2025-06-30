@@ -20,7 +20,8 @@
     "error": "Error al iniciar sesión",
     "error_google": "Error al iniciar sesión con Google",
     "request_sent": "Solicitud enviada. Por favor, espera la aprobación.",
-    "request_already_sent": "Solicitud ya enviada. Por favor, espera la aprobación."
+    "request_already_sent": "Solicitud ya enviada. Por favor, espera la aprobación.",
+    "loginorpassword": "Usuario o contraseña incorrectos."
   },
   "register_page": {
     "title": "Registro",
@@ -61,7 +62,9 @@
     "console_failed": "Falló la verificación del token para el correo electrónico:",
     "console_error": "Error al verificar el token:",
     "console_verification_end": "Proceso de verificación finalizado.",
-    "console_resend": "Reenviando token para el correo electrónico:"
+    "console_resend": "Reenviando token para el correo electrónico:",
+    "instructions": "Verifica tu correo haciendo clic en el enlace que te enviamos. Si no lo encuentras, revisa tu carpeta de spam.",
+    "token_error": "Token inválido"
   },
   "password_reset": {
     "title": "Restablecimiento de Contraseña",
@@ -72,7 +75,8 @@
     "fill_all_fields": "Por favor, complete todos los campos.",
     "passwords_do_not_match": "Las contraseñas no coinciden.",
     "success": "¡Contraseña restablecida con éxito!",
-    "error": "Error al restablecer la contraseña. Inténtelo de nuevo más tarde."
+    "error": "Error al restablecer la contraseña. Inténtelo de nuevo más tarde.",
+    "min": "La contraseña debe tener al menos 6 caracteres."
   },
   "password_reset_email": {
     "title": "Restablecimiento de Contraseña",
