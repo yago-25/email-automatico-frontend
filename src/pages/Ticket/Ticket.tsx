@@ -936,11 +936,16 @@ const Ticket = () => {
         </button>
         <button
           onClick={() => setShowOnlyDeleted((prev) => !prev)}
-          className="flex items-center justify-center gap-2 min-w-[150px] px-4 py-2.5 bg-red-600 text-white font-medium rounded-lg shadow-md hover:bg-red-700 hover:shadow-lg transition-all duration-200"
+          className={`flex items-center justify-center gap-2 min-w-[150px] px-4 py-2.5 text-white font-medium rounded-lg shadow-md hover:shadow-lg transition-all duration-200
+    ${showOnlyDeleted
+              ? 'bg-green-600 hover:bg-green-700'
+              : 'bg-red-600 hover:bg-red-700'
+            }`}
         >
           <FaTrash size={20} />
           {showOnlyDeleted ? t("statusFilter.active") : t("statusFilter.deleted")}
         </button>
+
 
         <div className="flex items-center gap-4 flex-wrap">
           {statusTickets.map((status) => (
