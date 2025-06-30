@@ -196,9 +196,8 @@ const Ticket = () => {
   const expirationDays = 30;
   let daysLeft: number | null = null;
 
-  const { data: rawClients = [], isLoading: loadingClients } = useSwr<
-    Clients[]
-  >("/clients", {
+  const { data: rawClients = [], isLoading: loadingClients } = useSwr<Clients[]>(
+    "/clients", {
     fetcher: (url) =>
       api
         .get(url, {
@@ -254,9 +253,6 @@ const Ticket = () => {
     value: String(admin.id),
     label: admin.nome_completo,
   }));
-  //   value: String(ticket.id),
-  //   label: ticket.name,
-  // }));
 
   const formatDate = (dateString: string, t: (key: string) => string) => {
     const date = new Date(dateString);
@@ -299,6 +295,19 @@ const Ticket = () => {
       setLoadingModal(false);
     }
   };
+
+  // const { data: history = [], isLoading: loadingHistory } = useSwr(
+  //   selectedTicket?.id ? `/tickets/${selectedTicket.id}/history` : null,
+  //   (url: string) =>
+  //     api
+  //       .get(url, {
+  //         headers: {
+  //           Authorization: `Bearer ${localStorage.getItem("accessToken")}`,
+  //         },
+  //       })
+  //       .then((res) => res.data),
+  //   { revalidateOnFocus: false }
+  // );
 
   const handleChangeStatus = async (newStatus: string) => {
     setLoadingModal(true);
@@ -903,7 +912,6 @@ const Ticket = () => {
     );
   }
 
-
   return (
     <div>
       <Header name={authUser?.nome_completo} />
@@ -937,7 +945,7 @@ const Ticket = () => {
         <button
           onClick={() => setShowOnlyDeleted((prev) => !prev)}
           className={`flex items-center justify-center gap-2 min-w-[150px] px-4 py-2.5 text-white font-medium rounded-lg shadow-md hover:shadow-lg transition-all duration-200
-    ${showOnlyDeleted
+          ${showOnlyDeleted
               ? 'bg-green-600 hover:bg-green-700'
               : 'bg-red-600 hover:bg-red-700'
             }`}
