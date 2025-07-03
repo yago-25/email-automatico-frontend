@@ -21,6 +21,7 @@ import { MdCheckCircle, MdEdit, MdSave, MdCancel, MdRestore } from "react-icons/
 import { FiTrash2 } from "react-icons/fi";
 import { differenceInDays } from 'date-fns';
 import dayjs from "dayjs";
+import DeleteConfirmModal from "../../components/DeleteConfirm/DeleteConfirmModal";
 
 import {
   FaCalendarAlt,
@@ -189,12 +190,14 @@ const Ticket = () => {
   const [_, setFilteredTickets] = useState<Ticket[]>([]);
   const [__, setFilterStatus] = useState<string>("");
   const [showOnlyDeleted, setShowOnlyDeleted] = useState(false);
+  const [isDeleteModalVisible, setIsDeleteModalVisible] = useState(false);
+  const [ticketToDelete, setTicketToDelete] = useState<number | null>(null);
+  const [isDeleting, setIsDeleting] = useState(false);
   const expirationDays = 30;
   let daysLeft: number | null = null;
 
-  const { data: rawClients = [], isLoading: loadingClients } = useSwr<
-    Clients[]
-  >("/clients", {
+  const { data: rawClients = [], isLoading: loadingClients } = useSwr<Clients[]>(
+    "/clients", {
     fetcher: (url) =>
       api
         .get(url, {
@@ -250,9 +253,6 @@ const Ticket = () => {
     value: String(admin.id),
     label: admin.nome_completo,
   }));
-  //   value: String(ticket.id),
-  //   label: ticket.name,
-  // }));
 
   const formatDate = (dateString: string, t: (key: string) => string) => {
     const date = new Date(dateString);
@@ -295,6 +295,19 @@ const Ticket = () => {
       setLoadingModal(false);
     }
   };
+
+  // const { data: history = [], isLoading: loadingHistory } = useSwr(
+  //   selectedTicket?.id ? `/tickets/${selectedTicket.id}/history` : null,
+  //   (url: string) =>
+  //     api
+  //       .get(url, {
+  //         headers: {
+  //           Authorization: `Bearer ${localStorage.getItem("accessToken")}`,
+  //         },
+  //       })
+  //       .then((res) => res.data),
+  //   { revalidateOnFocus: false }
+  // );
 
   const handleChangeStatus = async (newStatus: string) => {
     setLoadingModal(true);
@@ -803,9 +816,13 @@ const Ticket = () => {
     setEditTags(editTags.filter(tag => tag !== tagToRemove));
   };
 
-  const handleDelete = async (ticketId: number) => {
+  const handleDelete = async () => {
+    if (ticketToDelete === null) return;
+
     try {
-      await api.delete(`/tickets/${ticketId}`, {
+      setIsDeleting(true);
+
+      await api.delete(`/tickets/${ticketToDelete}`, {
         headers: {
           Authorization: `Bearer ${localStorage.getItem("accessToken")}`,
         },
@@ -816,16 +833,23 @@ const Ticket = () => {
         message: t("messages.ticketDeleted"),
       });
 
-      setShowModal(false);
-      mutate();
-      mutateTrashed();
+      setTimeout(() => {
+        setIsDeleting(false);
+        setIsDeleteModalVisible(false);
+        setTicketToDelete(null);
+        setShowModal(false);
+        mutate();
+        mutateTrashed();
+      }, 400);
     } catch (error) {
+      setIsDeleting(false);
       messageAlert({
         type: "error",
         message: t("messages.errorDeletingTicket"),
       });
     }
   };
+
   const handleRestore = async (ticketId: number) => {
     try {
       await api.put(`/tickets/${ticketId}/restore`, {}, {
@@ -888,7 +912,6 @@ const Ticket = () => {
     );
   }
 
-
   return (
     <div>
       <Header name={authUser?.nome_completo} />
@@ -921,11 +944,16 @@ const Ticket = () => {
         </button>
         <button
           onClick={() => setShowOnlyDeleted((prev) => !prev)}
-          className="flex items-center justify-center gap-2 min-w-[150px] px-4 py-2.5 bg-red-600 text-white font-medium rounded-lg shadow-md hover:bg-red-700 hover:shadow-lg transition-all duration-200"
+          className={`flex items-center justify-center gap-2 min-w-[150px] px-4 py-2.5 text-white font-medium rounded-lg shadow-md hover:shadow-lg transition-all duration-200
+          ${showOnlyDeleted
+              ? 'bg-green-600 hover:bg-green-700'
+              : 'bg-red-600 hover:bg-red-700'
+            }`}
         >
           <FaTrash size={20} />
           {showOnlyDeleted ? t("statusFilter.active") : t("statusFilter.deleted")}
         </button>
+
 
         <div className="flex items-center gap-4 flex-wrap">
           {statusTickets.map((status) => (
@@ -1278,7 +1306,8 @@ const Ticket = () => {
                   if (selectedTicket.deleted_at) {
                     handleRestore(selectedTicket.id);
                   } else {
-                    handleDelete(selectedTicket.id);
+                    setTicketToDelete(selectedTicket.id);
+                    setIsDeleteModalVisible(true);
                   }
                 }}
                 className={`flex items-center gap-1.5 px-2.5 py-1 text-xs font-medium rounded-lg transition-all duration-200 shadow-sm hover:shadow-md ${selectedTicket.deleted_at
@@ -1815,6 +1844,18 @@ const Ticket = () => {
           </div>
         )}
       </Modal>
+      <DeleteConfirmModal
+        isVisible={isDeleteModalVisible}
+        onClose={() => {
+          if (!isDeleting) {
+            setIsDeleteModalVisible(false);
+            setTicketToDelete(null);
+          }
+        }}
+        onConfirm={handleDelete}
+        loading={isDeleting}
+      />
+
     </div>
   );
 };

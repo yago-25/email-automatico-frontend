@@ -237,7 +237,7 @@ const WhatsAppCreate = () => {
 
       const generateDates = (): string[] => {
         if (!recurrency || !recurrencyType || !recurrencyEndDate) {
-          return [startDateTime.format("YYYY-MM-DD HH:mm:ss")];
+          return [startDateTime.format("YYYY-MM-DDTHH:mm:ssZ")];
         }
 
         const endDate = dayjs(recurrencyEndDate);
@@ -246,7 +246,7 @@ const WhatsAppCreate = () => {
         let current = startDateTime;
 
         while (current.isSameOrBefore(endDate)) {
-          dates.push(current.format("YYYY-MM-DD HH:mm:ss"));
+          dates.push(current.format("YYYY-MM-DDTHH:mm:ssZ"));
 
           switch (recurrencyType) {
             case "daily":
