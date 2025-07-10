@@ -1,6 +1,6 @@
 import { FaEnvelope, FaUsers, FaWhatsapp, FaHourglassHalf } from "react-icons/fa";
 import { MdSms, MdAttachFile } from "react-icons/md";
-import { IoStatsChart } from "react-icons/io5";
+import { IoStatsChart, IoTicketSharp } from "react-icons/io5";
 import { BsCheckCircleFill } from "react-icons/bs";
 import { HiDocumentText } from "react-icons/hi";
 import { RiMessage2Fill } from "react-icons/ri";
@@ -134,8 +134,6 @@ const COLORS = ["#3B82F6", "#10B981", "#F59E0B", "#EF4444", "#8B5CF6", "#EC4899"
 
 const Metrics = () => {
   const { t } = useTranslation();
-  // const [, setMetrics] = useState<MetricsSummary | null>(null);
-  // const [loading, setLoading] = useState(true);
   const storedUser = localStorage.getItem("user");
   const authUser: User | null = storedUser ? JSON.parse(storedUser) : null;
   const { instance } = useParams<{ instance: string }>();
@@ -341,7 +339,7 @@ const { data: metrics, isLoading } = useSwr<MetricsSummary>(
               className="w-full px-4 py-3 bg-blue-500/10 text-blue-300 rounded-xl hover:bg-blue-500/20 transition-all duration-300 flex items-center gap-3 group"
             >
               <div className="p-2 rounded-lg bg-blue-500/20 group-hover:bg-blue-500/30">
-                <FaEnvelope className="w-5 h-5" />
+                <IoTicketSharp className="w-5 h-5" />
               </div>
               <span className="font-medium">
                 {openMetrics.tickets ? t('metrics.closeTickets') : t('metrics.openTickets')}
@@ -396,7 +394,7 @@ const { data: metrics, isLoading } = useSwr<MetricsSummary>(
               className="w-full px-4 py-3 bg-indigo-500/10 text-indigo-300 rounded-xl hover:bg-indigo-500/20 transition-all duration-300 flex items-center gap-3 group"
             >
               <div className="p-2 rounded-lg bg-indigo-500/20 group-hover:bg-indigo-500/30">
-                <IoStatsChart className="w-5 h-5" />
+                <IoTicketSharp className="w-5 h-5" />
               </div>
               <span className="font-medium">
                 {openCharts.tickets ? t('metrics.closeTicketChart') : t('metrics.openTicketChart')}
@@ -478,7 +476,7 @@ const { data: metrics, isLoading } = useSwr<MetricsSummary>(
             <div className="bg-gray-800/50 backdrop-blur-lg rounded-2xl p-6 border border-gray-700/50">
               <h2 className="text-2xl font-semibold text-white mb-6 flex items-center gap-3">
                 <div className="p-2 rounded-xl bg-blue-500/20">
-                  <FaEnvelope className="text-blue-400 w-5 h-5" />
+                  <IoTicketSharp className="text-blue-400 w-5 h-5" />
                 </div>
                 {t('ticketMetrics.title')}
               </h2>
@@ -530,7 +528,7 @@ const { data: metrics, isLoading } = useSwr<MetricsSummary>(
               <div className="bg-gray-900/50 rounded-xl p-6 border border-gray-700/50">
                 <h3 className="text-xl font-semibold text-white mb-6 flex items-center gap-2">
                   <div className="p-2 rounded-xl bg-indigo-500/20">
-                    <IoStatsChart className="text-indigo-400 w-5 h-5" />
+                    <IoTicketSharp className="text-indigo-400 w-5 h-5" />
                   </div>
                   {t('ticketCharts.statusDistribution')}
                 </h3>
