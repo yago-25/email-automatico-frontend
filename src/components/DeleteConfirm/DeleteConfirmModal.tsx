@@ -1,19 +1,19 @@
 import { motion, AnimatePresence } from "framer-motion";
 import { useTranslation } from "react-i18next";
-import Spin from "../Spin/Spin"; // ajuste o path se for diferente
-
+import Spin from "../Spin/Spin"; 
+  
 interface DeleteConfirmModalProps {
   isVisible: boolean;
   onClose: () => void;
   onConfirm: () => void;
-  loading?: boolean; // NOVO
+  loading?: boolean;
 }
 
 const DeleteConfirmModal = ({
   isVisible,
   onClose,
   onConfirm,
-  loading = false, // valor padrão
+  loading = false, 
 }: DeleteConfirmModalProps) => {
   const { t } = useTranslation();
 

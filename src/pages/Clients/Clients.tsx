@@ -83,7 +83,6 @@ const Clients = () => {
 
   const storedUser = localStorage.getItem("user");
   const authUser: User | null = storedUser ? JSON.parse(storedUser) : null;
-  // const [clients, setClients] = useState<Client[]>([]);
   const [addClient, setAddClient] = useState(false);
   const [clientName, setClientName] = useState("");
   const [clientPhone, setClientPhone] = useState("");
@@ -118,26 +117,6 @@ const Clients = () => {
       return phone;
     }
   };
-
-  // const getClients = async () => {
-  //   setLoading(true);
-  //   try {
-  //     const response = await api.get("/clients", {
-  //       headers: {
-  //         Authorization: `Bearer ${localStorage.getItem("accessToken")}`,
-  //       },
-  //     });
-  //     setClients(response.data);
-  //   } catch (e) {
-  //     console.log("Erro ao listar clientes: ", e);
-  //     messageAlert({
-  //       type: "error",
-  //       message: t("clients.fetch_error"),
-  //     });
-  //   } finally {
-  //     setLoading(false);
-  //   }
-  // };
 
   const {
     data: clients = [],
@@ -233,6 +212,8 @@ const Clients = () => {
 
   const handleDelete = async () => {
     if (clientIdToDelete === null) return;
+
+    setLoadingPost(true);
     try {
       await api.delete(`/clients/${clientIdToDelete}`, {
         headers: {
@@ -250,6 +231,7 @@ const Clients = () => {
     } finally {
       setIsModalCrashOpen(false);
       setClientIdToDelete(null);
+      setLoadingPost(false);
     }
   };
 

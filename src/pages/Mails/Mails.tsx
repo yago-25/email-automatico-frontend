@@ -56,7 +56,6 @@ const Mails = () => {
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [isModalCrashOpen, setIsModalCrashOpen] = useState(false);
   const [clientIdToDelete, setClientIdToDelete] = useState<number | null>(null);
-  // const [mails, setMails] = useState<EmailItem[]>([]);
   const [filteredMails, setFilteredMails] = useState<EmailItem[]>([]);
   const [loading, setLoading] = useState(false);
   const [isPreviewModalOpen, setPreviewModalOpen] = useState(false);
@@ -181,7 +180,7 @@ const Mails = () => {
   const handleDelete = async () => {
   if (clientIdToDelete === null || clientIdToDelete === undefined) return;
 
-  setLoading(true);
+  setLoading(true); 
   try {
     await api.delete(`/emails/${clientIdToDelete}`, {
       headers: {
@@ -198,7 +197,6 @@ const Mails = () => {
     setLoading(false);
   }
 };
-
 
   const handleRemoveAttachment = (index: number) => {
     const updated = attachments.filter((_, i) => i !== index);
