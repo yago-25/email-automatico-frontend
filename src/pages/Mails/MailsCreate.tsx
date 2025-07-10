@@ -74,6 +74,8 @@ const MailsCreate = () => {
   const [sendDate, setSendDate] = useState<string>("");
   const [sendTime, setSendTime] = useState<string>("");
   const [recurrency, setRecurrency] = useState(false);
+  const [isSending, setIsSending] = useState(false);
+
   const [recurrencyType, setRecurrencyType] = useState<
     "daily" | "weekly" | "monthly" | "yearly" | null
   >(null);
@@ -145,94 +147,98 @@ const MailsCreate = () => {
 
 
   const handleSend = async () => {
-  try {
-    const now = dayjs();
-    const selectedDateTime = dayjs(`${sendDate}T${sendTime}`);
+    try {
+      setIsSending(true);
 
-    if (selectedDateTime.isBefore(now.add(3, "minute"))) {
-      messageAlert({
-        type: "error",
-        message: t("text_message.errors.time_invalid"),
-      });
-      return;
-    }
+      const now = dayjs();
+      const selectedDateTime = dayjs(`${sendDate}T${sendTime}`);
 
-    const token = localStorage.getItem("accessToken");
-    if (!token) throw new Error("Token de autenticação não encontrado.");
-
-    const uploadedAttachments = await Promise.all(
-      attachments.map(async (attachment) => {
-        if (!(attachment.file instanceof File)) {
-          console.warn("Attachment inválido:", attachment.file);
-          return null;
-        }
-
-        const { data: uploadData } = await api.post(
-          "/s3/upload-url/email",
-          {
-            file_name: attachment.file.name,
-            file_type: attachment.file.type,
-          },
-          {
-            headers: {
-              Authorization: `Bearer ${token}`,
-            },
-          }
-        );
-
-        await fetch(uploadData.upload_url, {
-          method: "PUT",
-          headers: {
-            "Content-Type": attachment.file.type,
-          },
-          body: attachment.file,
+      if (selectedDateTime.isBefore(now.add(3, "minute"))) {
+        messageAlert({
+          type: "error",
+          message: t("text_message.errors.time_invalid"),
         });
+        return;
+      }
 
-        return {
-          name: attachment.file.name,
-          url: uploadData.file_path,
-        };
-      })
-    );
+      const token = localStorage.getItem("accessToken");
+      if (!token) throw new Error("Token de autenticação não encontrado.");
 
-    const validAttachments = uploadedAttachments.filter((a) => a !== null);
+      const uploadedAttachments = await Promise.all(
+        attachments.map(async (attachment) => {
+          if (!(attachment.file instanceof File)) {
+            console.warn("Attachment inválido:", attachment.file);
+            return null;
+          }
 
-    const sanitizedAttachments = validAttachments.map((att) => ({
-      name: att.name,
-      url: encodeURI(att.url),
-    }));
+          const { data: uploadData } = await api.post(
+            "/s3/upload-url/email",
+            {
+              file_name: attachment.file.name,
+              file_type: attachment.file.type,
+            },
+            {
+              headers: {
+                Authorization: `Bearer ${token}`,
+              },
+            }
+          );
 
-    const payload = {
-      subject,
-      body,
-      send_date: sendDate,
-      send_time: sendTime,
-      client_id: selectedClients,
-      attachments: sanitizedAttachments,
-    };
+          await fetch(uploadData.upload_url, {
+            method: "PUT",
+            headers: {
+              "Content-Type": attachment.file.type,
+            },
+            body: attachment.file,
+          });
 
-    const { data } = await api.post("/agendar-email", payload, {
-      headers: {
-        Authorization: `Bearer ${token}`,
-      },
-    });
+          return {
+            name: attachment.file.name,
+            url: uploadData.file_path,
+          };
+        })
+      );
 
-    if (data.success) {
-      messageAlert({
-        type: "success",
-        message: "E-mail agendado com sucesso!",
+      const validAttachments = uploadedAttachments.filter((a) => a !== null);
+
+      const sanitizedAttachments = validAttachments.map((att) => ({
+        name: att.name,
+        url: encodeURI(att.url),
+      }));
+
+      const payload = {
+        subject,
+        body,
+        send_date: sendDate,
+        send_time: sendTime,
+        client_id: selectedClients,
+        attachments: sanitizedAttachments,
+      };
+
+      const { data } = await api.post("/agendar-email", payload, {
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
       });
-      navigate("/mails");
-    } else {
-      messageAlert({
-        type: "error",
-        message: "Erro ao agendar e-mail.",
-      });
+
+      if (data.success) {
+        messageAlert({
+          type: "success",
+          message: "E-mail agendado com sucesso!",
+        });
+        navigate("/mails");
+      } else {
+        messageAlert({
+          type: "error",
+          message: "Erro ao agendar e-mail.",
+        });
+      }
+    } catch (error) {
+      console.error("Erro no envio:", error);
+    } finally {
+      setIsSending(false);
     }
-  } catch (error) {
-    console.error("Erro no envio:", error);
-  }
-};
+  };
 
 
   useEffect(() => {
@@ -440,7 +446,7 @@ const MailsCreate = () => {
 
           </form>
         </div>
-        <div className="flex flex-col gap-3 h-auto w-auto"> 
+        <div className="flex flex-col gap-3 h-auto w-auto">
           <h1 className="text-3xl font-bold text-white flex items-center gap-2">
             <CiMail className="w-8 h-8 animate-bounce" />
             {t("email_preview.title")}
@@ -590,10 +596,16 @@ const MailsCreate = () => {
               <button
                 onClick={handleSend}
                 className="flex items-center gap-2 bg-green-500 hover:bg-green-600 text-white font-semibold py-2 px-5 rounded-md shadow-md transition disabled:opacity-60 disabled:cursor-not-allowed"
-                disabled={!subject || !body || selectedClients.length === 0}
+                disabled={!subject || !body || selectedClients.length === 0 || isSending}
               >
-                <FiSend size={18} />
-                {t("email_preview.confirm_send")}
+                {isSending ? (
+                  <Spin />
+                ) : (
+                  <>
+                    <FiSend size={18} />
+                    {t("email_preview.confirm_send")}
+                  </>
+                )}
               </button>
             </div>
           </div>
