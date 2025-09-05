@@ -14,6 +14,8 @@ import { useSwr } from "../../api/useSwr";
 import { IoChatboxEllipses } from "react-icons/io5";
 import { useNavigate } from "react-router-dom";
 import { Spin } from "antd";
+import { useTranslation } from "react-i18next";
+const { t } = useTranslation();
 
 type WhatsAppInstance = {
   id: number;
@@ -200,17 +202,16 @@ const WhatsApp = () => {
           <div className="text-white">
             <h1 className="text-3xl font-bold flex items-center gap-3 mb-2">
               <FaWhatsapp className="text-green-400" />
-              Suas Instâncias do WhatsApp
+              {t('whatsappInstances.title')}
             </h1>
             <p className="text-blue-100">
-              Crie e conecte múltiplas instâncias para enviar mensagens
-              automáticas.
+              {t('whatsappInstances.description')}
             </p>
           </div>
 
           <div className="flex items-center gap-3">
             <Input
-              text="Número com DDD"
+              text={t('whatsappInstances.numberWithDDD')}
               value={newNumber}
               onChange={(e) => setNewNumber(e.target.value)}
               styles={{ width: "256px" }}
@@ -225,7 +226,7 @@ const WhatsApp = () => {
               ) : (
                 <>
                   <AiOutlinePlus size={20} />
-                  Adicionar Instância
+                  {t('whatsappInstances.addInstance')}
                 </>
               )}
             </button>

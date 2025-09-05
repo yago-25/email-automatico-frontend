@@ -702,5 +702,11 @@
   "statusFilter": {
     "active": "Activos",
     "deleted": "Eliminados"
+  },
+  "whatsappInstances": {
+    "title": "Tus Instancias de WhatsApp",
+    "description": "Crea y conecta múltiples instancias para enviar mensajes automáticos.",
+    "numberWithDDD": "Número con código de área",
+    "addInstance": "Agregar Instancia"
   }
 }

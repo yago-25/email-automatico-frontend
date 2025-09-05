@@ -704,5 +704,11 @@
   "statusFilter": {
     "active": "Ativos",
     "deleted": "Deletados"
+  },
+  "whatsappInstances": {
+    "title": "Suas Instâncias do WhatsApp",
+    "description": "Crie e conecte múltiplas instâncias para enviar mensagens automáticas.",
+    "numberWithDDD": "Número com DDD",
+    "addInstance": "Adicionar Instância"
   }
 }

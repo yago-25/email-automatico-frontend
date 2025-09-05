@@ -704,5 +704,11 @@
   "statusFilter": {
     "active": "Active",
     "deleted": "Deleted"
+  },
+  "whatsappInstances": {
+    "title": "Your WhatsApp Instances",
+    "description": "Create and connect multiple instances to send automatic messages.",
+    "numberWithDDD": "Number with area code",
+    "addInstance": "Add Instance"
   }
 }
