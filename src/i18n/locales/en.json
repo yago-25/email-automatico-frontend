@@ -710,5 +710,11 @@
     "description": "Create and connect multiple instances to send automatic messages.",
     "numberWithDDD": "Number with area code",
     "addInstance": "Add Instance"
+  },
+   "whatsappAlerts": {
+    "fillNumber": "Please enter the number to connect",
+    "qrCodeError": "Unable to get QR Code. Please try again.",
+    "connectError": "Error connecting number. Please try again.",
+    "invalidInstanceName": "Invalid instance name to update status."
   }
 }

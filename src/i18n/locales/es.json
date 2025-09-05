@@ -708,5 +708,11 @@
     "description": "Crea y conecta múltiples instancias para enviar mensajes automáticos.",
     "numberWithDDD": "Número con código de área",
     "addInstance": "Agregar Instancia"
+  },
+  "whatsappAlerts": {
+    "fillNumber": "Por favor, ingresa el número para conectar",
+    "qrCodeError": "No se pudo obtener el código QR. Inténtalo de nuevo.",
+    "connectError": "Error al conectar el número. Inténtalo de nuevo.",
+    "invalidInstanceName": "Nombre de instancia no válido para actualizar el estado."
   }
 }

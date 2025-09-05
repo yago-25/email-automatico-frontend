@@ -710,5 +710,11 @@
     "description": "Crie e conecte múltiplas instâncias para enviar mensagens automáticas.",
     "numberWithDDD": "Número com DDD",
     "addInstance": "Adicionar Instância"
+  },
+  "whatsappAlerts": {
+    "fillNumber": "Por favor, preencha o número para conectar",
+    "qrCodeError": "Não foi possível obter o QR Code. Tente novamente.",
+    "connectError": "Erro ao conectar número. Tente novamente.",
+    "invalidInstanceName": "Nome da instância inválido para atualizar status."
   }
 }

@@ -53,7 +53,7 @@ const WhatsApp = () => {
     if (!newNumber.trim()) {
       return messageAlert({
         type: "error",
-        message: "Por favor, preencha o número para conectar",
+        message: t('whatsappAlerts.fillNumber')
       });
     }
 
@@ -92,13 +92,13 @@ const WhatsApp = () => {
       } else {
         messageAlert({
           type: "error",
-          message: "Não foi possível obter o QR Code. Tente novamente.",
+          message: t('whatsappAlerts.qrCodeError')
         });
       }
     } catch (e) {
       messageAlert({
         type: "error",
-        message: "Erro ao conectar número. Tente novamente.",
+        message: t('whatsappAlerts.connectError')
       });
       console.error("Erro ao conectar número: ", e);
     } finally {
@@ -110,7 +110,7 @@ const WhatsApp = () => {
     if (!instanceName) {
       messageAlert({
         type: "error",
-        message: "Nome da instância inválido para atualizar status.",
+        message: t('whatsappAlerts.invalidInstanceName')
       });
       return;
     }
