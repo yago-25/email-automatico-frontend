@@ -1,4 +1,12 @@
-import { ReactNode, createContext, useContext, useEffect, useState } from "react";
+/* eslint-disable @typescript-eslint/no-explicit-any */
+/* eslint-disable react-refresh/only-export-components */
+import {
+  ReactNode,
+  createContext,
+  useContext,
+  useEffect,
+  useState,
+} from "react";
 import axios, { AxiosResponse } from "axios";
 import { useNavigate } from "react-router-dom";
 import { User } from "../types/User";
@@ -8,7 +16,10 @@ interface AuthContextType {
   accessToken: string | null;
   user: User | null;
   isAuthenticated: boolean;
-  login: (email: string, password: string) => Promise<{ accessToken: string; cargo: any }>;
+  login: (
+    email: string,
+    password: string
+  ) => Promise<{ accessToken: string; cargo: any }>;
   loginWithGoogle: (googleJwt: string) => Promise<AxiosResponse<any>>;
   logout: () => void;
   refreshToken: () => Promise<void>;
@@ -19,7 +30,9 @@ const AuthContext = createContext<AuthContextType | null>(null);
 export const AuthProvider = ({ children }: { children: ReactNode }) => {
   const navigate = useNavigate();
 
-  const [accessToken, setAccessToken] = useState<string | null>(() => localStorage.getItem("accessToken"));
+  const [accessToken, setAccessToken] = useState<string | null>(() =>
+    localStorage.getItem("accessToken")
+  );
   const [user, setUser] = useState<User | null>(() => {
     try {
       const storedUser = localStorage.getItem("user");
@@ -53,12 +66,11 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
       navigate("/dashboard");
     } catch (error: any) {
       if (error.response && error.response.status === 401) {
-        throw new Error(error.response.data.message || 'Credenciais inválidas');
+        throw new Error(error.response.data.message || "Credenciais inválidas");
       }
-      throw new Error('Erro ao realizar login');
+      throw new Error("Erro ao realizar login");
     }
   };
-
 
   const loginWithGoogle = async (
     googleJwt: string
@@ -99,7 +111,11 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
 
   const refreshToken = async () => {
     try {
-      const res = await axios.post("/api/refresh", {}, { withCredentials: true });
+      const res = await axios.post(
+        "/api/refresh",
+        {},
+        { withCredentials: true }
+      );
       setAccessToken(res.data.accessToken);
       localStorage.setItem("accessToken", res.data.accessToken);
     } catch (error) {
@@ -124,7 +140,17 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
   }, []);
 
   return (
-    <AuthContext.Provider value={{ accessToken, user, isAuthenticated, login, loginWithGoogle, logout, refreshToken }}>
+    <AuthContext.Provider
+      value={{
+        accessToken,
+        user,
+        isAuthenticated,
+        login,
+        loginWithGoogle,
+        logout,
+        refreshToken,
+      }}
+    >
       {children}
     </AuthContext.Provider>
   );
