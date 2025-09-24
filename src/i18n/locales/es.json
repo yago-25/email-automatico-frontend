@@ -20,7 +20,8 @@
     "error": "Error al iniciar sesión",
     "error_google": "Error al iniciar sesión con Google",
     "request_sent": "Solicitud enviada. Por favor, espera la aprobación.",
-    "request_already_sent": "Solicitud ya enviada. Por favor, espera la aprobación."
+    "request_already_sent": "Solicitud ya enviada. Por favor, espera la aprobación.",
+    "loginorpassword": "Usuario o contraseña incorrectos."
   },
   "register_page": {
     "title": "Registro",
@@ -61,7 +62,9 @@
     "console_failed": "Falló la verificación del token para el correo electrónico:",
     "console_error": "Error al verificar el token:",
     "console_verification_end": "Proceso de verificación finalizado.",
-    "console_resend": "Reenviando token para el correo electrónico:"
+    "console_resend": "Reenviando token para el correo electrónico:",
+    "instructions": "Verifica tu correo haciendo clic en el enlace que te enviamos. Si no lo encuentras, revisa tu carpeta de spam.",
+    "token_error": "Token inválido"
   },
   "password_reset": {
     "title": "Restablecimiento de Contraseña",
@@ -72,7 +75,8 @@
     "fill_all_fields": "Por favor, complete todos los campos.",
     "passwords_do_not_match": "Las contraseñas no coinciden.",
     "success": "¡Contraseña restablecida con éxito!",
-    "error": "Error al restablecer la contraseña. Inténtelo de nuevo más tarde."
+    "error": "Error al restablecer la contraseña. Inténtelo de nuevo más tarde.",
+    "min": "La contraseña debe tener al menos 6 caracteres."
   },
   "password_reset_email": {
     "title": "Restablecimiento de Contraseña",
@@ -252,10 +256,17 @@
     "cancel": "Cancelar",
     "save": "Guardar",
     "saving": "Guardando...",
-    "edit": "Editar"
+    "edit": "Editar",
+    "delete": "Eliminar",
+    "restore": "Restaurar"
   },
   "messages": {
-    "noTicketsFound": "No se encontraron tickets"
+    "noTicketsFound": "No se encontraron tickets",
+    "ticketDeleted": "Ticket eliminado con éxito.",
+    "errorDeletingTicket": "Error al eliminar el ticket.",
+    "ticketRestored": "Ticket restaurado con éxito.",
+    "errorRestoringTicket": "Error al restaurar el ticket.",
+    "expiresInDays": "Expira en {{days}} días"
   },
   "users": {
     "users": "Usuarios",
@@ -681,11 +692,27 @@
     "discarded": "Descartados",
     "completed": "Finalizados"
   },
-   "ticketCharts": {
+  "ticketCharts": {
     "statusDistribution": "Distribución por Estado del Ticket"
   },
   "tooltips": {
     "viewClients": "Ver Clientes",
     "viewTickets": "Ver Tickets"
+  },
+  "statusFilter": {
+    "active": "Activos",
+    "deleted": "Eliminados"
+  },
+  "whatsappInstances": {
+    "title": "Tus Instancias de WhatsApp",
+    "description": "Crea y conecta múltiples instancias para enviar mensajes automáticos.",
+    "numberWithDDD": "Número con código de área",
+    "addInstance": "Agregar Instancia"
+  },
+  "whatsappAlerts": {
+    "fillNumber": "Por favor, ingresa el número para conectar",
+    "qrCodeError": "No se pudo obtener el código QR. Inténtalo de nuevo.",
+    "connectError": "Error al conectar el número. Inténtalo de nuevo.",
+    "invalidInstanceName": "Nombre de instancia no válido para actualizar el estado."
   }
 }

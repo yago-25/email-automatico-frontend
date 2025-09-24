@@ -7,7 +7,7 @@ import { api } from "../../api/api";
 import { messageAlert } from "../../utils/messageAlert";
 import Spin from "../../components/Spin/Spin";
 import useSwr from "swr";
-import { FaFilter, FaEraser, FaTicketAlt } from "react-icons/fa";
+import { FaFilter, FaEraser, FaTicketAlt, FaTrash } from "react-icons/fa";
 import { useLocation } from "react-router-dom";
 import Input from "../../components/Input/Input";
 import Select from "../../components/Select/Select";
@@ -17,7 +17,11 @@ import { useTranslation } from "react-i18next";
 import { IoTicketOutline, IoPersonSharp } from "react-icons/io5";
 import { AlertCircle } from "lucide-react";
 import { motion } from "framer-motion";
-import { MdCheckCircle, MdEdit, MdSave, MdCancel } from "react-icons/md";
+import { MdCheckCircle, MdEdit, MdSave, MdCancel, MdRestore } from "react-icons/md";
+import { FiTrash2 } from "react-icons/fi";
+import { differenceInDays } from 'date-fns';
+import dayjs from "dayjs";
+import DeleteConfirmModal from "../../components/DeleteConfirm/DeleteConfirmModal";
 
 import {
   FaCalendarAlt,
@@ -57,6 +61,7 @@ interface Ticket {
   created_at: string;
   observation?: string;
   histories?: TicketHistory[];
+  deleted_at?: string | null;
 }
 
 interface Option {
@@ -184,10 +189,15 @@ const Ticket = () => {
   const [loadingEdit, setLoadingEdit] = useState(false);
   const [_, setFilteredTickets] = useState<Ticket[]>([]);
   const [__, setFilterStatus] = useState<string>("");
+  const [showOnlyDeleted, setShowOnlyDeleted] = useState(false);
+  const [isDeleteModalVisible, setIsDeleteModalVisible] = useState(false);
+  const [ticketToDelete, setTicketToDelete] = useState<number | null>(null);
+  const [isDeleting, setIsDeleting] = useState(false);
+  const expirationDays = 30;
+  let daysLeft: number | null = null;
 
-  const { data: rawClients = [], isLoading: loadingClients } = useSwr<
-    Clients[]
-  >("/clients", {
+  const { data: rawClients = [], isLoading: loadingClients } = useSwr<Clients[]>(
+    "/clients", {
     fetcher: (url) =>
       api
         .get(url, {
@@ -224,14 +234,15 @@ const Ticket = () => {
         .then((res) => res.data)
   );
 
-
-  // const allTags = Array.from(
-  //   new Set(
-  //     rawTickets.flatMap((ticket) =>
-  //       Array.isArray(ticket.tags) ? ticket.tags : [ticket.tags]
-  //     )
-  //   )
-  // );
+  const { data: trashedTickets = [], isLoading: loadingTrashed, mutate: mutateTrashed } = useSwr<Ticket[]>(
+    "/tickets/trashed",
+    (url: string) =>
+      api
+        .get(url, {
+          headers: { Authorization: `Bearer ${localStorage.getItem("accessToken")}` },
+        })
+        .then((res) => res.data)
+  );
 
   const optionsClient: Option[] = rawClients.map((client: Clients) => ({
     value: String(client.id),
@@ -242,11 +253,6 @@ const Ticket = () => {
     value: String(admin.id),
     label: admin.nome_completo,
   }));
-
-  // const optionsTicket: Option[] = rawTickets.map((ticket) => ({
-  //   value: String(ticket.id),
-  //   label: ticket.name,
-  // }));
 
   const formatDate = (dateString: string, t: (key: string) => string) => {
     const date = new Date(dateString);
@@ -289,6 +295,19 @@ const Ticket = () => {
       setLoadingModal(false);
     }
   };
+
+  // const { data: history = [], isLoading: loadingHistory } = useSwr(
+  //   selectedTicket?.id ? `/tickets/${selectedTicket.id}/history` : null,
+  //   (url: string) =>
+  //     api
+  //       .get(url, {
+  //         headers: {
+  //           Authorization: `Bearer ${localStorage.getItem("accessToken")}`,
+  //         },
+  //       })
+  //       .then((res) => res.data),
+  //   { revalidateOnFocus: false }
+  // );
 
   const handleChangeStatus = async (newStatus: string) => {
     setLoadingModal(true);
@@ -487,8 +506,6 @@ const Ticket = () => {
     clientFromState,
   ]);
 
-
-
   const handleToggleStatus = (status: string) => {
     setSelectedStatuses((prev) => {
       if (prev.includes(status)) {
@@ -569,7 +586,6 @@ const Ticket = () => {
     }
   };
 
-
   const handleSelectChange = (value: string | number) => {
     setSelected(value.toString());
   };
@@ -591,7 +607,6 @@ const Ticket = () => {
       return matchesClient && matchesUser;
     });
   }, [filterClient, filterUser, rawTickets]);
-
 
   const availableTags = useMemo(() => {
     const tagsSet = new Set<string>();
@@ -801,6 +816,68 @@ const Ticket = () => {
     setEditTags(editTags.filter(tag => tag !== tagToRemove));
   };
 
+  const handleDelete = async () => {
+    if (ticketToDelete === null) return;
+
+    try {
+      setIsDeleting(true);
+
+      await api.delete(`/tickets/${ticketToDelete}`, {
+        headers: {
+          Authorization: `Bearer ${localStorage.getItem("accessToken")}`,
+        },
+      });
+
+      messageAlert({
+        type: "success",
+        message: t("messages.ticketDeleted"),
+      });
+
+      setTimeout(() => {
+        setIsDeleting(false);
+        setIsDeleteModalVisible(false);
+        setTicketToDelete(null);
+        setShowModal(false);
+        mutate();
+        mutateTrashed();
+      }, 400);
+    } catch (error) {
+      setIsDeleting(false);
+      messageAlert({
+        type: "error",
+        message: t("messages.errorDeletingTicket"),
+      });
+    }
+  };
+
+  const handleRestore = async (ticketId: number) => {
+    try {
+      await api.put(`/tickets/${ticketId}/restore`, {}, {
+        headers: {
+          Authorization: `Bearer ${localStorage.getItem("accessToken")}`,
+        },
+      });
+
+      messageAlert({
+        type: "success",
+        message: t("messages.ticketRestored"),
+      });
+
+      setShowModal(false);
+      mutate();
+      mutateTrashed();
+    } catch (error) {
+      messageAlert({
+        type: "error",
+        message: t("messages.errorRestoringTicket"),
+      });
+    }
+  };
+
+  if (selectedTicket?.deleted_at) {
+    daysLeft = 30 - dayjs().diff(dayjs(selectedTicket.deleted_at), "day");
+  }
+
   const filteredEditTags = useMemo(() => {
     const input = editTagInputValue.toLowerCase();
     return availableTags.filter(
@@ -810,6 +887,23 @@ const Ticket = () => {
     );
   }, [availableTags, editTagInputValue, editTags]);
 
+  const statusToShow = showOnlyDeleted
+    ? []
+    : ["Em progresso", "Não iniciada", "Esperando", "Descartada", "Completo"];
+
+  const visibleTickets = showOnlyDeleted
+    ? trashedTickets
+    : filteredTickets.filter(ticket => statusToShow.includes(ticket.status));
+
+
+  if (selectedTicket?.deleted_at) {
+    const deletedDate = new Date(selectedTicket.deleted_at);
+    const now = new Date();
+    const daysPassed = differenceInDays(now, deletedDate);
+    daysLeft = expirationDays - daysPassed;
+    if (daysLeft < 0) daysLeft = 0;
+  }
+
   if (!filteredTickets || isLoading || loadingAdmins || loadingClients) {
     return (
       <div className="flex items-center justify-center h-full w-full">
@@ -817,7 +911,6 @@ const Ticket = () => {
       </div>
     );
   }
-
 
   return (
     <div>
@@ -849,6 +942,19 @@ const Ticket = () => {
           <FaEraser className="w-5 h-5" />
           {t("filters.clear")}
         </button>
+        <button
+          onClick={() => setShowOnlyDeleted((prev) => !prev)}
+          className={`flex items-center justify-center gap-2 min-w-[150px] px-4 py-2.5 text-white font-medium rounded-lg shadow-md hover:shadow-lg transition-all duration-200
+          ${showOnlyDeleted
+              ? 'bg-green-600 hover:bg-green-700'
+              : 'bg-red-600 hover:bg-red-700'
+            }`}
+        >
+          <FaTrash size={20} />
+          {showOnlyDeleted ? t("statusFilter.active") : t("statusFilter.deleted")}
+        </button>
+
+
         <div className="flex items-center gap-4 flex-wrap">
           {statusTickets.map((status) => (
             <label
@@ -884,12 +990,12 @@ const Ticket = () => {
       </div>
 
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6 p-6 w-full">
-        {isLoading ? (
+        {(isLoading || (showOnlyDeleted && loadingTrashed)) ? (
           <div className="col-span-full flex justify-center items-center py-12">
             <Spin />
           </div>
         ) : filteredTickets.length > 0 ? (
-          filteredTickets.map((ticket) => (
+          visibleTickets.map((ticket) => (
             <motion.div
               key={ticket.id}
               initial={{ opacity: 0, y: 20 }}
@@ -977,14 +1083,15 @@ const Ticket = () => {
               </div>
             </motion.div>
           ))
-        ) : (
+        ) : ((showOnlyDeleted && trashedTickets.length === 0) || (!showOnlyDeleted && filteredTickets.length === 0)) ? (
           <div className="col-span-full flex flex-col items-center justify-center py-12 text-gray-500">
             <IoTicketOutline className="w-16 h-16 mb-4 text-white" />
             <p className="text-lg font-medium text-white">
               {t("messages.noTicketsFound")}
             </p>
           </div>
-        )}
+        ) : null}
+
       </div>
 
       <Modal
@@ -1194,9 +1301,42 @@ const Ticket = () => {
                   </button>
                 )}
               </div>
+              <button
+                onClick={() => {
+                  if (selectedTicket.deleted_at) {
+                    handleRestore(selectedTicket.id);
+                  } else {
+                    setTicketToDelete(selectedTicket.id);
+                    setIsDeleteModalVisible(true);
+                  }
+                }}
+                className={`flex items-center gap-1.5 px-2.5 py-1 text-xs font-medium rounded-lg transition-all duration-200 shadow-sm hover:shadow-md ${selectedTicket.deleted_at
+                  ? 'bg-green-500 hover:bg-green-600 text-white'
+                  : 'bg-red-500 hover:bg-red-600 text-white'
+                  }`}
+              >
+                {selectedTicket.deleted_at ? (
+                  <>
+                    <MdRestore className="w-3.5 h-3.5" />
+                    {t('buttons.restore')}
+                  </>
+                ) : (
+                  <>
+                    <FiTrash2 className="w-3.5 h-3.5" />
+                    {t('buttons.delete')}
+                  </>
+                )}
+              </button>
+
+              {selectedTicket?.deleted_at && daysLeft !== null && (
+                <p
+                  className={`mt-1 text-sm ${daysLeft <= 5 ? "text-red-600" : "text-gray-500"
+                    }`}
+                >
+                  {t("messages.expiresInDays", { days: daysLeft })}
+                </p>
+              )}
             </div>
-
-
           }
           isVisible={showModal}
           onClose={() => {
@@ -1704,6 +1844,18 @@ const Ticket = () => {
           </div>
         )}
       </Modal>
+      <DeleteConfirmModal
+        isVisible={isDeleteModalVisible}
+        onClose={() => {
+          if (!isDeleting) {
+            setIsDeleteModalVisible(false);
+            setTicketToDelete(null);
+          }
+        }}
+        onConfirm={handleDelete}
+        loading={isDeleting}
+      />
+
     </div>
   );
 };

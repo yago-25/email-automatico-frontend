@@ -93,7 +93,7 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
         navigate("/dashboard");
       }, 300);
 
-      return res; // Retornando a resposta para o chamador
+      return res; 
     } catch (error: any) {
       console.error("Erro no login com Google:", error);
       throw new Error("Erro ao autenticar com Google");

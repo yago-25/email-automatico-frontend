@@ -50,43 +50,43 @@ const Approve = () => {
   }, []);
 
   const fetchData = async () => {
-  try {
-    const token = localStorage.getItem("accessToken");
-    
-    const [solRes, cargosRes] = await Promise.all([
-      api.get<Solicitacao[]>("/solicitacoes", {
-        headers: {
-          Authorization: `Bearer ${token}`,
-        },
-      }),
-      api.get<Cargo[]>("/cargos", {
-        headers: {
-          Authorization: `Bearer ${token}`,
-        },
-      }),
-    ]);
+    try {
+      const token = localStorage.getItem("accessToken");
 
-    setSolicitacoes(solRes.data);
-    setCargos(cargosRes.data);
-  } catch (err) {
-    messageAlert({
-      type: "error",
-      message: t("approve_page.fetch_error"),
-    });
-    console.log(err, "Error");
-  } finally {
-    setLoading(false);
-  }
-};
+      const [solRes, cargosRes] = await Promise.all([
+        api.get<Solicitacao[]>("/solicitacoes", {
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        }),
+        api.get<Cargo[]>("/cargos", {
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        }),
+      ]);
+
+      setSolicitacoes(solRes.data);
+      setCargos(cargosRes.data);
+    } catch (err) {
+      messageAlert({
+        type: "error",
+        message: t("approve_page.fetch_error"),
+      });
+      console.log(err, "Error");
+    } finally {
+      setLoading(false);
+    }
+  };
 
 
   const aprovar = async (id: number, cargoId: number) => {
     try {
-      await api.post(`/solicitacoes/aprovar/${id}`, { cargo_id: cargoId },{
-          headers: {
-            Authorization: `Bearer ${localStorage.getItem("accessToken")}`,
-          },
-        }
+      await api.post(`/solicitacoes/aprovar/${id}`, { cargo_id: cargoId }, {
+        headers: {
+          Authorization: `Bearer ${localStorage.getItem("accessToken")}`,
+        },
+      }
       );
       messageAlert({
         type: "success",
@@ -106,7 +106,9 @@ const Approve = () => {
     if (solicitacoesToDelete === null) return;
     setLoading(true);
     try {
-      await api.post(`/solicitacoes/rejeitar/${solicitacoesToDelete}`,
+      await api.post(
+        `/solicitacoes/rejeitar/${solicitacoesToDelete}`,
+        {}, 
         {
           headers: {
             Authorization: `Bearer ${localStorage.getItem("accessToken")}`,

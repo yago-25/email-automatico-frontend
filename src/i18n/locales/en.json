@@ -20,7 +20,8 @@
     "error": "Error while logging in",
     "error_google": "Google login failed",
     "request_sent": "Request sent. Please wait for approval.",
-    "request_already_sent": "Request already sent. Please wait for approval."
+    "request_already_sent": "Request already sent. Please wait for approval.",
+    "loginorpassword": "Incorrect username or password."
   },
   "register_page": {
     "title": "Create Account",
@@ -62,7 +63,9 @@
     "console_failed": "Token verification failed for email:",
     "console_error": "Error verifying token:",
     "console_verification_end": "Verification process completed.",
-    "console_resend": "Resending token for email:"
+    "console_resend": "Resending token for email:",
+    "instructions": "Check your email by clicking the link we sent. If you can't find it, check your spam folder.",
+    "token_error": "Invalid token"
   },
   "password_reset": {
     "title": "Password Reset",
@@ -73,7 +76,8 @@
     "fill_all_fields": "Please fill in all fields.",
     "passwords_do_not_match": "Passwords do not match.",
     "success": "Password reset successfully!",
-    "error": "Error resetting password. Please try again later."
+    "error": "Error resetting password. Please try again later.",
+    "min": "The password must be at least 6 characters long."
   },
   "password_reset_email": {
     "title": "Password Reset",
@@ -254,10 +258,17 @@
     "cancel": "Cancel",
     "save": "Save",
     "saving": "Saving...",
-    "edit": "Edit"
+    "edit": "Edit",
+    "delete": "Delete",
+    "restore": "Restore"
   },
   "messages": {
-    "noTicketsFound": "No tickets found"
+    "noTicketsFound": "No tickets found",
+    "ticketDeleted": "Ticket deleted successfully.",
+    "errorDeletingTicket": "Error deleting the ticket.",
+    "ticketRestored": "Ticket restored successfully.",
+    "errorRestoringTicket": "Error restoring ticket.",
+    "expiresInDays": "Expires in {{days}} days"
   },
   "users": {
     "users": "Users",
@@ -653,7 +664,7 @@
     "completed": "Completed",
     "discarded": "Discarded"
   },
-   "ticketCharts": {
+  "ticketCharts": {
     "statusDistribution": "Ticket Status Distribution"
   },
   "emailStatus": {
@@ -689,5 +700,21 @@
   "tooltips": {
     "viewClients": "View Clients",
     "viewTickets": "View Tickets"
+  },
+  "statusFilter": {
+    "active": "Active",
+    "deleted": "Deleted"
+  },
+  "whatsappInstances": {
+    "title": "Your WhatsApp Instances",
+    "description": "Create and connect multiple instances to send automatic messages.",
+    "numberWithDDD": "Number with area code",
+    "addInstance": "Add Instance"
+  },
+   "whatsappAlerts": {
+    "fillNumber": "Please enter the number to connect",
+    "qrCodeError": "Unable to get QR Code. Please try again.",
+    "connectError": "Error connecting number. Please try again.",
+    "invalidInstanceName": "Invalid instance name to update status."
   }
 }
