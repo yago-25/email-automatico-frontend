@@ -15,7 +15,6 @@ import { IoChatboxEllipses } from "react-icons/io5";
 import { useNavigate } from "react-router-dom";
 import { Spin } from "antd";
 import { useTranslation } from "react-i18next";
-const { t } = useTranslation();
 
 type WhatsAppInstance = {
   id: number;
@@ -34,6 +33,8 @@ type ResponseData = {
 };
 
 const WhatsApp = () => {
+  const { t } = useTranslation();
+
   const navigate = useNavigate();
 
   const storedUser = localStorage.getItem("user");
@@ -53,7 +54,7 @@ const WhatsApp = () => {
     if (!newNumber.trim()) {
       return messageAlert({
         type: "error",
-        message: t('whatsappAlerts.fillNumber')
+        message: t("whatsappAlerts.fillNumber"),
       });
     }
 
@@ -92,13 +93,13 @@ const WhatsApp = () => {
       } else {
         messageAlert({
           type: "error",
-          message: t('whatsappAlerts.qrCodeError')
+          message: t("whatsappAlerts.qrCodeError"),
         });
       }
     } catch (e) {
       messageAlert({
         type: "error",
-        message: t('whatsappAlerts.connectError')
+        message: t("whatsappAlerts.connectError"),
       });
       console.error("Erro ao conectar número: ", e);
     } finally {
@@ -110,7 +111,7 @@ const WhatsApp = () => {
     if (!instanceName) {
       messageAlert({
         type: "error",
-        message: t('whatsappAlerts.invalidInstanceName')
+        message: t("whatsappAlerts.invalidInstanceName"),
       });
       return;
     }
@@ -202,16 +203,16 @@ const WhatsApp = () => {
           <div className="text-white">
             <h1 className="text-3xl font-bold flex items-center gap-3 mb-2">
               <FaWhatsapp className="text-green-400" />
-              {t('whatsappInstances.title')}
+              {t("whatsappInstances.title")}
             </h1>
             <p className="text-blue-100">
-              {t('whatsappInstances.description')}
+              {t("whatsappInstances.description")}
             </p>
           </div>
 
           <div className="flex items-center gap-3">
             <Input
-              text={t('whatsappInstances.numberWithDDD')}
+              text={t("whatsappInstances.numberWithDDD")}
               value={newNumber}
               onChange={(e) => setNewNumber(e.target.value)}
               styles={{ width: "256px" }}
@@ -226,7 +227,7 @@ const WhatsApp = () => {
               ) : (
                 <>
                   <AiOutlinePlus size={20} />
-                  {t('whatsappInstances.addInstance')}
+                  {t("whatsappInstances.addInstance")}
                 </>
               )}
             </button>
