@@ -2,7 +2,7 @@
 import { useEffect, useState } from "react";
 import Header from "../../components/Header/Header";
 import "./clients.css";
-import { Eye, EyeOff, Pencil, Trash } from "lucide-react";
+import { Pencil, Trash } from "lucide-react";
 import { messageAlert } from "../../utils/messageAlert";
 import Spin from "../../components/Spin/Spin";
 import { api } from "../../api/api";
@@ -15,7 +15,7 @@ import {
 import { User } from "../../models/User";
 import { useTranslation } from "react-i18next";
 import { MdOutlineFormatListNumbered } from "react-icons/md";
-import { CiPhone, CiUser } from "react-icons/ci";
+import { CiPhone } from "react-icons/ci";
 import { CiMail } from "react-icons/ci";
 import { FaGear } from "react-icons/fa6";
 import { HiOutlineUser } from "react-icons/hi";
@@ -45,34 +45,6 @@ interface DeleteConfirmModal {
   onClose: () => void;
   onConfirm: () => void;
 }
-
-const PasswordCell = ({ password }: { password: string }) => {
-  const [visible, setVisible] = useState(false);
-  const toggleVisibility = () => setVisible((prev) => !prev);
-
-  return (
-    <div className="flex items-center justify-center gap-2 max-w-[220px] group">
-      <Tooltip
-        title={
-          password ? (visible ? password : "*".repeat(password.length)) : null
-        }
-      >
-        <p className="text-center text-gray-700 max-w-[100px] truncate">
-          {password ? (visible ? password : "*".repeat(password.length)) : "-"}
-        </p>
-      </Tooltip>
-      {password && (
-        <button
-          type="button"
-          onClick={toggleVisibility}
-          className="text-gray-500 hover:text-gray-800 transition"
-        >
-          {visible ? <EyeOff size={16} /> : <Eye size={16} />}
-        </button>
-      )}
-    </div>
-  );
-};
 
 const Clients = () => {
   const user = JSON.parse(localStorage.getItem("user") || "{}");
@@ -142,12 +114,12 @@ const Clients = () => {
   const filteredClients = clientFromState
     ? clients.filter((client) => client.id === clientFromState.id)
     : clients
-      .filter(
-        (client) =>
-          client.name.toLowerCase().includes(filteredTxt.toLowerCase()) ||
-          client.mail.toLowerCase().includes(filteredTxt.toLowerCase())
-      )
-      .sort((a, b) => a.id - b.id);
+        .filter(
+          (client) =>
+            client.name.toLowerCase().includes(filteredTxt.toLowerCase()) ||
+            client.mail.toLowerCase().includes(filteredTxt.toLowerCase())
+        )
+        .sort((a, b) => a.id - b.id);
 
   const totalPages = Math.ceil(filteredClients.length / itemsPerPage);
   const startIndex = (currentPage - 1) * itemsPerPage;
@@ -317,7 +289,7 @@ const Clients = () => {
         </div>
 
         <div className="w-full rounded-xl overflow-hidden shadow-md">
-          <div className="grid grid-cols-7 gap-x-6 items-center px-6 py-4 bg-blue-100 border-b text-blue-900 font-semibold text-sm">
+          <div className="grid grid-cols-5 gap-x-6 items-center px-6 py-4 bg-blue-100 border-b text-blue-900 font-semibold text-sm">
             <p className="flex items-center gap-2">
               <MdOutlineFormatListNumbered /> ID
             </p>
@@ -330,13 +302,6 @@ const Clients = () => {
             <p className="flex items-center gap-2">
               <CiPhone /> {t("clients.phone")}
             </p>
-            <p className="flex items-center gap-2 justify-center">
-              <CiUser className="text-blue-700" /> {t("clients.user")}
-            </p>
-            <p className="flex items-center gap-2 justify-center">
-              <MdOutlinePassword className="text-blue-700" />{" "}
-              {t("clients.password")}
-            </p>
             <p className="flex items-center justify-center gap-2">
               <FaGear /> {t("clients.actions")}
             </p>
@@ -345,7 +310,7 @@ const Clients = () => {
           {currentClients.map((client) => (
             <div
               key={client.id}
-              className="grid grid-cols-7 gap-x-6 items-center px-6 py-4 bg-white border-b hover:bg-gray-50 text-sm"
+              className="grid grid-cols-5 gap-x-6 items-center px-6 py-4 bg-white border-b hover:bg-gray-50 text-sm"
             >
               <p>{client.id}</p>
               <Tooltip title={client.name}>
@@ -357,12 +322,6 @@ const Clients = () => {
                 </p>
               </Tooltip>
               <p title={client.phone}>{formatPhone(client.phone)}</p>
-              <Tooltip title={client.user ?? null}>
-                <p className="text-center truncate text-gray-700">
-                  {client.user ?? "-"}
-                </p>
-              </Tooltip>
-              <PasswordCell key={client.id} password={client.password ?? ""} />
               <div className="flex justify-center gap-4">
                 <button
                   onClick={() => handleTicket(client)}
@@ -477,7 +436,7 @@ const Clients = () => {
                   </label>
                 </div>
                 <PhoneInput
-                  country={"br"}
+                  country={"us"}
                   value={editingClient.phone}
                   onChange={(phone) =>
                     setEditingClient({ ...editingClient, phone })
@@ -647,7 +606,7 @@ const Clients = () => {
                   </label>
                 </div>
                 <PhoneInput
-                  country={"br"}
+                  country={"us"}
                   value={clientPhone}
                   onChange={setClientPhone}
                   prefix="+"

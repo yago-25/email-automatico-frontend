@@ -5,8 +5,15 @@ import { useTranslation } from "react-i18next";
 import Spin from "../../components/Spin/Spin";
 import { api } from "../../api/api";
 import { messageAlert } from "../../utils/messageAlert";
-import { HiMail, HiLockClosed, HiUser, HiPhone, HiUserAdd, HiArrowLeft } from 'react-icons/hi';
-import { BsShieldLock } from 'react-icons/bs';
+import {
+  HiMail,
+  HiLockClosed,
+  HiUser,
+  HiPhone,
+  HiUserAdd,
+  HiArrowLeft,
+} from "react-icons/hi";
+import { BsShieldLock } from "react-icons/bs";
 import PhoneInput from "react-phone-input-2";
 
 const Register = () => {
@@ -23,12 +30,18 @@ const Register = () => {
 
   const handleRegister = async () => {
     if (!fullName || !email || !phone || !username || !password) {
-      messageAlert({ type: "error", message: t("register_page.fill_all_fields") });
+      messageAlert({
+        type: "error",
+        message: t("register_page.fill_all_fields"),
+      });
       return;
     }
 
     if (password !== confirmPassword) {
-      messageAlert({ type: "error", message: t("register_page.password_mismatch") });
+      messageAlert({
+        type: "error",
+        message: t("register_page.password_mismatch"),
+      });
       setLoading(false);
       return;
     }
@@ -114,7 +127,7 @@ const Register = () => {
                 <HiPhone className="h-5 w-5 text-blue-200" />
               </div>
               <PhoneInput
-                country={"br"}
+                country={"us"}
                 value={phone}
                 onChange={(value) => {
                   const onlyNums = value.replace(/\D/g, "");
@@ -131,7 +144,7 @@ const Register = () => {
                   width: "100%",
                   height: "48px",
                   backgroundColor: "transparent",
-                  border: "1px solid rgba(147, 197, 253, 0.2)", 
+                  border: "1px solid rgba(147, 197, 253, 0.2)",
                   color: "#fff",
                   paddingLeft: "2.5rem",
                   borderRadius: "0.75rem",
@@ -148,7 +161,6 @@ const Register = () => {
                 countryCodeEditable={false}
               />
             </div>
-
           </div>
 
           <div className="relative">
