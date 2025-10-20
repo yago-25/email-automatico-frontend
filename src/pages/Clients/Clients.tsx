@@ -15,9 +15,9 @@ import {
 import { User } from "../../models/User";
 import { useTranslation } from "react-i18next";
 import { MdOutlineFormatListNumbered } from "react-icons/md";
-import { CiPhone } from "react-icons/ci";
+import { CiFilter, CiPhone } from "react-icons/ci";
 import { CiMail } from "react-icons/ci";
-import { FaGear } from "react-icons/fa6";
+import { FaGear, FaTruckRampBox } from "react-icons/fa6";
 import { HiOutlineUser } from "react-icons/hi";
 import { IoTicketOutline } from "react-icons/io5";
 import { useLocation, useNavigate } from "react-router-dom";
@@ -26,16 +26,21 @@ import { HiMail, HiPhone, HiUser } from "react-icons/hi";
 import { HiUserAdd, HiX } from "react-icons/hi";
 import PhoneInput from "react-phone-input-2";
 import "react-phone-input-2/lib/style.css";
-import { FaEraser } from "react-icons/fa";
+import { FaEraser, FaTruck } from "react-icons/fa";
 import useSwr from "swr";
 import { parsePhoneNumberFromString } from "libphonenumber-js";
 import { Tooltip } from "antd";
+import { RiSortNumberAsc } from "react-icons/ri";
+import { HiOutlineNumberedList } from "react-icons/hi2";
 
 interface Client {
   id: number;
   name: string;
   phone: string;
   mail: string;
+  active: boolean;
+  dot_number: string;
+  operation_type: string;
   user?: string;
   password?: string;
 }
@@ -69,6 +74,8 @@ const Clients = () => {
   const [currentPage, setCurrentPage] = useState(1);
   const [loadingPost, setLoadingPost] = useState(false);
   const [clientIdToDelete, setClientIdToDelete] = useState<number | null>(null);
+  const [clientDot, setClientDot] = useState("");
+  const [clientOperationType, setClientOperationType] = useState("");
 
   const { state } = useLocation();
   const clientFromState = state?.client;
@@ -153,6 +160,8 @@ const Clients = () => {
           mail: clientMail,
           user: clientUser,
           password: clientPassword,
+          dot_number: clientDot,
+          operation_type: clientOperationType,
         },
         {
           headers: {
@@ -285,11 +294,17 @@ const Clients = () => {
                 {t("dashboard.add_client")}
               </button>
             )}
+            <button
+              onClick={handleClearFilter}
+              className="flex items-center justify-center gap-2 px-4 py-2.5 bg-purple-600 text-white font-medium rounded-lg shadow-md hover:bg-purple-700 hover:shadow-lg transition-all duration-200"
+            >
+              <CiFilter className="w-5 h-5" />
+            </button>
           </div>
         </div>
 
         <div className="w-full rounded-xl overflow-hidden shadow-md">
-          <div className="grid grid-cols-5 gap-x-6 items-center px-6 py-4 bg-blue-100 border-b text-blue-900 font-semibold text-sm">
+          <div className="grid grid-cols-7 gap-x-6 items-center px-6 py-4 bg-blue-100 border-b text-blue-900 font-semibold text-sm">
             <p className="flex items-center gap-2">
               <MdOutlineFormatListNumbered /> ID
             </p>
@@ -302,6 +317,12 @@ const Clients = () => {
             <p className="flex items-center gap-2">
               <CiPhone /> {t("clients.phone")}
             </p>
+            <p className="flex items-center gap-2 justify-center">
+              <HiOutlineNumberedList className="text-blue-700" /> DOT Number
+            </p>
+            <p className="flex items-center gap-2 justify-center">
+              <FaTruckRampBox className="text-blue-700" /> Operation Type
+            </p>
             <p className="flex items-center justify-center gap-2">
               <FaGear /> {t("clients.actions")}
             </p>
@@ -310,7 +331,7 @@ const Clients = () => {
           {currentClients.map((client) => (
             <div
               key={client.id}
-              className="grid grid-cols-5 gap-x-6 items-center px-6 py-4 bg-white border-b hover:bg-gray-50 text-sm"
+              className="grid grid-cols-7 gap-x-6 items-center px-6 py-4 bg-white border-b hover:bg-gray-50 text-sm"
             >
               <p>{client.id}</p>
               <Tooltip title={client.name}>
@@ -322,6 +343,18 @@ const Clients = () => {
                 </p>
               </Tooltip>
               <p title={client.phone}>{formatPhone(client.phone)}</p>
+              <p
+                className="text-center text-gray-700"
+                title={client.dot_number}
+              >
+                {client.dot_number ?? "-"}
+              </p>
+              <p
+                className="text-center text-gray-700"
+                title={client.operation_type}
+              >
+                {client.operation_type ?? "-"}
+              </p>
               <div className="flex justify-center gap-4">
                 <button
                   onClick={() => handleTicket(client)}
@@ -406,130 +439,189 @@ const Clients = () => {
             </div>
           ) : editingClient ? (
             <div className="bg-gradient-to-br from-white to-blue-50/50 p-8 rounded-3xl shadow-lg space-y-6">
-              <div className="space-y-2">
-                <div className="flex items-center gap-3 mb-2">
-                  <div className="p-2.5 bg-gradient-to-br from-blue-500 to-blue-600 rounded-xl text-white shadow-sm">
-                    <HiUser className="w-5 h-5" />
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                <div className="space-y-2">
+                  <div className="flex items-center gap-3 mb-2">
+                    <div className="p-2.5 bg-gradient-to-br from-blue-500 to-blue-600 rounded-xl text-white shadow-sm">
+                      <HiUser className="w-5 h-5" />
+                    </div>
+                    <label className="text-sm font-semibold text-gray-700">
+                      {t("clients.name")}
+                    </label>
                   </div>
-                  <label className="text-sm font-semibold text-gray-700">
-                    {t("clients.name")}
-                  </label>
+                  <input
+                    type="text"
+                    value={editingClient.name}
+                    onChange={(e) =>
+                      setEditingClient({
+                        ...editingClient,
+                        name: e.target.value,
+                      })
+                    }
+                    className="w-full border border-gray-200 rounded-2xl px-5 py-4 text-base shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-400 bg-white/70 backdrop-blur-sm transition-all duration-200 hover:border-blue-300"
+                    placeholder={t("clients.name")}
+                  />
                 </div>
-                <input
-                  type="text"
-                  value={editingClient.name}
-                  onChange={(e) =>
-                    setEditingClient({ ...editingClient, name: e.target.value })
-                  }
-                  className="w-full border border-gray-200 rounded-2xl px-5 py-4 text-base shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-400 bg-white/70 backdrop-blur-sm transition-all duration-200 hover:border-blue-300"
-                  placeholder={t("clients.name")}
-                />
-              </div>
 
-              <div className="space-y-2">
-                <div className="flex items-center gap-3 mb-2">
-                  <div className="p-2.5 bg-gradient-to-br from-green-500 to-green-600 rounded-xl text-white shadow-sm">
-                    <HiPhone className="w-5 h-5" />
+                <div className="space-y-2">
+                  <div className="flex items-center gap-3 mb-2">
+                    <div className="p-2.5 bg-gradient-to-br from-green-500 to-green-600 rounded-xl text-white shadow-sm">
+                      <HiPhone className="w-5 h-5" />
+                    </div>
+                    <label className="text-sm font-semibold text-gray-700">
+                      {t("clients.phone")}
+                    </label>
                   </div>
-                  <label className="text-sm font-semibold text-gray-700">
-                    {t("clients.phone")}
-                  </label>
+                  <PhoneInput
+                    country={"us"}
+                    value={editingClient.phone}
+                    onChange={(phone) =>
+                      setEditingClient({ ...editingClient, phone })
+                    }
+                    prefix="+"
+                    inputProps={{
+                      required: true,
+                      className:
+                        "w-full border border-gray-200 rounded-2xl px-5 py-4 text-base shadow-sm focus:outline-none focus:ring-2 focus:ring-green-400 bg-white/70 backdrop-blur-sm transition-all duration-200 hover:border-green-300",
+                    }}
+                    containerStyle={{ width: "100%" }}
+                    inputStyle={{
+                      width: "100%",
+                      height: "56px",
+                      borderRadius: "1rem",
+                      border: "1px solid #E5E7EB",
+                      fontSize: "16px",
+                      paddingLeft: "48px",
+                    }}
+                    buttonStyle={{
+                      borderTopLeftRadius: "1rem",
+                      borderBottomLeftRadius: "1rem",
+                      backgroundColor: "#F3F4F6",
+                      border: "1px solid #E5E7EB",
+                      borderRight: "none",
+                    }}
+                    enableSearch={false}
+                    disableSearchIcon={true}
+                    countryCodeEditable={false}
+                  />
                 </div>
-                <PhoneInput
-                  country={"us"}
-                  value={editingClient.phone}
-                  onChange={(phone) =>
-                    setEditingClient({ ...editingClient, phone })
-                  }
-                  prefix="+"
-                  inputProps={{
-                    required: true,
-                    className:
-                      "w-full border border-gray-200 rounded-2xl px-5 py-4 text-base shadow-sm focus:outline-none focus:ring-2 focus:ring-green-400 bg-white/70 backdrop-blur-sm transition-all duration-200 hover:border-green-300",
-                  }}
-                  containerStyle={{ width: "100%" }}
-                  inputStyle={{
-                    width: "100%",
-                    height: "56px",
-                    borderRadius: "1rem",
-                    border: "1px solid #E5E7EB",
-                    fontSize: "16px",
-                    paddingLeft: "48px",
-                  }}
-                  buttonStyle={{
-                    borderTopLeftRadius: "1rem",
-                    borderBottomLeftRadius: "1rem",
-                    backgroundColor: "#F3F4F6",
-                    border: "1px solid #E5E7EB",
-                    borderRight: "none",
-                  }}
-                  enableSearch={false}
-                  disableSearchIcon={true}
-                  countryCodeEditable={false}
-                />
-              </div>
 
-              <div className="space-y-2">
-                <div className="flex items-center gap-3 mb-2">
-                  <div className="p-2.5 bg-gradient-to-br from-purple-500 to-purple-600 rounded-xl text-white shadow-sm">
-                    <HiMail className="w-5 h-5" />
+                <div className="space-y-2 md:col-span-2">
+                  <div className="flex items-center gap-3 mb-2">
+                    <div className="p-2.5 bg-gradient-to-br from-purple-500 to-purple-600 rounded-xl text-white shadow-sm">
+                      <HiMail className="w-5 h-5" />
+                    </div>
+                    <label className="text-sm font-semibold text-gray-700">
+                      {t("clients.email")}
+                    </label>
                   </div>
-                  <label className="text-sm font-semibold text-gray-700">
-                    {t("clients.email")}
-                  </label>
+                  <input
+                    type="email"
+                    value={editingClient.mail}
+                    onChange={(e) =>
+                      setEditingClient({
+                        ...editingClient,
+                        mail: e.target.value,
+                      })
+                    }
+                    className="w-full border border-gray-200 rounded-2xl px-5 py-4 text-base shadow-sm focus:outline-none focus:ring-2 focus:ring-purple-400 bg-white/70 backdrop-blur-sm transition-all duration-200 hover:border-purple-300"
+                    placeholder={t("clients.email")}
+                  />
                 </div>
-                <input
-                  type="email"
-                  value={editingClient.mail}
-                  onChange={(e) =>
-                    setEditingClient({ ...editingClient, mail: e.target.value })
-                  }
-                  className="w-full border border-gray-200 rounded-2xl px-5 py-4 text-base shadow-sm focus:outline-none focus:ring-2 focus:ring-purple-400 bg-white/70 backdrop-blur-sm transition-all duration-200 hover:border-purple-300"
-                  placeholder={t("clients.email")}
-                />
-              </div>
 
-              <div className="space-y-2">
-                <div className="flex items-center gap-3 mb-2">
-                  <div className="p-2.5 bg-gradient-to-br from-red-500 to-red-600 rounded-xl text-white shadow-sm">
-                    <HiUser className="w-5 h-5" />
+                <div className="space-y-2">
+                  <div className="flex items-center gap-3 mb-2">
+                    <div className="p-2.5 bg-gradient-to-br from-red-500 to-red-600 rounded-xl text-white shadow-sm">
+                      <HiUser className="w-5 h-5" />
+                    </div>
+                    <label className="text-sm font-semibold text-gray-700">
+                      {t("clients.user")} (Opcional)
+                    </label>
                   </div>
-                  <label className="text-sm font-semibold text-gray-700">
-                    {t("clients.user")} (Opcional)
-                  </label>
+                  <input
+                    type="text"
+                    value={editingClient.user}
+                    onChange={(e) =>
+                      setEditingClient({
+                        ...editingClient,
+                        user: e.target.value,
+                      })
+                    }
+                    className="w-full border border-gray-200 rounded-2xl px-5 py-4 text-base shadow-sm focus:outline-none focus:ring-2 focus:ring-purple-400 bg-white/70 backdrop-blur-sm transition-all duration-200 hover:border-purple-300"
+                    placeholder={t("clients.user")}
+                  />
                 </div>
-                <input
-                  type="text"
-                  value={editingClient.user}
-                  onChange={(e) =>
-                    setEditingClient({ ...editingClient, user: e.target.value })
-                  }
-                  className="w-full border border-gray-200 rounded-2xl px-5 py-4 text-base shadow-sm focus:outline-none focus:ring-2 focus:ring-purple-400 bg-white/70 backdrop-blur-sm transition-all duration-200 hover:border-purple-300"
-                  placeholder={t("clients.user")}
-                />
-              </div>
 
-              <div className="space-y-2">
-                <div className="flex items-center gap-3 mb-2">
-                  <div className="p-2.5 bg-gradient-to-br from-yellow-500 to-yellow-600 rounded-xl text-white shadow-sm">
-                    <MdOutlinePassword className="w-5 h-5" />
+                <div className="space-y-2">
+                  <div className="flex items-center gap-3 mb-2">
+                    <div className="p-2.5 bg-gradient-to-br from-yellow-500 to-yellow-600 rounded-xl text-white shadow-sm">
+                      <MdOutlinePassword className="w-5 h-5" />
+                    </div>
+                    <label className="text-sm font-semibold text-gray-700">
+                      {t("clients.password")} (Opcional)
+                    </label>
                   </div>
-                  <label className="text-sm font-semibold text-gray-700">
-                    {t("clients.password")} (Opcional)
-                  </label>
+                  <input
+                    type="text"
+                    value={editingClient.password}
+                    onChange={(e) =>
+                      setEditingClient({
+                        ...editingClient,
+                        password: e.target.value,
+                      })
+                    }
+                    className="w-full border border-gray-200 rounded-2xl px-5 py-4 text-base shadow-sm focus:outline-none focus:ring-2 focus:ring-purple-400 bg-white/70 backdrop-blur-sm transition-all duration-200 hover:border-purple-300"
+                    placeholder={t("clients.password")}
+                  />
                 </div>
-                <input
-                  type="text"
-                  value={editingClient.password}
-                  onChange={(e) =>
-                    setEditingClient({
-                      ...editingClient,
-                      password: e.target.value,
-                    })
-                  }
-                  className="w-full border border-gray-200 rounded-2xl px-5 py-4 text-base shadow-sm focus:outline-none focus:ring-2 focus:ring-purple-400 bg-white/70 backdrop-blur-sm transition-all duration-200 hover:border-purple-300"
-                  placeholder={t("clients.password")}
-                />
+
+                <div className="space-y-2">
+                  <div className="flex items-center gap-3 mb-2">
+                    <div className="p-2.5 bg-gradient-to-br from-yellow-500 to-yellow-600 rounded-xl text-white shadow-sm">
+                      <RiSortNumberAsc className="w-5 h-5" />
+                    </div>
+                    <label className="text-sm font-semibold text-gray-700">
+                      DOT Number
+                    </label>
+                  </div>
+                  <input
+                    type="text"
+                    value={editingClient.dot_number || ""}
+                    onChange={(e) =>
+                      setEditingClient({
+                        ...editingClient,
+                        dot_number: e.target.value,
+                      })
+                    }
+                    className="w-full border border-gray-200 rounded-2xl px-5 py-4 text-base shadow-sm focus:outline-none focus:ring-2 focus:ring-yellow-400 bg-white/70 backdrop-blur-sm transition-all duration-200 hover:border-yellow-300"
+                    placeholder="Ex: 1234567"
+                  />
+                </div>
+
+                <div className="space-y-2">
+                  <div className="flex items-center gap-3 mb-2">
+                    <div className="p-2.5 bg-gradient-to-br from-yellow-500 to-yellow-600 rounded-xl text-white shadow-sm">
+                      <FaTruck className="w-5 h-5" />
+                    </div>
+                    <label className="text-sm font-semibold text-gray-700">
+                      Operation Type
+                    </label>
+                  </div>
+                  <select
+                    value={editingClient.operation_type || ""}
+                    onChange={(e) =>
+                      setEditingClient({
+                        ...editingClient,
+                        operation_type: e.target.value,
+                      })
+                    }
+                    className="w-full border border-gray-200 rounded-xl px-4 py-3 text-sm shadow-sm focus:outline-none focus:ring-2 focus:ring-yellow-400 bg-white/70 backdrop-blur-sm"
+                  >
+                    <option value="">{t("filters.all")}</option>
+                    <option value="interstate">Interstate</option>
+                    <option value="intrastate">Intrastate</option>
+                  </select>
+                </div>
               </div>
 
               <div className="flex gap-4 pt-6">
@@ -577,118 +669,158 @@ const Clients = () => {
               <Spin />
             </div>
           ) : (
-            <div className="bg-gradient-to-br from-white to-blue-50/50 p-8 rounded-3xl shadow-lg space-y-6">
-              <div className="space-y-2">
-                <div className="flex items-center gap-3 mb-2">
-                  <div className="p-2.5 bg-gradient-to-br from-blue-500 to-blue-600 rounded-xl text-white shadow-sm">
-                    <HiUser className="w-5 h-5" />
+            <div className="bg-gradient-to-br from-white to-blue-50/50 p-8 rounded-3xl shadow-lg">
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                <div>
+                  <div className="flex items-center gap-3 mb-2">
+                    <div className="p-2.5 bg-gradient-to-br from-blue-500 to-blue-600 rounded-xl text-white shadow-sm">
+                      <HiUser className="w-5 h-5" />
+                    </div>
+                    <label className="text-sm font-semibold text-gray-700">
+                      {t("dashboard.name")}
+                    </label>
                   </div>
-                  <label className="text-sm font-semibold text-gray-700">
-                    {t("dashboard.name")}
-                  </label>
+                  <input
+                    type="text"
+                    value={clientName}
+                    onChange={(e) => setClientName(e.target.value)}
+                    className="w-full border border-gray-200 rounded-2xl px-5 py-4 text-base shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-400 bg-white/70 backdrop-blur-sm transition-all duration-200 hover:border-blue-300"
+                    placeholder={t("dashboard.name")}
+                  />
                 </div>
-                <input
-                  type="text"
-                  value={clientName}
-                  onChange={(e) => setClientName(e.target.value)}
-                  className="w-full border border-gray-200 rounded-2xl px-5 py-4 text-base shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-400 bg-white/70 backdrop-blur-sm transition-all duration-200 hover:border-blue-300"
-                  placeholder={t("dashboard.name")}
-                />
-              </div>
 
-              <div className="space-y-2">
-                <div className="flex items-center gap-3 mb-2">
-                  <div className="p-2.5 bg-gradient-to-br from-green-500 to-green-600 rounded-xl text-white shadow-sm">
-                    <HiPhone className="w-5 h-5" />
+                <div>
+                  <div className="flex items-center gap-3 mb-2">
+                    <div className="p-2.5 bg-gradient-to-br from-green-500 to-green-600 rounded-xl text-white shadow-sm">
+                      <HiPhone className="w-5 h-5" />
+                    </div>
+                    <label className="text-sm font-semibold text-gray-700">
+                      {t("dashboard.phone")}
+                    </label>
                   </div>
-                  <label className="text-sm font-semibold text-gray-700">
-                    {t("dashboard.phone")}
-                  </label>
+                  <PhoneInput
+                    country={"us"}
+                    value={clientPhone}
+                    onChange={setClientPhone}
+                    prefix="+"
+                    inputProps={{
+                      required: true,
+                      className:
+                        "w-full border border-gray-200 rounded-2xl px-5 py-4 text-base shadow-sm focus:outline-none focus:ring-2 focus:ring-green-400 bg-white/70 backdrop-blur-sm transition-all duration-200 hover:border-green-300",
+                    }}
+                    containerStyle={{ width: "100%" }}
+                    inputStyle={{
+                      width: "100%",
+                      height: "56px",
+                      borderRadius: "1rem",
+                      border: "1px solid #E5E7EB",
+                      fontSize: "16px",
+                      paddingLeft: "48px",
+                    }}
+                    buttonStyle={{
+                      borderTopLeftRadius: "1rem",
+                      borderBottomLeftRadius: "1rem",
+                      backgroundColor: "#F3F4F6",
+                      border: "1px solid #E5E7EB",
+                      borderRight: "none",
+                    }}
+                    enableSearch={false}
+                    disableSearchIcon={true}
+                    countryCodeEditable={false}
+                  />
                 </div>
-                <PhoneInput
-                  country={"us"}
-                  value={clientPhone}
-                  onChange={setClientPhone}
-                  prefix="+"
-                  inputProps={{
-                    required: true,
-                    className:
-                      "w-full border border-gray-200 rounded-2xl px-5 py-4 text-base shadow-sm focus:outline-none focus:ring-2 focus:ring-green-400 bg-white/70 backdrop-blur-sm transition-all duration-200 hover:border-green-300",
-                  }}
-                  containerStyle={{ width: "100%" }}
-                  inputStyle={{
-                    width: "100%",
-                    height: "56px",
-                    borderRadius: "1rem",
-                    border: "1px solid #E5E7EB",
-                    fontSize: "16px",
-                    paddingLeft: "48px",
-                  }}
-                  buttonStyle={{
-                    borderTopLeftRadius: "1rem",
-                    borderBottomLeftRadius: "1rem",
-                    backgroundColor: "#F3F4F6",
-                    border: "1px solid #E5E7EB",
-                    borderRight: "none",
-                  }}
-                  enableSearch={false}
-                  disableSearchIcon={true}
-                  countryCodeEditable={false}
-                />
-              </div>
 
-              <div className="space-y-2">
-                <div className="flex items-center gap-3 mb-2">
-                  <div className="p-2.5 bg-gradient-to-br from-purple-500 to-purple-600 rounded-xl text-white shadow-sm">
-                    <HiMail className="w-5 h-5" />
+                <div className=" md:col-span-2">
+                  <div className="flex items-center gap-3 mb-2 w-full">
+                    <div className="p-2.5 bg-gradient-to-br from-purple-500 to-purple-600 rounded-xl text-white shadow-sm">
+                      <HiMail className="w-5 h-5" />
+                    </div>
+                    <label className="text-sm font-semibold text-gray-700">
+                      {t("dashboard.email")}
+                    </label>
                   </div>
-                  <label className="text-sm font-semibold text-gray-700">
-                    {t("dashboard.email")}
-                  </label>
+                  <input
+                    type="email"
+                    value={clientMail}
+                    onChange={(e) => setClientMail(e.target.value)}
+                    className="w-full border border-gray-200 rounded-2xl px-5 py-4 text-base shadow-sm focus:outline-none focus:ring-2 focus:ring-purple-400 bg-white/70 backdrop-blur-sm transition-all duration-200 hover:border-purple-300"
+                    placeholder={t("dashboard.email")}
+                  />
                 </div>
-                <input
-                  type="email"
-                  value={clientMail}
-                  onChange={(e) => setClientMail(e.target.value)}
-                  className="w-full border border-gray-200 rounded-2xl px-5 py-4 text-base shadow-sm focus:outline-none focus:ring-2 focus:ring-purple-400 bg-white/70 backdrop-blur-sm transition-all duration-200 hover:border-purple-300"
-                  placeholder={t("dashboard.email")}
-                />
-              </div>
 
-              <div className="space-y-2">
-                <div className="flex items-center gap-3 mb-2">
-                  <div className="p-2.5 bg-gradient-to-br from-red-500 to-red-600 rounded-xl text-white shadow-sm">
-                    <HiUser className="w-5 h-5" />
+                <div>
+                  <div className="flex items-center gap-3 mb-2">
+                    <div className="p-2.5 bg-gradient-to-br from-red-500 to-red-600 rounded-xl text-white shadow-sm">
+                      <HiUser className="w-5 h-5" />
+                    </div>
+                    <label className="text-sm font-semibold text-gray-700">
+                      {t("clients.user")} (Opcional)
+                    </label>
                   </div>
-                  <label className="text-sm font-semibold text-gray-700">
-                    {t("clients.user")} (Opcional)
-                  </label>
+                  <input
+                    type="text"
+                    value={clientUser}
+                    onChange={(e) => setClientUser(e.target.value)}
+                    className="w-full border border-gray-200 rounded-2xl px-5 py-4 text-base shadow-sm focus:outline-none focus:ring-2 focus:ring-purple-400 bg-white/70 backdrop-blur-sm transition-all duration-200 hover:border-purple-300"
+                    placeholder={t("clients.user")}
+                  />
                 </div>
-                <input
-                  type="text"
-                  value={clientUser}
-                  onChange={(e) => setClientUser(e.target.value)}
-                  className="w-full border border-gray-200 rounded-2xl px-5 py-4 text-base shadow-sm focus:outline-none focus:ring-2 focus:ring-purple-400 bg-white/70 backdrop-blur-sm transition-all duration-200 hover:border-purple-300"
-                  placeholder={t("clients.user")}
-                />
-              </div>
 
-              <div className="space-y-2">
-                <div className="flex items-center gap-3 mb-2">
-                  <div className="p-2.5 bg-gradient-to-br from-yellow-500 to-yellow-600 rounded-xl text-white shadow-sm">
-                    <MdOutlinePassword className="w-5 h-5" />
+                <div>
+                  <div className="flex items-center gap-3 mb-2">
+                    <div className="p-2.5 bg-gradient-to-br from-yellow-500 to-yellow-600 rounded-xl text-white shadow-sm">
+                      <MdOutlinePassword className="w-5 h-5" />
+                    </div>
+                    <label className="text-sm font-semibold text-gray-700">
+                      {t("clients.password")} (Opcional)
+                    </label>
                   </div>
-                  <label className="text-sm font-semibold text-gray-700">
-                    {t("clients.password")} (Opcional)
-                  </label>
+                  <input
+                    type="password"
+                    value={clientPassword}
+                    onChange={(e) => setClientPassword(e.target.value)}
+                    className="w-full border border-gray-200 rounded-2xl px-5 py-4 text-base shadow-sm focus:outline-none focus:ring-2 focus:ring-purple-400 bg-white/70 backdrop-blur-sm transition-all duration-200 hover:border-purple-300"
+                    placeholder={t("clients.password")}
+                  />
                 </div>
-                <input
-                  type="email"
-                  value={clientPassword}
-                  onChange={(e) => setClientPassword(e.target.value)}
-                  className="w-full border border-gray-200 rounded-2xl px-5 py-4 text-base shadow-sm focus:outline-none focus:ring-2 focus:ring-purple-400 bg-white/70 backdrop-blur-sm transition-all duration-200 hover:border-purple-300"
-                  placeholder={t("clients.password")}
-                />
+
+                <div>
+                  <div className="flex items-center gap-3 mb-2">
+                    <div className="p-2.5 bg-gradient-to-br from-yellow-500 to-yellow-600 rounded-xl text-white shadow-sm">
+                      <RiSortNumberAsc className="w-5 h-5" />
+                    </div>
+                    <label className="text-sm font-semibold text-gray-700">
+                      DOT Number
+                    </label>
+                  </div>
+                  <input
+                    type="text"
+                    value={clientDot}
+                    onChange={(e) => setClientDot(e.target.value)}
+                    className="w-full border border-gray-200 rounded-2xl px-5 py-4 text-base shadow-sm focus:outline-none focus:ring-2 focus:ring-purple-400 bg-white/70 backdrop-blur-sm transition-all duration-200 hover:border-purple-300"
+                    placeholder="Ex: 1234567"
+                  />
+                </div>
+
+                <div>
+                  <div className="flex items-center gap-3 mb-2">
+                    <div className="p-2.5 bg-gradient-to-br from-yellow-500 to-yellow-600 rounded-xl text-white shadow-sm">
+                      <FaTruck className="w-5 h-5" />
+                    </div>
+                    <label className="text-sm font-semibold text-gray-700">
+                      Operation Type
+                    </label>
+                  </div>
+                  <select
+                    value={clientOperationType}
+                    onChange={(e) => setClientOperationType(e.target.value)}
+                    className="w-full h-[55px] border border-gray-200 rounded-xl px-4 py-3 text-sm shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-400 bg-white/70 backdrop-blur-sm"
+                  >
+                    <option value="">{t("filters.all")}</option>
+                    <option value="interstate">Interstate</option>
+                    <option value="intrastate">Intrastate</option>
+                  </select>
+                </div>
               </div>
 
               <div className="flex gap-4 pt-6">
