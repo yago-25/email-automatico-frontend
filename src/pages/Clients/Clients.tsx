@@ -1,5 +1,5 @@
 /* eslint-disable react-hooks/exhaustive-deps */
-import { useEffect, useState } from "react";
+import { useEffect, useState, useMemo } from "react";
 import Header from "../../components/Header/Header";
 import "./clients.css";
 import { Pencil, Trash } from "lucide-react";
@@ -10,6 +10,7 @@ import Modal from "../../components/Modal/Modal";
 import {
   MdArrowBackIos,
   MdArrowForwardIos,
+  MdEmail,
   MdOutlinePassword,
 } from "react-icons/md";
 import { User } from "../../models/User";
@@ -26,7 +27,7 @@ import { HiMail, HiPhone, HiUser } from "react-icons/hi";
 import { HiUserAdd, HiX } from "react-icons/hi";
 import PhoneInput from "react-phone-input-2";
 import "react-phone-input-2/lib/style.css";
-import { FaEraser, FaTruck } from "react-icons/fa";
+import { FaCog, FaEraser, FaFilter, FaPhoneAlt, FaTruck, FaUser } from "react-icons/fa";
 import useSwr from "swr";
 import { parsePhoneNumberFromString } from "libphonenumber-js";
 import { Tooltip } from "antd";
@@ -76,6 +77,13 @@ const Clients = () => {
   const [clientIdToDelete, setClientIdToDelete] = useState<number | null>(null);
   const [clientDot, setClientDot] = useState("");
   const [clientOperationType, setClientOperationType] = useState("");
+  const [showModalFilter, setShowModalFilter] = useState(false);
+  const [filterName, setFilterName] = useState("");
+  const [filterEmail, setFilterEmail] = useState("");
+  const [filterPhone, setFilterPhone] = useState("");
+  const [filterDotNumber, setFilterDotNumber] = useState("");
+  const [filterOperationType, setFilterOperationType] = useState("");
+  const [_, setFilteredClients] = useState<Client[]>([]);
 
   const { state } = useLocation();
   const clientFromState = state?.client;
@@ -121,12 +129,12 @@ const Clients = () => {
   const filteredClients = clientFromState
     ? clients.filter((client) => client.id === clientFromState.id)
     : clients
-        .filter(
-          (client) =>
-            client.name.toLowerCase().includes(filteredTxt.toLowerCase()) ||
-            client.mail.toLowerCase().includes(filteredTxt.toLowerCase())
-        )
-        .sort((a, b) => a.id - b.id);
+      .filter(
+        (client) =>
+          client.name.toLowerCase().includes(filteredTxt.toLowerCase()) ||
+          client.mail.toLowerCase().includes(filteredTxt.toLowerCase())
+      )
+      .sort((a, b) => a.id - b.id);
 
   const totalPages = Math.ceil(filteredClients.length / itemsPerPage);
   const startIndex = (currentPage - 1) * itemsPerPage;
@@ -134,6 +142,41 @@ const Clients = () => {
     startIndex,
     startIndex + itemsPerPage
   );
+
+  const availableClientNames = useMemo(() => {
+    return clients.map((client) => ({
+      value: client.name,
+      label: client.name,
+    }));
+  }, [clients]);
+
+  const availableClientEmails = useMemo(() => {
+    return clients.map((client) => ({
+      value: client.mail,
+      label: client.mail,
+    }));
+  }, [clients]);
+
+  const availableClientPhones = useMemo(() => {
+    return clients.map((client) => ({
+      value: client.phone,
+      label: client.phone,
+    }));
+  }, [clients]);
+
+  const availableClientDotNumbers = useMemo(() => {
+    return clients.map((client) => ({
+      value: client.dot_number,
+      label: client.dot_number,
+    }));
+  }, [clients]);
+
+  const availableOperationTypes = useMemo(() => {
+    const types = clients
+      .map(client => client.operation_type)
+      .filter((type, index, self) => type && self.indexOf(type) === index);
+    return types.map(type => ({ value: type, label: type }));
+  }, [clients]);
 
   const goToPage = (page: number) => {
     if (page >= 1 && page <= totalPages) {
@@ -253,6 +296,54 @@ const Clients = () => {
     navigate("/clients", { replace: true, state: null });
   };
 
+  const handleClearFilters = () => {
+    setFilterName("");
+    setFilterEmail("");
+    setFilterPhone("");
+    setFilterDotNumber("");
+    setFilterOperationType("");
+  }
+
+  const handleFilterToggle = () => {
+    setShowModalFilter(true);
+  };
+
+  const handleFilterChange = () => {
+    mutate();
+
+    const filtered = clients.filter((client) => {
+      const matchesName = filterName
+        ? client.name?.toLowerCase().includes(filterName.toLowerCase())
+        : true;
+
+      const matchesEmail = filterEmail
+        ? client.mail?.toLowerCase().includes(filterEmail.toLowerCase())
+        : true;
+
+      const matchesPhone = filterPhone
+        ? client.phone?.toLowerCase().includes(filterPhone.toLowerCase())
+        : true;
+
+      const matchesDot = filterDotNumber
+        ? client.dot_number?.toString().toLowerCase().includes(filterDotNumber.toLowerCase())
+        : true;
+
+      const matchesOperationType = filterOperationType
+        ? client.operation_type?.toLowerCase().includes(filterOperationType.toLowerCase())
+        : true;
+
+      return (
+        matchesName &&
+        matchesEmail &&
+        matchesPhone &&
+        matchesDot &&
+        matchesOperationType
+      );
+    });
+
+    setFilteredClients(filtered);
+  };
+
   if (isLoading) {
     return <Spin />;
   }
@@ -278,13 +369,6 @@ const Clients = () => {
               }}
               value={filteredTxt}
             />
-            <button
-              onClick={handleClearFilter}
-              className="flex items-center justify-center gap-2 min-w-[150px] px-4 py-2.5 bg-red-600 text-white font-medium rounded-lg shadow-md hover:bg-red-700 hover:shadow-lg transition-all duration-200"
-            >
-              <FaEraser className="w-5 h-5" />
-              {t("filters.clear")}
-            </button>
             {(cargo === 1 || cargo === 2) && (
               <button
                 onClick={() => setAddClient(true)}
@@ -296,6 +380,13 @@ const Clients = () => {
             )}
             <button
               onClick={handleClearFilter}
+              className="flex items-center justify-center gap-2 min-w-[150px] px-4 py-2.5 bg-red-600 text-white font-medium rounded-lg shadow-md hover:bg-red-700 hover:shadow-lg transition-all duration-200"
+            >
+              <FaEraser className="w-5 h-5" />
+              {t("filters.clear")}
+            </button>
+            <button
+              onClick={handleFilterToggle}
               className="flex items-center justify-center gap-2 px-4 py-2.5 bg-purple-600 text-white font-medium rounded-lg shadow-md hover:bg-purple-700 hover:shadow-lg transition-all duration-200"
             >
               <CiFilter className="w-5 h-5" />
@@ -842,6 +933,162 @@ const Clients = () => {
             </div>
           )}
         </Modal>
+        <Modal
+          title={
+            <div className="flex items-center gap-3 text-blue-600">
+              <FaFilter className="w-6 h-6" />
+              <span className="text-2xl font-bold">{t("filters.title")}</span>
+            </div>
+          }
+          isVisible={showModalFilter}
+          onClose={() => {
+            setShowModalFilter(false);
+            mutate(undefined, true);
+          }}
+        >
+          <div className="bg-gradient-to-br from-white to-blue-50/50 p-6 rounded-2xl shadow-lg mt-2 max-w-md mx-auto">
+
+            <div className="mt-4">
+              <div className="flex items-center gap-2 mb-2">
+                <div className="p-2 bg-blue-100 rounded-xl text-blue-600">
+                  <FaUser className="w-5 h-5" />
+                </div>
+                <label className="text-sm font-semibold text-gray-700">
+                  {t("filters.name")}
+                </label>
+              </div>
+              <select
+                value={filterName}
+                onChange={(e) => setFilterName(e.target.value)}
+                className="w-full border border-gray-200 rounded-xl px-4 py-3 text-sm shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-400 bg-white/70 backdrop-blur-sm"
+              >
+                <option value="">{t("filters.all")}</option>
+                {availableClientNames.map((option) => (
+                  <option key={option.value} value={option.value}>
+                    {option.label}
+                  </option>
+                ))}
+              </select>
+            </div>
+
+
+            <div className="mt-4">
+              <div className="flex items-center gap-2 mb-2">
+                <div className="p-2 bg-indigo-100 rounded-xl text-indigo-600">
+                  <MdEmail className="w-5 h-5" />
+                </div>
+                <label className="text-sm font-semibold text-gray-700">
+                  {t("filters.email")}
+                </label>
+              </div>
+              <select
+                value={filterEmail}
+                onChange={(e) => setFilterEmail(e.target.value)}
+                className="w-full border border-gray-200 rounded-xl px-4 py-3 text-sm shadow-sm focus:outline-none focus:ring-2 focus:ring-indigo-400 bg-white/70 backdrop-blur-sm"
+              >
+                <option value="">{t("filters.all")}</option>
+                {availableClientEmails.map((option) => (
+                  <option key={option.value} value={option.value}>
+                    {option.label}
+                  </option>
+                ))}
+              </select>
+            </div>
+
+            <div className="mt-4">
+              <div className="flex items-center gap-2 mb-2">
+                <div className="p-2 bg-green-100 rounded-xl text-green-600">
+                  <FaPhoneAlt className="w-5 h-5" />
+                </div>
+                <label className="text-sm font-semibold text-gray-700">
+                  {t("filters.phone")}
+                </label>
+              </div>
+              <select
+                value={filterPhone}
+                onChange={(e) => setFilterPhone(e.target.value)}
+                className="w-full border border-gray-200 rounded-xl px-4 py-3 text-sm shadow-sm focus:outline-none focus:ring-2 focus:ring-green-400 bg-white/70 backdrop-blur-sm"
+              >
+                <option value="">{t("filters.all")}</option>
+                {availableClientPhones.map((option) => (
+                  <option key={option.value} value={option.value}>
+                    {option.label}
+                  </option>
+                ))}
+              </select>
+            </div>
+
+
+            <div className="mt-4">
+              <div className="flex items-center gap-2 mb-2">
+                <div className="p-2 bg-yellow-100 rounded-xl text-yellow-600">
+                  <FaTruck className="w-5 h-5" />
+                </div>
+                <label className="text-sm font-semibold text-gray-700">
+                  {t("filters.dot")}
+                </label>
+              </div>
+              <select
+                value={filterDotNumber}
+                onChange={(e) => setFilterDotNumber(e.target.value)}
+                className="w-full border border-gray-200 rounded-xl px-4 py-3 text-sm shadow-sm focus:outline-none focus:ring-2 focus:ring-yellow-400 bg-white/70 backdrop-blur-sm"
+              >
+                <option value="">{t("filters.all")}</option>
+                {availableClientDotNumbers.map((option) => (
+                  <option key={option.value} value={option.value}>
+                    {option.label}
+                  </option>
+                ))}
+              </select>
+            </div>
+
+
+            <div className="mt-4">
+              <div className="flex items-center gap-2 mb-2">
+                <div className="p-2 bg-purple-100 rounded-xl text-purple-600">
+                  <FaCog className="w-5 h-5" />
+                </div>
+                <label className="text-sm font-semibold text-gray-700">
+                  {t("filters.operationType")}
+                </label>
+              </div>
+              <select
+                value={filterOperationType}
+                onChange={(e) => setFilterOperationType(e.target.value)}
+                className="w-full border border-gray-200 rounded-xl px-4 py-3 text-sm shadow-sm focus:outline-none focus:ring-2 focus:ring-purple-400 bg-white/70 backdrop-blur-sm"
+              >
+                <option value="">{t("filters.all")}</option>
+                {availableOperationTypes.map((option) => (
+                  <option key={option.value} value={option.value}>
+                    {option.label}
+                  </option>
+                ))}
+              </select>
+            </div>
+
+            <div className="flex gap-4 mt-6">
+              <button
+                onClick={() => {
+                  handleFilterChange();
+                  setShowModalFilter(false);
+                }}
+                className="flex-1 flex items-center justify-center gap-2 py-3 bg-gradient-to-r from-green-500 to-green-600 text-white rounded-xl hover:from-green-600 hover:to-green-700 transition-all duration-300 shadow-lg hover:shadow-xl font-medium"
+              >
+                <FaFilter className="w-4 h-4" />
+                {t("filters.apply")}
+              </button>
+              <button
+                onClick={handleClearFilters}
+                className="flex-1 flex items-center justify-center gap-2 py-3 bg-gradient-to-r from-red-500 to-red-600 text-white rounded-xl hover:from-red-600 hover:to-red-700 transition-all duration-300 shadow-lg hover:shadow-xl font-medium"
+              >
+                <FaEraser className="w-4 h-4" />
+                {t("filters.clear")}
+              </button>
+            </div>
+          </div>
+        </Modal>
+
+
       </div>
     </div>
   );

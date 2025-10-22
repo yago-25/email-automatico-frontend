@@ -155,7 +155,7 @@ const Ticket = () => {
   const authUser: User | null = storedUser ? JSON.parse(storedUser) : null;
   const [selectedTicket, setSelectedTicket] = useState<Ticket | null>(null);
   const [showModal, setShowModal] = useState(false);
-  const [showModalFilter, setShowModalFilter] = useState(false);
+  const [showModalFilter, setShowModalFilter] = useState(false); 
   const [history, setHistory] = useState<TicketHistory[]>([]);
   const [filterTag, setFilterTag] = useState<string>("");
   const [filterDate, setFilterDate] = useState<string>("");
@@ -1224,7 +1224,7 @@ const Ticket = () => {
                 <IoTicketOutline className="w-5 h-5" />
               </div>
               <label className="text-sm font-semibold text-gray-700">
-                {t("filters.ticket")}
+                {t("filters.ticket")} 
               </label>
             </div>
             <select
@@ -1233,7 +1233,7 @@ const Ticket = () => {
               className="w-full border border-gray-200 rounded-xl px-4 py-3 text-sm shadow-sm focus:outline-none focus:ring-2 focus:ring-indigo-400 bg-white/70 backdrop-blur-sm"
             >
               <option value="">{t("filters.all")}</option>
-              {availableTicketOptions.map((option) => (
+              {availableTicketOptions.map((option) => ( 
                 <option key={option.value} value={option.value}>
                   {option.label}
                 </option>
