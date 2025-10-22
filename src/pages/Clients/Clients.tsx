@@ -10,6 +10,7 @@ import Modal from "../../components/Modal/Modal";
 import {
   MdArrowBackIos,
   MdArrowForwardIos,
+  MdLoop,
   MdEmail,
   MdOutlinePassword,
 } from "react-icons/md";
@@ -77,13 +78,6 @@ const Clients = () => {
   const [clientIdToDelete, setClientIdToDelete] = useState<number | null>(null);
   const [clientDot, setClientDot] = useState("");
   const [clientOperationType, setClientOperationType] = useState("");
-  const [showModalFilter, setShowModalFilter] = useState(false);
-  const [filterName, setFilterName] = useState("");
-  const [filterEmail, setFilterEmail] = useState("");
-  const [filterPhone, setFilterPhone] = useState("");
-  const [filterDotNumber, setFilterDotNumber] = useState("");
-  const [filterOperationType, setFilterOperationType] = useState("");
-  const [_, setFilteredClients] = useState<Client[]>([]);
 
   const { state } = useLocation();
   const clientFromState = state?.client;
@@ -344,8 +338,92 @@ const Clients = () => {
     setFilteredClients(filtered);
   };
 
-  if (isLoading) {
-    return <Spin />;
+  const handleClearFilters = () => {
+    setFilterName("");
+    setFilterEmail("");
+    setFilterPhone("");
+    setFilterDotNumber("");
+    setFilterOperationType("");
+  }
+
+  const handleFilterToggle = () => {
+    setShowModalFilter(true);
+  };
+
+  const handleFilterChange = () => {
+    mutate();
+
+    const filtered = clients.filter((client) => {
+      const matchesName = filterName
+        ? client.name?.toLowerCase().includes(filterName.toLowerCase())
+        : true;
+
+      const matchesEmail = filterEmail
+        ? client.mail?.toLowerCase().includes(filterEmail.toLowerCase())
+        : true;
+
+      const matchesPhone = filterPhone
+        ? client.phone?.toLowerCase().includes(filterPhone.toLowerCase())
+        : true;
+
+      const matchesDot = filterDotNumber
+        ? client.dot_number?.toString().toLowerCase().includes(filterDotNumber.toLowerCase())
+        : true;
+
+      const matchesOperationType = filterOperationType
+        ? client.operation_type?.toLowerCase().includes(filterOperationType.toLowerCase())
+        : true;
+
+      return (
+        matchesName &&
+        matchesEmail &&
+        matchesPhone &&
+        matchesDot &&
+        matchesOperationType
+      );
+    });
+
+    setFilteredClients(filtered);
+  };
+
+  const handleStatus = async (client: Client) => {
+    setLoadingChangeStatus(true);
+    try {
+      await api.patch(
+        "/update-client-status",
+        {
+          clientId: client.id,
+          active: !client.active,
+        },
+        {
+          headers: {
+            Authorization: `Bearer ${localStorage.getItem("accessToken")}`,
+          },
+        }
+      );
+
+      mutate();
+      messageAlert({
+        type: "success",
+        message: "Status do Cliente atualizado com sucesso!.",
+      });
+    } catch (e) {
+      console.log("Erro ao alterar status do cliente: ", e);
+      messageAlert({
+        type: "error",
+        message: "Erro ao alterar status do cliente.",
+      });
+    } finally {
+      setLoadingChangeStatus(false);
+    }
+  };
+
+  if (isLoading || loadingChangeStatus) {
+    return (
+      <div className="flex items-center justify-center h-full w-full">
+        <Spin />
+      </div>
+    );
   }
 
   return (
@@ -419,63 +497,89 @@ const Clients = () => {
             </p>
           </div>
 
-          {currentClients.map((client) => (
-            <div
+          {currentClients.map((client, index) => (
+            <Tooltip
+              title={client.active === false ? "Inativo" : ""}
               key={client.id}
-              className="grid grid-cols-7 gap-x-6 items-center px-6 py-4 bg-white border-b hover:bg-gray-50 text-sm"
+              placement="left"
             >
-              <p>{client.id}</p>
-              <Tooltip title={client.name}>
-                <p>{client.name}</p>
-              </Tooltip>
-              <Tooltip title={client.mail}>
-                <p className="max-w-96 overflow-hidden text-ellipsis truncate">
-                  {client.mail}
+              <div
+                className={`grid grid-cols-7 gap-x-6 items-center justify-items-center px-6 py-4 text-sm transition duration-200 ${client.active === false
+                    ? "bg-red-300"
+                    : index % 2 === 0
+                      ? "bg-gray-50"
+                      : "bg-white"
+                  } ${client.active === false
+                    ? "hover:bg-red-300"
+                    : "hover:bg-blue-50"
+                  }`}
+              >
+                <p className="text-center text-gray-800 font-medium">
+                  {client.id}
                 </p>
-              </Tooltip>
-              <p title={client.phone}>{formatPhone(client.phone)}</p>
-              <p
-                className="text-center text-gray-700"
-                title={client.dot_number}
-              >
-                {client.dot_number ?? "-"}
-              </p>
-              <p
-                className="text-center text-gray-700"
-                title={client.operation_type}
-              >
-                {client.operation_type ?? "-"}
-              </p>
-              <div className="flex justify-center gap-4">
-                <button
-                  onClick={() => handleTicket(client)}
-                  className="text-indigo-500 hover:text-indigo-700"
+                <Tooltip title={client.name}>
+                  <p>{client.name}</p>
+                </Tooltip>
+                <Tooltip title={client.mail}>
+                  <p className="max-w-96 overflow-hidden text-ellipsis truncate">
+                    {client.mail}
+                  </p>
+                </Tooltip>
+                <p title={client.phone}>{formatPhone(client.phone)}</p>
+                <p
+                  className="text-center text-gray-700"
+                  title={client.dot_number}
                 >
-                  <IoTicketOutline className="h-5 w-5" />
-                </button>
-
-                {(cargo === 1 || cargo === 2) && (
+                  {client.dot_number ?? "-"}
+                </p>
+                <p
+                  className="text-center text-gray-700"
+                  title={client.operation_type}
+                >
+                  {client.operation_type ?? "-"}
+                </p>
+                <div className="flex justify-center gap-4">
                   <button
-                    onClick={() => {
-                      setEditingClient(client);
-                      setIsModalOpen(true);
-                    }}
-                    className="text-blue-500 hover:text-blue-700"
+                    onClick={() => handleTicket(client)}
+                    className="text-indigo-500 hover:text-indigo-700"
                   >
-                    <Pencil className="h-5 w-5" />
+                    <IoTicketOutline className="h-5 w-5" />
                   </button>
-                )}
 
-                {(cargo === 1 || cargo === 2) && (
-                  <button
-                    onClick={() => openDeleteModal(client.id)}
-                    className="text-red-500 hover:text-red-700"
-                  >
-                    <Trash className="h-5 w-5" />
-                  </button>
-                )}
+                  {(cargo === 1 || cargo === 2) && (
+                    <button
+                      onClick={() => {
+                        setEditingClient(client);
+                        setIsModalOpen(true);
+                      }}
+                      className="text-blue-500 hover:text-blue-700"
+                    >
+                      <Pencil className="h-5 w-5" />
+                    </button>
+                  )}
+
+                  {(cargo === 1 || cargo === 2) && (
+                    <button
+                      onClick={() => openDeleteModal(client.id)}
+                      className="text-red-500 hover:text-red-700"
+                    >
+                      <Trash className="h-5 w-5" />
+                    </button>
+                  )}
+                  {(cargo === 1 || cargo === 2) && (
+                    <Tooltip title="Alterar Status">
+                      <button
+                        onClick={() => handleStatus(client)}
+                        className="text-green-600 hover:text-green-800 transition-colors duration-200"
+                        title={t("tooltips.viewTickets")}
+                      >
+                        <MdLoop className="h-5 w-5" />
+                      </button>
+                    </Tooltip>
+                  )}
+                </div>
               </div>
-            </div>
+            </Tooltip>
           ))}
         </div>
 

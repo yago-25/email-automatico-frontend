@@ -567,17 +567,15 @@ const Dashboard = () => {
             placement="left"
           >
             <div
-              className={`grid grid-cols-7 gap-x-6 items-center justify-items-center px-6 py-4 text-sm transition duration-200 ${
-                client.active === false
+              className={`grid grid-cols-7 gap-x-6 items-center justify-items-center px-6 py-4 text-sm transition duration-200 ${client.active === false
                   ? "bg-red-300"
                   : index % 2 === 0
-                  ? "bg-gray-50"
-                  : "bg-white"
-              } ${
-                client.active === false
+                    ? "bg-gray-50"
+                    : "bg-white"
+                } ${client.active === false
                   ? "hover:bg-red-300"
                   : "hover:bg-blue-50"
-              }`}
+                }`}
             >
               <p className="text-center text-gray-800 font-medium">
                 {client.id}
