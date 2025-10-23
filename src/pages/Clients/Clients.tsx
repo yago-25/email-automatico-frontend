@@ -28,7 +28,7 @@ import { HiMail, HiPhone, HiUser } from "react-icons/hi";
 import { HiUserAdd, HiX } from "react-icons/hi";
 import PhoneInput from "react-phone-input-2";
 import "react-phone-input-2/lib/style.css";
-import { FaCog, FaEraser, FaFilter, FaPhoneAlt, FaTruck, FaUser } from "react-icons/fa";
+import { FaCheckCircle, FaCog, FaEraser, FaFilter, FaPhoneAlt, FaTruck, FaUser } from "react-icons/fa";
 import useSwr from "swr";
 import { parsePhoneNumberFromString } from "libphonenumber-js";
 import { Tooltip } from "antd";
@@ -85,6 +85,7 @@ const Clients = () => {
   const [showModalFilter, setShowModalFilter] = useState(false);
   const [_, setFilteredClients] = useState<Client[]>([]);
   const [loadingChangeStatus, setLoadingChangeStatus] = useState(false);
+  const [filterStatus, setFilterStatus] = useState("");
 
 
   const { state } = useLocation();
@@ -127,6 +128,10 @@ const Clients = () => {
       mutate();
     }
   }, [clientFromState?.id]);
+
+  useEffect(() => {
+    setFilteredClients(clients);
+  }, [clients]);
 
   const filteredClients = clientFromState
     ? clients.filter((client) => client.id === clientFromState.id)
@@ -185,6 +190,53 @@ const Clients = () => {
       setCurrentPage(page);
     }
   };
+
+  const filterClients = useMemo(() => {
+    const filtered = clients.filter((client) => {
+      const matchesName = filterName
+        ? client.name?.toLowerCase().includes(filterName.toLowerCase())
+        : true;
+
+      const matchesEmail = filterEmail
+        ? client.mail?.toLowerCase().includes(filterEmail.toLowerCase())
+        : true;
+
+      const matchesPhone = filterPhone
+        ? client.phone?.toLowerCase().includes(filterPhone.toLowerCase())
+        : true;
+
+      const matchesDot = filterDotNumber
+        ? client.dot_number
+          ?.toString()
+          .toLowerCase()
+          .includes(filterDotNumber.toLowerCase())
+        : true;
+
+      const matchesOperationType = filterOperationType
+        ? client.operation_type
+          ?.toLowerCase()
+          .includes(filterOperationType.toLowerCase())
+        : true;
+
+      return (
+        matchesName &&
+        matchesEmail &&
+        matchesPhone &&
+        matchesDot &&
+        matchesOperationType
+      );
+    });
+
+    return filtered;
+  }, [
+    clients,
+    filterName,
+    filterEmail,
+    filterPhone,
+    filterDotNumber,
+    filterOperationType,
+  ]);
+
 
   const handleAddClient = async () => {
     setLoadingPost(true);
@@ -265,9 +317,6 @@ const Clients = () => {
     setClientIdToDelete(id);
     setIsModalCrashOpen(true);
   };
-  if (isLoading) {
-    return <Spin />;
-  }
 
   const handleEdit = async () => {
     if (!editingClient) return;
@@ -378,7 +427,11 @@ const Clients = () => {
     }
   };
 
-  if (isLoading || loadingChangeStatus) {
+  //  if (isLoading) {
+  //   return <Spin />;
+  // }
+
+  if (isLoading || loadingChangeStatus || !filterClients) {
     return (
       <div className="flex items-center justify-center h-full w-full">
         <Spin />
@@ -433,115 +486,132 @@ const Clients = () => {
         </div>
 
         <div className="w-full rounded-xl overflow-hidden shadow-md">
-          <div className="grid grid-cols-7 gap-x-6 items-center px-6 py-4 bg-blue-100 border-b text-blue-900 font-semibold text-sm">
-            <p className="flex items-center gap-2">
-              <MdOutlineFormatListNumbered /> ID
-            </p>
-            <p className="flex items-center gap-2">
-              <HiOutlineUser /> {t("clients.name")}
-            </p>
-            <p className="flex items-center gap-2">
-              <CiMail /> {t("clients.email")}
-            </p>
-            <p className="flex items-center gap-2">
-              <CiPhone /> {t("clients.phone")}
-            </p>
-            <p className="flex items-center gap-2 justify-center">
-              <HiOutlineNumberedList className="text-blue-700" /> DOT Number
-            </p>
-            <p className="flex items-center gap-2 justify-center">
-              <FaTruckRampBox className="text-blue-700" /> Operation Type
-            </p>
-            <p className="flex items-center justify-center gap-2">
-              <FaGear /> {t("clients.actions")}
-            </p>
-          </div>
-
-          {currentClients.map((client, index) => (
-            <Tooltip
-              title={client.active === false ? "Inativo" : ""}
-              key={client.id}
-              placement="left"
-            >
-              <div
-                className={`grid grid-cols-7 gap-x-6 items-center justify-items-center px-6 py-4 text-sm transition duration-200 ${client.active === false
-                  ? "bg-red-300"
-                  : index % 2 === 0
-                    ? "bg-gray-50"
-                    : "bg-white"
-                  } ${client.active === false
-                    ? "hover:bg-red-300"
-                    : "hover:bg-blue-50"
-                  }`}
-              >
-                <p className="text-center text-gray-800 font-medium">
-                  {client.id}
+          {(isLoading) ? (
+            <div className="col-span-full flex justify-center items-center py-12">
+              <Spin />
+            </div>
+          ) : currentClients.length > 0 ? (
+            <>
+              <div className="grid grid-cols-7 gap-x-6 items-center px-6 py-4 bg-blue-100 border-b text-blue-900 font-semibold text-sm">
+                <p className="flex items-center gap-2">
+                  <MdOutlineFormatListNumbered /> ID
                 </p>
-                <Tooltip title={client.name}>
-                  <p>{client.name}</p>
-                </Tooltip>
-                <Tooltip title={client.mail}>
-                  <p className="max-w-96 overflow-hidden text-ellipsis truncate">
-                    {client.mail}
-                  </p>
-                </Tooltip>
-                <p title={client.phone}>{formatPhone(client.phone)}</p>
-                <p
-                  className="text-center text-gray-700"
-                  title={client.dot_number}
-                >
-                  {client.dot_number ?? "-"}
+                <p className="flex items-center gap-2">
+                  <HiOutlineUser /> {t("clients.name")}
                 </p>
-                <p
-                  className="text-center text-gray-700"
-                  title={client.operation_type}
-                >
-                  {client.operation_type ?? "-"}
+                <p className="flex items-center gap-2">
+                  <CiMail /> {t("clients.email")}
                 </p>
-                <div className="flex justify-center gap-4">
-                  <button
-                    onClick={() => handleTicket(client)}
-                    className="text-indigo-500 hover:text-indigo-700"
-                  >
-                    <IoTicketOutline className="h-5 w-5" />
-                  </button>
-
-                  {(cargo === 1 || cargo === 2) && (
-                    <button
-                      onClick={() => {
-                        setEditingClient(client);
-                        setIsModalOpen(true);
-                      }}
-                      className="text-blue-500 hover:text-blue-700"
-                    >
-                      <Pencil className="h-5 w-5" />
-                    </button>
-                  )}
-
-                  {(cargo === 1 || cargo === 2) && (
-                    <button
-                      onClick={() => openDeleteModal(client.id)}
-                      className="text-red-500 hover:text-red-700"
-                    >
-                      <Trash className="h-5 w-5" />
-                    </button>
-                  )}
-                  {(cargo === 1 || cargo === 2) && (
-                    <Tooltip title="Alterar Status">
-                      <button
-                        onClick={() => handleStatus(client)}
-                        className="text-green-600 hover:text-green-800 transition-colors duration-200"
-                        title={t("tooltips.viewTickets")}
-                      >
-                        <MdLoop className="h-5 w-5" />
-                      </button>
-                    </Tooltip>
-                  )}
-                </div>
+                <p className="flex items-center gap-2">
+                  <CiPhone /> {t("clients.phone")}
+                </p>
+                <p className="flex items-center gap-2 justify-center">
+                  <HiOutlineNumberedList className="text-blue-700" /> DOT Number
+                </p>
+                <p className="flex items-center gap-2 justify-center">
+                  <FaTruckRampBox className="text-blue-700" /> Operation Type
+                </p>
+                <p className="flex items-center justify-center gap-2">
+                  <FaGear /> {t("clients.actions")}
+                </p>
               </div>
-            </Tooltip>
-          ))}
+
+              {currentClients.map((client, index) => (
+                <Tooltip
+                  title={client.active === false ? "Inativo" : ""}
+                  key={client.id}
+                  placement="left"
+                >
+                  <div
+                    className={`grid grid-cols-7 gap-x-6 items-center justify-items-center px-6 py-4 text-sm transition duration-200 ${client.active === false
+                      ? "bg-red-300"
+                      : index % 2 === 0
+                        ? "bg-gray-50"
+                        : "bg-white"
+                      } ${client.active === false
+                        ? "hover:bg-red-300"
+                        : "hover:bg-blue-50"
+                      }`}
+                  >
+                    <p className="text-center text-gray-800 font-medium">
+                      {client.id}
+                    </p>
+                    <Tooltip title={client.name}>
+                      <p>{client.name}</p>
+                    </Tooltip>
+                    <Tooltip title={client.mail}>
+                      <p className="max-w-96 overflow-hidden text-ellipsis truncate">
+                        {client.mail}
+                      </p>
+                    </Tooltip>
+                    <p title={client.phone}>{formatPhone(client.phone)}</p>
+                    <p
+                      className="text-center text-gray-700"
+                      title={client.dot_number}
+                    >
+                      {client.dot_number ?? "-"}
+                    </p>
+                    <p
+                      className="text-center text-gray-700"
+                      title={client.operation_type}
+                    >
+                      {client.operation_type ?? "-"}
+                    </p>
+                    <div className="flex justify-center gap-4">
+                      <button
+                        onClick={() => handleTicket(client)}
+                        className="text-indigo-500 hover:text-indigo-700"
+                      >
+                        <IoTicketOutline className="h-5 w-5" />
+                      </button>
+
+                      {(cargo === 1 || cargo === 2) && (
+                        <button
+                          onClick={() => {
+                            setEditingClient(client);
+                            setIsModalOpen(true);
+                          }}
+                          className="text-blue-500 hover:text-blue-700"
+                        >
+                          <Pencil className="h-5 w-5" />
+                        </button>
+                      )}
+
+                      {(cargo === 1 || cargo === 2) && (
+                        <button
+                          onClick={() => openDeleteModal(client.id)}
+                          className="text-red-500 hover:text-red-700"
+                        >
+                          <Trash className="h-5 w-5" />
+                        </button>
+                      )}
+
+                      {(cargo === 1 || cargo === 2) && (
+                        <Tooltip title="Alterar Status">
+                          <button
+                            onClick={() => handleStatus(client)}
+                            className="text-green-600 hover:text-green-800 transition-colors duration-200"
+                            title={t("tooltips.viewTickets")}
+                          >
+                            <MdLoop className="h-5 w-5" />
+                          </button>
+                        </Tooltip>
+                      )}
+                    </div>
+                  </div>
+                </Tooltip>
+              ))}
+            </>
+          ) : (
+            <div className="col-span-full flex flex-col items-center justify-center py-12 text-gray-500">
+              <IoTicketOutline className="w-16 h-16 mb-4 text-white" />
+              <p className="text-lg font-medium text-white">
+                {t("messages.noClientsFound")}
+              </p>
+            </div>
+          )}
         </div>
+
 
         <DeleteConfirmModal
           isVisible={isModalCrashOpen}
@@ -1082,7 +1152,6 @@ const Clients = () => {
               </select>
             </div>
 
-
             <div className="mt-4">
               <div className="flex items-center gap-2 mb-2">
                 <div className="p-2 bg-yellow-100 rounded-xl text-yellow-600">
@@ -1105,7 +1174,6 @@ const Clients = () => {
                 ))}
               </select>
             </div>
-
 
             <div className="mt-4">
               <div className="flex items-center gap-2 mb-2">
@@ -1130,6 +1198,26 @@ const Clients = () => {
               </select>
             </div>
 
+            <div className="mt-4">
+              <div className="flex items-center gap-2 mb-2">
+                <div className="p-2 bg-emerald-100 rounded-xl text-emerald-600">
+                  <FaCheckCircle className="w-5 h-5" />
+                </div>
+                <label className="text-sm font-semibold text-gray-700">
+                  {t("filters.status")}
+                </label>
+              </div>
+              <select
+                value={filterStatus}
+                onChange={(e) => setFilterStatus(e.target.value)}
+                className="w-full border border-gray-200 rounded-xl px-4 py-3 text-sm shadow-sm focus:outline-none focus:ring-2 focus:ring-emerald-400 bg-white/70 backdrop-blur-sm"
+              >
+                <option value="">{t("filters.all")}</option>
+                <option value="true">{t("filters.active")}</option>
+                <option value="false">{t("filters.inactive")}</option>
+              </select>
+            </div>
+
             <div className="flex gap-4 mt-6">
               <button
                 onClick={() => {
@@ -1151,7 +1239,6 @@ const Clients = () => {
             </div>
           </div>
         </Modal>
-
 
       </div>
     </div>
