@@ -10,8 +10,8 @@ import Modal from "../../components/Modal/Modal";
 import {
   MdArrowBackIos,
   MdArrowForwardIos,
-  MdLoop,
   MdEmail,
+  MdLoop,
   MdOutlinePassword,
 } from "react-icons/md";
 import { User } from "../../models/User";
@@ -78,6 +78,14 @@ const Clients = () => {
   const [clientIdToDelete, setClientIdToDelete] = useState<number | null>(null);
   const [clientDot, setClientDot] = useState("");
   const [clientOperationType, setClientOperationType] = useState("");
+  const [filterName, setFilterName] = useState(""); const [filterEmail, setFilterEmail] = useState("");
+  const [filterPhone, setFilterPhone] = useState("");
+  const [filterDotNumber, setFilterDotNumber] = useState("");
+  const [filterOperationType, setFilterOperationType] = useState("");
+  const [showModalFilter, setShowModalFilter] = useState(false);
+  const [_, setFilteredClients] = useState<Client[]>([]);
+  const [loadingChangeStatus, setLoadingChangeStatus] = useState(false);
+
 
   const { state } = useLocation();
   const clientFromState = state?.client;
@@ -338,54 +346,6 @@ const Clients = () => {
     setFilteredClients(filtered);
   };
 
-  const handleClearFilters = () => {
-    setFilterName("");
-    setFilterEmail("");
-    setFilterPhone("");
-    setFilterDotNumber("");
-    setFilterOperationType("");
-  }
-
-  const handleFilterToggle = () => {
-    setShowModalFilter(true);
-  };
-
-  const handleFilterChange = () => {
-    mutate();
-
-    const filtered = clients.filter((client) => {
-      const matchesName = filterName
-        ? client.name?.toLowerCase().includes(filterName.toLowerCase())
-        : true;
-
-      const matchesEmail = filterEmail
-        ? client.mail?.toLowerCase().includes(filterEmail.toLowerCase())
-        : true;
-
-      const matchesPhone = filterPhone
-        ? client.phone?.toLowerCase().includes(filterPhone.toLowerCase())
-        : true;
-
-      const matchesDot = filterDotNumber
-        ? client.dot_number?.toString().toLowerCase().includes(filterDotNumber.toLowerCase())
-        : true;
-
-      const matchesOperationType = filterOperationType
-        ? client.operation_type?.toLowerCase().includes(filterOperationType.toLowerCase())
-        : true;
-
-      return (
-        matchesName &&
-        matchesEmail &&
-        matchesPhone &&
-        matchesDot &&
-        matchesOperationType
-      );
-    });
-
-    setFilteredClients(filtered);
-  };
-
   const handleStatus = async (client: Client) => {
     setLoadingChangeStatus(true);
     try {
@@ -505,10 +465,10 @@ const Clients = () => {
             >
               <div
                 className={`grid grid-cols-7 gap-x-6 items-center justify-items-center px-6 py-4 text-sm transition duration-200 ${client.active === false
-                    ? "bg-red-300"
-                    : index % 2 === 0
-                      ? "bg-gray-50"
-                      : "bg-white"
+                  ? "bg-red-300"
+                  : index % 2 === 0
+                    ? "bg-gray-50"
+                    : "bg-white"
                   } ${client.active === false
                     ? "hover:bg-red-300"
                     : "hover:bg-blue-50"
