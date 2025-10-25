@@ -15,83 +15,6 @@ import { User } from "../../models/User";
 import { useTranslation } from "react-i18next";
 import Header from "../../components/Header/Header";
 
-// interface EmailClient {
-//   id: number;
-//   name: string;
-//   mail: string;
-// }
-// interface EmailItem {
-//   id: number;
-//   subject: string;
-//   body: string;
-//   send_date: string;
-//   send_time: string;
-//   status: string;
-//   clients: EmailClient[];
-//   attachments: Attachment[];
-// }
-
-// interface Attachment {
-//   name: string;
-//   url: string;
-// }
-// interface Sms {
-//   id: number;
-//   user_name: string;
-//   names: string[];
-//   phones: string[];
-//   message: string;
-//   scheduled_at: string;
-//   file_path: string | null;
-//   status: string;
-// }
-// type WppScheduleData = {
-//   id: number;
-//   instance_id: string;
-//   name: string;
-//   phone: string;
-//   message: string;
-//   user_id: number;
-//   user_name: string;
-//   status: "sent" | "failed" | "pending";
-//   scheduled_at: string;
-//   file_path?: string;
-// };
-
-// interface Client {
-//   id: number;
-//   name: string;
-//   phone: string;
-//   mail: string;
-// }
-// interface Ticket {
-//   id: number;
-//   name: string;
-//   type: string;
-//   status: string;
-//   tags: string[] | string;
-//   client: {
-//     id: number;
-//     name: string;
-//   };
-//   user: User;
-//   create: User;
-//   message: string;
-//   created_at: string;
-//   observation?: string;
-//   histories?: TicketHistory[];
-// }
-// interface TicketHistory {
-//   id: number;
-//   ticket_id: number;
-//   user_id: number;
-//   field_modified: string;
-//   old_value: string | null;
-//   new_value: string | null;
-//   created_at: string;
-//   updated_at: string;
-//   user?: User;
-// }
 
 type MetricsSummary = {
   emails: {
@@ -227,7 +150,6 @@ const { data: metrics, isLoading } = useSwr<MetricsSummary>(
     totalEmails,
     sentEmails,
     pendingEmails,
-    // failedEmails,
   } = emails;
 
   const emailDeliveryRate = totalEmails > 0 ? Math.round((sentEmails / totalEmails) * 100) : 0;
@@ -236,7 +158,6 @@ const { data: metrics, isLoading } = useSwr<MetricsSummary>(
     totalSMS,
     sentSMS,
     pendingSMS,
-    // failedSMS,
   } = sms;
 
   const smsDeliveryRate = totalSMS > 0 ? Math.round((sentSMS / totalSMS) * 100) : 0;
@@ -245,8 +166,6 @@ const { data: metrics, isLoading } = useSwr<MetricsSummary>(
     totalWpp: totalMessages,
     mediaWpp: mediaMessages,
     deliveredWpp,
-    // pendingWpp,
-    // failedWpp,
     textWpp: textMessages
   } = whatsapp;
 

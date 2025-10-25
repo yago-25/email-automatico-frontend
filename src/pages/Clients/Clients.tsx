@@ -62,35 +62,54 @@ const Clients = () => {
 
   const storedUser = localStorage.getItem("user");
   const authUser: User | null = storedUser ? JSON.parse(storedUser) : null;
+
+  // Estados principais
   const [addClient, setAddClient] = useState(false);
   const [clientName, setClientName] = useState("");
   const [clientPhone, setClientPhone] = useState("");
   const [clientMail, setClientMail] = useState("");
   const [clientUser, setClientUser] = useState("");
   const [clientPassword, setClientPassword] = useState("");
+  const [clientDot, setClientDot] = useState("");
+  const [clientOperationType, setClientOperationType] = useState("");
+
+  // Estados de edição e modais
   const [editingClient, setEditingClient] = useState<Client | null>(null);
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [isModalCrashOpen, setIsModalCrashOpen] = useState(false);
-  const [filteredTxt, setFilteredTxt] = useState("");
-  const itemsPerPage = 5;
-  const [currentPage, setCurrentPage] = useState(1);
-  const [loadingPost, setLoadingPost] = useState(false);
+  const [showModalFilter, setShowModalFilter] = useState(false);
   const [clientIdToDelete, setClientIdToDelete] = useState<number | null>(null);
-  const [clientDot, setClientDot] = useState("");
-  const [clientOperationType, setClientOperationType] = useState("");
-  const [filterName, setFilterName] = useState(""); const [filterEmail, setFilterEmail] = useState("");
+
+  // Estados de filtros
+  const [filteredTxt, setFilteredTxt] = useState("");
+  const [filterName, setFilterName] = useState("");
+  const [filterEmail, setFilterEmail] = useState("");
   const [filterPhone, setFilterPhone] = useState("");
   const [filterDotNumber, setFilterDotNumber] = useState("");
   const [filterOperationType, setFilterOperationType] = useState("");
-  const [showModalFilter, setShowModalFilter] = useState(false);
-  const [_, setFilteredClients] = useState<Client[]>([]);
-  const [loadingChangeStatus, setLoadingChangeStatus] = useState(false);
   const [filterStatus, setFilterStatus] = useState("");
 
+  // Paginação
+  const itemsPerPage = 5;
+  const [currentPage, setCurrentPage] = useState(1);
 
+  // Estados de loading
+  const [loadingPost, setLoadingPost] = useState(false);
+  const [loadingChangeStatus, setLoadingChangeStatus] = useState(false);
+
+  // Cliente vindo do state (navegação)
   const { state } = useLocation();
   const clientFromState = state?.client;
+  const [hasFilteredByState, setHasFilteredByState] = useState(!!state?.client);
 
+  // Sincroniza hasFilteredByState com clientFromState
+  useEffect(() => {
+    if (clientFromState && !hasFilteredByState) {
+      setHasFilteredByState(true);
+    }
+  }, [clientFromState, hasFilteredByState]);
+
+  // Função para formatar telefone
   const formatPhone = (phone: string): string => {
     try {
       const parsed = parsePhoneNumberFromString(phone);
@@ -108,6 +127,7 @@ const Clients = () => {
     }
   };
 
+  // Busca clientes da API
   const {
     data: clients = [],
     isLoading,
@@ -123,26 +143,88 @@ const Clients = () => {
         .then((res) => res.data),
   });
 
+  // Recarrega dados quando cliente do state muda
   useEffect(() => {
     if (clientFromState?.id) {
       mutate();
     }
-  }, [clientFromState?.id]);
+  }, [clientFromState?.id, mutate]);
 
-  useEffect(() => {
-    setFilteredClients(clients);
-  }, [clients]);
+  // ✅ FILTRO CONSOLIDADO - Toda lógica de filtro em um único lugar
+  const filteredClients = useMemo(() => {
+    if (!clients.length) return [];
 
-  const filteredClients = clientFromState
-    ? clients.filter((client) => client.id === clientFromState.id)
-    : clients
-      .filter(
+    let filtered = [...clients];
+
+    // 1️⃣ PRIORIDADE MÁXIMA: Filtro por cliente do state (navegação)
+    if (hasFilteredByState && clientFromState) {
+      filtered = filtered.filter(
+        (client) => client.id.toString() === clientFromState.id.toString()
+      );
+      return filtered.sort((a, b) => a.id - b.id);
+    }
+
+    // 2️⃣ Filtros avançados do modal
+    if (filterName || filterEmail || filterPhone || filterDotNumber || filterOperationType) {
+      filtered = filtered.filter((client) => {
+        const matchesName = filterName
+          ? client.name?.toLowerCase().includes(filterName.toLowerCase())
+          : true;
+
+        const matchesEmail = filterEmail
+          ? client.mail?.toLowerCase().includes(filterEmail.toLowerCase())
+          : true;
+
+        const matchesPhone = filterPhone
+          ? client.phone?.toLowerCase().includes(filterPhone.toLowerCase())
+          : true;
+
+        const matchesDot = filterDotNumber
+          ? client.dot_number
+              ?.toString()
+              .toLowerCase()
+              .includes(filterDotNumber.toLowerCase())
+          : true;
+
+        const matchesOperationType = filterOperationType
+          ? client.operation_type
+              ?.toLowerCase()
+              .includes(filterOperationType.toLowerCase())
+          : true;
+
+        return (
+          matchesName &&
+          matchesEmail &&
+          matchesPhone &&
+          matchesDot &&
+          matchesOperationType
+        );
+      });
+    }
+
+    // 3️⃣ Filtro de texto simples (barra de busca)
+    if (filteredTxt) {
+      filtered = filtered.filter(
         (client) =>
           client.name.toLowerCase().includes(filteredTxt.toLowerCase()) ||
           client.mail.toLowerCase().includes(filteredTxt.toLowerCase())
-      )
-      .sort((a, b) => a.id - b.id);
+      );
+    }
 
+    return filtered.sort((a, b) => a.id - b.id);
+  }, [
+    clients,
+    hasFilteredByState,
+    clientFromState,
+    filterName,
+    filterEmail,
+    filterPhone,
+    filterDotNumber,
+    filterOperationType,
+    filteredTxt,
+  ]);
+
+  // Cálculos de paginação
   const totalPages = Math.ceil(filteredClients.length / itemsPerPage);
   const startIndex = (currentPage - 1) * itemsPerPage;
   const currentClients = filteredClients.slice(
@@ -150,6 +232,7 @@ const Clients = () => {
     startIndex + itemsPerPage
   );
 
+  // Opções para os selects de filtro
   const availableClientNames = useMemo(() => {
     return clients.map((client) => ({
       value: client.name,
@@ -180,64 +263,19 @@ const Clients = () => {
 
   const availableOperationTypes = useMemo(() => {
     const types = clients
-      .map(client => client.operation_type)
+      .map((client) => client.operation_type)
       .filter((type, index, self) => type && self.indexOf(type) === index);
-    return types.map(type => ({ value: type, label: type }));
+    return types.map((type) => ({ value: type, label: type }));
   }, [clients]);
 
+  // Navegação de página
   const goToPage = (page: number) => {
     if (page >= 1 && page <= totalPages) {
       setCurrentPage(page);
     }
   };
 
-  const filterClients = useMemo(() => {
-    const filtered = clients.filter((client) => {
-      const matchesName = filterName
-        ? client.name?.toLowerCase().includes(filterName.toLowerCase())
-        : true;
-
-      const matchesEmail = filterEmail
-        ? client.mail?.toLowerCase().includes(filterEmail.toLowerCase())
-        : true;
-
-      const matchesPhone = filterPhone
-        ? client.phone?.toLowerCase().includes(filterPhone.toLowerCase())
-        : true;
-
-      const matchesDot = filterDotNumber
-        ? client.dot_number
-          ?.toString()
-          .toLowerCase()
-          .includes(filterDotNumber.toLowerCase())
-        : true;
-
-      const matchesOperationType = filterOperationType
-        ? client.operation_type
-          ?.toLowerCase()
-          .includes(filterOperationType.toLowerCase())
-        : true;
-
-      return (
-        matchesName &&
-        matchesEmail &&
-        matchesPhone &&
-        matchesDot &&
-        matchesOperationType
-      );
-    });
-
-    return filtered;
-  }, [
-    clients,
-    filterName,
-    filterEmail,
-    filterPhone,
-    filterDotNumber,
-    filterOperationType,
-  ]);
-
-
+  // ✅ ADICIONAR CLIENTE
   const handleAddClient = async () => {
     setLoadingPost(true);
     try {
@@ -277,6 +315,10 @@ const Clients = () => {
       setClientName("");
       setClientPhone("");
       setClientMail("");
+      setClientUser("");
+      setClientPassword("");
+      setClientDot("");
+      setClientOperationType("");
     } catch (e) {
       messageAlert({
         type: "error",
@@ -288,6 +330,7 @@ const Clients = () => {
     }
   };
 
+  // ✅ DELETAR CLIENTE
   const handleDelete = async () => {
     if (clientIdToDelete === null) return;
 
@@ -318,6 +361,7 @@ const Clients = () => {
     setIsModalCrashOpen(true);
   };
 
+  // ✅ EDITAR CLIENTE
   const handleEdit = async () => {
     if (!editingClient) return;
     try {
@@ -338,63 +382,38 @@ const Clients = () => {
     }
   };
 
+  // ✅ NAVEGAR PARA TICKET
   const handleTicket = (ticket: Client) => {
     navigate(`/ticket`, { state: { ticket } });
   };
 
-  const handleClearFilter = () => {
-    setFilteredTxt("");
-    navigate("/clients", { replace: true, state: null });
-  };
-
+  // ✅ LIMPAR TODOS OS FILTROS
   const handleClearFilters = () => {
+    setFilteredTxt("");
     setFilterName("");
     setFilterEmail("");
     setFilterPhone("");
     setFilterDotNumber("");
     setFilterOperationType("");
-  }
+    setFilterStatus("");
+    setHasFilteredByState(false);
+    setCurrentPage(1);
+    navigate("/clients", { replace: true, state: null });
+  };
 
+  // ✅ ABRIR MODAL DE FILTROS
   const handleFilterToggle = () => {
     setShowModalFilter(true);
   };
 
+  // ✅ APLICAR FILTROS DO MODAL
   const handleFilterChange = () => {
-    mutate();
-
-    const filtered = clients.filter((client) => {
-      const matchesName = filterName
-        ? client.name?.toLowerCase().includes(filterName.toLowerCase())
-        : true;
-
-      const matchesEmail = filterEmail
-        ? client.mail?.toLowerCase().includes(filterEmail.toLowerCase())
-        : true;
-
-      const matchesPhone = filterPhone
-        ? client.phone?.toLowerCase().includes(filterPhone.toLowerCase())
-        : true;
-
-      const matchesDot = filterDotNumber
-        ? client.dot_number?.toString().toLowerCase().includes(filterDotNumber.toLowerCase())
-        : true;
-
-      const matchesOperationType = filterOperationType
-        ? client.operation_type?.toLowerCase().includes(filterOperationType.toLowerCase())
-        : true;
-
-      return (
-        matchesName &&
-        matchesEmail &&
-        matchesPhone &&
-        matchesDot &&
-        matchesOperationType
-      );
-    });
-
-    setFilteredClients(filtered);
+    setShowModalFilter(false);
+    setCurrentPage(1); // Reseta para primeira página
+    // O useMemo já vai reagir automaticamente aos filtros
   };
 
+  // ✅ ALTERAR STATUS DO CLIENTE
   const handleStatus = async (client: Client) => {
     setLoadingChangeStatus(true);
     try {
@@ -411,10 +430,10 @@ const Clients = () => {
         }
       );
 
-      mutate();
+      await mutate();
       messageAlert({
         type: "success",
-        message: "Status do Cliente atualizado com sucesso!.",
+        message: "Status do Cliente atualizado com sucesso!",
       });
     } catch (e) {
       console.log("Erro ao alterar status do cliente: ", e);
@@ -427,17 +446,15 @@ const Clients = () => {
     }
   };
 
-  //  if (isLoading) {
-  //   return <Spin />;
-  // }
-
-  if (isLoading || loadingChangeStatus || !filterClients) {
+  // ✅ LOADING SCREEN
+  if (isLoading || loadingChangeStatus) {
     return (
       <div className="flex items-center justify-center h-full w-full">
         <Spin />
       </div>
     );
   }
+
 
   return (
     <div className="body">
@@ -470,7 +487,7 @@ const Clients = () => {
               </button>
             )}
             <button
-              onClick={handleClearFilter}
+              onClick={handleClearFilters}
               className="flex items-center justify-center gap-2 min-w-[150px] px-4 py-2.5 bg-red-600 text-white font-medium rounded-lg shadow-md hover:bg-red-700 hover:shadow-lg transition-all duration-200"
             >
               <FaEraser className="w-5 h-5" />

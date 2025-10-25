@@ -20,7 +20,6 @@ import { motion } from "framer-motion";
 import { MdCheckCircle, MdEdit, MdSave, MdCancel, MdRestore } from "react-icons/md";
 import { FiTrash2 } from "react-icons/fi";
 import { differenceInDays } from 'date-fns';
-import dayjs from "dayjs";
 import DeleteConfirmModal from "../../components/DeleteConfirm/DeleteConfirmModal";
 
 import {
@@ -127,14 +126,15 @@ export const Button: React.FC<ButtonProps> = ({ text, onClick, disabled }) => {
 
 const Ticket = () => {
   const location = useLocation();
-  const [clientFromState, setClientFromState] = useState<Clients | undefined>(location.state?.ticket);
-  const id = clientFromState?.id;
-
-  const user = JSON.parse(localStorage.getItem("user") || "{}");
-  const cargo = user.cargo_id;
-
   const { t } = useTranslation();
 
+  // ========== DADOS DO USUÁRIO ==========
+  const user = JSON.parse(localStorage.getItem("user") || "{}");
+  const cargo = user.cargo_id;
+  const storedUser = localStorage.getItem("user");
+  const authUser: User | null = storedUser ? JSON.parse(storedUser) : null;
+
+  // ========== CONSTANTES ==========
   const statusTickets = [
     { name: "Não iniciada", title: t("tickets.types.not_started"), color: "bg-gray-500" },
     { name: "Esperando", title: t("tickets.types.waiting"), color: "bg-yellow-500" },
@@ -151,20 +151,37 @@ const Ticket = () => {
     "Descartada": "status.discarded",
   };
 
-  const storedUser = localStorage.getItem("user");
-  const authUser: User | null = storedUser ? JSON.parse(storedUser) : null;
-  const [selectedTicket, setSelectedTicket] = useState<Ticket | null>(null);
+  const expirationDays = 30;
+
+  // ========== ESTADOS - CLIENTE DO STATE ==========
+  const [clientFromState, setClientFromState] = useState<Clients | undefined>(
+    location.state?.ticket
+  );
+
+  // ========== ESTADOS - MODAIS ==========
   const [showModal, setShowModal] = useState(false);
-  const [showModalFilter, setShowModalFilter] = useState(false); 
+  const [showModalFilter, setShowModalFilter] = useState(false);
+  const [addTicket, setAddTicket] = useState(false);
+  const [isEditing, setIsEditing] = useState(false);
+  const [isDeleteModalVisible, setIsDeleteModalVisible] = useState(false);
+
+  // ========== ESTADOS - TICKETS ==========
+  const [selectedTicket, setSelectedTicket] = useState<Ticket | null>(null);
+  const [editingTicket, setEditingTicket] = useState<Ticket | null>(null);
+  const [ticketToDelete, setTicketToDelete] = useState<number | null>(null);
   const [history, setHistory] = useState<TicketHistory[]>([]);
+  const [showOnlyDeleted, setShowOnlyDeleted] = useState(false);
+
+  // ========== ESTADOS - FILTROS ==========
+  const [selectedStatuses, setSelectedStatuses] = useState<string[]>([]);
   const [filterTag, setFilterTag] = useState<string>("");
   const [filterDate, setFilterDate] = useState<string>("");
   const [filterTicket, setFilterTicket] = useState<string>("");
   const [filterUser, setFilterUser] = useState("");
   const [filterClient, setFilterClient] = useState<string>("");
   const [filterType, setFilterType] = useState("");
-  const [addTicket, setAddTicket] = useState(false);
-  const [loadingPost, setLoadingPost] = useState(false);
+
+  // ========== ESTADOS - CRIAR TICKET ==========
   const [clientName, setClientName] = useState("");
   const [typeName, setTypeName] = useState("");
   const [statusTicket, setStatusTicket] = useState("");
@@ -172,12 +189,10 @@ const Ticket = () => {
   const [selectedAdmin, setSelectedAdmin] = useState<string>("");
   const [tags, setTags] = useState<string[]>([]);
   const [observation, setObservation] = useState("");
-  const [loadingModal, setLoadingModal] = useState(false);
-  const [selectedStatuses, setSelectedStatuses] = useState<string[]>([]);
   const [tagInputValue, setTagInputValue] = useState("");
   const [isFocused, setIsFocused] = useState(false);
-  const [isEditing, setIsEditing] = useState(false);
-  const [editingTicket, setEditingTicket] = useState<Ticket | null>(null);
+
+  // ========== ESTADOS - EDITAR TICKET ==========
   const [editName, setEditName] = useState("");
   const [editType, setEditType] = useState("");
   const [editClient, setEditClient] = useState("");
@@ -186,27 +201,27 @@ const Ticket = () => {
   const [editObservation, setEditObservation] = useState("");
   const [editTagInputValue, setEditTagInputValue] = useState("");
   const [isEditTagFocused, setIsEditTagFocused] = useState(false);
-  const [loadingEdit, setLoadingEdit] = useState(false);
-  const [_, setFilteredTickets] = useState<Ticket[]>([]);
-  const [__, setFilterStatus] = useState<string>("");
-  const [showOnlyDeleted, setShowOnlyDeleted] = useState(false);
-  const [isDeleteModalVisible, setIsDeleteModalVisible] = useState(false);
-  const [ticketToDelete, setTicketToDelete] = useState<number | null>(null);
-  const [isDeleting, setIsDeleting] = useState(false);
-  const expirationDays = 30;
-  let daysLeft: number | null = null;
 
+  // ========== ESTADOS - LOADING ==========
+  const [loadingPost, setLoadingPost] = useState(false);
+  const [loadingModal, setLoadingModal] = useState(false);
+  const [loadingEdit, setLoadingEdit] = useState(false);
+  const [isDeleting, setIsDeleting] = useState(false);
+
+  // ========== BUSCAR DADOS DA API ==========
   const { data: rawClients = [], isLoading: loadingClients } = useSwr<Clients[]>(
-    "/clients", {
-    fetcher: (url) =>
-      api
-        .get(url, {
-          headers: {
-            Authorization: `Bearer ${localStorage.getItem("accessToken")}`,
-          },
-        })
-        .then((res) => res.data),
-  });
+    "/clients",
+    {
+      fetcher: (url) =>
+        api
+          .get(url, {
+            headers: {
+              Authorization: `Bearer ${localStorage.getItem("accessToken")}`,
+            },
+          })
+          .then((res) => res.data),
+    }
+  );
 
   const { data: rawAdmins = [], isLoading: loadingAdmins } = useSwr<Admins[]>(
     "/admins",
@@ -234,228 +249,74 @@ const Ticket = () => {
         .then((res) => res.data)
   );
 
-  const { data: trashedTickets = [], isLoading: loadingTrashed, mutate: mutateTrashed } = useSwr<Ticket[]>(
-    "/tickets/trashed",
-    (url: string) =>
-      api
-        .get(url, {
-          headers: { Authorization: `Bearer ${localStorage.getItem("accessToken")}` },
-        })
-        .then((res) => res.data)
+  const {
+    data: trashedTickets = [],
+    isLoading: loadingTrashed,
+    mutate: mutateTrashed,
+  } = useSwr<Ticket[]>("/tickets/trashed", (url: string) =>
+    api
+      .get(url, {
+        headers: { Authorization: `Bearer ${localStorage.getItem("accessToken")}` },
+      })
+      .then((res) => res.data)
   );
 
-  const optionsClient: Option[] = rawClients.map((client: Clients) => ({
-    value: String(client.id),
-    label: client.name,
-  }));
+  // ========== OPÇÕES PARA SELECTS ==========
+  const optionsClient: Option[] = useMemo(
+    () =>
+      rawClients.map((client: Clients) => ({
+        value: String(client.id),
+        label: client.name,
+      })),
+    [rawClients]
+  );
 
-  const optionsAdmin: Option[] = rawAdmins.map((admin: Admins) => ({
-    value: String(admin.id),
-    label: admin.nome_completo,
-  }));
+  const optionsAdmin: Option[] = useMemo(
+    () =>
+      rawAdmins.map((admin: Admins) => ({
+        value: String(admin.id),
+        label: admin.nome_completo,
+      })),
+    [rawAdmins]
+  );
 
-  const formatDate = (dateString: string, t: (key: string) => string) => {
-    const date = new Date(dateString);
-    const today = new Date();
-    const yesterday = new Date();
-    yesterday.setDate(today.getDate() - 1);
-
-    const isSameDay = (a: Date, b: Date) =>
-      a.getFullYear() === b.getFullYear() &&
-      a.getMonth() === b.getMonth() &&
-      a.getDate() === b.getDate();
-
-    if (isSameDay(date, today)) return t("date.today");
-    if (isSameDay(date, yesterday)) return t("date.yesterday");
-
-    return date.toLocaleDateString();
-  };
-
-  const handleCardClick = (ticket: Ticket) => {
-    setSelectedTicket(ticket);
-    setShowModal(true);
-    fetchHistory(ticket.id);
-  };
-
-  const fetchHistory = async (ticketId: number) => {
-    try {
-      setLoadingModal(true);
-
-      const { data } = await api.get(`/tickets/${ticketId}/history`, {
-        headers: {
-          Authorization: `Bearer ${localStorage.getItem("accessToken")}`,
-        },
-      });
-
-      setHistory(data);
-    } catch (error) {
-      console.error("Erro ao buscar histórico:", error);
-      setHistory([]);
-    } finally {
-      setLoadingModal(false);
-    }
-  };
-
-  // const { data: history = [], isLoading: loadingHistory } = useSwr(
-  //   selectedTicket?.id ? `/tickets/${selectedTicket.id}/history` : null,
-  //   (url: string) =>
-  //     api
-  //       .get(url, {
-  //         headers: {
-  //           Authorization: `Bearer ${localStorage.getItem("accessToken")}`,
-  //         },
-  //       })
-  //       .then((res) => res.data),
-  //   { revalidateOnFocus: false }
-  // );
-
-  const handleChangeStatus = async (newStatus: string) => {
-    setLoadingModal(true);
-    if (!selectedTicket) return;
-
-    try {
-      await updateTicketStatus(selectedTicket.id, newStatus);
-
-      const { data } = await api.get<Ticket>(`/tickets/${selectedTicket.id}`, {
-        headers: {
-          Authorization: `Bearer ${localStorage.getItem("accessToken")}`,
-        },
-      });
-
-      setSelectedTicket((prev) => {
-        if (!prev) return prev;
-
-        return {
-          ...prev,
-          status: data.status,
-        };
-      });
-
-      await fetchHistory(selectedTicket.id);
-
-      setSelectedTicket({
-        ...data,
-        tags: typeof data.tags === "string" ? JSON.parse(data.tags) : data.tags,
-      });
-
-      mutate();
-
-      messageAlert({
-        type: "success",
-        message: "Status atualizado com sucesso!",
-      });
-    } catch (error) {
-      messageAlert({
-        type: "error",
-        message: "Erro ao atualizar status",
-      });
-      console.log(error, "error");
-    } finally {
-      setLoadingModal(false);
-    }
-  };
-
-  const handleFilterToggle = () => {
-    setShowModalFilter(true);
-  };
-
-  const handleFilterChange = () => {
-    mutate();
-
-    const filtered = rawTickets.filter((ticket) => {
-      const matchesStatus = selectedStatuses.length > 0
-        ? selectedStatuses.includes(ticket.status)
-        : true;
-
-      const matchesTag = filterTag
-        ? Array.isArray(ticket.tags)
-          ? ticket.tags.some((tag) =>
-            tag.toLowerCase().includes(filterTag.toLowerCase())
-          )
-          : ticket.tags.toLowerCase().includes(filterTag.toLowerCase())
-        : true;
-
-      const matchesType = filterType
-        ? Array.isArray(ticket.type)
-          ? ticket.type.some((type) =>
-            type.toLowerCase().includes(filterType.toLowerCase())
-          )
-          : ticket.type.toLowerCase().includes(filterType.toLowerCase())
-        : true;
-
-      const matchesDate = filterDate
-        ? new Date(ticket.created_at).toLocaleDateString() ===
-        new Date(filterDate).toLocaleDateString()
-        : true;
-
-      const matchesTicket = filterTicket
-        ? String(ticket.id) === filterTicket
-        : true;
-
-      const matchesUser = filterUser
-        ? ticket.user?.id === Number(filterUser)
-        : true;
-
-      const matchesClient = filterClient
-        ? ticket.client?.name.toLowerCase().includes(filterClient.toLowerCase())
-        : true;
-
-      return (
-        matchesStatus &&
-        matchesTag &&
-        matchesDate &&
-        matchesTicket &&
-        matchesUser &&
-        matchesClient &&
-        matchesType
-      );
-    });
-
-    setFilteredTickets(filtered);
-  };
-
-  const handleClearFilters = () => {
-    setFilterStatus("");
-    setFilterTag("");
-    setFilterDate("");
-    setFilterType("");
-    setFilterTicket("");
-    setSelectedStatuses([]);
-    setFilterUser("");
-    setFilterClient("");
-
-    setClientFromState(undefined);
-  };
-
+  // ========== TICKETS FILTRADOS (CONSOLIDADO) ==========
   const filteredTickets = useMemo(() => {
-    const ticketsByClient = clientFromState && !filterClient
-      ? rawTickets.filter(ticket => ticket.client?.id === clientFromState.id)
-      : rawTickets;
+    let filtered = [...rawTickets];
 
-    const filtered = ticketsByClient.filter((ticket) => {
-      const matchesStatus = selectedStatuses.length > 0
-        ? selectedStatuses.includes(ticket.status)
-        : true;
+    // 1️⃣ PRIORIDADE: Filtro por cliente do state
+    if (clientFromState && !filterClient) {
+      filtered = filtered.filter(
+        (ticket) => ticket.client?.id === clientFromState.id
+      );
+    }
+
+    // 2️⃣ Filtros aplicados
+    filtered = filtered.filter((ticket) => {
+      const matchesStatus =
+        selectedStatuses.length > 0
+          ? selectedStatuses.includes(ticket.status)
+          : true;
 
       const matchesTag = filterTag
         ? Array.isArray(ticket.tags)
           ? ticket.tags.some((tag) =>
-            tag.toLowerCase().includes(filterTag.toLowerCase())
-          )
+              tag.toLowerCase().includes(filterTag.toLowerCase())
+            )
           : ticket.tags?.toLowerCase().includes(filterTag.toLowerCase())
         : true;
 
       const matchesType = filterType
         ? Array.isArray(ticket.type)
           ? ticket.type.some((type) =>
-            type.toLowerCase().includes(filterType.toLowerCase())
-          )
+              type.toLowerCase().includes(filterType.toLowerCase())
+            )
           : ticket.type?.toLowerCase().includes(filterType.toLowerCase())
         : true;
 
       const matchesDate = filterDate
         ? new Date(ticket.created_at).toLocaleDateString() ===
-        new Date(filterDate).toLocaleDateString()
+          new Date(filterDate).toLocaleDateString()
         : true;
 
       const matchesTicket = filterTicket
@@ -481,12 +342,21 @@ const Ticket = () => {
       );
     });
 
+    // 3️⃣ Ordenação
     return filtered.sort((a, b) => {
       const dateA = new Date(a.created_at);
       const dateB = new Date(b.created_at);
 
-      const onlyDateA = new Date(dateA.getFullYear(), dateA.getMonth(), dateA.getDate());
-      const onlyDateB = new Date(dateB.getFullYear(), dateB.getMonth(), dateB.getDate());
+      const onlyDateA = new Date(
+        dateA.getFullYear(),
+        dateA.getMonth(),
+        dateA.getDate()
+      );
+      const onlyDateB = new Date(
+        dateB.getFullYear(),
+        dateB.getMonth(),
+        dateB.getDate()
+      );
 
       const diff = onlyDateA.getTime() - onlyDateB.getTime();
 
@@ -496,6 +366,7 @@ const Ticket = () => {
     });
   }, [
     rawTickets,
+    clientFromState,
     selectedStatuses,
     filterType,
     filterTag,
@@ -503,97 +374,28 @@ const Ticket = () => {
     filterTicket,
     filterUser,
     filterClient,
-    clientFromState,
   ]);
 
-  const handleToggleStatus = (status: string) => {
-    setSelectedStatuses((prev) => {
-      if (prev.includes(status)) {
-        return prev.filter((s) => s !== status);
-      }
-      return [...prev, status];
-    });
-  };
-
-  const handleAddTicket = async () => {
-    if (tags.length > 7) {
-      messageAlert({
-        type: "error",
-        message: t('alerts.maxTags')
-      });
-      return;
+  // ========== TICKETS VISÍVEIS (COM/SEM DELETADOS) ==========
+  const visibleTickets = useMemo(() => {
+    if (showOnlyDeleted) {
+      return trashedTickets;
     }
 
-    setLoadingPost(true);
-    try {
-      if (
-        !statusTicket ||
-        !clientName ||
-        !typeName ||
-        !selected ||
-        !selectedAdmin
-      ) {
-        messageAlert({
-          type: "error",
-          message: t('alerts.fillAllFields')
-        });
-        return;
-      }
+    const statusToShow = [
+      "Em progresso",
+      "Não iniciada",
+      "Esperando",
+      "Descartada",
+      "Completo",
+    ];
 
-      await api.post(
-        "/tickets",
-        {
-          name: clientName,
-          type: typeName,
-          tags: tags,
-          client_id: selected,
-          user_id: selectedAdmin,
-          create_id: authUser?.id,
-          status: statusTicket,
-          observation: observation,
-        },
-        {
-          headers: {
-            Authorization: `Bearer ${localStorage.getItem("accessToken")}`,
-          },
-        }
-      );
+    return filteredTickets.filter((ticket) =>
+      statusToShow.includes(ticket.status)
+    );
+  }, [showOnlyDeleted, trashedTickets, filteredTickets]);
 
-      mutate();
-
-      messageAlert({
-        type: "success",
-        message: t('alerts.ticketCreated')
-      });
-
-      setAddTicket(false);
-
-      setStatusTicket("");
-      setClientName("");
-      setTypeName("");
-      setSelected("");
-      setSelectedAdmin("");
-      setFilterType("");
-      setTags([]);
-      setObservation("");
-    } catch (e) {
-      messageAlert({
-        type: "error",
-        message: t('alerts.ticketError')
-      });
-    } finally {
-      setLoadingPost(false);
-    }
-  };
-
-  const handleSelectChange = (value: string | number) => {
-    setSelected(value.toString());
-  };
-
-  const handleSelectChangeAdmin = (value: string | number) => {
-    setSelectedAdmin(value.toString());
-  };
-
+  // ========== TAGS DISPONÍVEIS ==========
   const availableTickets = useMemo(() => {
     return rawTickets.filter((ticket) => {
       const matchesClient = filterClient
@@ -626,17 +428,26 @@ const Ticket = () => {
     const input = tagInputValue.toLowerCase();
     return availableTags.filter(
       (tag) =>
-        (input === "" || tag.toLowerCase().includes(input)) &&
-        !tags.includes(tag)
+        (input === "" || tag.toLowerCase().includes(input)) && !tags.includes(tag)
     );
   }, [availableTags, tagInputValue, tags]);
 
+  const filteredEditTags = useMemo(() => {
+    const input = editTagInputValue.toLowerCase();
+    return availableTags.filter(
+      (tag) =>
+        (input === "" || tag.toLowerCase().includes(input)) &&
+        !editTags.includes(tag)
+    );
+  }, [availableTags, editTagInputValue, editTags]);
+
+  // ========== OPÇÕES DE TICKETS, CLIENTES E TIPOS ==========
   const availableTicketOptions = useMemo(() => {
     return availableTickets.map((ticket) => ({
       value: ticket.id,
-      label: `${ticket.id} - ${ticket.client?.name || t('labels.noClient')}`,
+      label: `${ticket.id} - ${ticket.client?.name || t("labels.noClient")}`,
     }));
-  }, [availableTickets]);
+  }, [availableTickets, t]);
 
   const availableClients = useMemo(() => {
     if (!filterUser) return rawClients;
@@ -663,6 +474,55 @@ const Ticket = () => {
     return Array.from(typesSet);
   }, [availableTickets]);
 
+  // ========== CALCULAR DIAS RESTANTES ==========
+  const daysLeft = useMemo(() => {
+    if (!selectedTicket?.deleted_at) return null;
+
+    const deletedDate = new Date(selectedTicket.deleted_at);
+    const now = new Date();
+    const daysPassed = differenceInDays(now, deletedDate);
+    const remaining = expirationDays - daysPassed;
+
+    return remaining < 0 ? 0 : remaining;
+  }, [selectedTicket?.deleted_at, expirationDays]);
+
+  // ========== FUNÇÕES AUXILIARES ==========
+  const formatDate = (dateString: string, t: (key: string) => string) => {
+    const date = new Date(dateString);
+    const today = new Date();
+    const yesterday = new Date();
+    yesterday.setDate(today.getDate() - 1);
+
+    const isSameDay = (a: Date, b: Date) =>
+      a.getFullYear() === b.getFullYear() &&
+      a.getMonth() === b.getMonth() &&
+      a.getDate() === b.getDate();
+
+    if (isSameDay(date, today)) return t("date.today");
+    if (isSameDay(date, yesterday)) return t("date.yesterday");
+
+    return date.toLocaleDateString();
+  };
+
+  const fetchHistory = async (ticketId: number) => {
+    try {
+      setLoadingModal(true);
+
+      const { data } = await api.get(`/tickets/${ticketId}/history`, {
+        headers: {
+          Authorization: `Bearer ${localStorage.getItem("accessToken")}`,
+        },
+      });
+
+      setHistory(data);
+    } catch (error) {
+      console.error("Erro ao buscar histórico:", error);
+      setHistory([]);
+    } finally {
+      setLoadingModal(false);
+    }
+  };
+
   const updateTicketStatus = async (ticketId: number, newStatus: string) => {
     await api.put(
       `/tickets/${ticketId}/status`,
@@ -675,41 +535,182 @@ const Ticket = () => {
     );
   };
 
-  useEffect(() => {
-    if (location.state) {
-      window.history.replaceState({}, document.title);
+  // ========== HANDLERS - TICKET ==========
+  const handleCardClick = (ticket: Ticket) => {
+    setSelectedTicket(ticket);
+    setShowModal(true);
+    fetchHistory(ticket.id);
+  };
+
+  const handleChangeStatus = async (newStatus: string) => {
+    if (!selectedTicket) return;
+
+    setLoadingModal(true);
+    try {
+      await updateTicketStatus(selectedTicket.id, newStatus);
+
+      const { data } = await api.get<Ticket>(`/tickets/${selectedTicket.id}`, {
+        headers: {
+          Authorization: `Bearer ${localStorage.getItem("accessToken")}`,
+        },
+      });
+
+      const updatedTicket = {
+        ...data,
+        tags: typeof data.tags === "string" ? JSON.parse(data.tags) : data.tags,
+      };
+
+      setSelectedTicket(updatedTicket);
+      await fetchHistory(selectedTicket.id);
+      mutate();
+
+      messageAlert({
+        type: "success",
+        message: "Status atualizado com sucesso!",
+      });
+    } catch (error) {
+      messageAlert({
+        type: "error",
+        message: "Erro ao atualizar status",
+      });
+      console.log(error, "error");
+    } finally {
+      setLoadingModal(false);
     }
-  }, []);
+  };
 
-  useEffect(() => {
-    if (showModal && selectedTicket?.id) {
-      fetchHistory(selectedTicket.id);
+  const handleAddTicket = async () => {
+    if (tags.length > 7) {
+      messageAlert({
+        type: "error",
+        message: t("alerts.maxTags"),
+      });
+      return;
     }
-  }, [showModal, selectedTicket?.id]);
 
-  useEffect(() => {
-    setFilteredTickets(rawTickets);
-  }, [rawTickets]);
+    if (
+      !statusTicket ||
+      !clientName ||
+      !typeName ||
+      !selected ||
+      !selectedAdmin
+    ) {
+      messageAlert({
+        type: "error",
+        message: t("alerts.fillAllFields"),
+      });
+      return;
+    }
 
-  useEffect(() => {
-    if (id && rawTickets.length > 0) {
-      const matchedTickets = rawTickets.filter(
-        (ticket) => ticket.client.id === id
+    setLoadingPost(true);
+    try {
+      await api.post(
+        "/tickets",
+        {
+          name: clientName,
+          type: typeName,
+          tags: tags,
+          client_id: selected,
+          user_id: selectedAdmin,
+          create_id: authUser?.id,
+          status: statusTicket,
+          observation: observation,
+        },
+        {
+          headers: {
+            Authorization: `Bearer ${localStorage.getItem("accessToken")}`,
+          },
+        }
       );
 
-      if (matchedTickets.length > 0) {
-        setFilterClient(matchedTickets[0].client?.name || "");
-        setSelectedTicket(matchedTickets[0]);
-        fetchHistory(matchedTickets[0].id);
-        setFilteredTickets(matchedTickets);
-      } else {
-        setFilterClient("");
-        setSelectedTicket(null);
-        setFilteredTickets([]);
-      }
-    }
-  }, [id, rawTickets]);
+      mutate();
 
+      messageAlert({
+        type: "success",
+        message: t("alerts.ticketCreated"),
+      });
+
+      setAddTicket(false);
+      setStatusTicket("");
+      setClientName("");
+      setTypeName("");
+      setSelected("");
+      setSelectedAdmin("");
+      setFilterType("");
+      setTags([]);
+      setObservation("");
+    } catch (e) {
+      messageAlert({
+        type: "error",
+        message: t("alerts.ticketError"),
+      });
+    } finally {
+      setLoadingPost(false);
+    }
+  };
+
+  const handleDelete = async () => {
+    if (ticketToDelete === null) return;
+
+    setIsDeleting(true);
+    try {
+      await api.delete(`/tickets/${ticketToDelete}`, {
+        headers: {
+          Authorization: `Bearer ${localStorage.getItem("accessToken")}`,
+        },
+      });
+
+      messageAlert({
+        type: "success",
+        message: t("messages.ticketDeleted"),
+      });
+
+      setTimeout(() => {
+        setIsDeleting(false);
+        setIsDeleteModalVisible(false);
+        setTicketToDelete(null);
+        setShowModal(false);
+        mutate();
+        mutateTrashed();
+      }, 400);
+    } catch (error) {
+      setIsDeleting(false);
+      messageAlert({
+        type: "error",
+        message: t("messages.errorDeletingTicket"),
+      });
+    }
+  };
+
+  const handleRestore = async (ticketId: number) => {
+    try {
+      await api.put(
+        `/tickets/${ticketId}/restore`,
+        {},
+        {
+          headers: {
+            Authorization: `Bearer ${localStorage.getItem("accessToken")}`,
+          },
+        }
+      );
+
+      messageAlert({
+        type: "success",
+        message: t("messages.ticketRestored"),
+      });
+
+      setShowModal(false);
+      mutate();
+      mutateTrashed();
+    } catch (error) {
+      messageAlert({
+        type: "error",
+        message: t("messages.errorRestoringTicket"),
+      });
+    }
+  };
+
+  // ========== HANDLERS - EDIÇÃO ==========
   const handleEditClick = () => {
     if (!selectedTicket) return;
 
@@ -719,7 +720,11 @@ const Ticket = () => {
     setEditType(selectedTicket.type);
     setEditClient(selectedTicket.client?.name || "");
     setEditOperator(selectedTicket.user?.nome_completo || "");
-    setEditTags(Array.isArray(selectedTicket.tags) ? selectedTicket.tags : JSON.parse(selectedTicket.tags || "[]"));
+    setEditTags(
+      Array.isArray(selectedTicket.tags)
+        ? selectedTicket.tags
+        : JSON.parse(selectedTicket.tags || "[]")
+    );
     setEditObservation(selectedTicket.observation || "");
   };
 
@@ -738,19 +743,23 @@ const Ticket = () => {
   const handleSaveEdit = async () => {
     if (!selectedTicket || !editingTicket) return;
 
+    const selectedClient = rawClients.find(
+      (client) => client.name === editClient
+    );
+    const selectedOperator = rawAdmins.find(
+      (admin) => admin.nome_completo === editOperator
+    );
+
+    if (!selectedClient || !selectedOperator) {
+      messageAlert({
+        type: "error",
+        message: t("alerts.clientOrOperatorNotFound"),
+      });
+      return;
+    }
+
     setLoadingEdit(true);
     try {
-      const selectedClient = rawClients.find(client => client.name === editClient);
-      const selectedOperator = rawAdmins.find(admin => admin.nome_completo === editOperator);
-
-      if (!selectedClient || !selectedOperator) {
-        messageAlert({
-          type: "error",
-          message: t('alerts.clientOrOperatorNotFound')
-        });
-        return;
-      }
-
       await api.put(
         `/tickets/${selectedTicket.id}`,
         {
@@ -786,13 +795,13 @@ const Ticket = () => {
 
       messageAlert({
         type: "success",
-        message: t('alerts.ticketUpdated')
+        message: t("alerts.ticketUpdated"),
       });
     } catch (error) {
       console.error("Erro ao atualizar ticket:", error);
       messageAlert({
         type: "error",
-        message: t('alerts.ticketUpdateError')
+        message: t("alerts.ticketUpdateError"),
       });
     } finally {
       setLoadingEdit(false);
@@ -800,111 +809,79 @@ const Ticket = () => {
   };
 
   const handleEditTagAdd = (tag: string) => {
-    if (tag.trim() && !editTags.includes(tag.trim())) {
-      if (editTags.length >= 7) {
-        messageAlert({
-          type: "error",
-          message: t('alerts.maxTags')
-        });
-        return;
-      }
-      setEditTags([...editTags, tag.trim()]);
+    if (!tag.trim() || editTags.includes(tag.trim())) return;
+
+    if (editTags.length >= 7) {
+      messageAlert({
+        type: "error",
+        message: t("alerts.maxTags"),
+      });
+      return;
     }
+
+    setEditTags([...editTags, tag.trim()]);
   };
 
   const handleEditTagRemove = (tagToRemove: string) => {
-    setEditTags(editTags.filter(tag => tag !== tagToRemove));
+    setEditTags(editTags.filter((tag) => tag !== tagToRemove));
   };
 
-  const handleDelete = async () => {
-    if (ticketToDelete === null) return;
+  // ========== HANDLERS - FILTROS ==========
+  const handleFilterToggle = () => {
+    setShowModalFilter(true);
+  };
 
-    try {
-      setIsDeleting(true);
+  const handleFilterChange = () => {
+    setShowModalFilter(false);
+    // O useMemo já vai reagir automaticamente
+  };
 
-      await api.delete(`/tickets/${ticketToDelete}`, {
-        headers: {
-          Authorization: `Bearer ${localStorage.getItem("accessToken")}`,
-        },
-      });
+  const handleClearFilters = () => {
+    setFilterTag("");
+    setFilterDate("");
+    setFilterType("");
+    setFilterTicket("");
+    setSelectedStatuses([]);
+    setFilterUser("");
+    setFilterClient("");
+    setClientFromState(undefined);
+  };
 
-      messageAlert({
-        type: "success",
-        message: t("messages.ticketDeleted"),
-      });
+  const handleToggleStatus = (status: string) => {
+    setSelectedStatuses((prev) => {
+      if (prev.includes(status)) {
+        return prev.filter((s) => s !== status);
+      }
+      return [...prev, status];
+    });
+  };
 
-      setTimeout(() => {
-        setIsDeleting(false);
-        setIsDeleteModalVisible(false);
-        setTicketToDelete(null);
-        setShowModal(false);
-        mutate();
-        mutateTrashed();
-      }, 400);
-    } catch (error) {
-      setIsDeleting(false);
-      messageAlert({
-        type: "error",
-        message: t("messages.errorDeletingTicket"),
-      });
+  // ========== HANDLERS - SELECTS ==========
+  const handleSelectChange = (value: string | number) => {
+    setSelected(value.toString());
+  };
+
+  const handleSelectChangeAdmin = (value: string | number) => {
+    setSelectedAdmin(value.toString());
+  };
+
+  // ========== EFFECTS ==========
+  // Limpa o state da navegação após carregar
+  useEffect(() => {
+    if (location.state) {
+      window.history.replaceState({}, document.title);
     }
-  };
+  }, [location.state]);
 
-  const handleRestore = async (ticketId: number) => {
-    try {
-      await api.put(`/tickets/${ticketId}/restore`, {}, {
-        headers: {
-          Authorization: `Bearer ${localStorage.getItem("accessToken")}`,
-        },
-      });
-
-      messageAlert({
-        type: "success",
-        message: t("messages.ticketRestored"),
-      });
-
-      setShowModal(false);
-      mutate();
-      mutateTrashed();
-    } catch (error) {
-      messageAlert({
-        type: "error",
-        message: t("messages.errorRestoringTicket"),
-      });
+  // Recarrega histórico quando modal abre
+  useEffect(() => {
+    if (showModal && selectedTicket?.id) {
+      fetchHistory(selectedTicket.id);
     }
-  };
+  }, [showModal, selectedTicket?.id]);
 
-  if (selectedTicket?.deleted_at) {
-    daysLeft = 30 - dayjs().diff(dayjs(selectedTicket.deleted_at), "day");
-  }
-
-  const filteredEditTags = useMemo(() => {
-    const input = editTagInputValue.toLowerCase();
-    return availableTags.filter(
-      (tag) =>
-        (input === "" || tag.toLowerCase().includes(input)) &&
-        !editTags.includes(tag)
-    );
-  }, [availableTags, editTagInputValue, editTags]);
-
-  const statusToShow = showOnlyDeleted
-    ? []
-    : ["Em progresso", "Não iniciada", "Esperando", "Descartada", "Completo"];
-
-  const visibleTickets = showOnlyDeleted
-    ? trashedTickets
-    : filteredTickets.filter(ticket => statusToShow.includes(ticket.status));
-
-
-  if (selectedTicket?.deleted_at) {
-    const deletedDate = new Date(selectedTicket.deleted_at);
-    const now = new Date();
-    const daysPassed = differenceInDays(now, deletedDate);
-    daysLeft = expirationDays - daysPassed;
-    if (daysLeft < 0) daysLeft = 0;
-  }
-
-  if (!filteredTickets || isLoading || loadingAdmins || loadingClients) {
+  // ========== LOADING SCREEN ==========
+  if (isLoading || loadingAdmins || loadingClients || loadingTrashed) {
     return (
       <div className="flex items-center justify-center h-full w-full">
         <Spin />
