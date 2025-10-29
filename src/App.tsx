@@ -25,7 +25,8 @@ import MailsCreate from "./pages/Mails/MailsCreate";
 import WhatsApp from "./pages/WhatsApp/WhatsApp";
 import WhatsAppList from "./pages/WhatsApp/WhatsAppList";
 import WhatsAppCreate from "./pages/WhatsApp/WhatsAppCreate";
-import Metrics from "./pages/Metrics/Metrics"
+import Metrics from "./pages/Metrics/Metrics";
+import Permits from "./pages/Permits/Permits";
 
 function App() {
   return (
@@ -53,6 +54,14 @@ function App() {
               element={
                 <AuthenticatedLayout>
                   <Clients />
+                </AuthenticatedLayout>
+              }
+            />
+            <Route
+              path="/permits"
+              element={
+                <AuthenticatedLayout>
+                  <Permits />
                 </AuthenticatedLayout>
               }
             />

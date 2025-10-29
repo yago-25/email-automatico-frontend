@@ -1,8 +1,14 @@
-/* eslint-disable react-hooks/exhaustive-deps */
 import { useEffect, useState, useMemo } from "react";
 import Header from "../../components/Header/Header";
 import "./clients.css";
-import { Pencil, Trash } from "lucide-react";
+import {
+  Pencil,
+  Trash,
+  ClipboardList,
+  XCircle,
+  MapPin,
+  Calendar,
+} from "lucide-react";
 import { messageAlert } from "../../utils/messageAlert";
 import Spin from "../../components/Spin/Spin";
 import { api } from "../../api/api";
@@ -17,7 +23,7 @@ import {
 import { User } from "../../models/User";
 import { useTranslation } from "react-i18next";
 import { MdOutlineFormatListNumbered } from "react-icons/md";
-import { CiFilter, CiPhone } from "react-icons/ci";
+import { CiCalendarDate, CiFilter, CiPhone } from "react-icons/ci";
 import { CiMail } from "react-icons/ci";
 import { FaGear, FaTruckRampBox } from "react-icons/fa6";
 import { HiOutlineUser } from "react-icons/hi";
@@ -28,12 +34,29 @@ import { HiMail, HiPhone, HiUser } from "react-icons/hi";
 import { HiUserAdd, HiX } from "react-icons/hi";
 import PhoneInput from "react-phone-input-2";
 import "react-phone-input-2/lib/style.css";
-import { FaCheckCircle, FaCog, FaEraser, FaFilter, FaPhoneAlt, FaTruck, FaUser } from "react-icons/fa";
+import {
+  FaCheckCircle,
+  FaCog,
+  FaEraser,
+  FaFilter,
+  FaPhoneAlt,
+  FaTruck,
+  FaUser,
+} from "react-icons/fa";
 import useSwr from "swr";
 import { parsePhoneNumberFromString } from "libphonenumber-js";
 import { Tooltip } from "antd";
 import { RiSortNumberAsc } from "react-icons/ri";
 import { HiOutlineNumberedList } from "react-icons/hi2";
+
+interface Permit {
+  id: number;
+  client_id: number;
+  state: string;
+  expiration_date: string;
+  created_at: string;
+  updated_at: string;
+}
 
 interface Client {
   id: number;
@@ -43,8 +66,15 @@ interface Client {
   active: boolean;
   dot_number: string;
   operation_type: string;
+  expiration_date: Date;
+  permits: Permit[];
   user?: string;
   password?: string;
+  empresa?: string;
+  dono?: string;
+  social?: string;
+  ein?: string;
+  mc?: string;
 }
 
 interface DeleteConfirmModal {
@@ -63,7 +93,6 @@ const Clients = () => {
   const storedUser = localStorage.getItem("user");
   const authUser: User | null = storedUser ? JSON.parse(storedUser) : null;
 
-  // Estados principais
   const [addClient, setAddClient] = useState(false);
   const [clientName, setClientName] = useState("");
   const [clientPhone, setClientPhone] = useState("");
@@ -72,44 +101,62 @@ const Clients = () => {
   const [clientPassword, setClientPassword] = useState("");
   const [clientDot, setClientDot] = useState("");
   const [clientOperationType, setClientOperationType] = useState("");
-
-  // Estados de edição e modais
+  const [clientEmpresa, setClientEmpresa] = useState("");
+  const [clientDono, setClientDono] = useState("");
+  const [clientSocial, setClientSocial] = useState("");
+  const [clientEin, setClientEin] = useState("");
+  const [clientMc, setClientMc] = useState("");
   const [editingClient, setEditingClient] = useState<Client | null>(null);
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [isModalCrashOpen, setIsModalCrashOpen] = useState(false);
   const [showModalFilter, setShowModalFilter] = useState(false);
   const [clientIdToDelete, setClientIdToDelete] = useState<number | null>(null);
-
-  // Estados de filtros
   const [filteredTxt, setFilteredTxt] = useState("");
+  const [clientExpirationDate, setClientExpirationDate] = useState<string>("");
   const [filterName, setFilterName] = useState("");
   const [filterEmail, setFilterEmail] = useState("");
   const [filterPhone, setFilterPhone] = useState("");
   const [filterDotNumber, setFilterDotNumber] = useState("");
   const [filterOperationType, setFilterOperationType] = useState("");
   const [filterStatus, setFilterStatus] = useState("");
+  const [loadingPost, setLoadingPost] = useState(false);
+  const [loadingChangeStatus, setLoadingChangeStatus] = useState(false);
+  const [selectedClient, setSelectedClient] = useState<Client | null>(null);
+  const [showPermits, setShowPermits] = useState<boolean>(false);
+  const getPermitStatus = (expiration: string) => {
+    const today = new Date();
+    const exp = new Date(expiration);
+    const diffDays = Math.ceil(
+      (exp.getTime() - today.getTime()) / (1000 * 60 * 60 * 24)
+    );
+    if (diffDays < 0)
+      return { key: "expired", label: t("permits_page.expired") || "Expired" };
+    if (diffDays <= 30)
+      return {
+        key: "expiring",
+        label: t("permits_page.expiring_soon") || "Expiring soon",
+      };
+    return { key: "active", label: t("permits_page.active") || "Active" };
+  };
 
-  // Paginação
   const itemsPerPage = 5;
   const [currentPage, setCurrentPage] = useState(1);
 
-  // Estados de loading
-  const [loadingPost, setLoadingPost] = useState(false);
-  const [loadingChangeStatus, setLoadingChangeStatus] = useState(false);
-
-  // Cliente vindo do state (navegação)
   const { state } = useLocation();
   const clientFromState = state?.client;
   const [hasFilteredByState, setHasFilteredByState] = useState(!!state?.client);
 
-  // Sincroniza hasFilteredByState com clientFromState
   useEffect(() => {
     if (clientFromState && !hasFilteredByState) {
       setHasFilteredByState(true);
     }
   }, [clientFromState, hasFilteredByState]);
 
-  // Função para formatar telefone
+  const handleViewPermits = (client: Client) => {
+    setSelectedClient(client);
+    setShowPermits(true);
+  };
+
   const formatPhone = (phone: string): string => {
     try {
       const parsed = parsePhoneNumberFromString(phone);
@@ -127,7 +174,6 @@ const Clients = () => {
     }
   };
 
-  // Busca clientes da API
   const {
     data: clients = [],
     isLoading,
@@ -143,20 +189,17 @@ const Clients = () => {
         .then((res) => res.data),
   });
 
-  // Recarrega dados quando cliente do state muda
   useEffect(() => {
     if (clientFromState?.id) {
       mutate();
     }
   }, [clientFromState?.id, mutate]);
 
-  // ✅ FILTRO CONSOLIDADO - Toda lógica de filtro em um único lugar
   const filteredClients = useMemo(() => {
     if (!clients.length) return [];
 
     let filtered = [...clients];
 
-    // 1️⃣ PRIORIDADE MÁXIMA: Filtro por cliente do state (navegação)
     if (hasFilteredByState && clientFromState) {
       filtered = filtered.filter(
         (client) => client.id.toString() === clientFromState.id.toString()
@@ -164,8 +207,13 @@ const Clients = () => {
       return filtered.sort((a, b) => a.id - b.id);
     }
 
-    // 2️⃣ Filtros avançados do modal
-    if (filterName || filterEmail || filterPhone || filterDotNumber || filterOperationType) {
+    if (
+      filterName ||
+      filterEmail ||
+      filterPhone ||
+      filterDotNumber ||
+      filterOperationType
+    ) {
       filtered = filtered.filter((client) => {
         const matchesName = filterName
           ? client.name?.toLowerCase().includes(filterName.toLowerCase())
@@ -202,7 +250,6 @@ const Clients = () => {
       });
     }
 
-    // 3️⃣ Filtro de texto simples (barra de busca)
     if (filteredTxt) {
       filtered = filtered.filter(
         (client) =>
@@ -224,7 +271,6 @@ const Clients = () => {
     filteredTxt,
   ]);
 
-  // Cálculos de paginação
   const totalPages = Math.ceil(filteredClients.length / itemsPerPage);
   const startIndex = (currentPage - 1) * itemsPerPage;
   const currentClients = filteredClients.slice(
@@ -232,7 +278,6 @@ const Clients = () => {
     startIndex + itemsPerPage
   );
 
-  // Opções para os selects de filtro
   const availableClientNames = useMemo(() => {
     return clients.map((client) => ({
       value: client.name,
@@ -266,16 +311,15 @@ const Clients = () => {
       .map((client) => client.operation_type)
       .filter((type, index, self) => type && self.indexOf(type) === index);
     return types.map((type) => ({ value: type, label: type }));
+    return types.map((type) => ({ value: type, label: type }));
   }, [clients]);
 
-  // Navegação de página
   const goToPage = (page: number) => {
     if (page >= 1 && page <= totalPages) {
       setCurrentPage(page);
     }
   };
 
-  // ✅ ADICIONAR CLIENTE
   const handleAddClient = async () => {
     setLoadingPost(true);
     try {
@@ -297,6 +341,12 @@ const Clients = () => {
           password: clientPassword,
           dot_number: clientDot,
           operation_type: clientOperationType,
+          expiration_date: clientExpirationDate,
+          empresa: clientEmpresa,
+          dono: clientDono,
+          social: clientSocial,
+          ein: clientEin,
+          mc: clientMc,
         },
         {
           headers: {
@@ -319,6 +369,12 @@ const Clients = () => {
       setClientPassword("");
       setClientDot("");
       setClientOperationType("");
+      setClientExpirationDate("");
+      setClientEmpresa("");
+      setClientDono("");
+      setClientSocial("");
+      setClientEin("");
+      setClientMc("");
     } catch (e) {
       messageAlert({
         type: "error",
@@ -330,7 +386,6 @@ const Clients = () => {
     }
   };
 
-  // ✅ DELETAR CLIENTE
   const handleDelete = async () => {
     if (clientIdToDelete === null) return;
 
@@ -361,7 +416,6 @@ const Clients = () => {
     setIsModalCrashOpen(true);
   };
 
-  // ✅ EDITAR CLIENTE
   const handleEdit = async () => {
     if (!editingClient) return;
     try {
@@ -382,12 +436,10 @@ const Clients = () => {
     }
   };
 
-  // ✅ NAVEGAR PARA TICKET
   const handleTicket = (ticket: Client) => {
     navigate(`/ticket`, { state: { ticket } });
   };
 
-  // ✅ LIMPAR TODOS OS FILTROS
   const handleClearFilters = () => {
     setFilteredTxt("");
     setFilterName("");
@@ -401,19 +453,15 @@ const Clients = () => {
     navigate("/clients", { replace: true, state: null });
   };
 
-  // ✅ ABRIR MODAL DE FILTROS
   const handleFilterToggle = () => {
     setShowModalFilter(true);
   };
 
-  // ✅ APLICAR FILTROS DO MODAL
   const handleFilterChange = () => {
     setShowModalFilter(false);
-    setCurrentPage(1); // Reseta para primeira página
-    // O useMemo já vai reagir automaticamente aos filtros
+    setCurrentPage(1);
   };
 
-  // ✅ ALTERAR STATUS DO CLIENTE
   const handleStatus = async (client: Client) => {
     setLoadingChangeStatus(true);
     try {
@@ -446,7 +494,6 @@ const Clients = () => {
     }
   };
 
-  // ✅ LOADING SCREEN
   if (isLoading || loadingChangeStatus) {
     return (
       <div className="flex items-center justify-center h-full w-full">
@@ -454,7 +501,6 @@ const Clients = () => {
       </div>
     );
   }
-
 
   return (
     <div className="body">
@@ -503,13 +549,13 @@ const Clients = () => {
         </div>
 
         <div className="w-full rounded-xl overflow-hidden shadow-md">
-          {(isLoading) ? (
+          {isLoading ? (
             <div className="col-span-full flex justify-center items-center py-12">
               <Spin />
             </div>
           ) : currentClients.length > 0 ? (
             <>
-              <div className="grid grid-cols-7 gap-x-6 items-center px-6 py-4 bg-blue-100 border-b text-blue-900 font-semibold text-sm">
+              <div className="grid grid-cols-8 gap-x-6 items-center px-6 py-4 bg-blue-100 border-b text-blue-900 font-semibold text-sm">
                 <p className="flex items-center gap-2">
                   <MdOutlineFormatListNumbered /> ID
                 </p>
@@ -528,6 +574,9 @@ const Clients = () => {
                 <p className="flex items-center gap-2 justify-center">
                   <FaTruckRampBox className="text-blue-700" /> Operation Type
                 </p>
+                <p className="flex items-center gap-2 justify-center">
+                  <CiCalendarDate className="text-blue-700" /> Expiration Date
+                </p>
                 <p className="flex items-center justify-center gap-2">
                   <FaGear /> {t("clients.actions")}
                 </p>
@@ -540,15 +589,17 @@ const Clients = () => {
                   placement="left"
                 >
                   <div
-                    className={`grid grid-cols-7 gap-x-6 items-center justify-items-center px-6 py-4 text-sm transition duration-200 ${client.active === false
-                      ? "bg-red-300"
-                      : index % 2 === 0
+                    className={`grid grid-cols-8 gap-x-6 items-center justify-items-center px-6 py-4 text-sm transition duration-200 ${
+                      client.active === false
+                        ? "bg-red-300"
+                        : index % 2 === 0
                         ? "bg-gray-50"
                         : "bg-white"
-                      } ${client.active === false
+                    } ${
+                      client.active === false
                         ? "hover:bg-red-300"
                         : "hover:bg-blue-50"
-                      }`}
+                    }`}
                   >
                     <p className="text-center text-gray-800 font-medium">
                       {client.id}
@@ -573,6 +624,20 @@ const Clients = () => {
                       title={client.operation_type}
                     >
                       {client.operation_type ?? "-"}
+                    </p>
+                    <p
+                      className="text-center text-gray-700"
+                      title={
+                        client.expiration_date
+                          ? new Date(
+                              client.expiration_date
+                            ).toLocaleDateString()
+                          : "-"
+                      }
+                    >
+                      {client.expiration_date
+                        ? new Date(client.expiration_date).toLocaleDateString()
+                        : "-"}
                     </p>
                     <div className="flex justify-center gap-4">
                       <button
@@ -614,6 +679,17 @@ const Clients = () => {
                           </button>
                         </Tooltip>
                       )}
+
+                      <Tooltip
+                        title={t("permits_page.title") || "View Permits"}
+                      >
+                        <button
+                          onClick={() => handleViewPermits(client)}
+                          className="text-blue-600 hover:text-blue-800"
+                        >
+                          <ClipboardList className="h-5 w-5" />
+                        </button>
+                      </Tooltip>
                     </div>
                   </div>
                 </Tooltip>
@@ -628,7 +704,6 @@ const Clients = () => {
             </div>
           )}
         </div>
-
 
         <DeleteConfirmModal
           isVisible={isModalCrashOpen}
@@ -680,8 +755,8 @@ const Clients = () => {
               <Spin />
             </div>
           ) : editingClient ? (
-            <div className="bg-gradient-to-br from-white to-blue-50/50 p-8 rounded-3xl shadow-lg space-y-6">
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+            <div className="bg-gradient-to-br from-white to-blue-50/50 p-6 rounded-3xl shadow-lg space-y-4 max-w-5xl">
+              <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
                 <div className="space-y-2">
                   <div className="flex items-center gap-3 mb-2">
                     <div className="p-2.5 bg-gradient-to-br from-blue-500 to-blue-600 rounded-xl text-white shadow-sm">
@@ -748,7 +823,7 @@ const Clients = () => {
                   />
                 </div>
 
-                <div className="space-y-2 md:col-span-2">
+                <div className="space-y-2">
                   <div className="flex items-center gap-3 mb-2">
                     <div className="p-2.5 bg-gradient-to-br from-purple-500 to-purple-600 rounded-xl text-white shadow-sm">
                       <HiMail className="w-5 h-5" />
@@ -842,27 +917,117 @@ const Clients = () => {
 
                 <div className="space-y-2">
                   <div className="flex items-center gap-3 mb-2">
-                    <div className="p-2.5 bg-gradient-to-br from-yellow-500 to-yellow-600 rounded-xl text-white shadow-sm">
-                      <FaTruck className="w-5 h-5" />
+                    <div className="p-2.5 bg-gradient-to-br from-indigo-500 to-indigo-600 rounded-xl text-white shadow-sm">
+                      <HiUser className="w-5 h-5" />
                     </div>
                     <label className="text-sm font-semibold text-gray-700">
-                      Operation Type
+                      {t("dashboard.empresa")}
                     </label>
                   </div>
-                  <select
-                    value={editingClient.operation_type || ""}
+                  <input
+                    type="text"
+                    value={editingClient.empresa || ""}
                     onChange={(e) =>
                       setEditingClient({
                         ...editingClient,
-                        operation_type: e.target.value,
+                        empresa: e.target.value,
                       })
                     }
-                    className="w-full border border-gray-200 rounded-xl px-4 py-3 text-sm shadow-sm focus:outline-none focus:ring-2 focus:ring-yellow-400 bg-white/70 backdrop-blur-sm"
-                  >
-                    <option value="">{t("filters.all")}</option>
-                    <option value="interstate">Interstate</option>
-                    <option value="intrastate">Intrastate</option>
-                  </select>
+                    className="w-full border border-gray-200 rounded-2xl px-5 py-4 text-base shadow-sm focus:outline-none focus:ring-2 focus:ring-indigo-400 bg-white/70 backdrop-blur-sm transition-all duration-200 hover:border-indigo-300"
+                    placeholder={t("dashboard.empresa")}
+                  />
+                </div>
+
+                <div className="space-y-2">
+                  <div className="flex items-center gap-3 mb-2">
+                    <div className="p-2.5 bg-gradient-to-br from-teal-500 to-teal-600 rounded-xl text-white shadow-sm">
+                      <HiUser className="w-5 h-5" />
+                    </div>
+                    <label className="text-sm font-semibold text-gray-700">
+                      {t("dashboard.dono")}
+                    </label>
+                  </div>
+                  <input
+                    type="text"
+                    value={editingClient.dono || ""}
+                    onChange={(e) =>
+                      setEditingClient({
+                        ...editingClient,
+                        dono: e.target.value,
+                      })
+                    }
+                    className="w-full border border-gray-200 rounded-2xl px-5 py-4 text-base shadow-sm focus:outline-none focus:ring-2 focus:ring-teal-400 bg-white/70 backdrop-blur-sm transition-all duration-200 hover:border-teal-300"
+                    placeholder={t("dashboard.dono")}
+                  />
+                </div>
+
+                <div className="space-y-2">
+                  <div className="flex items-center gap-3 mb-2">
+                    <div className="p-2.5 bg-gradient-to-br from-pink-500 to-pink-600 rounded-xl text-white shadow-sm">
+                      <HiUser className="w-5 h-5" />
+                    </div>
+                    <label className="text-sm font-semibold text-gray-700">
+                      {t("dashboard.social")}
+                    </label>
+                  </div>
+                  <input
+                    type="text"
+                    value={editingClient.social || ""}
+                    onChange={(e) =>
+                      setEditingClient({
+                        ...editingClient,
+                        social: e.target.value,
+                      })
+                    }
+                    className="w-full border border-gray-200 rounded-2xl px-5 py-4 text-base shadow-sm focus:outline-none focus:ring-2 focus:ring-pink-400 bg-white/70 backdrop-blur-sm transition-all duration-200 hover:border-pink-300"
+                    placeholder={t("dashboard.social")}
+                  />
+                </div>
+
+                <div className="space-y-2">
+                  <div className="flex items-center gap-3 mb-2">
+                    <div className="p-2.5 bg-gradient-to-br from-yellow-500 to-yellow-600 rounded-xl text-white shadow-sm">
+                      <RiSortNumberAsc className="w-5 h-5" />
+                    </div>
+                    <label className="text-sm font-semibold text-gray-700">
+                      EIN
+                    </label>
+                  </div>
+                  <input
+                    type="text"
+                    value={editingClient.ein || ""}
+                    onChange={(e) =>
+                      setEditingClient({
+                        ...editingClient,
+                        ein: e.target.value,
+                      })
+                    }
+                    className="w-full border border-gray-200 rounded-2xl px-5 py-4 text-base shadow-sm focus:outline-none focus:ring-2 focus:ring-yellow-400 bg-white/70 backdrop-blur-sm transition-all duration-200 hover:border-yellow-300"
+                    placeholder="E.g., 12-3456789"
+                  />
+                </div>
+
+                <div className="space-y-2">
+                  <div className="flex items-center gap-3 mb-2">
+                    <div className="p-2.5 bg-gradient-to-br from-orange-500 to-orange-600 rounded-xl text-white shadow-sm">
+                      <FaTruck className="w-5 h-5" />
+                    </div>
+                    <label className="text-sm font-semibold text-gray-700">
+                      MC
+                    </label>
+                  </div>
+                  <input
+                    type="text"
+                    value={editingClient.mc || ""}
+                    onChange={(e) =>
+                      setEditingClient({
+                        ...editingClient,
+                        mc: e.target.value,
+                      })
+                    }
+                    className="w-full border border-gray-200 rounded-2xl px-5 py-4 text-base shadow-sm focus:outline-none focus:ring-2 focus:ring-orange-400 bg-white/70 backdrop-blur-sm transition-all duration-200 hover:border-orange-300"
+                    placeholder="E.g., MC123456"
+                  />
                 </div>
               </div>
 
@@ -905,14 +1070,15 @@ const Clients = () => {
           }
           isVisible={addClient}
           onClose={() => setAddClient(false)}
+          width={1900}
         >
           {loadingPost ? (
             <div className="flex flex-col items-center justify-center w-full gap-4">
               <Spin />
             </div>
           ) : (
-            <div className="bg-gradient-to-br from-white to-blue-50/50 p-8 rounded-3xl shadow-lg">
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+            <div className="bg-gradient-to-br from-white to-blue-50/50 p-6 rounded-3xl shadow-lg">
+              <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
                 <div>
                   <div className="flex items-center gap-3 mb-2">
                     <div className="p-2.5 bg-gradient-to-br from-blue-500 to-blue-600 rounded-xl text-white shadow-sm">
@@ -933,7 +1099,7 @@ const Clients = () => {
 
                 <div>
                   <div className="flex items-center gap-3 mb-2">
-                    <div className="p-2.5 bg-gradient-to-br from-green-500 to-green-600 rounded-xl text-white shadow-sm">
+                    <div className="p-2.5 bg-gradient-to-br from-blue-500 to-blue-600 rounded-xl text-white shadow-sm">
                       <HiPhone className="w-5 h-5" />
                     </div>
                     <label className="text-sm font-semibold text-gray-700">
@@ -972,8 +1138,8 @@ const Clients = () => {
                   />
                 </div>
 
-                <div className=" md:col-span-2">
-                  <div className="flex items-center gap-3 mb-2 w-full">
+                <div>
+                  <div className="flex items-center gap-3 mb-2">
                     <div className="p-2.5 bg-gradient-to-br from-purple-500 to-purple-600 rounded-xl text-white shadow-sm">
                       <HiMail className="w-5 h-5" />
                     </div>
@@ -987,6 +1153,24 @@ const Clients = () => {
                     onChange={(e) => setClientMail(e.target.value)}
                     className="w-full border border-gray-200 rounded-2xl px-5 py-4 text-base shadow-sm focus:outline-none focus:ring-2 focus:ring-purple-400 bg-white/70 backdrop-blur-sm transition-all duration-200 hover:border-purple-300"
                     placeholder={t("dashboard.email")}
+                  />
+                </div>
+
+                <div>
+                  <div className="flex items-center gap-3 mb-2">
+                    <div className="p-2.5 bg-gradient-to-br from-purple-500 to-purple-600 rounded-xl text-white shadow-sm">
+                      <CiCalendarDate className="w-5 h-5" />
+                    </div>
+                    <label className="text-sm font-semibold text-gray-700">
+                      Data de Expiração
+                    </label>
+                  </div>
+                  <input
+                    type="date"
+                    value={clientExpirationDate}
+                    onChange={(e) => setClientExpirationDate(e.target.value)}
+                    className="w-full border border-gray-200 rounded-2xl px-5 py-4 text-base shadow-sm focus:outline-none focus:ring-2 focus:ring-purple-400 bg-white/70 backdrop-blur-sm transition-all duration-200 hover:border-purple-300"
+                    placeholder="Selecione a data"
                   />
                 </div>
 
@@ -1010,7 +1194,7 @@ const Clients = () => {
 
                 <div>
                   <div className="flex items-center gap-3 mb-2">
-                    <div className="p-2.5 bg-gradient-to-br from-yellow-500 to-yellow-600 rounded-xl text-white shadow-sm">
+                    <div className="p-2.5 bg-gradient-to-br from-red-500 to-red-600 rounded-xl text-white shadow-sm">
                       <MdOutlinePassword className="w-5 h-5" />
                     </div>
                     <label className="text-sm font-semibold text-gray-700">
@@ -1046,22 +1230,92 @@ const Clients = () => {
 
                 <div>
                   <div className="flex items-center gap-3 mb-2">
+                    <div className="p-2.5 bg-gradient-to-br from-indigo-500 to-indigo-600 rounded-xl text-white shadow-sm">
+                      <HiUser className="w-5 h-5" />
+                    </div>
+                    <label className="text-sm font-semibold text-gray-700">
+                      {t("dashboard.empresa")}
+                    </label>
+                  </div>
+                  <input
+                    type="text"
+                    value={clientEmpresa}
+                    onChange={(e) => setClientEmpresa(e.target.value)}
+                    className="w-full border border-gray-200 rounded-2xl px-5 py-4 text-base shadow-sm focus:outline-none focus:ring-2 focus:ring-indigo-400 bg-white/70 backdrop-blur-sm transition-all duration-200 hover:border-indigo-300"
+                    placeholder={t("dashboard.empresa")}
+                  />
+                </div>
+
+                <div>
+                  <div className="flex items-center gap-3 mb-2">
+                    <div className="p-2.5 bg-gradient-to-br from-teal-500 to-teal-600 rounded-xl text-white shadow-sm">
+                      <HiUser className="w-5 h-5" />
+                    </div>
+                    <label className="text-sm font-semibold text-gray-700">
+                      {t("dashboard.dono")}
+                    </label>
+                  </div>
+                  <input
+                    type="text"
+                    value={clientDono}
+                    onChange={(e) => setClientDono(e.target.value)}
+                    className="w-full border border-gray-200 rounded-2xl px-5 py-4 text-base shadow-sm focus:outline-none focus:ring-2 focus:ring-teal-400 bg-white/70 backdrop-blur-sm transition-all duration-200 hover:border-teal-300"
+                    placeholder={t("dashboard.dono")}
+                  />
+                </div>
+
+                <div>
+                  <div className="flex items-center gap-3 mb-2">
+                    <div className="p-2.5 bg-gradient-to-br from-pink-500 to-pink-600 rounded-xl text-white shadow-sm">
+                      <HiUser className="w-5 h-5" />
+                    </div>
+                    <label className="text-sm font-semibold text-gray-700">
+                      {t("dashboard.social")}
+                    </label>
+                  </div>
+                  <input
+                    type="text"
+                    value={clientSocial}
+                    onChange={(e) => setClientSocial(e.target.value)}
+                    className="w-full border border-gray-200 rounded-2xl px-5 py-4 text-base shadow-sm focus:outline-none focus:ring-2 focus:ring-pink-400 bg-white/70 backdrop-blur-sm transition-all duration-200 hover:border-pink-300"
+                    placeholder={t("dashboard.social")}
+                  />
+                </div>
+
+                <div>
+                  <div className="flex items-center gap-3 mb-2">
                     <div className="p-2.5 bg-gradient-to-br from-yellow-500 to-yellow-600 rounded-xl text-white shadow-sm">
+                      <RiSortNumberAsc className="w-5 h-5" />
+                    </div>
+                    <label className="text-sm font-semibold text-gray-700">
+                      EIN
+                    </label>
+                  </div>
+                  <input
+                    type="text"
+                    value={clientEin}
+                    onChange={(e) => setClientEin(e.target.value)}
+                    className="w-full border border-gray-200 rounded-2xl px-5 py-4 text-base shadow-sm focus:outline-none focus:ring-2 focus:ring-yellow-400 bg-white/70 backdrop-blur-sm transition-all duration-200 hover:border-yellow-300"
+                    placeholder="E.g., 12-3456789"
+                  />
+                </div>
+
+                <div>
+                  <div className="flex items-center gap-3 mb-2">
+                    <div className="p-2.5 bg-gradient-to-br from-orange-500 to-orange-600 rounded-xl text-white shadow-sm">
                       <FaTruck className="w-5 h-5" />
                     </div>
                     <label className="text-sm font-semibold text-gray-700">
-                      Operation Type
+                      MC
                     </label>
                   </div>
-                  <select
-                    value={clientOperationType}
-                    onChange={(e) => setClientOperationType(e.target.value)}
-                    className="w-full h-[55px] border border-gray-200 rounded-xl px-4 py-3 text-sm shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-400 bg-white/70 backdrop-blur-sm"
-                  >
-                    <option value="">{t("filters.all")}</option>
-                    <option value="interstate">Interstate</option>
-                    <option value="intrastate">Intrastate</option>
-                  </select>
+                  <input
+                    type="text"
+                    value={clientMc}
+                    onChange={(e) => setClientMc(e.target.value)}
+                    className="w-full border border-gray-200 rounded-2xl px-5 py-4 text-base shadow-sm focus:outline-none focus:ring-2 focus:ring-orange-400 bg-white/70 backdrop-blur-sm transition-all duration-200 hover:border-orange-300"
+                    placeholder="E.g., MC123456"
+                  />
                 </div>
               </div>
 
@@ -1084,6 +1338,7 @@ const Clients = () => {
             </div>
           )}
         </Modal>
+
         <Modal
           title={
             <div className="flex items-center gap-3 text-blue-600">
@@ -1098,7 +1353,6 @@ const Clients = () => {
           }}
         >
           <div className="bg-gradient-to-br from-white to-blue-50/50 p-6 rounded-2xl shadow-lg mt-2 max-w-md mx-auto">
-
             <div className="mt-4">
               <div className="flex items-center gap-2 mb-2">
                 <div className="p-2 bg-blue-100 rounded-xl text-blue-600">
@@ -1121,7 +1375,6 @@ const Clients = () => {
                 ))}
               </select>
             </div>
-
 
             <div className="mt-4">
               <div className="flex items-center gap-2 mb-2">
@@ -1257,6 +1510,175 @@ const Clients = () => {
           </div>
         </Modal>
 
+        <Modal
+          title={
+            selectedClient && (
+              <div className="flex items-center gap-3 mb-1">
+                <div className="bg-gradient-to-br from-blue-500 to-blue-600 p-2.5 rounded-xl shadow-md">
+                  <ClipboardList className="w-5 h-5 text-white" />
+                </div>
+                <div>
+                  <h2 className="text-xl font-bold text-gray-800">
+                    {t("permits_page.title")} - {selectedClient?.name}
+                  </h2>
+                  <p className="text-sm text-gray-600 mt-1">
+                    {selectedClient.permits?.length || 0}{" "}
+                    {t("permits_page.total_permits") || "permits"}
+                  </p>
+                </div>
+              </div>
+            )
+          }
+          isVisible={showPermits && !!selectedClient}
+          onClose={() => setShowPermits(false)}
+        >
+          {selectedClient && (
+            <div className="space-y-6">
+              {!selectedClient.permits ||
+              selectedClient.permits.length === 0 ? (
+                <div className="text-center py-12">
+                  <div className="bg-gray-100 rounded-full w-16 h-16 flex items-center justify-center mx-auto mb-4">
+                    <ClipboardList className="w-8 h-8 text-gray-400" />
+                  </div>
+                  <p className="text-gray-500 text-lg font-medium">
+                    {t("permits_page.no_permits")}
+                  </p>
+                  <p className="text-gray-400 text-sm mt-2">
+                    {t("permits_page.no_permits_description") ||
+                      "This client doesn't have any permits yet."}
+                  </p>
+                </div>
+              ) : (
+                <>
+                  <div className="grid grid-cols-3 gap-4 mb-6">
+                    <div className="bg-blue-50 rounded-lg p-3 text-center">
+                      <div className="text-2xl font-bold text-blue-600">
+                        {
+                          selectedClient.permits.filter(
+                            (p) =>
+                              getPermitStatus(p.expiration_date).key ===
+                              "active"
+                          ).length
+                        }
+                      </div>
+                      <div className="text-xs text-blue-600 font-medium">
+                        {t("permits_page.active")}
+                      </div>
+                    </div>
+                    <div className="bg-yellow-50 rounded-lg p-3 text-center">
+                      <div className="text-2xl font-bold text-yellow-600">
+                        {
+                          selectedClient.permits.filter(
+                            (p) =>
+                              getPermitStatus(p.expiration_date).key ===
+                              "expiring"
+                          ).length
+                        }
+                      </div>
+                      <div className="text-xs text-yellow-600 font-medium">
+                        {t("permits_page.expiring_soon")}
+                      </div>
+                    </div>
+                    <div className="bg-red-50 rounded-lg p-3 text-center">
+                      <div className="text-2xl font-bold text-red-600">
+                        {
+                          selectedClient.permits.filter(
+                            (p) =>
+                              getPermitStatus(p.expiration_date).key ===
+                              "expired"
+                          ).length
+                        }
+                      </div>
+                      <div className="text-xs text-red-600 font-medium">
+                        {t("permits_page.expired")}
+                      </div>
+                    </div>
+                  </div>
+
+                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 max-h-96 overflow-y-auto">
+                    {selectedClient.permits.map((permit) => {
+                      const status = getPermitStatus(permit.expiration_date);
+                      return (
+                        <div
+                          key={permit.id}
+                          className="rounded-xl border border-gray-200 bg-white p-5 shadow-sm hover:shadow-lg transition-all duration-200 hover:border-blue-300"
+                        >
+                          <div className="flex items-start justify-between mb-4">
+                            <div className="flex items-center gap-2">
+                              <div className="bg-blue-100 rounded-lg p-2">
+                                <ClipboardList className="w-4 h-4 text-blue-600" />
+                              </div>
+                              <div>
+                                <div className="text-sm font-bold text-gray-800">
+                                  Permit #{permit.id}
+                                </div>
+                                <div className="text-xs text-gray-500">
+                                  {t("permits_page.created_at")}:{" "}
+                                  {new Date(
+                                    permit.created_at
+                                  ).toLocaleDateString()}
+                                </div>
+                              </div>
+                            </div>
+                            <span
+                              className={`px-3 py-1 text-center rounded-full text-xs font-semibold ${
+                                status.key === "active"
+                                  ? "bg-green-100 text-green-700"
+                                  : status.key === "expiring"
+                                  ? "bg-yellow-100 text-yellow-700"
+                                  : "bg-red-100 text-red-700"
+                              }`}
+                            >
+                              {status.label}
+                            </span>
+                          </div>
+
+                          <div className="space-y-3">
+                            <div className="flex items-center gap-3 p-2 bg-gray-50 rounded-lg">
+                              <MapPin className="w-4 h-4 text-gray-500" />
+                              <div className="flex-1">
+                                <div className="text-xs text-gray-500 font-medium">
+                                  {t("permits_page.state_label")}
+                                </div>
+                                <div className="text-sm font-semibold text-gray-800">
+                                  {permit.state}
+                                </div>
+                              </div>
+                            </div>
+
+                            <div className="flex items-center gap-3 p-2 bg-gray-50 rounded-lg">
+                              <Calendar className="w-4 h-4 text-gray-500" />
+                              <div className="flex-1">
+                                <div className="text-xs text-gray-500 font-medium">
+                                  {t("permits_page.expiration")}
+                                </div>
+                                <div className="text-sm font-semibold text-gray-800">
+                                  {new Date(
+                                    permit.expiration_date
+                                  ).toLocaleDateString()}
+                                </div>
+                              </div>
+                            </div>
+                          </div>
+                        </div>
+                      );
+                    })}
+                  </div>
+                </>
+              )}
+
+              <div className="pt-4 border-t border-gray-200">
+                <button
+                  onClick={() => setShowPermits(false)}
+                  className="w-full flex items-center justify-center gap-2 py-3 bg-gradient-to-r from-gray-100 to-gray-200 text-gray-700 rounded-xl hover:from-gray-200 hover:to-gray-300 transition-all duration-300 shadow-md border border-gray-200 font-medium"
+                >
+                  <XCircle className="w-5 h-5" />
+                  {t("buttons.close") || "Close"}
+                </button>
+              </div>
+            </div>
+          )}
+        </Modal>
       </div>
     </div>
   );

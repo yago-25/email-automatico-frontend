@@ -8,6 +8,7 @@ import {
   MdArrowForwardIos,
   MdLoop,
   MdOutlinePassword,
+  MdWarning,
 } from "react-icons/md";
 import { api } from "../../api/api";
 import { messageAlert } from "../../utils/messageAlert";
@@ -17,7 +18,7 @@ import Input from "../../components/Input/Input";
 import Select from "../../components/Select/Select";
 import { useSwr } from "../../api/useSwr";
 import { MdOutlineFormatListNumbered } from "react-icons/md";
-import { CiPhone } from "react-icons/ci";
+import { CiCalendarDate, CiPhone } from "react-icons/ci";
 import { CiMail } from "react-icons/ci";
 import { FaGear, FaTruckRampBox } from "react-icons/fa6";
 import { HiOutlineUser } from "react-icons/hi";
@@ -53,6 +54,7 @@ interface Clients {
   active: boolean;
   dot_number: string;
   operation_type: string;
+  expiration_date: Date;
   value?: string;
   user?: string;
   password?: string;
@@ -178,6 +180,7 @@ const Dashboard = () => {
   const [loadingChangeStatus, setLoadingChangeStatus] = useState(false);
   const [clientDot, setClientDot] = useState("");
   const [clientOperationType, setClientOperationType] = useState("");
+  const [clientExpirationDate, setClientExpirationDate] = useState<string>("");
   const itemsPerPage = 5;
 
   const filteredClients = rawClients.filter(
@@ -194,6 +197,13 @@ const Dashboard = () => {
     startIndex,
     startIndex + itemsPerPage
   );
+
+  const calculateDaysLeft = (expirationDate: string | Date) => {
+    const currentDate = new Date();
+    const expiration = new Date(expirationDate);
+    const timeDiff = expiration.getTime() - currentDate.getTime();
+    return Math.ceil(timeDiff / (1000 * 3600 * 24));
+  };
 
   const formatPhone = (phone: string): string => {
     try {
@@ -247,6 +257,7 @@ const Dashboard = () => {
           password: clientPassword,
           dot_number: clientDot,
           operation_type: clientOperationType,
+          expiration_date: clientExpirationDate,
         },
         {
           headers: {
@@ -265,6 +276,11 @@ const Dashboard = () => {
       setClientName("");
       setClientPhone("");
       setClientMail("");
+      setClientUser("");
+      setClientPassword("");
+      setClientDot("");
+      setClientOperationType("");
+      setClientExpirationDate("");
     } catch (e) {
       console.log("Erro ao criar usuário: ", e);
       messageAlert({ type: "error", message: t("dashboard.create_error") });
@@ -535,8 +551,8 @@ const Dashboard = () => {
         )}
       </div>
 
-      <div className="w-full max-w-[80rem] mx-auto mt-10 rounded-3xl overflow-hidden shadow-lg bg-white">
-        <div className="grid grid-cols-7 gap-x-6 items-center justify-items-center px-6 py-4 bg-gradient-to-r from-blue-100 to-blue-200 font-semibold text-blue-900 text-sm uppercase tracking-wide">
+      <div className="w-full max-w-[90rem] mx-auto mt-10 rounded-3xl overflow-hidden shadow-lg bg-white">
+        <div className="grid grid-cols-8 gap-x-6 items-center justify-items-center px-6 py-4 bg-gradient-to-r from-blue-100 to-blue-200 font-semibold text-blue-900 text-sm uppercase tracking-wide">
           <p className="flex items-center gap-2 justify-center">
             <MdOutlineFormatListNumbered className="text-blue-700" /> ID
           </p>
@@ -556,90 +572,135 @@ const Dashboard = () => {
             <FaTruckRampBox className="text-blue-700" /> Operation Type
           </p>
           <p className="flex items-center gap-2 justify-center">
+            <CiCalendarDate className="text-blue-700" /> Expiration Date
+          </p>
+          <p className="flex items-center gap-2 justify-center">
             <FaGear className="text-blue-700" /> {t("clients.actions")}
           </p>
         </div>
 
-        {currentClients.map((client, index) => (
-          <Tooltip
-            title={client.active === false ? "Inativo" : ""}
-            key={client.id}
-            placement="left"
-          >
-            <div
-              className={`grid grid-cols-7 gap-x-6 items-center justify-items-center px-6 py-4 text-sm transition duration-200 ${client.active === false
-                  ? "bg-red-300"
-                  : index % 2 === 0
+        {currentClients.map((client, index) => {
+          const daysLeft = client.expiration_date
+            ? calculateDaysLeft(client.expiration_date)
+            : 0;
+
+          const getAlertIconStyle = () => {
+            if (daysLeft <= 0) {
+              return { color: "red", animation: "shake 0.5s infinite" };
+            } else if (daysLeft <= 15) {
+              return { color: "red" };
+            } else if (daysLeft <= 30) {
+              return { color: "yellow" };
+            } else {
+              return { color: "transparent" };
+            }
+          };
+
+          return (
+            <Tooltip
+              title={client.active === false ? "Inativo" : ""}
+              key={client.id}
+              placement="left"
+            >
+              <div
+                className={`grid grid-cols-8 gap-x-6 items-center justify-items-center px-6 py-4 text-sm transition duration-200 ${
+                  client.active === false
+                    ? "bg-red-300"
+                    : index % 2 === 0
                     ? "bg-gray-50"
                     : "bg-white"
-                } ${client.active === false
-                  ? "hover:bg-red-300"
-                  : "hover:bg-blue-50"
+                } ${
+                  client.active === false
+                    ? "hover:bg-red-300"
+                    : "hover:bg-blue-50"
                 }`}
-            >
-              <p className="text-center text-gray-800 font-medium">
-                {client.id}
-              </p>
-              <Tooltip title={client.name}>
-                <p className="text-center max-w-[100px] truncate text-gray-700">
-                  {client.name}
+              >
+                <p className="text-center text-gray-800 font-medium">
+                  {client.id}
                 </p>
-              </Tooltip>
-              <Tooltip title={client.mail}>
+                <Tooltip title={client.name}>
+                  <p className="text-center max-w-[100px] truncate text-gray-700">
+                    {client.name}
+                  </p>
+                </Tooltip>
+                <Tooltip title={client.mail}>
+                  <p
+                    className="text-center truncate text-gray-700"
+                    title={client.mail}
+                  >
+                    {client.mail}
+                  </p>
+                </Tooltip>
+                <p className="text-center text-gray-700" title={client.phone}>
+                  {formatPhone(client.phone)}
+                </p>
                 <p
-                  className="text-center truncate text-gray-700"
-                  title={client.mail}
+                  className="text-center text-gray-700"
+                  title={client.dot_number}
                 >
-                  {client.mail}
+                  {client.dot_number ?? "-"}
                 </p>
-              </Tooltip>
-              <p className="text-center text-gray-700" title={client.phone}>
-                {formatPhone(client.phone)}
-              </p>
-              <p
-                className="text-center text-gray-700"
-                title={client.dot_number}
-              >
-                {client.dot_number ?? "-"}
-              </p>
-              <p
-                className="text-center text-gray-700"
-                title={client.operation_type}
-              >
-                {client.operation_type ?? "-"}
-              </p>
-              <div className="flex justify-center items-center gap-3">
-                <Tooltip title="Visualizar Cliente">
-                  <button
-                    onClick={() => handleClient(client)}
-                    className="text-blue-600 hover:text-blue-800 transition-colors duration-200"
-                    title={t("tooltips.viewClients")}
+                <p
+                  className="text-center text-gray-700"
+                  title={client.operation_type}
+                >
+                  {client.operation_type ?? "-"}
+                </p>
+                <div className="flex items-center justify-center gap-2">
+                  <p
+                    className="text-center text-gray-700"
+                    title={
+                      client.expiration_date
+                        ? new Date(client.expiration_date).toLocaleDateString()
+                        : "-"
+                    }
                   >
-                    <IoPersonSharp className="h-5 w-5" />
-                  </button>
-                </Tooltip>
-                <Tooltip title="Visualizar Tickets">
-                  <button
-                    onClick={() => handleTicket(client)}
-                    className="text-red-600 hover:text-red-800 transition-colors duration-200"
-                    title={t("tooltips.viewTickets")}
-                  >
-                    <IoTicketOutline className="h-5 w-5" />
-                  </button>
-                </Tooltip>
-                <Tooltip title="Alterar Status">
-                  <button
-                    onClick={() => handleStatus(client)}
-                    className="text-green-600 hover:text-green-800 transition-colors duration-200"
-                    title={t("tooltips.viewTickets")}
-                  >
-                    <MdLoop className="h-5 w-5" />
-                  </button>
-                </Tooltip>
+                    {client.expiration_date
+                      ? new Date(client.expiration_date).toLocaleDateString()
+                      : "-"}
+                  </p>
+                  <Tooltip title={`Faltam ${daysLeft} dias`}>
+                    <MdWarning
+                      style={getAlertIconStyle()}
+                      className={`h-6 w-6 ${
+                        daysLeft <= 0 ? "text-red-600" : ""
+                      }`}
+                    />
+                  </Tooltip>
+                </div>
+                <div className="flex justify-center items-center gap-3">
+                  <Tooltip title="Visualizar Cliente">
+                    <button
+                      onClick={() => handleClient(client)}
+                      className="text-blue-600 hover:text-blue-800 transition-colors duration-200"
+                      title={t("tooltips.viewClients")}
+                    >
+                      <IoPersonSharp className="h-5 w-5" />
+                    </button>
+                  </Tooltip>
+                  <Tooltip title="Visualizar Tickets">
+                    <button
+                      onClick={() => handleTicket(client)}
+                      className="text-red-600 hover:text-red-800 transition-colors duration-200"
+                      title={t("tooltips.viewTickets")}
+                    >
+                      <IoTicketOutline className="h-5 w-5" />
+                    </button>
+                  </Tooltip>
+                  <Tooltip title="Alterar Status">
+                    <button
+                      onClick={() => handleStatus(client)}
+                      className="text-green-600 hover:text-green-800 transition-colors duration-200"
+                      title={t("tooltips.viewTickets")}
+                    >
+                      <MdLoop className="h-5 w-5" />
+                    </button>
+                  </Tooltip>
+                </div>
               </div>
-            </div>
-          </Tooltip>
-        ))}
+            </Tooltip>
+          );
+        })}
       </div>
 
       <div className="pagination flex justify-center items-center gap-4 mt-6 text-white">
@@ -705,7 +766,7 @@ const Dashboard = () => {
 
               <div>
                 <div className="flex items-center gap-3 mb-2">
-                  <div className="p-2.5 bg-gradient-to-br from-green-500 to-green-600 rounded-xl text-white shadow-sm">
+                  <div className="p-2.5 bg-gradient-to-br from-blue-500 to-blue-600 rounded-xl text-white shadow-sm">
                     <HiPhone className="w-5 h-5" />
                   </div>
                   <label className="text-sm font-semibold text-gray-700">
@@ -762,6 +823,24 @@ const Dashboard = () => {
                 />
               </div>
 
+              <div className=" md:col-span-2">
+                <div className="flex items-center gap-3 mb-2 w-full">
+                  <div className="p-2.5 bg-gradient-to-br from-purple-500 to-purple-600 rounded-xl text-white shadow-sm">
+                    <CiCalendarDate className="w-5 h-5" />
+                  </div>
+                  <label className="text-sm font-semibold text-gray-700">
+                    Data de Expiração
+                  </label>
+                </div>
+                <input
+                  type="date"
+                  value={clientExpirationDate}
+                  onChange={(e) => setClientExpirationDate(e.target.value)}
+                  className="w-full border border-gray-200 rounded-2xl px-5 py-4 text-base shadow-sm focus:outline-none focus:ring-2 focus:ring-purple-400 bg-white/70 backdrop-blur-sm transition-all duration-200 hover:border-purple-300"
+                  placeholder="Selecione a data"
+                />
+              </div>
+
               <div>
                 <div className="flex items-center gap-3 mb-2">
                   <div className="p-2.5 bg-gradient-to-br from-red-500 to-red-600 rounded-xl text-white shadow-sm">
@@ -782,7 +861,7 @@ const Dashboard = () => {
 
               <div>
                 <div className="flex items-center gap-3 mb-2">
-                  <div className="p-2.5 bg-gradient-to-br from-yellow-500 to-yellow-600 rounded-xl text-white shadow-sm">
+                  <div className="p-2.5 bg-gradient-to-br from-red-500 to-red-600 rounded-xl text-white shadow-sm">
                     <MdOutlinePassword className="w-5 h-5" />
                   </div>
                   <label className="text-sm font-semibold text-gray-700">
