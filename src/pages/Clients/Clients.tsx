@@ -1673,7 +1673,7 @@ const Clients = () => {
                   className="w-full flex items-center justify-center gap-2 py-3 bg-gradient-to-r from-gray-100 to-gray-200 text-gray-700 rounded-xl hover:from-gray-200 hover:to-gray-300 transition-all duration-300 shadow-md border border-gray-200 font-medium"
                 >
                   <XCircle className="w-5 h-5" />
-                  {t("buttons.close") || "Close"}
+                  {t("login_page.back_button") || "Close"}
                 </button>
               </div>
             </div>
