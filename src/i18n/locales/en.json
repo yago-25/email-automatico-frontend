@@ -209,7 +209,14 @@
     "failed": "Failed",
     "date_sent": "Send Date",
     "close": "Close",
-    "open": "Open Filters"
+    "open": "Open Filters",
+    "name": "Name",
+    "email": "Email",
+    "phone": "Phone",
+    "dot": "DOT number",
+    "operationType": "Operation Type",
+    "active": "Active",
+    "inactive": "Inactive"
   },
   "status": {
     "open": "Not started",

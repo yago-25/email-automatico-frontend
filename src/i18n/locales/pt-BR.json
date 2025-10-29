@@ -210,7 +210,14 @@
     "failed": "Falha",
     "date_sent": "Data de envio",
     "close": "Fechar",
-    "open": "Abrir Filtros"
+    "open": "Abrir Filtros",
+    "name": "Nome",
+    "email": "E-mail",
+    "phone": "Telefone",
+    "dot": "DOT number",
+    "operationType": "Tipo de Operação",
+    "active": "Ativo",
+    "inactive": "Inativo"
   },
   "status": {
     "open": "Aberto",

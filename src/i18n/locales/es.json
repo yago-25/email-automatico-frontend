@@ -207,7 +207,14 @@
     "failed": "Fallido",
     "date_sent": "Fecha de envío",
     "close": "Cerrar",
-    "open": "Abrir filtros"
+    "open": "Abrir filtros",
+    "name": "Nombre",
+    "email": "Correo electrónico",
+    "phone": "Teléfono",
+    "dot": "DOT number",
+    "operationType": "Tipo de Operación",
+    "active": "Activo",
+    "inactive": "Inactivo"
   },
   "status": {
     "open": "Abierto",
