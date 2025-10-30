@@ -695,11 +695,13 @@
     "failed": "Falharam"
   },
   "labels": {
-    "noClient": "Sem Cliente"
+    "noClient": "Sem Cliente",
+    "expiration_date": "Data de Expiração"
   },
   "placeholders": {
     "selectClient": "Selecione um cliente",
-    "selectOperator": "Selecione um operador"
+    "selectOperator": "Selecione um operador",
+    "select_date": "Selecione a data"
   },
   "ticketsStats": {
     "total": "Total de Tickets",

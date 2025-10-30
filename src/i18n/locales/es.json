@@ -690,11 +690,13 @@
     "failed": "Fallaron"
   },
   "labels": {
-    "noClient": "Sin Cliente"
+    "noClient": "Sin Cliente",
+    "expiration_date": "Fecha de Vencimiento"
   },
   "placeholders": {
     "selectClient": "Selecciona un cliente",
-    "selectOperator": "Selecciona un operador"
+    "selectOperator": "Selecciona un operador",
+    "select_date": "Seleccione una fecha"
   },
   "ticketsStats": {
     "total": "Total de Tickets",
@@ -726,8 +728,7 @@
     "qrCodeError": "No se pudo obtener el código QR. Inténtalo de nuevo.",
     "connectError": "Error al conectar el número. Inténtalo de nuevo.",
     "invalidInstanceName": "Nombre de instancia no válido para actualizar el estado."
-  }
-  ,
+  },
   "permits_page": {
     "title": "Gestión de Permisos",
     "fetch_error": "Error al cargar los permisos",

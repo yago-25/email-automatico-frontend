@@ -695,11 +695,13 @@
     "failed": "Failed"
   },
   "labels": {
-    "noClient": "No Client"
+    "noClient": "No Client",
+    "expiration_date": "Expiration Date"
   },
   "placeholders": {
     "selectClient": "Select a client",
-    "selectOperator": "Select an operator"
+    "selectOperator": "Select an operator",
+    "select_date": "Select a date"
   },
   "ticketsStats": {
     "total": "Total Tickets",
@@ -723,13 +725,12 @@
     "numberWithDDD": "Number with area code",
     "addInstance": "Add Instance"
   },
-   "whatsappAlerts": {
+  "whatsappAlerts": {
     "fillNumber": "Please enter the number to connect",
     "qrCodeError": "Unable to get QR Code. Please try again.",
     "connectError": "Error connecting number. Please try again.",
     "invalidInstanceName": "Invalid instance name to update status."
-  }
-  ,
+  },
   "permits_page": {
     "title": "Permit Management",
     "fetch_error": "Error loading permits",

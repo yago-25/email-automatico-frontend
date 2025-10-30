@@ -18,7 +18,7 @@ import {
   MdArrowForwardIos,
   MdEmail,
   MdLoop,
-  MdOutlinePassword,
+  MdWarning,
 } from "react-icons/md";
 import { User } from "../../models/User";
 import { useTranslation } from "react-i18next";
@@ -30,8 +30,7 @@ import { HiOutlineUser } from "react-icons/hi";
 import { IoTicketOutline } from "react-icons/io5";
 import { useLocation, useNavigate } from "react-router-dom";
 import DeleteConfirmModal from "../../components/DeleteConfirm/DeleteConfirmModal";
-import { HiMail, HiPhone, HiUser } from "react-icons/hi";
-import { HiUserAdd, HiX } from "react-icons/hi";
+import { HiUserAdd } from "react-icons/hi";
 import PhoneInput from "react-phone-input-2";
 import "react-phone-input-2/lib/style.css";
 import {
@@ -46,9 +45,9 @@ import {
 import useSwr from "swr";
 import { parsePhoneNumberFromString } from "libphonenumber-js";
 import { Tooltip } from "antd";
-import { RiSortNumberAsc } from "react-icons/ri";
 import { HiOutlineNumberedList } from "react-icons/hi2";
-
+import { motion } from "framer-motion"
+import { FiBriefcase, FiCalendar, FiHash, FiLock, FiMail, FiPhone, FiShare2, FiTruck, FiUser, FiUserCheck, FiUserPlus, FiX } from "react-icons/fi";
 interface Permit {
   id: number;
   client_id: number;
@@ -66,7 +65,7 @@ interface Client {
   active: boolean;
   dot_number: string;
   operation_type: string;
-  expiration_date: Date;
+  expiration_date: Date | null;
   permits: Permit[];
   user?: string;
   password?: string;
@@ -229,15 +228,15 @@ const Clients = () => {
 
         const matchesDot = filterDotNumber
           ? client.dot_number
-              ?.toString()
-              .toLowerCase()
-              .includes(filterDotNumber.toLowerCase())
+            ?.toString()
+            .toLowerCase()
+            .includes(filterDotNumber.toLowerCase())
           : true;
 
         const matchesOperationType = filterOperationType
           ? client.operation_type
-              ?.toLowerCase()
-              .includes(filterOperationType.toLowerCase())
+            ?.toLowerCase()
+            .includes(filterOperationType.toLowerCase())
           : true;
 
         return (
@@ -494,6 +493,13 @@ const Clients = () => {
     }
   };
 
+  const calculateDaysLeft = (expirationDate: string | Date) => {
+    const currentDate = new Date();
+    const expiration = new Date(expirationDate);
+    const timeDiff = expiration.getTime() - currentDate.getTime();
+    return Math.ceil(timeDiff / (1000 * 3600 * 24));
+  };
+
   if (isLoading || loadingChangeStatus) {
     return (
       <div className="flex items-center justify-center h-full w-full">
@@ -582,129 +588,136 @@ const Clients = () => {
                 </p>
               </div>
 
-              {currentClients.map((client, index) => (
-                <Tooltip
-                  title={client.active === false ? "Inativo" : ""}
-                  key={client.id}
-                  placement="left"
-                >
-                  <div
-                    className={`grid grid-cols-8 gap-x-6 items-center justify-items-center px-6 py-4 text-sm transition duration-200 ${
-                      client.active === false
+              {currentClients.map((client, index) => {
+                const daysLeft = client.expiration_date
+                  ? calculateDaysLeft(client.expiration_date)
+                  : 0;
+
+                const getAlertIconStyle = () => {
+                  if (daysLeft <= 0) {
+                    return { color: "red", animation: "shake 0.5s infinite" };
+                  } else if (daysLeft <= 15) {
+                    return { color: "red" };
+                  } else if (daysLeft <= 30) {
+                    return { color: "yellow" };
+                  } else {
+                    return { color: "transparent" };
+                  }
+                };
+
+                return (
+                  <Tooltip
+                    title={client.active === false ? "Inativo" : ""}
+                    key={client.id}
+                    placement="left"
+                  >
+                    <div
+                      className={`grid grid-cols-8 gap-x-6 items-center justify-items-center px-6 py-4 text-sm transition duration-200 ${client.active === false
                         ? "bg-red-300"
                         : index % 2 === 0
-                        ? "bg-gray-50"
-                        : "bg-white"
-                    } ${
-                      client.active === false
-                        ? "hover:bg-red-300"
-                        : "hover:bg-blue-50"
-                    }`}
-                  >
-                    <p className="text-center text-gray-800 font-medium">
-                      {client.id}
-                    </p>
-                    <Tooltip title={client.name}>
-                      <p>{client.name}</p>
-                    </Tooltip>
-                    <Tooltip title={client.mail}>
-                      <p className="max-w-96 overflow-hidden text-ellipsis truncate">
-                        {client.mail}
+                          ? "bg-gray-50"
+                          : "bg-white"
+                        } ${client.active === false ? "hover:bg-red-300" : "hover:bg-blue-50"
+                        }`}
+                    >
+                      <p className="text-center text-gray-800 font-medium">{client.id}</p>
+
+                      <Tooltip title={client.name}>
+                        <p>{client.name}</p>
+                      </Tooltip>
+
+                      <Tooltip title={client.mail}>
+                        <p className="max-w-96 overflow-hidden text-ellipsis truncate">
+                          {client.mail}
+                        </p>
+                      </Tooltip>
+
+                      <p title={client.phone}>{formatPhone(client.phone)}</p>
+                      <p className="text-center text-gray-700" title={client.dot_number}>
+                        {client.dot_number ?? "-"}
                       </p>
-                    </Tooltip>
-                    <p title={client.phone}>{formatPhone(client.phone)}</p>
-                    <p
-                      className="text-center text-gray-700"
-                      title={client.dot_number}
-                    >
-                      {client.dot_number ?? "-"}
-                    </p>
-                    <p
-                      className="text-center text-gray-700"
-                      title={client.operation_type}
-                    >
-                      {client.operation_type ?? "-"}
-                    </p>
-                    <p
-                      className="text-center text-gray-700"
-                      title={
-                        client.expiration_date
-                          ? new Date(
-                              client.expiration_date
-                            ).toLocaleDateString()
-                          : "-"
-                      }
-                    >
-                      {client.expiration_date
-                        ? new Date(client.expiration_date).toLocaleDateString()
-                        : "-"}
-                    </p>
-                    <div className="flex justify-center gap-4">
-                      <button
-                        onClick={() => handleTicket(client)}
-                        className="text-indigo-500 hover:text-indigo-700"
-                      >
-                        <IoTicketOutline className="h-5 w-5" />
-                      </button>
+                      <p className="text-center text-gray-700" title={client.operation_type}>
+                        {client.operation_type ?? "-"}
+                      </p>
 
-                      {(cargo === 1 || cargo === 2) && (
-                        <button
-                          onClick={() => {
-                            setEditingClient(client);
-                            setIsModalOpen(true);
-                          }}
-                          className="text-blue-500 hover:text-blue-700"
+                      <div className="flex items-center justify-center gap-2">
+                        <p
+                          className="text-center text-gray-700"
+                          title={
+                            client.expiration_date
+                              ? new Date(client.expiration_date).toLocaleDateString()
+                              : "-"
+                          }
                         >
-                          <Pencil className="h-5 w-5" />
-                        </button>
-                      )}
+                          {client.expiration_date
+                            ? new Date(client.expiration_date).toLocaleDateString()
+                            : "-"}
+                        </p>
+                        <Tooltip title={`Faltam ${daysLeft} dias`}>
+                          <MdWarning style={getAlertIconStyle()} className="h-6 w-6" />
+                        </Tooltip>
+                      </div>
 
-                      {(cargo === 1 || cargo === 2) && (
+                      <div className="flex justify-center gap-4">
                         <button
-                          onClick={() => openDeleteModal(client.id)}
-                          className="text-red-500 hover:text-red-700"
+                          onClick={() => handleTicket(client)}
+                          className="text-indigo-500 hover:text-indigo-700"
                         >
-                          <Trash className="h-5 w-5" />
+                          <IoTicketOutline className="h-5 w-5" />
                         </button>
-                      )}
 
-                      {(cargo === 1 || cargo === 2) && (
-                        <Tooltip title="Alterar Status">
+                        {(cargo === 1 || cargo === 2) && (
                           <button
-                            onClick={() => handleStatus(client)}
-                            className="text-green-600 hover:text-green-800 transition-colors duration-200"
-                            title={t("tooltips.viewTickets")}
+                            onClick={() => {
+                              setEditingClient(client);
+                              setIsModalOpen(true);
+                            }}
+                            className="text-blue-500 hover:text-blue-700"
                           >
-                            <MdLoop className="h-5 w-5" />
+                            <Pencil className="h-5 w-5" />
+                          </button>
+                        )}
+
+                        {(cargo === 1 || cargo === 2) && (
+                          <button
+                            onClick={() => openDeleteModal(client.id)}
+                            className="text-red-500 hover:text-red-700"
+                          >
+                            <Trash className="h-5 w-5" />
+                          </button>
+                        )}
+
+                        {(cargo === 1 || cargo === 2) && (
+                          <Tooltip title="Alterar Status">
+                            <button
+                              onClick={() => handleStatus(client)}
+                              className="text-green-600 hover:text-green-800 transition-colors duration-200"
+                            >
+                              <MdLoop className="h-5 w-5" />
+                            </button>
+                          </Tooltip>
+                        )}
+
+                        <Tooltip title={t("permits_page.title") || "View Permits"}>
+                          <button
+                            onClick={() => handleViewPermits(client)}
+                            className="text-blue-600 hover:text-blue-800"
+                          >
+                            <ClipboardList className="h-5 w-5" />
                           </button>
                         </Tooltip>
-                      )}
-
-                      <Tooltip
-                        title={t("permits_page.title") || "View Permits"}
-                      >
-                        <button
-                          onClick={() => handleViewPermits(client)}
-                          className="text-blue-600 hover:text-blue-800"
-                        >
-                          <ClipboardList className="h-5 w-5" />
-                        </button>
-                      </Tooltip>
+                      </div>
                     </div>
-                  </div>
-                </Tooltip>
-              ))}
+                  </Tooltip>
+                );
+              })}
             </>
-          ) : (
-            <div className="col-span-full flex flex-col items-center justify-center py-12 text-gray-500">
-              <IoTicketOutline className="w-16 h-16 mb-4 text-white" />
-              <p className="text-lg font-medium text-white">
-                {t("messages.noClientsFound")}
-              </p>
-            </div>
-          )}
+          ) : (<div className="col-span-full flex flex-col items-center justify-center py-12 text-gray-500">
+            <IoTicketOutline className="w-16 h-16 mb-4 text-white" />
+            <p className="text-lg font-medium text-white">
+              {t("messages.noClientsFound")} </p>
+          </div>)}
         </div>
-
         <DeleteConfirmModal
           isVisible={isModalCrashOpen}
           onClose={() => {
@@ -737,14 +750,10 @@ const Clients = () => {
         <Modal
           title={
             <div className="flex items-center gap-3 mb-4">
-              <div className="bg-gradient-to-br from-blue-500 to-blue-600 p-3 rounded-2xl shadow-md">
-                <Pencil className="w-6 h-6 text-white" />
-              </div>
-              <div>
-                <h2 className="text-2xl font-bold text-gray-800">
-                  {t("clients.edit_client")}
-                </h2>
-              </div>
+              <Pencil className="w-7 h-7 text-blue-600" />
+              <h2 className="text-2xl font-bold text-gray-800">
+                {t("clients.edit_client")}
+              </h2>
             </div>
           }
           isVisible={isModalOpen}
@@ -755,65 +764,52 @@ const Clients = () => {
               <Spin />
             </div>
           ) : editingClient ? (
-            <div className="bg-gradient-to-br from-white to-blue-50/50 p-6 rounded-3xl shadow-lg space-y-4 max-w-5xl">
-              <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+            <div className="bg-white p-6 rounded-3xl shadow-lg space-y-4 max-w-5xl">
+              <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
                 <div className="space-y-2">
-                  <div className="flex items-center gap-3 mb-2">
-                    <div className="p-2.5 bg-gradient-to-br from-blue-500 to-blue-600 rounded-xl text-white shadow-sm">
-                      <HiUser className="w-5 h-5" />
-                    </div>
-                    <label className="text-sm font-semibold text-gray-700">
-                      {t("clients.name")}
-                    </label>
-                  </div>
+                  <label className="flex items-center gap-2 text-sm font-semibold text-gray-700">
+                    <FiUser className="w-5 h-5 text-blue-600" />
+                    {t("clients.name")}
+                  </label>
                   <input
                     type="text"
                     value={editingClient.name}
                     onChange={(e) =>
-                      setEditingClient({
-                        ...editingClient,
-                        name: e.target.value,
-                      })
+                      setEditingClient({ ...editingClient, name: e.target.value })
                     }
-                    className="w-full border border-gray-200 rounded-2xl px-5 py-4 text-base shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-400 bg-white/70 backdrop-blur-sm transition-all duration-200 hover:border-blue-300"
+                    className="w-full border border-gray-200 rounded-xl px-4 py-3 text-base shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-400 transition-all duration-200"
                     placeholder={t("clients.name")}
                   />
                 </div>
 
                 <div className="space-y-2">
-                  <div className="flex items-center gap-3 mb-2">
-                    <div className="p-2.5 bg-gradient-to-br from-green-500 to-green-600 rounded-xl text-white shadow-sm">
-                      <HiPhone className="w-5 h-5" />
-                    </div>
-                    <label className="text-sm font-semibold text-gray-700">
-                      {t("clients.phone")}
-                    </label>
-                  </div>
+                  <label className="flex items-center gap-2 text-sm font-semibold text-gray-700">
+                    <FiPhone className="w-5 h-5 text-green-600" />
+                    {t("clients.phone")}
+                  </label>
                   <PhoneInput
                     country={"us"}
                     value={editingClient.phone}
-                    onChange={(phone) =>
-                      setEditingClient({ ...editingClient, phone })
-                    }
+                    onChange={(phone) => setEditingClient({ ...editingClient, phone })}
                     prefix="+"
                     inputProps={{
                       required: true,
                       className:
-                        "w-full border border-gray-200 rounded-2xl px-5 py-4 text-base shadow-sm focus:outline-none focus:ring-2 focus:ring-green-400 bg-white/70 backdrop-blur-sm transition-all duration-200 hover:border-green-300",
+                        "w-full border border-gray-200 rounded-xl px-4 py-3 text-base shadow-sm focus:outline-none focus:ring-2 focus:ring-green-400 transition-all duration-200",
                     }}
                     containerStyle={{ width: "100%" }}
                     inputStyle={{
                       width: "100%",
-                      height: "56px",
-                      borderRadius: "1rem",
+                      height: "48px",
+                      borderRadius: "0.75rem",
                       border: "1px solid #E5E7EB",
                       fontSize: "16px",
                       paddingLeft: "48px",
                     }}
                     buttonStyle={{
-                      borderTopLeftRadius: "1rem",
-                      borderBottomLeftRadius: "1rem",
-                      backgroundColor: "#F3F4F6",
+                      borderTopLeftRadius: "0.75rem",
+                      borderBottomLeftRadius: "0.75rem",
+                      backgroundColor: "#F9FAFB",
                       border: "1px solid #E5E7EB",
                       borderRight: "none",
                     }}
@@ -824,208 +820,169 @@ const Clients = () => {
                 </div>
 
                 <div className="space-y-2">
-                  <div className="flex items-center gap-3 mb-2">
-                    <div className="p-2.5 bg-gradient-to-br from-purple-500 to-purple-600 rounded-xl text-white shadow-sm">
-                      <HiMail className="w-5 h-5" />
-                    </div>
-                    <label className="text-sm font-semibold text-gray-700">
-                      {t("clients.email")}
-                    </label>
-                  </div>
+                  <label className="flex items-center gap-2 text-sm font-semibold text-gray-700">
+                    <FiMail className="w-5 h-5 text-purple-600" />
+                    {t("clients.email")}
+                  </label>
                   <input
                     type="email"
                     value={editingClient.mail}
                     onChange={(e) =>
-                      setEditingClient({
-                        ...editingClient,
-                        mail: e.target.value,
-                      })
+                      setEditingClient({ ...editingClient, mail: e.target.value })
                     }
-                    className="w-full border border-gray-200 rounded-2xl px-5 py-4 text-base shadow-sm focus:outline-none focus:ring-2 focus:ring-purple-400 bg-white/70 backdrop-blur-sm transition-all duration-200 hover:border-purple-300"
+                    className="w-full border border-gray-200 rounded-xl px-4 py-3 text-base shadow-sm focus:outline-none focus:ring-2 focus:ring-purple-400 transition-all duration-200"
                     placeholder={t("clients.email")}
                   />
                 </div>
 
                 <div className="space-y-2">
-                  <div className="flex items-center gap-3 mb-2">
-                    <div className="p-2.5 bg-gradient-to-br from-red-500 to-red-600 rounded-xl text-white shadow-sm">
-                      <HiUser className="w-5 h-5" />
-                    </div>
-                    <label className="text-sm font-semibold text-gray-700">
-                      {t("clients.user")} (Opcional)
-                    </label>
-                  </div>
+                  <label className="flex items-center gap-2 text-sm font-semibold text-gray-700">
+                    <FiCalendar className="w-5 h-5 text-purple-600" />
+                    {t("labels.expiration_date")}
+                  </label>
+                  <input
+                    type="date"
+                    value={
+                      editingClient.expiration_date instanceof Date &&
+                        !isNaN(editingClient.expiration_date.getTime())
+                        ? editingClient.expiration_date.toISOString().split("T")[0]
+                        : ""
+                    }
+                    onChange={(e) => {
+                      const dateValue = e.target.value;
+                      setEditingClient({
+                        ...editingClient,
+                        expiration_date: dateValue ? new Date(dateValue) : new Date(), // ou null, se você mudar a interface
+                      });
+                    }}
+                    className="w-full border border-gray-200 rounded-xl px-4 py-3 text-base shadow-sm focus:outline-none focus:ring-2 focus:ring-purple-400 transition-all duration-200 hover:border-purple-300"
+                  />
+                </div>
+
+                <div className="space-y-2">
+                  <label className="flex items-center gap-2 text-sm font-semibold text-gray-700">
+                    <FiUser className="w-5 h-5 text-red-600" />
+                    {t("clients.user")} (Opcional)
+                  </label>
                   <input
                     type="text"
                     value={editingClient.user}
                     onChange={(e) =>
-                      setEditingClient({
-                        ...editingClient,
-                        user: e.target.value,
-                      })
+                      setEditingClient({ ...editingClient, user: e.target.value })
                     }
-                    className="w-full border border-gray-200 rounded-2xl px-5 py-4 text-base shadow-sm focus:outline-none focus:ring-2 focus:ring-purple-400 bg-white/70 backdrop-blur-sm transition-all duration-200 hover:border-purple-300"
+                    className="w-full border border-gray-200 rounded-xl px-4 py-3 text-base shadow-sm focus:outline-none focus:ring-2 focus:ring-red-400 transition-all duration-200"
                     placeholder={t("clients.user")}
                   />
                 </div>
 
                 <div className="space-y-2">
-                  <div className="flex items-center gap-3 mb-2">
-                    <div className="p-2.5 bg-gradient-to-br from-yellow-500 to-yellow-600 rounded-xl text-white shadow-sm">
-                      <MdOutlinePassword className="w-5 h-5" />
-                    </div>
-                    <label className="text-sm font-semibold text-gray-700">
-                      {t("clients.password")} (Opcional)
-                    </label>
-                  </div>
+                  <label className="flex items-center gap-2 text-sm font-semibold text-gray-700">
+                    <FiLock className="w-5 h-5 text-yellow-600" />
+                    {t("clients.password")} (Opcional)
+                  </label>
                   <input
                     type="text"
                     value={editingClient.password}
                     onChange={(e) =>
-                      setEditingClient({
-                        ...editingClient,
-                        password: e.target.value,
-                      })
+                      setEditingClient({ ...editingClient, password: e.target.value })
                     }
-                    className="w-full border border-gray-200 rounded-2xl px-5 py-4 text-base shadow-sm focus:outline-none focus:ring-2 focus:ring-purple-400 bg-white/70 backdrop-blur-sm transition-all duration-200 hover:border-purple-300"
+                    className="w-full border border-gray-200 rounded-xl px-4 py-3 text-base shadow-sm focus:outline-none focus:ring-2 focus:ring-yellow-400 transition-all duration-200"
                     placeholder={t("clients.password")}
                   />
                 </div>
 
                 <div className="space-y-2">
-                  <div className="flex items-center gap-3 mb-2">
-                    <div className="p-2.5 bg-gradient-to-br from-yellow-500 to-yellow-600 rounded-xl text-white shadow-sm">
-                      <RiSortNumberAsc className="w-5 h-5" />
-                    </div>
-                    <label className="text-sm font-semibold text-gray-700">
-                      DOT Number
-                    </label>
-                  </div>
+                  <label className="flex items-center gap-2 text-sm font-semibold text-gray-700">
+                    <FiHash className="w-5 h-5 text-yellow-600" />
+                    DOT Number
+                  </label>
                   <input
                     type="text"
                     value={editingClient.dot_number || ""}
                     onChange={(e) =>
-                      setEditingClient({
-                        ...editingClient,
-                        dot_number: e.target.value,
-                      })
+                      setEditingClient({ ...editingClient, dot_number: e.target.value })
                     }
-                    className="w-full border border-gray-200 rounded-2xl px-5 py-4 text-base shadow-sm focus:outline-none focus:ring-2 focus:ring-yellow-400 bg-white/70 backdrop-blur-sm transition-all duration-200 hover:border-yellow-300"
+                    className="w-full border border-gray-200 rounded-xl px-4 py-3 text-base shadow-sm focus:outline-none focus:ring-2 focus:ring-yellow-400 transition-all duration-200"
                     placeholder="Ex: 1234567"
                   />
                 </div>
 
                 <div className="space-y-2">
-                  <div className="flex items-center gap-3 mb-2">
-                    <div className="p-2.5 bg-gradient-to-br from-indigo-500 to-indigo-600 rounded-xl text-white shadow-sm">
-                      <HiUser className="w-5 h-5" />
-                    </div>
-                    <label className="text-sm font-semibold text-gray-700">
-                      {t("dashboard.empresa")}
-                    </label>
-                  </div>
+                  <label className="flex items-center gap-2 text-sm font-semibold text-gray-700">
+                    <FiBriefcase className="w-5 h-5 text-indigo-600" />
+                    {t("dashboard.empresa")}
+                  </label>
                   <input
                     type="text"
                     value={editingClient.empresa || ""}
                     onChange={(e) =>
-                      setEditingClient({
-                        ...editingClient,
-                        empresa: e.target.value,
-                      })
+                      setEditingClient({ ...editingClient, empresa: e.target.value })
                     }
-                    className="w-full border border-gray-200 rounded-2xl px-5 py-4 text-base shadow-sm focus:outline-none focus:ring-2 focus:ring-indigo-400 bg-white/70 backdrop-blur-sm transition-all duration-200 hover:border-indigo-300"
+                    className="w-full border border-gray-200 rounded-xl px-4 py-3 text-base shadow-sm focus:outline-none focus:ring-2 focus:ring-indigo-400 transition-all duration-200"
                     placeholder={t("dashboard.empresa")}
                   />
                 </div>
 
                 <div className="space-y-2">
-                  <div className="flex items-center gap-3 mb-2">
-                    <div className="p-2.5 bg-gradient-to-br from-teal-500 to-teal-600 rounded-xl text-white shadow-sm">
-                      <HiUser className="w-5 h-5" />
-                    </div>
-                    <label className="text-sm font-semibold text-gray-700">
-                      {t("dashboard.dono")}
-                    </label>
-                  </div>
+                  <label className="flex items-center gap-2 text-sm font-semibold text-gray-700">
+                    <FiUserCheck className="w-5 h-5 text-teal-600" />
+                    {t("dashboard.dono")}
+                  </label>
                   <input
                     type="text"
                     value={editingClient.dono || ""}
                     onChange={(e) =>
-                      setEditingClient({
-                        ...editingClient,
-                        dono: e.target.value,
-                      })
+                      setEditingClient({ ...editingClient, dono: e.target.value })
                     }
-                    className="w-full border border-gray-200 rounded-2xl px-5 py-4 text-base shadow-sm focus:outline-none focus:ring-2 focus:ring-teal-400 bg-white/70 backdrop-blur-sm transition-all duration-200 hover:border-teal-300"
+                    className="w-full border border-gray-200 rounded-xl px-4 py-3 text-base shadow-sm focus:outline-none focus:ring-2 focus:ring-teal-400 transition-all duration-200"
                     placeholder={t("dashboard.dono")}
                   />
                 </div>
 
                 <div className="space-y-2">
-                  <div className="flex items-center gap-3 mb-2">
-                    <div className="p-2.5 bg-gradient-to-br from-pink-500 to-pink-600 rounded-xl text-white shadow-sm">
-                      <HiUser className="w-5 h-5" />
-                    </div>
-                    <label className="text-sm font-semibold text-gray-700">
-                      {t("dashboard.social")}
-                    </label>
-                  </div>
+                  <label className="flex items-center gap-2 text-sm font-semibold text-gray-700">
+                    <FiShare2 className="w-5 h-5 text-pink-600" />
+                    {t("dashboard.social")}
+                  </label>
                   <input
                     type="text"
                     value={editingClient.social || ""}
                     onChange={(e) =>
-                      setEditingClient({
-                        ...editingClient,
-                        social: e.target.value,
-                      })
+                      setEditingClient({ ...editingClient, social: e.target.value })
                     }
-                    className="w-full border border-gray-200 rounded-2xl px-5 py-4 text-base shadow-sm focus:outline-none focus:ring-2 focus:ring-pink-400 bg-white/70 backdrop-blur-sm transition-all duration-200 hover:border-pink-300"
+                    className="w-full border border-gray-200 rounded-xl px-4 py-3 text-base shadow-sm focus:outline-none focus:ring-2 focus:ring-pink-400 transition-all duration-200"
                     placeholder={t("dashboard.social")}
                   />
                 </div>
 
                 <div className="space-y-2">
-                  <div className="flex items-center gap-3 mb-2">
-                    <div className="p-2.5 bg-gradient-to-br from-yellow-500 to-yellow-600 rounded-xl text-white shadow-sm">
-                      <RiSortNumberAsc className="w-5 h-5" />
-                    </div>
-                    <label className="text-sm font-semibold text-gray-700">
-                      EIN
-                    </label>
-                  </div>
+                  <label className="flex items-center gap-2 text-sm font-semibold text-gray-700">
+                    <FiHash className="w-5 h-5 text-yellow-600" />
+                    EIN
+                  </label>
                   <input
                     type="text"
                     value={editingClient.ein || ""}
                     onChange={(e) =>
-                      setEditingClient({
-                        ...editingClient,
-                        ein: e.target.value,
-                      })
+                      setEditingClient({ ...editingClient, ein: e.target.value })
                     }
-                    className="w-full border border-gray-200 rounded-2xl px-5 py-4 text-base shadow-sm focus:outline-none focus:ring-2 focus:ring-yellow-400 bg-white/70 backdrop-blur-sm transition-all duration-200 hover:border-yellow-300"
+                    className="w-full border border-gray-200 rounded-xl px-4 py-3 text-base shadow-sm focus:outline-none focus:ring-2 focus:ring-yellow-400 transition-all duration-200"
                     placeholder="E.g., 12-3456789"
                   />
                 </div>
 
                 <div className="space-y-2">
-                  <div className="flex items-center gap-3 mb-2">
-                    <div className="p-2.5 bg-gradient-to-br from-orange-500 to-orange-600 rounded-xl text-white shadow-sm">
-                      <FaTruck className="w-5 h-5" />
-                    </div>
-                    <label className="text-sm font-semibold text-gray-700">
-                      MC
-                    </label>
-                  </div>
+                  <label className="flex items-center gap-2 text-sm font-semibold text-gray-700">
+                    <FiTruck className="w-5 h-5 text-orange-600" />
+                    MC
+                  </label>
                   <input
                     type="text"
                     value={editingClient.mc || ""}
                     onChange={(e) =>
-                      setEditingClient({
-                        ...editingClient,
-                        mc: e.target.value,
-                      })
+                      setEditingClient({ ...editingClient, mc: e.target.value })
                     }
-                    className="w-full border border-gray-200 rounded-2xl px-5 py-4 text-base shadow-sm focus:outline-none focus:ring-2 focus:ring-orange-400 bg-white/70 backdrop-blur-sm transition-all duration-200 hover:border-orange-300"
+                    className="w-full border border-gray-200 rounded-xl px-4 py-3 text-base shadow-sm focus:outline-none focus:ring-2 focus:ring-orange-400 transition-all duration-200"
                     placeholder="E.g., MC123456"
                   />
                 </div>
@@ -1043,47 +1000,68 @@ const Clients = () => {
                   onClick={() => setIsModalOpen(false)}
                   className="flex-1 flex items-center justify-center gap-2 py-4 bg-gradient-to-r from-gray-100 to-gray-200 text-gray-700 rounded-2xl hover:from-gray-200 hover:to-gray-300 transition-all duration-300 shadow-lg hover:shadow-xl font-medium transform hover:scale-[1.02] active:scale-[0.98] border border-gray-200"
                 >
-                  <HiX className="w-5 h-5" />
+                  <FiX className="w-5 h-5" />
                   {t("buttons.cancel")}
                 </button>
               </div>
             </div>
           ) : (
-            <div className="text-center text-red-500">
-              {t("clients.load_error")}
-            </div>
+            <div className="text-center text-red-500">{t("clients.load_error")}</div>
           )}
         </Modal>
 
         <Modal
           title={
-            <div className="flex items-center gap-3 mb-4">
-              <div className="bg-gradient-to-br from-blue-500 to-blue-600 p-3 rounded-2xl shadow-md">
-                <HiUserAdd className="w-6 h-6 text-white" />
+            <motion.div
+              className="flex items-center gap-4 mb-6"
+              initial={{ opacity: 0, y: -10 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.4, ease: "easeOut" }}
+            >
+              <motion.div
+                className="relative bg-gradient-to-tr from-blue-500 via-indigo-500 to-purple-600 p-3.5 rounded-2xl shadow-lg overflow-hidden"
+                whileHover={{ scale: 1.08, rotate: 3 }}
+                transition={{ type: "spring", stiffness: 200, damping: 10 }}
+              >
+                <div className="absolute inset-0 bg-gradient-to-tr from-white/20 to-transparent blur-md animate-pulse" />
+                <HiUserAdd className="w-7 h-7 text-white relative z-10 drop-shadow-md" />
+              </motion.div>
+
+              <div className="flex flex-col">
+                <motion.h2
+                  className="text-3xl font-extrabold bg-gradient-to-r from-blue-600 via-indigo-600 to-purple-600 bg-clip-text text-transparent drop-shadow-sm"
+                  initial={{ opacity: 0, x: -10 }}
+                  animate={{ opacity: 1, x: 0 }}
+                  transition={{ delay: 0.15, duration: 0.5 }}
+                >
+                  {t("clients.add_client")}
+                </motion.h2>
+                <motion.p
+                  className="text-sm text-gray-500 font-medium"
+                  initial={{ opacity: 0 }}
+                  animate={{ opacity: 1 }}
+                  transition={{ delay: 0.3, duration: 0.6 }}
+                >
+                  {t("clients.clients")}
+                </motion.p>
               </div>
-              <div>
-                <h2 className="text-2xl font-bold text-gray-800">
-                  {t("dashboard.add_client")}
-                </h2>
-              </div>
-            </div>
+            </motion.div>
           }
           isVisible={addClient}
           onClose={() => setAddClient(false)}
           width={1900}
         >
           {loadingPost ? (
-            <div className="flex flex-col items-center justify-center w-full gap-4">
+            <div className="flex flex-col items-center justify-center w-full gap-4 py-10">
               <Spin />
+              <p className="text-gray-500 text-sm">{t("ticketsStats.inProgress")}</p>
             </div>
           ) : (
             <div className="bg-gradient-to-br from-white to-blue-50/50 p-6 rounded-3xl shadow-lg">
               <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
                 <div>
-                  <div className="flex items-center gap-3 mb-2">
-                    <div className="p-2.5 bg-gradient-to-br from-blue-500 to-blue-600 rounded-xl text-white shadow-sm">
-                      <HiUser className="w-5 h-5" />
-                    </div>
+                  <div className="flex items-center gap-2 mb-2">
+                    <FiUser className="w-4 h-4 text-blue-600" />
                     <label className="text-sm font-semibold text-gray-700">
                       {t("dashboard.name")}
                     </label>
@@ -1092,16 +1070,14 @@ const Clients = () => {
                     type="text"
                     value={clientName}
                     onChange={(e) => setClientName(e.target.value)}
-                    className="w-full border border-gray-200 rounded-2xl px-5 py-4 text-base shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-400 bg-white/70 backdrop-blur-sm transition-all duration-200 hover:border-blue-300"
+                    className="w-full border border-gray-200 rounded-xl px-5 py-3.5 text-base shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-400 bg-white/90 backdrop-blur-sm transition-all duration-200 hover:border-blue-300 focus:bg-white"
                     placeholder={t("dashboard.name")}
                   />
                 </div>
 
                 <div>
-                  <div className="flex items-center gap-3 mb-2">
-                    <div className="p-2.5 bg-gradient-to-br from-blue-500 to-blue-600 rounded-xl text-white shadow-sm">
-                      <HiPhone className="w-5 h-5" />
-                    </div>
+                  <div className="flex items-center gap-2 mb-2">
+                    <FiPhone className="w-4 h-4 text-green-600" />
                     <label className="text-sm font-semibold text-gray-700">
                       {t("dashboard.phone")}
                     </label>
@@ -1114,21 +1090,21 @@ const Clients = () => {
                     inputProps={{
                       required: true,
                       className:
-                        "w-full border border-gray-200 rounded-2xl px-5 py-4 text-base shadow-sm focus:outline-none focus:ring-2 focus:ring-green-400 bg-white/70 backdrop-blur-sm transition-all duration-200 hover:border-green-300",
+                        "w-full border border-gray-200 rounded-xl px-5 py-3.5 text-base shadow-sm focus:outline-none focus:ring-2 focus:ring-green-400 bg-white/90 backdrop-blur-sm transition-all duration-200 hover:border-green-300 focus:bg-white",
                     }}
                     containerStyle={{ width: "100%" }}
                     inputStyle={{
                       width: "100%",
-                      height: "56px",
-                      borderRadius: "1rem",
+                      height: "54px",
+                      borderRadius: "0.75rem",
                       border: "1px solid #E5E7EB",
                       fontSize: "16px",
                       paddingLeft: "48px",
                     }}
                     buttonStyle={{
-                      borderTopLeftRadius: "1rem",
-                      borderBottomLeftRadius: "1rem",
-                      backgroundColor: "#F3F4F6",
+                      borderTopLeftRadius: "0.75rem",
+                      borderBottomLeftRadius: "0.75rem",
+                      backgroundColor: "#F9FAFB",
                       border: "1px solid #E5E7EB",
                       borderRight: "none",
                     }}
@@ -1139,10 +1115,8 @@ const Clients = () => {
                 </div>
 
                 <div>
-                  <div className="flex items-center gap-3 mb-2">
-                    <div className="p-2.5 bg-gradient-to-br from-purple-500 to-purple-600 rounded-xl text-white shadow-sm">
-                      <HiMail className="w-5 h-5" />
-                    </div>
+                  <div className="flex items-center gap-2 mb-2">
+                    <FiMail className="w-4 h-4 text-purple-600" />
                     <label className="text-sm font-semibold text-gray-700">
                       {t("dashboard.email")}
                     </label>
@@ -1151,70 +1125,62 @@ const Clients = () => {
                     type="email"
                     value={clientMail}
                     onChange={(e) => setClientMail(e.target.value)}
-                    className="w-full border border-gray-200 rounded-2xl px-5 py-4 text-base shadow-sm focus:outline-none focus:ring-2 focus:ring-purple-400 bg-white/70 backdrop-blur-sm transition-all duration-200 hover:border-purple-300"
+                    className="w-full border border-gray-200 rounded-xl px-5 py-3.5 text-base shadow-sm focus:outline-none focus:ring-2 focus:ring-purple-400 bg-white/90 backdrop-blur-sm transition-all duration-200 hover:border-purple-300 focus:bg-white"
                     placeholder={t("dashboard.email")}
                   />
                 </div>
 
                 <div>
-                  <div className="flex items-center gap-3 mb-2">
-                    <div className="p-2.5 bg-gradient-to-br from-purple-500 to-purple-600 rounded-xl text-white shadow-sm">
-                      <CiCalendarDate className="w-5 h-5" />
-                    </div>
+                  <div className="flex items-center gap-2 mb-2">
+                    <FiCalendar className="w-4 h-4 text-purple-600" />
                     <label className="text-sm font-semibold text-gray-700">
-                      Data de Expiração
+                      {t("labels.expiration_date")}
                     </label>
                   </div>
                   <input
                     type="date"
                     value={clientExpirationDate}
                     onChange={(e) => setClientExpirationDate(e.target.value)}
-                    className="w-full border border-gray-200 rounded-2xl px-5 py-4 text-base shadow-sm focus:outline-none focus:ring-2 focus:ring-purple-400 bg-white/70 backdrop-blur-sm transition-all duration-200 hover:border-purple-300"
+                    className="w-full border border-gray-200 rounded-xl px-5 py-3.5 text-base shadow-sm focus:outline-none focus:ring-2 focus:ring-purple-400 bg-white/90 backdrop-blur-sm transition-all duration-200 hover:border-purple-300 focus:bg-white"
                     placeholder="Selecione a data"
                   />
                 </div>
 
                 <div>
-                  <div className="flex items-center gap-3 mb-2">
-                    <div className="p-2.5 bg-gradient-to-br from-red-500 to-red-600 rounded-xl text-white shadow-sm">
-                      <HiUser className="w-5 h-5" />
-                    </div>
+                  <div className="flex items-center gap-2 mb-2">
+                    <FiUser className="w-4 h-4 text-red-600" />
                     <label className="text-sm font-semibold text-gray-700">
-                      {t("clients.user")} (Opcional)
+                      {t("clients.user")}
                     </label>
                   </div>
                   <input
                     type="text"
                     value={clientUser}
                     onChange={(e) => setClientUser(e.target.value)}
-                    className="w-full border border-gray-200 rounded-2xl px-5 py-4 text-base shadow-sm focus:outline-none focus:ring-2 focus:ring-purple-400 bg-white/70 backdrop-blur-sm transition-all duration-200 hover:border-purple-300"
+                    className="w-full border border-gray-200 rounded-xl px-5 py-3.5 text-base shadow-sm focus:outline-none focus:ring-2 focus:ring-purple-400 bg-white/90 backdrop-blur-sm transition-all duration-200 hover:border-purple-300 focus:bg-white"
                     placeholder={t("clients.user")}
                   />
                 </div>
 
                 <div>
-                  <div className="flex items-center gap-3 mb-2">
-                    <div className="p-2.5 bg-gradient-to-br from-red-500 to-red-600 rounded-xl text-white shadow-sm">
-                      <MdOutlinePassword className="w-5 h-5" />
-                    </div>
+                  <div className="flex items-center gap-2 mb-2">
+                    <FiLock className="w-4 h-4 text-red-600" />
                     <label className="text-sm font-semibold text-gray-700">
-                      {t("clients.password")} (Opcional)
+                      {t("clients.password")}
                     </label>
                   </div>
                   <input
                     type="password"
                     value={clientPassword}
                     onChange={(e) => setClientPassword(e.target.value)}
-                    className="w-full border border-gray-200 rounded-2xl px-5 py-4 text-base shadow-sm focus:outline-none focus:ring-2 focus:ring-purple-400 bg-white/70 backdrop-blur-sm transition-all duration-200 hover:border-purple-300"
+                    className="w-full border border-gray-200 rounded-xl px-5 py-3.5 text-base shadow-sm focus:outline-none focus:ring-2 focus:ring-purple-400 bg-white/90 backdrop-blur-sm transition-all duration-200 hover:border-purple-300 focus:bg-white"
                     placeholder={t("clients.password")}
                   />
                 </div>
 
                 <div>
-                  <div className="flex items-center gap-3 mb-2">
-                    <div className="p-2.5 bg-gradient-to-br from-yellow-500 to-yellow-600 rounded-xl text-white shadow-sm">
-                      <RiSortNumberAsc className="w-5 h-5" />
-                    </div>
+                  <div className="flex items-center gap-2 mb-2">
+                    <FiHash className="w-4 h-4 text-yellow-600" />
                     <label className="text-sm font-semibold text-gray-700">
                       DOT Number
                     </label>
@@ -1223,16 +1189,14 @@ const Clients = () => {
                     type="text"
                     value={clientDot}
                     onChange={(e) => setClientDot(e.target.value)}
-                    className="w-full border border-gray-200 rounded-2xl px-5 py-4 text-base shadow-sm focus:outline-none focus:ring-2 focus:ring-purple-400 bg-white/70 backdrop-blur-sm transition-all duration-200 hover:border-purple-300"
+                    className="w-full border border-gray-200 rounded-xl px-5 py-3.5 text-base shadow-sm focus:outline-none focus:ring-2 focus:ring-purple-400 bg-white/90 backdrop-blur-sm transition-all duration-200 hover:border-purple-300 focus:bg-white"
                     placeholder="Ex: 1234567"
                   />
                 </div>
 
                 <div>
-                  <div className="flex items-center gap-3 mb-2">
-                    <div className="p-2.5 bg-gradient-to-br from-indigo-500 to-indigo-600 rounded-xl text-white shadow-sm">
-                      <HiUser className="w-5 h-5" />
-                    </div>
+                  <div className="flex items-center gap-2 mb-2">
+                    <FiBriefcase className="w-4 h-4 text-indigo-600" />
                     <label className="text-sm font-semibold text-gray-700">
                       {t("dashboard.empresa")}
                     </label>
@@ -1241,16 +1205,14 @@ const Clients = () => {
                     type="text"
                     value={clientEmpresa}
                     onChange={(e) => setClientEmpresa(e.target.value)}
-                    className="w-full border border-gray-200 rounded-2xl px-5 py-4 text-base shadow-sm focus:outline-none focus:ring-2 focus:ring-indigo-400 bg-white/70 backdrop-blur-sm transition-all duration-200 hover:border-indigo-300"
+                    className="w-full border border-gray-200 rounded-xl px-5 py-3.5 text-base shadow-sm focus:outline-none focus:ring-2 focus:ring-indigo-400 bg-white/90 backdrop-blur-sm transition-all duration-200 hover:border-indigo-300 focus:bg-white"
                     placeholder={t("dashboard.empresa")}
                   />
                 </div>
 
                 <div>
-                  <div className="flex items-center gap-3 mb-2">
-                    <div className="p-2.5 bg-gradient-to-br from-teal-500 to-teal-600 rounded-xl text-white shadow-sm">
-                      <HiUser className="w-5 h-5" />
-                    </div>
+                  <div className="flex items-center gap-2 mb-2">
+                    <FiUserCheck className="w-4 h-4 text-teal-600" />
                     <label className="text-sm font-semibold text-gray-700">
                       {t("dashboard.dono")}
                     </label>
@@ -1259,16 +1221,14 @@ const Clients = () => {
                     type="text"
                     value={clientDono}
                     onChange={(e) => setClientDono(e.target.value)}
-                    className="w-full border border-gray-200 rounded-2xl px-5 py-4 text-base shadow-sm focus:outline-none focus:ring-2 focus:ring-teal-400 bg-white/70 backdrop-blur-sm transition-all duration-200 hover:border-teal-300"
+                    className="w-full border border-gray-200 rounded-xl px-5 py-3.5 text-base shadow-sm focus:outline-none focus:ring-2 focus:ring-teal-400 bg-white/90 backdrop-blur-sm transition-all duration-200 hover:border-teal-300 focus:bg-white"
                     placeholder={t("dashboard.dono")}
                   />
                 </div>
 
                 <div>
-                  <div className="flex items-center gap-3 mb-2">
-                    <div className="p-2.5 bg-gradient-to-br from-pink-500 to-pink-600 rounded-xl text-white shadow-sm">
-                      <HiUser className="w-5 h-5" />
-                    </div>
+                  <div className="flex items-center gap-2 mb-2">
+                    <FiShare2 className="w-4 h-4 text-pink-600" />
                     <label className="text-sm font-semibold text-gray-700">
                       {t("dashboard.social")}
                     </label>
@@ -1277,16 +1237,14 @@ const Clients = () => {
                     type="text"
                     value={clientSocial}
                     onChange={(e) => setClientSocial(e.target.value)}
-                    className="w-full border border-gray-200 rounded-2xl px-5 py-4 text-base shadow-sm focus:outline-none focus:ring-2 focus:ring-pink-400 bg-white/70 backdrop-blur-sm transition-all duration-200 hover:border-pink-300"
+                    className="w-full border border-gray-200 rounded-xl px-5 py-3.5 text-base shadow-sm focus:outline-none focus:ring-2 focus:ring-pink-400 bg-white/90 backdrop-blur-sm transition-all duration-200 hover:border-pink-300 focus:bg-white"
                     placeholder={t("dashboard.social")}
                   />
                 </div>
 
                 <div>
-                  <div className="flex items-center gap-3 mb-2">
-                    <div className="p-2.5 bg-gradient-to-br from-yellow-500 to-yellow-600 rounded-xl text-white shadow-sm">
-                      <RiSortNumberAsc className="w-5 h-5" />
-                    </div>
+                  <div className="flex items-center gap-2 mb-2">
+                    <FiHash className="w-4 h-4 text-yellow-600" />
                     <label className="text-sm font-semibold text-gray-700">
                       EIN
                     </label>
@@ -1295,16 +1253,14 @@ const Clients = () => {
                     type="text"
                     value={clientEin}
                     onChange={(e) => setClientEin(e.target.value)}
-                    className="w-full border border-gray-200 rounded-2xl px-5 py-4 text-base shadow-sm focus:outline-none focus:ring-2 focus:ring-yellow-400 bg-white/70 backdrop-blur-sm transition-all duration-200 hover:border-yellow-300"
+                    className="w-full border border-gray-200 rounded-xl px-5 py-3.5 text-base shadow-sm focus:outline-none focus:ring-2 focus:ring-yellow-400 bg-white/90 backdrop-blur-sm transition-all duration-200 hover:border-yellow-300 focus:bg-white"
                     placeholder="E.g., 12-3456789"
                   />
                 </div>
 
                 <div>
-                  <div className="flex items-center gap-3 mb-2">
-                    <div className="p-2.5 bg-gradient-to-br from-orange-500 to-orange-600 rounded-xl text-white shadow-sm">
-                      <FaTruck className="w-5 h-5" />
-                    </div>
+                  <div className="flex items-center gap-2 mb-2">
+                    <FiTruck className="w-4 h-4 text-orange-600" />
                     <label className="text-sm font-semibold text-gray-700">
                       MC
                     </label>
@@ -1313,7 +1269,7 @@ const Clients = () => {
                     type="text"
                     value={clientMc}
                     onChange={(e) => setClientMc(e.target.value)}
-                    className="w-full border border-gray-200 rounded-2xl px-5 py-4 text-base shadow-sm focus:outline-none focus:ring-2 focus:ring-orange-400 bg-white/70 backdrop-blur-sm transition-all duration-200 hover:border-orange-300"
+                    className="w-full border border-gray-200 rounded-xl px-5 py-3.5 text-base shadow-sm focus:outline-none focus:ring-2 focus:ring-orange-400 bg-white/90 backdrop-blur-sm transition-all duration-200 hover:border-orange-300 focus:bg-white"
                     placeholder="E.g., MC123456"
                   />
                 </div>
@@ -1322,16 +1278,16 @@ const Clients = () => {
               <div className="flex gap-4 pt-6">
                 <button
                   onClick={handleAddClient}
-                  className="flex-1 flex items-center justify-center gap-2 py-4 bg-gradient-to-r from-blue-500 to-blue-600 text-white rounded-2xl hover:from-blue-600 hover:to-blue-700 transition-all duration-300 shadow-lg hover:shadow-xl font-medium transform hover:scale-[1.02] active:scale-[0.98]"
+                  className="flex-1 flex items-center justify-center gap-2 py-4 bg-gradient-to-r from-blue-500 to-blue-600 text-white rounded-xl hover:from-blue-600 hover:to-blue-700 transition-all duration-300 shadow-lg hover:shadow-xl font-medium transform hover:scale-[1.02] active:scale-[0.98]"
                 >
-                  <HiUserAdd className="w-5 h-5" />
+                  <FiUserPlus className="w-5 h-5" />
                   {t("dashboard.add_client")}
                 </button>
                 <button
                   onClick={() => setAddClient(false)}
-                  className="flex-1 flex items-center justify-center gap-2 py-4 bg-gradient-to-r from-gray-100 to-gray-200 text-gray-700 rounded-2xl hover:from-gray-200 hover:to-gray-300 transition-all duration-300 shadow-lg hover:shadow-xl font-medium transform hover:scale-[1.02] active:scale-[0.98] border border-gray-200"
+                  className="flex-1 flex items-center justify-center gap-2 py-4 bg-gradient-to-r from-gray-100 to-gray-200 text-gray-700 rounded-xl hover:from-gray-200 hover:to-gray-300 transition-all duration-300 shadow-lg hover:shadow-xl font-medium transform hover:scale-[1.02] active:scale-[0.98] border border-gray-200"
                 >
-                  <HiX className="w-5 h-5" />
+                  <FiX className="w-5 h-5" />
                   {t("buttons.cancel")}
                 </button>
               </div>
@@ -1535,7 +1491,7 @@ const Clients = () => {
           {selectedClient && (
             <div className="space-y-6">
               {!selectedClient.permits ||
-              selectedClient.permits.length === 0 ? (
+                selectedClient.permits.length === 0 ? (
                 <div className="text-center py-12">
                   <div className="bg-gray-100 rounded-full w-16 h-16 flex items-center justify-center mx-auto mb-4">
                     <ClipboardList className="w-8 h-8 text-gray-400" />
@@ -1621,13 +1577,12 @@ const Clients = () => {
                               </div>
                             </div>
                             <span
-                              className={`px-3 py-1 text-center rounded-full text-xs font-semibold ${
-                                status.key === "active"
-                                  ? "bg-green-100 text-green-700"
-                                  : status.key === "expiring"
+                              className={`px-3 py-1 text-center rounded-full text-xs font-semibold ${status.key === "active"
+                                ? "bg-green-100 text-green-700"
+                                : status.key === "expiring"
                                   ? "bg-yellow-100 text-yellow-700"
                                   : "bg-red-100 text-red-700"
-                              }`}
+                                }`}
                             >
                               {status.label}
                             </span>

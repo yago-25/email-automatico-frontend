@@ -7,7 +7,6 @@ import {
   MdArrowBackIos,
   MdArrowForwardIos,
   MdLoop,
-  MdOutlinePassword,
   MdWarning,
 } from "react-icons/md";
 import { api } from "../../api/api";
@@ -29,15 +28,13 @@ import {
   FaTags,
   FaClipboardList,
   FaRegStickyNote,
-  FaTruck,
 } from "react-icons/fa";
 import { HiOutlineNumberedList } from "react-icons/hi2";
-import { HiUserAdd, HiX } from "react-icons/hi";
-import { HiMail, HiPhone, HiUser } from "react-icons/hi";
+import { HiUserAdd } from "react-icons/hi";
 import PhoneInput from "react-phone-input-2";
 import "react-phone-input-2/lib/style.css";
-import { FiBriefcase } from "react-icons/fi";
-import { RiFileExcel2Line, RiSortNumberAsc } from "react-icons/ri";
+import { FiBriefcase, FiCalendar, FiHash, FiLock, FiMail, FiPhone, FiTruck, FiUser, FiUserPlus, FiX } from "react-icons/fi";
+import { RiFileExcel2Line } from "react-icons/ri";
 import { parsePhoneNumberFromString } from "libphonenumber-js";
 import { Tooltip } from "antd";
 
@@ -603,17 +600,15 @@ const Dashboard = () => {
               placement="left"
             >
               <div
-                className={`grid grid-cols-8 gap-x-6 items-center justify-items-center px-6 py-4 text-sm transition duration-200 ${
-                  client.active === false
+                className={`grid grid-cols-8 gap-x-6 items-center justify-items-center px-6 py-4 text-sm transition duration-200 ${client.active === false
                     ? "bg-red-300"
                     : index % 2 === 0
-                    ? "bg-gray-50"
-                    : "bg-white"
-                } ${
-                  client.active === false
+                      ? "bg-gray-50"
+                      : "bg-white"
+                  } ${client.active === false
                     ? "hover:bg-red-300"
                     : "hover:bg-blue-50"
-                }`}
+                  }`}
               >
                 <p className="text-center text-gray-800 font-medium">
                   {client.id}
@@ -662,9 +657,8 @@ const Dashboard = () => {
                   <Tooltip title={`Faltam ${daysLeft} dias`}>
                     <MdWarning
                       style={getAlertIconStyle()}
-                      className={`h-6 w-6 ${
-                        daysLeft <= 0 ? "text-red-600" : ""
-                      }`}
+                      className={`h-6 w-6 ${daysLeft <= 0 ? "text-red-600" : ""
+                        }`}
                     />
                   </Tooltip>
                 </div>
@@ -700,7 +694,7 @@ const Dashboard = () => {
               </div>
             </Tooltip>
           );
-        })}
+        })} 
       </div>
 
       <div className="pagination flex justify-center items-center gap-4 mt-6 text-white">
@@ -747,10 +741,8 @@ const Dashboard = () => {
           <div className="bg-gradient-to-br from-white to-blue-50/50 p-8 rounded-3xl shadow-lg">
             <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
               <div>
-                <div className="flex items-center gap-3 mb-2">
-                  <div className="p-2.5 bg-gradient-to-br from-blue-500 to-blue-600 rounded-xl text-white shadow-sm">
-                    <HiUser className="w-5 h-5" />
-                  </div>
+                <div className="flex items-center gap-2 mb-2">
+                  <FiUser className="w-4 h-4 text-blue-600" />
                   <label className="text-sm font-semibold text-gray-700">
                     {t("dashboard.name")}
                   </label>
@@ -759,16 +751,14 @@ const Dashboard = () => {
                   type="text"
                   value={clientName}
                   onChange={(e) => setClientName(e.target.value)}
-                  className="w-full border border-gray-200 rounded-2xl px-5 py-4 text-base shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-400 bg-white/70 backdrop-blur-sm transition-all duration-200 hover:border-blue-300"
+                  className="w-full border border-gray-200 rounded-xl px-5 py-3.5 text-base shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-400 bg-white/90 backdrop-blur-sm transition-all duration-200 hover:border-blue-300 focus:bg-white"
                   placeholder={t("dashboard.name")}
                 />
               </div>
 
               <div>
-                <div className="flex items-center gap-3 mb-2">
-                  <div className="p-2.5 bg-gradient-to-br from-blue-500 to-blue-600 rounded-xl text-white shadow-sm">
-                    <HiPhone className="w-5 h-5" />
-                  </div>
+                <div className="flex items-center gap-2 mb-2">
+                  <FiPhone className="w-4 h-4 text-green-600" />
                   <label className="text-sm font-semibold text-gray-700">
                     {t("dashboard.phone")}
                   </label>
@@ -781,21 +771,21 @@ const Dashboard = () => {
                   inputProps={{
                     required: true,
                     className:
-                      "w-full border border-gray-200 rounded-2xl px-5 py-4 text-base shadow-sm focus:outline-none focus:ring-2 focus:ring-green-400 bg-white/70 backdrop-blur-sm transition-all duration-200 hover:border-green-300",
+                      "w-full border border-gray-200 rounded-xl px-5 py-3.5 text-base shadow-sm focus:outline-none focus:ring-2 focus:ring-green-400 bg-white/90 backdrop-blur-sm transition-all duration-200 hover:border-green-300 focus:bg-white",
                   }}
                   containerStyle={{ width: "100%" }}
                   inputStyle={{
                     width: "100%",
-                    height: "56px",
-                    borderRadius: "1rem",
+                    height: "54px",
+                    borderRadius: "0.75rem",
                     border: "1px solid #E5E7EB",
                     fontSize: "16px",
                     paddingLeft: "48px",
                   }}
                   buttonStyle={{
-                    borderTopLeftRadius: "1rem",
-                    borderBottomLeftRadius: "1rem",
-                    backgroundColor: "#F3F4F6",
+                    borderTopLeftRadius: "0.75rem",
+                    borderBottomLeftRadius: "0.75rem",
+                    backgroundColor: "#F9FAFB",
                     border: "1px solid #E5E7EB",
                     borderRight: "none",
                   }}
@@ -805,11 +795,9 @@ const Dashboard = () => {
                 />
               </div>
 
-              <div className=" md:col-span-2">
-                <div className="flex items-center gap-3 mb-2 w-full">
-                  <div className="p-2.5 bg-gradient-to-br from-purple-500 to-purple-600 rounded-xl text-white shadow-sm">
-                    <HiMail className="w-5 h-5" />
-                  </div>
+              <div className="md:col-span-2">
+                <div className="flex items-center gap-2 mb-2 w-full">
+                  <FiMail className="w-4 h-4 text-purple-600" />
                   <label className="text-sm font-semibold text-gray-700">
                     {t("dashboard.email")}
                   </label>
@@ -818,16 +806,14 @@ const Dashboard = () => {
                   type="email"
                   value={clientMail}
                   onChange={(e) => setClientMail(e.target.value)}
-                  className="w-full border border-gray-200 rounded-2xl px-5 py-4 text-base shadow-sm focus:outline-none focus:ring-2 focus:ring-purple-400 bg-white/70 backdrop-blur-sm transition-all duration-200 hover:border-purple-300"
+                  className="w-full border border-gray-200 rounded-xl px-5 py-3.5 text-base shadow-sm focus:outline-none focus:ring-2 focus:ring-purple-400 bg-white/90 backdrop-blur-sm transition-all duration-200 hover:border-purple-300 focus:bg-white"
                   placeholder={t("dashboard.email")}
                 />
               </div>
 
-              <div className=" md:col-span-2">
-                <div className="flex items-center gap-3 mb-2 w-full">
-                  <div className="p-2.5 bg-gradient-to-br from-purple-500 to-purple-600 rounded-xl text-white shadow-sm">
-                    <CiCalendarDate className="w-5 h-5" />
-                  </div>
+              <div className="md:col-span-2">
+                <div className="flex items-center gap-2 mb-2 w-full">
+                  <FiCalendar className="w-4 h-4 text-purple-600" />
                   <label className="text-sm font-semibold text-gray-700">
                     Data de Expiração
                   </label>
@@ -836,16 +822,14 @@ const Dashboard = () => {
                   type="date"
                   value={clientExpirationDate}
                   onChange={(e) => setClientExpirationDate(e.target.value)}
-                  className="w-full border border-gray-200 rounded-2xl px-5 py-4 text-base shadow-sm focus:outline-none focus:ring-2 focus:ring-purple-400 bg-white/70 backdrop-blur-sm transition-all duration-200 hover:border-purple-300"
+                  className="w-full border border-gray-200 rounded-xl px-5 py-3.5 text-base shadow-sm focus:outline-none focus:ring-2 focus:ring-purple-400 bg-white/90 backdrop-blur-sm transition-all duration-200 hover:border-purple-300 focus:bg-white"
                   placeholder="Selecione a data"
                 />
               </div>
 
               <div>
-                <div className="flex items-center gap-3 mb-2">
-                  <div className="p-2.5 bg-gradient-to-br from-red-500 to-red-600 rounded-xl text-white shadow-sm">
-                    <HiUser className="w-5 h-5" />
-                  </div>
+                <div className="flex items-center gap-2 mb-2">
+                  <FiUser className="w-4 h-4 text-red-600" />
                   <label className="text-sm font-semibold text-gray-700">
                     {t("clients.user")} (Opcional)
                   </label>
@@ -854,16 +838,14 @@ const Dashboard = () => {
                   type="text"
                   value={clientUser}
                   onChange={(e) => setClientUser(e.target.value)}
-                  className="w-full border border-gray-200 rounded-2xl px-5 py-4 text-base shadow-sm focus:outline-none focus:ring-2 focus:ring-purple-400 bg-white/70 backdrop-blur-sm transition-all duration-200 hover:border-purple-300"
+                  className="w-full border border-gray-200 rounded-xl px-5 py-3.5 text-base shadow-sm focus:outline-none focus:ring-2 focus:ring-purple-400 bg-white/90 backdrop-blur-sm transition-all duration-200 hover:border-purple-300 focus:bg-white"
                   placeholder={t("clients.user")}
                 />
               </div>
 
               <div>
-                <div className="flex items-center gap-3 mb-2">
-                  <div className="p-2.5 bg-gradient-to-br from-red-500 to-red-600 rounded-xl text-white shadow-sm">
-                    <MdOutlinePassword className="w-5 h-5" />
-                  </div>
+                <div className="flex items-center gap-2 mb-2">
+                  <FiLock className="w-4 h-4 text-red-600" />
                   <label className="text-sm font-semibold text-gray-700">
                     {t("clients.password")} (Opcional)
                   </label>
@@ -872,16 +854,14 @@ const Dashboard = () => {
                   type="password"
                   value={clientPassword}
                   onChange={(e) => setClientPassword(e.target.value)}
-                  className="w-full border border-gray-200 rounded-2xl px-5 py-4 text-base shadow-sm focus:outline-none focus:ring-2 focus:ring-purple-400 bg-white/70 backdrop-blur-sm transition-all duration-200 hover:border-purple-300"
+                  className="w-full border border-gray-200 rounded-xl px-5 py-3.5 text-base shadow-sm focus:outline-none focus:ring-2 focus:ring-purple-400 bg-white/90 backdrop-blur-sm transition-all duration-200 hover:border-purple-300 focus:bg-white"
                   placeholder={t("clients.password")}
                 />
               </div>
 
               <div>
-                <div className="flex items-center gap-3 mb-2">
-                  <div className="p-2.5 bg-gradient-to-br from-yellow-500 to-yellow-600 rounded-xl text-white shadow-sm">
-                    <RiSortNumberAsc className="w-5 h-5" />
-                  </div>
+                <div className="flex items-center gap-2 mb-2">
+                  <FiHash className="w-4 h-4 text-yellow-600" />
                   <label className="text-sm font-semibold text-gray-700">
                     DOT Number
                   </label>
@@ -890,16 +870,14 @@ const Dashboard = () => {
                   type="text"
                   value={clientDot}
                   onChange={(e) => setClientDot(e.target.value)}
-                  className="w-full border border-gray-200 rounded-2xl px-5 py-4 text-base shadow-sm focus:outline-none focus:ring-2 focus:ring-purple-400 bg-white/70 backdrop-blur-sm transition-all duration-200 hover:border-purple-300"
+                  className="w-full border border-gray-200 rounded-xl px-5 py-3.5 text-base shadow-sm focus:outline-none focus:ring-2 focus:ring-purple-400 bg-white/90 backdrop-blur-sm transition-all duration-200 hover:border-purple-300 focus:bg-white"
                   placeholder="Ex: 1234567"
                 />
               </div>
 
               <div>
-                <div className="flex items-center gap-3 mb-2">
-                  <div className="p-2.5 bg-gradient-to-br from-yellow-500 to-yellow-600 rounded-xl text-white shadow-sm">
-                    <FaTruck className="w-5 h-5" />
-                  </div>
+                <div className="flex items-center gap-2 mb-2">
+                  <FiTruck className="w-4 h-4 text-yellow-600" />
                   <label className="text-sm font-semibold text-gray-700">
                     Operation Type
                   </label>
@@ -907,7 +885,7 @@ const Dashboard = () => {
                 <select
                   value={clientOperationType}
                   onChange={(e) => setClientOperationType(e.target.value)}
-                  className="w-full h-[55px] border border-gray-200 rounded-xl px-4 py-3 text-sm shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-400 bg-white/70 backdrop-blur-sm"
+                  className="w-full h-[55px] border border-gray-200 rounded-xl px-4 py-3 text-sm shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-400 bg-white/90 backdrop-blur-sm"
                 >
                   <option value="">{t("filters.all")}</option>
                   <option value="interstate">Interstate</option>
@@ -921,18 +899,19 @@ const Dashboard = () => {
                 onClick={handleAddClient}
                 className="flex-1 flex items-center justify-center gap-2 py-4 bg-gradient-to-r from-blue-500 to-blue-600 text-white rounded-2xl hover:from-blue-600 hover:to-blue-700 transition-all duration-300 shadow-lg hover:shadow-xl font-medium transform hover:scale-[1.02] active:scale-[0.98]"
               >
-                <HiUserAdd className="w-5 h-5" />
+                <FiUserPlus className="w-5 h-5" />
                 {t("dashboard.add_client")}
               </button>
               <button
                 onClick={() => setAddClient(false)}
                 className="flex-1 flex items-center justify-center gap-2 py-4 bg-gradient-to-r from-gray-100 to-gray-200 text-gray-700 rounded-2xl hover:from-gray-200 hover:to-gray-300 transition-all duration-300 shadow-lg hover:shadow-xl font-medium transform hover:scale-[1.02] active:scale-[0.98] border border-gray-200"
               >
-                <HiX className="w-5 h-5" />
+                <FiX className="w-5 h-5" />
                 {t("buttons.cancel")}
               </button>
             </div>
           </div>
+
         )}
       </Modal>
       <Modal

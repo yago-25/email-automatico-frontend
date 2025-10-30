@@ -347,9 +347,9 @@ const Permits = () => {
                     </div>
                     <div className="info-value">
                       {permit.overweight ? (
-                        <span className="badge overweight">Yes</span>
+                        <span className="badge overweight">{t("email_preview.yes")}</span>
                       ) : (
-                        <span className="badge normal">No</span>
+                        <span className="badge normal">{t("email_preview.no")}</span>
                       )}
                     </div>
                   </div>
