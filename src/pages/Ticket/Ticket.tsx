@@ -1,5 +1,6 @@
+/* eslint-disable @typescript-eslint/no-unused-vars */
 /* eslint-disable @typescript-eslint/no-explicit-any */
-import { useEffect, useMemo, useState } from "react";
+import { ChangeEvent, useEffect, useMemo, useRef, useState } from "react";
 import Header from "../../components/Header/Header";
 import Modal from "../../components/Modal/Modal";
 import { User } from "../../models/User";
@@ -7,19 +8,32 @@ import { api } from "../../api/api";
 import { messageAlert } from "../../utils/messageAlert";
 import Spin from "../../components/Spin/Spin";
 import useSwr from "swr";
-import { FaFilter, FaEraser, FaTicketAlt, FaTrash } from "react-icons/fa";
+import {
+  FaFilter,
+  FaEraser,
+  FaTicketAlt,
+  FaTrash,
+  FaFileAlt,
+  FaSave,
+} from "react-icons/fa";
 import { useLocation } from "react-router-dom";
 import Input from "../../components/Input/Input";
 import Select from "../../components/Select/Select";
 // import { useSwre } from "../../api/useSwr";
 // import TagInput from "../../components/TagInput/TagInput";
 import { useTranslation } from "react-i18next";
-import { IoTicketOutline, IoPersonSharp } from "react-icons/io5";
+import { IoTicketOutline, IoPersonSharp, IoSend } from "react-icons/io5";
 import { AlertCircle } from "lucide-react";
 import { motion } from "framer-motion";
-import { MdCheckCircle, MdEdit, MdSave, MdCancel, MdRestore } from "react-icons/md";
+import {
+  MdCheckCircle,
+  MdEdit,
+  MdSave,
+  MdCancel,
+  MdRestore,
+} from "react-icons/md";
 import { FiTrash2 } from "react-icons/fi";
-import { differenceInDays } from 'date-fns';
+import { differenceInDays } from "date-fns";
 import DeleteConfirmModal from "../../components/DeleteConfirm/DeleteConfirmModal";
 
 import {
@@ -103,14 +117,16 @@ export const Button: React.FC<ButtonProps> = ({ text, onClick, disabled }) => {
           onClick?.(e);
         }
       }}
-      className={`w-44 h-12 text-white rounded-lg transition-all ease-in-out ${disabled
-        ? "bg-blue-400 cursor-not-allowed opacity-50"
-        : "bg-blue-600 hover:bg-blue-700 hover:shadow-lg cursor-pointer active:w-11 active:h-11 active:rounded-full active:duration-300"
-        } group`}
+      className={`w-44 h-12 text-white rounded-lg transition-all ease-in-out ${
+        disabled
+          ? "bg-blue-400 cursor-not-allowed opacity-50"
+          : "bg-blue-600 hover:bg-blue-700 hover:shadow-lg cursor-pointer active:w-11 active:h-11 active:rounded-full active:duration-300"
+      } group`}
     >
       <svg
-        className={`animate-spin mx-auto ${disabled ? "hidden" : "group-active:block hidden"
-          }`}
+        className={`animate-spin mx-auto ${
+          disabled ? "hidden" : "group-active:block hidden"
+        }`}
         width="33"
         height="32"
         viewBox="0 0 33 32"
@@ -128,51 +144,67 @@ const Ticket = () => {
   const location = useLocation();
   const { t } = useTranslation();
 
-  // ========== DADOS DO USUÁRIO ==========
+  const fileInputRef = useRef<HTMLInputElement | null>(null);
+
   const user = JSON.parse(localStorage.getItem("user") || "{}");
   const cargo = user.cargo_id;
   const storedUser = localStorage.getItem("user");
   const authUser: User | null = storedUser ? JSON.parse(storedUser) : null;
 
-  // ========== CONSTANTES ==========
   const statusTickets = [
-    { name: "Não iniciada", title: t("tickets.types.not_started"), color: "bg-gray-500" },
-    { name: "Esperando", title: t("tickets.types.waiting"), color: "bg-yellow-500" },
-    { name: "Em progresso", title: t("tickets.types.in_progress"), color: "bg-blue-500" },
-    { name: "Completo", title: t("tickets.types.completed"), color: "bg-green-500" },
-    { name: "Descartada", title: t("tickets.types.discarded"), color: "bg-red-500" },
+    {
+      name: "Não iniciada",
+      title: t("tickets.types.not_started"),
+      color: "bg-gray-500",
+    },
+    {
+      name: "Esperando",
+      title: t("tickets.types.waiting"),
+      color: "bg-yellow-500",
+    },
+    {
+      name: "Em progresso",
+      title: t("tickets.types.in_progress"),
+      color: "bg-blue-500",
+    },
+    {
+      name: "Completo",
+      title: t("tickets.types.completed"),
+      color: "bg-green-500",
+    },
+    {
+      name: "Descartada",
+      title: t("tickets.types.discarded"),
+      color: "bg-red-500",
+    },
   ];
 
   const statusTranslations = {
     "Não iniciada": "status.not_started",
-    "Esperando": "status.waiting",
+    Esperando: "status.waiting",
     "Em progresso": "status.in_progress",
-    "Completo": "status.resolved",
-    "Descartada": "status.discarded",
+    Completo: "status.resolved",
+    Descartada: "status.discarded",
   };
 
   const expirationDays = 30;
 
-  // ========== ESTADOS - CLIENTE DO STATE ==========
   const [clientFromState, setClientFromState] = useState<Clients | undefined>(
     location.state?.ticket
   );
 
-  // ========== ESTADOS - MODAIS ==========
   const [showModal, setShowModal] = useState(false);
   const [showModalFilter, setShowModalFilter] = useState(false);
   const [addTicket, setAddTicket] = useState(false);
   const [isEditing, setIsEditing] = useState(false);
   const [isDeleteModalVisible, setIsDeleteModalVisible] = useState(false);
 
-  // ========== ESTADOS - TICKETS ==========
   const [selectedTicket, setSelectedTicket] = useState<Ticket | null>(null);
   const [editingTicket, setEditingTicket] = useState<Ticket | null>(null);
   const [ticketToDelete, setTicketToDelete] = useState<number | null>(null);
   const [history, setHistory] = useState<TicketHistory[]>([]);
   const [showOnlyDeleted, setShowOnlyDeleted] = useState(false);
 
-  // ========== ESTADOS - FILTROS ==========
   const [selectedStatuses, setSelectedStatuses] = useState<string[]>([]);
   const [filterTag, setFilterTag] = useState<string>("");
   const [filterDate, setFilterDate] = useState<string>("");
@@ -181,7 +213,6 @@ const Ticket = () => {
   const [filterClient, setFilterClient] = useState<string>("");
   const [filterType, setFilterType] = useState("");
 
-  // ========== ESTADOS - CRIAR TICKET ==========
   const [clientName, setClientName] = useState("");
   const [typeName, setTypeName] = useState("");
   const [statusTicket, setStatusTicket] = useState("");
@@ -192,7 +223,6 @@ const Ticket = () => {
   const [tagInputValue, setTagInputValue] = useState("");
   const [isFocused, setIsFocused] = useState(false);
 
-  // ========== ESTADOS - EDITAR TICKET ==========
   const [editName, setEditName] = useState("");
   const [editType, setEditType] = useState("");
   const [editClient, setEditClient] = useState("");
@@ -202,26 +232,26 @@ const Ticket = () => {
   const [editTagInputValue, setEditTagInputValue] = useState("");
   const [isEditTagFocused, setIsEditTagFocused] = useState(false);
 
-  // ========== ESTADOS - LOADING ==========
   const [loadingPost, setLoadingPost] = useState(false);
   const [loadingModal, setLoadingModal] = useState(false);
   const [loadingEdit, setLoadingEdit] = useState(false);
   const [isDeleting, setIsDeleting] = useState(false);
 
-  // ========== BUSCAR DADOS DA API ==========
-  const { data: rawClients = [], isLoading: loadingClients } = useSwr<Clients[]>(
-    "/clients",
-    {
-      fetcher: (url) =>
-        api
-          .get(url, {
-            headers: {
-              Authorization: `Bearer ${localStorage.getItem("accessToken")}`,
-            },
-          })
-          .then((res) => res.data),
-    }
-  );
+  const [selectedFile, setSelectedFile] = useState<File | null>(null);
+  const [uploadedFileUrl, setUploadedFileUrl] = useState<string>("");
+
+  const { data: rawClients = [], isLoading: loadingClients } = useSwr<
+    Clients[]
+  >("/clients", {
+    fetcher: (url) =>
+      api
+        .get(url, {
+          headers: {
+            Authorization: `Bearer ${localStorage.getItem("accessToken")}`,
+          },
+        })
+        .then((res) => res.data),
+  });
 
   const { data: rawAdmins = [], isLoading: loadingAdmins } = useSwr<Admins[]>(
     "/admins",
@@ -237,16 +267,18 @@ const Ticket = () => {
     }
   );
 
-  const { data: rawTickets = [], isLoading, mutate } = useSwr<Ticket[]>(
-    "/tickets",
-    (url: string) =>
-      api
-        .get(url, {
-          headers: {
-            Authorization: `Bearer ${localStorage.getItem("accessToken")}`,
-          },
-        })
-        .then((res) => res.data)
+  const {
+    data: rawTickets = [],
+    isLoading,
+    mutate,
+  } = useSwr<Ticket[]>("/tickets", (url: string) =>
+    api
+      .get(url, {
+        headers: {
+          Authorization: `Bearer ${localStorage.getItem("accessToken")}`,
+        },
+      })
+      .then((res) => res.data)
   );
 
   const {
@@ -256,12 +288,13 @@ const Ticket = () => {
   } = useSwr<Ticket[]>("/tickets/trashed", (url: string) =>
     api
       .get(url, {
-        headers: { Authorization: `Bearer ${localStorage.getItem("accessToken")}` },
+        headers: {
+          Authorization: `Bearer ${localStorage.getItem("accessToken")}`,
+        },
       })
       .then((res) => res.data)
   );
 
-  // ========== OPÇÕES PARA SELECTS ==========
   const optionsClient: Option[] = useMemo(
     () =>
       rawClients.map((client: Clients) => ({
@@ -280,18 +313,15 @@ const Ticket = () => {
     [rawAdmins]
   );
 
-  // ========== TICKETS FILTRADOS (CONSOLIDADO) ==========
   const filteredTickets = useMemo(() => {
     let filtered = [...rawTickets];
 
-    // 1️⃣ PRIORIDADE: Filtro por cliente do state
     if (clientFromState && !filterClient) {
       filtered = filtered.filter(
         (ticket) => ticket.client?.id === clientFromState.id
       );
     }
 
-    // 2️⃣ Filtros aplicados
     filtered = filtered.filter((ticket) => {
       const matchesStatus =
         selectedStatuses.length > 0
@@ -342,7 +372,6 @@ const Ticket = () => {
       );
     });
 
-    // 3️⃣ Ordenação
     return filtered.sort((a, b) => {
       const dateA = new Date(a.created_at);
       const dateB = new Date(b.created_at);
@@ -376,7 +405,6 @@ const Ticket = () => {
     filterClient,
   ]);
 
-  // ========== TICKETS VISÍVEIS (COM/SEM DELETADOS) ==========
   const visibleTickets = useMemo(() => {
     if (showOnlyDeleted) {
       return trashedTickets;
@@ -395,7 +423,6 @@ const Ticket = () => {
     );
   }, [showOnlyDeleted, trashedTickets, filteredTickets]);
 
-  // ========== TAGS DISPONÍVEIS ==========
   const availableTickets = useMemo(() => {
     return rawTickets.filter((ticket) => {
       const matchesClient = filterClient
@@ -428,7 +455,8 @@ const Ticket = () => {
     const input = tagInputValue.toLowerCase();
     return availableTags.filter(
       (tag) =>
-        (input === "" || tag.toLowerCase().includes(input)) && !tags.includes(tag)
+        (input === "" || tag.toLowerCase().includes(input)) &&
+        !tags.includes(tag)
     );
   }, [availableTags, tagInputValue, tags]);
 
@@ -441,7 +469,6 @@ const Ticket = () => {
     );
   }, [availableTags, editTagInputValue, editTags]);
 
-  // ========== OPÇÕES DE TICKETS, CLIENTES E TIPOS ==========
   const availableTicketOptions = useMemo(() => {
     return availableTickets.map((ticket) => ({
       value: ticket.id,
@@ -474,7 +501,6 @@ const Ticket = () => {
     return Array.from(typesSet);
   }, [availableTickets]);
 
-  // ========== CALCULAR DIAS RESTANTES ==========
   const daysLeft = useMemo(() => {
     if (!selectedTicket?.deleted_at) return null;
 
@@ -486,7 +512,6 @@ const Ticket = () => {
     return remaining < 0 ? 0 : remaining;
   }, [selectedTicket?.deleted_at, expirationDays]);
 
-  // ========== FUNÇÕES AUXILIARES ==========
   const formatDate = (dateString: string, t: (key: string) => string) => {
     const date = new Date(dateString);
     const today = new Date();
@@ -535,7 +560,6 @@ const Ticket = () => {
     );
   };
 
-  // ========== HANDLERS - TICKET ==========
   const handleCardClick = (ticket: Ticket) => {
     setSelectedTicket(ticket);
     setShowModal(true);
@@ -644,6 +668,7 @@ const Ticket = () => {
         type: "error",
         message: t("alerts.ticketError"),
       });
+      console.log(e, "Error");
     } finally {
       setLoadingPost(false);
     }
@@ -679,6 +704,7 @@ const Ticket = () => {
         type: "error",
         message: t("messages.errorDeletingTicket"),
       });
+      console.log(error, "Error");
     }
   };
 
@@ -707,10 +733,10 @@ const Ticket = () => {
         type: "error",
         message: t("messages.errorRestoringTicket"),
       });
+      console.log(error, "Error");
     }
   };
 
-  // ========== HANDLERS - EDIÇÃO ==========
   const handleEditClick = () => {
     if (!selectedTicket) return;
 
@@ -822,18 +848,101 @@ const Ticket = () => {
     setEditTags([...editTags, tag.trim()]);
   };
 
+  const handleFileSelect = (event: ChangeEvent<HTMLInputElement>) => {
+    const file = event.target.files?.[0];
+    if (!file) return;
+
+    setSelectedFile(file);
+    messageAlert({
+      type: "success",
+      message: `Arquivo "${file.name}" selecionado`,
+    });
+  };
+
+  const handleFileClick = () => {
+    fileInputRef.current?.click();
+  };
+
+  const handleSaveBoleto = async (ticket: Ticket) => {
+    if (!selectedFile) {
+      messageAlert({
+        type: "error",
+        message: "Nenhum arquivo selecionado",
+      });
+      return;
+    }
+
+    const formData = new FormData();
+    formData.append("file", selectedFile);
+
+    try {
+      const response = await api.post(
+        `/s3/upload-url/profile/ticket/${ticket.id}`,
+        formData,
+        {
+          headers: {
+            "Content-Type": "multipart/form-data",
+            Authorization: `Bearer ${localStorage.getItem("accessToken")}`,
+          },
+        }
+      );
+
+      if (response.data.status === "success") {
+        setUploadedFileUrl(response.data.file_url);
+        messageAlert({
+          type: "success",
+          message: "Boleto salvo com sucesso!",
+        });
+      } else {
+        messageAlert({
+          type: "error",
+          message: response.data.message || "Erro ao salvar boleto",
+        });
+      }
+    } catch (error) {
+      messageAlert({
+        type: "error",
+        message: "Erro de comunicação com o servidor",
+      });
+      console.error("Erro ao enviar arquivo:", error);
+    }
+  };
+
+  const handleSendBoleto = async () => {
+    if (!uploadedFileUrl && !selectedFile) {
+      messageAlert({
+        type: "error",
+        message: "Nenhum boleto para enviar. Salve o boleto primeiro.",
+      });
+      return;
+    }
+
+    try {
+      // Aqui você implementa a lógica de envio do boleto
+      // Pode ser por email, whatsapp, etc.
+      messageAlert({
+        type: "success",
+        message: "Boleto enviado com sucesso!",
+      });
+    } catch (error) {
+      messageAlert({
+        type: "error",
+        message: "Erro ao enviar boleto",
+      });
+      console.error("Erro ao enviar boleto:", error);
+    }
+  };
+
   const handleEditTagRemove = (tagToRemove: string) => {
     setEditTags(editTags.filter((tag) => tag !== tagToRemove));
   };
 
-  // ========== HANDLERS - FILTROS ==========
   const handleFilterToggle = () => {
     setShowModalFilter(true);
   };
 
   const handleFilterChange = () => {
     setShowModalFilter(false);
-    // O useMemo já vai reagir automaticamente
   };
 
   const handleClearFilters = () => {
@@ -856,7 +965,6 @@ const Ticket = () => {
     });
   };
 
-  // ========== HANDLERS - SELECTS ==========
   const handleSelectChange = (value: string | number) => {
     setSelected(value.toString());
   };
@@ -865,22 +973,18 @@ const Ticket = () => {
     setSelectedAdmin(value.toString());
   };
 
-  // ========== EFFECTS ==========
-  // Limpa o state da navegação após carregar
   useEffect(() => {
     if (location.state) {
       window.history.replaceState({}, document.title);
     }
   }, [location.state]);
 
-  // Recarrega histórico quando modal abre
   useEffect(() => {
     if (showModal && selectedTicket?.id) {
       fetchHistory(selectedTicket.id);
     }
   }, [showModal, selectedTicket?.id]);
 
-  // ========== LOADING SCREEN ==========
   if (isLoading || loadingAdmins || loadingClients || loadingTrashed) {
     return (
       <div className="flex items-center justify-center h-full w-full">
@@ -922,13 +1026,16 @@ const Ticket = () => {
         <button
           onClick={() => setShowOnlyDeleted((prev) => !prev)}
           className={`flex items-center justify-center gap-2 min-w-[150px] px-4 py-2.5 text-white font-medium rounded-lg shadow-md hover:shadow-lg transition-all duration-200
-          ${showOnlyDeleted
-              ? 'bg-green-600 hover:bg-green-700'
-              : 'bg-red-600 hover:bg-red-700'
-            }`}
+          ${
+            showOnlyDeleted
+              ? "bg-green-600 hover:bg-green-700"
+              : "bg-red-600 hover:bg-red-700"
+          }`}
         >
           <FaTrash size={20} />
-          {showOnlyDeleted ? t("statusFilter.active") : t("statusFilter.deleted")}
+          {showOnlyDeleted
+            ? t("statusFilter.active")
+            : t("statusFilter.deleted")}
         </button>
 
         <div className="flex items-center gap-4 flex-wrap">
@@ -948,9 +1055,7 @@ const Ticket = () => {
                   focus:outline-none focus:ring-2 focus:ring-blue-300 focus:ring-offset-1
                   transition-all duration-200 ease-in-out"
                 />
-                <MdCheckCircle
-                  className="absolute w-3.5 h-3.5 text-white scale-0 peer-checked:scale-100 transition-transform duration-200"
-                />
+                <MdCheckCircle className="absolute w-3.5 h-3.5 text-white scale-0 peer-checked:scale-100 transition-transform duration-200" />
               </div>
 
               <div className="flex items-center gap-2">
@@ -965,7 +1070,7 @@ const Ticket = () => {
       </div>
 
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6 p-6 w-full">
-        {(isLoading || (showOnlyDeleted && loadingTrashed)) ? (
+        {isLoading || (showOnlyDeleted && loadingTrashed) ? (
           <div className="col-span-full flex justify-center items-center py-12">
             <Spin />
           </div>
@@ -1002,9 +1107,7 @@ const Ticket = () => {
                     <div className="p-2 bg-purple-100 rounded-xl group-hover:bg-purple-600 transition-all duration-300">
                       <IoTicketOutline className="w-5 h-5 text-purple-600 group-hover:text-white" />
                     </div>
-                    <h4 className="font-medium text-gray-800">
-                      {ticket.name}
-                    </h4>
+                    <h4 className="font-medium text-gray-800">{ticket.name}</h4>
                   </div>
                   <div className="flex items-start gap-3">
                     <div className="p-2 bg-yellow-100 rounded-xl group-hover:bg-yellow-600 transition-all duration-300">
@@ -1032,15 +1135,16 @@ const Ticket = () => {
                   <div
                     className={`
                       px-4 py-2 rounded-xl flex items-center gap-2 w-full justify-center
-                      ${ticket.status === "Não iniciada"
-                        ? "bg-gray-100 text-gray-600"
-                        : ticket.status === "Esperando"
+                      ${
+                        ticket.status === "Não iniciada"
+                          ? "bg-gray-100 text-gray-600"
+                          : ticket.status === "Esperando"
                           ? "bg-yellow-100 text-yellow-600"
                           : ticket.status === "Em progresso"
-                            ? "bg-blue-100 text-blue-600"
-                            : ticket.status === "Completo"
-                              ? "bg-green-100 text-green-600"
-                              : "bg-red-100 text-red-600"
+                          ? "bg-blue-100 text-blue-600"
+                          : ticket.status === "Completo"
+                          ? "bg-green-100 text-green-600"
+                          : "bg-red-100 text-red-600"
                       } 
                       group-hover:bg-opacity-20 transition-all duration-300
                     `}
@@ -1049,7 +1153,7 @@ const Ticket = () => {
                     <span className="text-sm font-medium">
                       {t(
                         statusTranslations[
-                        ticket.status as keyof typeof statusTranslations
+                          ticket.status as keyof typeof statusTranslations
                         ]
                       )}
                     </span>
@@ -1058,7 +1162,8 @@ const Ticket = () => {
               </div>
             </motion.div>
           ))
-        ) : ((showOnlyDeleted && trashedTickets.length === 0) || (!showOnlyDeleted && filteredTickets.length === 0)) ? (
+        ) : (showOnlyDeleted && trashedTickets.length === 0) ||
+          (!showOnlyDeleted && filteredTickets.length === 0) ? (
           <div className="col-span-full flex flex-col items-center justify-center py-12 text-gray-500">
             <IoTicketOutline className="w-16 h-16 mb-4 text-white" />
             <p className="text-lg font-medium text-white">
@@ -1125,7 +1230,6 @@ const Ticket = () => {
                   {client.name}
                 </option>
               ))}
-
             </select>
           </div>
           <div className="mt-4">
@@ -1171,7 +1275,6 @@ const Ticket = () => {
                   {tag}
                 </option>
               ))}
-
             </select>
           </div>
 
@@ -1198,7 +1301,7 @@ const Ticket = () => {
                 <IoTicketOutline className="w-5 h-5" />
               </div>
               <label className="text-sm font-semibold text-gray-700">
-                {t("filters.ticket")} 
+                {t("filters.ticket")}
               </label>
             </div>
             <select
@@ -1207,12 +1310,11 @@ const Ticket = () => {
               className="w-full border border-gray-200 rounded-xl px-4 py-3 text-sm shadow-sm focus:outline-none focus:ring-2 focus:ring-indigo-400 bg-white/70 backdrop-blur-sm"
             >
               <option value="">{t("filters.all")}</option>
-              {availableTicketOptions.map((option) => ( 
+              {availableTicketOptions.map((option) => (
                 <option key={option.value} value={option.value}>
                   {option.label}
                 </option>
               ))}
-
             </select>
           </div>
 
@@ -1254,7 +1356,7 @@ const Ticket = () => {
                       className="flex items-center gap-1.5 px-2.5 py-1 bg-green-500 text-white text-xs font-medium rounded-lg hover:bg-green-600 transition-all duration-200 disabled:opacity-50 disabled:cursor-not-allowed shadow-sm hover:shadow-md"
                     >
                       <MdSave className="w-3.5 h-3.5" />
-                      {loadingEdit ? t('buttons.saving') : t('buttons.save')}
+                      {loadingEdit ? t("buttons.saving") : t("buttons.save")}
                     </button>
                     <button
                       onClick={handleCancelEdit}
@@ -1262,7 +1364,7 @@ const Ticket = () => {
                       className="flex items-center gap-1.5 px-2.5 py-1 bg-red-500 text-white text-xs font-medium rounded-lg hover:bg-red-600 transition-all duration-200 disabled:opacity-50 disabled:cursor-not-allowed shadow-sm hover:shadow-md"
                     >
                       <MdCancel className="w-3.5 h-3.5" />
-                      {t('buttons.cancel')}
+                      {t("buttons.cancel")}
                     </button>
                   </>
                 ) : (
@@ -1271,7 +1373,7 @@ const Ticket = () => {
                     className="flex items-center gap-1.5 px-2.5 py-1 bg-blue-500 text-white text-xs font-medium rounded-lg hover:bg-blue-600 transition-all duration-200 shadow-sm hover:shadow-md"
                   >
                     <MdEdit className="w-3.5 h-3.5" />
-                    {t('buttons.edit')}
+                    {t("buttons.edit")}
                   </button>
                 )}
               </div>
@@ -1284,28 +1386,30 @@ const Ticket = () => {
                     setIsDeleteModalVisible(true);
                   }
                 }}
-                className={`flex items-center gap-1.5 px-2.5 py-1 text-xs font-medium rounded-lg transition-all duration-200 shadow-sm hover:shadow-md ${selectedTicket.deleted_at
-                  ? 'bg-green-500 hover:bg-green-600 text-white'
-                  : 'bg-red-500 hover:bg-red-600 text-white'
-                  }`}
+                className={`flex items-center gap-1.5 px-2.5 py-1 text-xs font-medium rounded-lg transition-all duration-200 shadow-sm hover:shadow-md ${
+                  selectedTicket.deleted_at
+                    ? "bg-green-500 hover:bg-green-600 text-white"
+                    : "bg-red-500 hover:bg-red-600 text-white"
+                }`}
               >
                 {selectedTicket.deleted_at ? (
                   <>
                     <MdRestore className="w-3.5 h-3.5" />
-                    {t('buttons.restore')}
+                    {t("buttons.restore")}
                   </>
                 ) : (
                   <>
                     <FiTrash2 className="w-3.5 h-3.5" />
-                    {t('buttons.delete')}
+                    {t("buttons.delete")}
                   </>
                 )}
               </button>
 
               {selectedTicket?.deleted_at && daysLeft !== null && (
                 <p
-                  className={`mt-1 text-sm ${daysLeft <= 5 ? "text-red-600" : "text-gray-500"
-                    }`}
+                  className={`mt-1 text-sm ${
+                    daysLeft <= 5 ? "text-red-600" : "text-gray-500"
+                  }`}
                 >
                   {t("messages.expiresInDays", { days: daysLeft })}
                 </p>
@@ -1365,7 +1469,9 @@ const Ticket = () => {
                             onChange={(e) => setEditClient(e.target.value)}
                             className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-400"
                           >
-                            <option value="">{t('placeholders.selectClient')}</option>
+                            <option value="">
+                              {t("placeholders.selectClient")}
+                            </option>
                             {rawClients.map((client) => (
                               <option key={client.id} value={client.name}>
                                 {client.name}
@@ -1382,9 +1488,14 @@ const Ticket = () => {
                             onChange={(e) => setEditOperator(e.target.value)}
                             className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-400"
                           >
-                            <option value="">{t('placeholders.selectOperator')}</option>
+                            <option value="">
+                              {t("placeholders.selectOperator")}
+                            </option>
                             {rawAdmins.map((admin) => (
-                              <option key={admin.id} value={admin.nome_completo}>
+                              <option
+                                key={admin.id}
+                                value={admin.nome_completo}
+                              >
                                 {admin.nome_completo}
                               </option>
                             ))}
@@ -1394,10 +1505,12 @@ const Ticket = () => {
                     ) : (
                       <>
                         <p>
-                          <strong>{t("ticket.name")}:</strong> {selectedTicket.name}
+                          <strong>{t("ticket.name")}:</strong>{" "}
+                          {selectedTicket.name}
                         </p>
                         <p>
-                          <strong>{t("ticket.type")}:</strong> {selectedTicket.type}
+                          <strong>{t("ticket.type")}:</strong>{" "}
+                          {selectedTicket.type}
                         </p>
                         <p>
                           <strong>{t("ticket.client")}:</strong>{" "}
@@ -1454,7 +1567,10 @@ const Ticket = () => {
                             setTimeout(() => setIsEditTagFocused(false), 150);
                           }}
                           onKeyDown={(e) => {
-                            if (e.key === "Enter" && editTagInputValue.trim() !== "") {
+                            if (
+                              e.key === "Enter" &&
+                              editTagInputValue.trim() !== ""
+                            ) {
                               e.preventDefault();
                               handleEditTagAdd(editTagInputValue.trim());
                               setEditTagInputValue("");
@@ -1532,6 +1648,74 @@ const Ticket = () => {
                       {selectedTicket.observation || t("ticket.no_notes")}
                     </p>
                   )}
+                </div>
+
+                <div className="bg-white p-4 rounded-xl shadow-md flex flex-col w-full gap-3">
+                  <h3 className="text-lg font-semibold flex items-center gap-2 text-red-600 mb-4">
+                    <FaFileAlt /> Enviar Boleto
+                  </h3>
+
+                  <label
+                    onClick={handleFileClick}
+                    className="flex flex-col items-center justify-center w-full h-32 border-2 border-dashed border-gray-300 rounded-lg cursor-pointer bg-gray-50 hover:bg-gray-100 transition-colors"
+                  >
+                    <div className="flex flex-col items-center justify-center pt-5 pb-6">
+                      <svg
+                        className="w-10 h-10 mb-3 text-gray-400"
+                        fill="none"
+                        stroke="currentColor"
+                        viewBox="0 0 24 24"
+                      >
+                        <path
+                          strokeLinecap="round"
+                          strokeLinejoin="round"
+                          strokeWidth={2}
+                          d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M15 13l-3-3m0 0l-3 3m3-3v12"
+                        />
+                      </svg>
+                      <p className="mb-2 text-sm text-gray-500">
+                        <span className="font-semibold">
+                          Clique para enviar
+                        </span>{" "}
+                        ou arraste o arquivo
+                      </p>
+                      <p className="text-xs text-gray-400">
+                        PDF, PNG ou JPG (MAX. 5MB)
+                      </p>
+                    </div>
+                    <input
+                      ref={fileInputRef}
+                      type="file"
+                      className="hidden"
+                      accept=".pdf"
+                      onChange={handleFileSelect}
+                    />
+                  </label>
+
+                  {selectedFile && (
+                    <div className="mt-2 p-3 bg-green-50 border border-green-200 rounded-lg">
+                      <p className="text-sm text-green-700 flex items-center gap-2">
+                        <FaFileAlt className="w-4 h-4" />
+                        <strong>Arquivo selecionado:</strong>{" "}
+                        {selectedFile.name}
+                      </p>
+                    </div>
+                  )}
+
+                  <div className="flex items-center justify-center w-full gap-5">
+                    <button
+                      onClick={() => handleSaveBoleto(selectedTicket)}
+                      disabled={!selectedFile}
+                      className=" w-full flex items-center justify-center gap-2 bg-white border-red-600 border-[1px] text-red-600 px-5 py-3 rounded-xl shadow-md hover:bg-gray-100 transition"
+                    >
+                      Salvar Boleto
+                      <FaSave className="w-4 h-4 text-red" />
+                    </button>
+                    <button className="w-full flex items-center justify-center gap-2 bg-red-600 text-white px-5 py-3 rounded-xl shadow-md hover:bg-red-700 transition">
+                      Enviar Boleto
+                      <IoSend className="w-4 h-4 text-white" />
+                    </button>
+                  </div>
                 </div>
 
                 {Array.isArray(history) && history.length > 0 && (
@@ -1783,9 +1967,7 @@ const Ticket = () => {
                       >
                         {tag}
                         <button
-                          onClick={() =>
-                            setTags(tags.filter((t) => t !== tag))
-                          }
+                          onClick={() => setTags(tags.filter((t) => t !== tag))}
                           className="text-yellow-700 hover:text-yellow-900"
                         >
                           &times;
@@ -1829,7 +2011,6 @@ const Ticket = () => {
         onConfirm={handleDelete}
         loading={isDeleting}
       />
-
     </div>
   );
 };

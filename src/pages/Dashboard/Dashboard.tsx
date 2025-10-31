@@ -24,19 +24,29 @@ import { HiOutlineUser } from "react-icons/hi";
 import { IoTicketOutline } from "react-icons/io5";
 import { IoPersonSharp } from "react-icons/io5";
 import { useNavigate } from "react-router-dom";
-import {
-  FaTags,
-  FaClipboardList,
-  FaRegStickyNote,
-} from "react-icons/fa";
+import { FaTags, FaClipboardList, FaRegStickyNote } from "react-icons/fa";
 import { HiOutlineNumberedList } from "react-icons/hi2";
 import { HiUserAdd } from "react-icons/hi";
 import PhoneInput from "react-phone-input-2";
 import "react-phone-input-2/lib/style.css";
-import { FiBriefcase, FiCalendar, FiHash, FiLock, FiMail, FiPhone, FiTruck, FiUser, FiUserPlus, FiX } from "react-icons/fi";
+import {
+  FiBriefcase,
+  FiCalendar,
+  FiHash,
+  FiLock,
+  FiMail,
+  FiPhone,
+  FiShare2,
+  FiTruck,
+  FiUser,
+  FiUserCheck,
+  FiUserPlus,
+  FiX,
+} from "react-icons/fi";
 import { RiFileExcel2Line } from "react-icons/ri";
 import { parsePhoneNumberFromString } from "libphonenumber-js";
 import { Tooltip } from "antd";
+import { motion } from "framer-motion";
 
 interface Option {
   label: string;
@@ -178,6 +188,11 @@ const Dashboard = () => {
   const [clientDot, setClientDot] = useState("");
   const [clientOperationType, setClientOperationType] = useState("");
   const [clientExpirationDate, setClientExpirationDate] = useState<string>("");
+  const [clientEmpresa, setClientEmpresa] = useState("");
+  const [clientDono, setClientDono] = useState("");
+  const [clientSocial, setClientSocial] = useState("");
+  const [clientEin, setClientEin] = useState("");
+  const [clientMc, setClientMc] = useState("");
   const itemsPerPage = 5;
 
   const filteredClients = rawClients.filter(
@@ -255,6 +270,11 @@ const Dashboard = () => {
           dot_number: clientDot,
           operation_type: clientOperationType,
           expiration_date: clientExpirationDate,
+          empresa: clientEmpresa,
+          dono: clientDono,
+          social: clientSocial,
+          ein: clientEin,
+          mc: clientMc,
         },
         {
           headers: {
@@ -278,6 +298,11 @@ const Dashboard = () => {
       setClientDot("");
       setClientOperationType("");
       setClientExpirationDate("");
+      setClientEmpresa("");
+      setClientDono("");
+      setClientSocial("");
+      setClientEin("");
+      setClientMc("");
     } catch (e) {
       console.log("Erro ao criar usuário: ", e);
       messageAlert({ type: "error", message: t("dashboard.create_error") });
@@ -600,15 +625,17 @@ const Dashboard = () => {
               placement="left"
             >
               <div
-                className={`grid grid-cols-8 gap-x-6 items-center justify-items-center px-6 py-4 text-sm transition duration-200 ${client.active === false
+                className={`grid grid-cols-8 gap-x-6 items-center justify-items-center px-6 py-4 text-sm transition duration-200 ${
+                  client.active === false
                     ? "bg-red-300"
                     : index % 2 === 0
-                      ? "bg-gray-50"
-                      : "bg-white"
-                  } ${client.active === false
+                    ? "bg-gray-50"
+                    : "bg-white"
+                } ${
+                  client.active === false
                     ? "hover:bg-red-300"
                     : "hover:bg-blue-50"
-                  }`}
+                }`}
               >
                 <p className="text-center text-gray-800 font-medium">
                   {client.id}
@@ -657,8 +684,9 @@ const Dashboard = () => {
                   <Tooltip title={`Faltam ${daysLeft} dias`}>
                     <MdWarning
                       style={getAlertIconStyle()}
-                      className={`h-6 w-6 ${daysLeft <= 0 ? "text-red-600" : ""
-                        }`}
+                      className={`h-6 w-6 ${
+                        daysLeft <= 0 ? "text-red-600" : ""
+                      }`}
                     />
                   </Tooltip>
                 </div>
@@ -694,7 +722,7 @@ const Dashboard = () => {
               </div>
             </Tooltip>
           );
-        })} 
+        })}
       </div>
 
       <div className="pagination flex justify-center items-center gap-4 mt-6 text-white">
@@ -719,27 +747,55 @@ const Dashboard = () => {
 
       <Modal
         title={
-          <div className="flex items-center gap-3 mb-4">
-            <div className="bg-gradient-to-br from-blue-500 to-blue-600 p-3 rounded-2xl shadow-md">
-              <HiUserAdd className="w-6 h-6 text-white" />
+          <motion.div
+            className="flex items-center gap-4 mb-6"
+            initial={{ opacity: 0, y: -10 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.4, ease: "easeOut" }}
+          >
+            <motion.div
+              className="relative bg-gradient-to-tr from-blue-500 via-indigo-500 to-purple-600 p-3.5 rounded-2xl shadow-lg overflow-hidden"
+              whileHover={{ scale: 1.08, rotate: 3 }}
+              transition={{ type: "spring", stiffness: 200, damping: 10 }}
+            >
+              <div className="absolute inset-0 bg-gradient-to-tr from-white/20 to-transparent blur-md animate-pulse" />
+              <HiUserAdd className="w-7 h-7 text-white relative z-10 drop-shadow-md" />
+            </motion.div>
+
+            <div className="flex flex-col">
+              <motion.h2
+                className="text-3xl font-extrabold bg-gradient-to-r from-blue-600 via-indigo-600 to-purple-600 bg-clip-text text-transparent drop-shadow-sm"
+                initial={{ opacity: 0, x: -10 }}
+                animate={{ opacity: 1, x: 0 }}
+                transition={{ delay: 0.15, duration: 0.5 }}
+              >
+                {t("clients.add_client")}
+              </motion.h2>
+              <motion.p
+                className="text-sm text-gray-500 font-medium"
+                initial={{ opacity: 0 }}
+                animate={{ opacity: 1 }}
+                transition={{ delay: 0.3, duration: 0.6 }}
+              >
+                {t("clients.clients")}
+              </motion.p>
             </div>
-            <div>
-              <h2 className="text-2xl font-bold text-gray-800">
-                {t("dashboard.add_client")}
-              </h2>
-            </div>
-          </div>
+          </motion.div>
         }
         isVisible={addClient}
         onClose={() => setAddClient(false)}
+        width={1900}
       >
-        {loadingPost || loadingImport ? (
-          <div className="flex flex-col items-center justify-center w-full gap-4">
+        {loadingPost ? (
+          <div className="flex flex-col items-center justify-center w-full gap-4 py-10">
             <Spin />
+            <p className="text-gray-500 text-sm">
+              {t("ticketsStats.inProgress")}
+            </p>
           </div>
         ) : (
-          <div className="bg-gradient-to-br from-white to-blue-50/50 p-8 rounded-3xl shadow-lg">
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+          <div className="bg-gradient-to-br from-white to-blue-50/50 p-6 rounded-3xl shadow-lg">
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
               <div>
                 <div className="flex items-center gap-2 mb-2">
                   <FiUser className="w-4 h-4 text-blue-600" />
@@ -795,8 +851,8 @@ const Dashboard = () => {
                 />
               </div>
 
-              <div className="md:col-span-2">
-                <div className="flex items-center gap-2 mb-2 w-full">
+              <div>
+                <div className="flex items-center gap-2 mb-2">
                   <FiMail className="w-4 h-4 text-purple-600" />
                   <label className="text-sm font-semibold text-gray-700">
                     {t("dashboard.email")}
@@ -811,11 +867,11 @@ const Dashboard = () => {
                 />
               </div>
 
-              <div className="md:col-span-2">
-                <div className="flex items-center gap-2 mb-2 w-full">
+              <div>
+                <div className="flex items-center gap-2 mb-2">
                   <FiCalendar className="w-4 h-4 text-purple-600" />
                   <label className="text-sm font-semibold text-gray-700">
-                    Data de Expiração
+                    {t("labels.expiration_date")}
                   </label>
                 </div>
                 <input
@@ -831,7 +887,7 @@ const Dashboard = () => {
                 <div className="flex items-center gap-2 mb-2">
                   <FiUser className="w-4 h-4 text-red-600" />
                   <label className="text-sm font-semibold text-gray-700">
-                    {t("clients.user")} (Opcional)
+                    {t("clients.user")}
                   </label>
                 </div>
                 <input
@@ -847,7 +903,7 @@ const Dashboard = () => {
                 <div className="flex items-center gap-2 mb-2">
                   <FiLock className="w-4 h-4 text-red-600" />
                   <label className="text-sm font-semibold text-gray-700">
-                    {t("clients.password")} (Opcional)
+                    {t("clients.password")}
                   </label>
                 </div>
                 <input
@@ -877,41 +933,102 @@ const Dashboard = () => {
 
               <div>
                 <div className="flex items-center gap-2 mb-2">
-                  <FiTruck className="w-4 h-4 text-yellow-600" />
+                  <FiBriefcase className="w-4 h-4 text-indigo-600" />
                   <label className="text-sm font-semibold text-gray-700">
-                    Operation Type
+                    {t("dashboard.empresa")}
                   </label>
                 </div>
-                <select
-                  value={clientOperationType}
-                  onChange={(e) => setClientOperationType(e.target.value)}
-                  className="w-full h-[55px] border border-gray-200 rounded-xl px-4 py-3 text-sm shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-400 bg-white/90 backdrop-blur-sm"
-                >
-                  <option value="">{t("filters.all")}</option>
-                  <option value="interstate">Interstate</option>
-                  <option value="intrastate">Intrastate</option>
-                </select>
+                <input
+                  type="text"
+                  value={clientEmpresa}
+                  onChange={(e) => setClientEmpresa(e.target.value)}
+                  className="w-full border border-gray-200 rounded-xl px-5 py-3.5 text-base shadow-sm focus:outline-none focus:ring-2 focus:ring-indigo-400 bg-white/90 backdrop-blur-sm transition-all duration-200 hover:border-indigo-300 focus:bg-white"
+                  placeholder={t("dashboard.empresa")}
+                />
+              </div>
+
+              <div>
+                <div className="flex items-center gap-2 mb-2">
+                  <FiUserCheck className="w-4 h-4 text-teal-600" />
+                  <label className="text-sm font-semibold text-gray-700">
+                    {t("dashboard.dono")}
+                  </label>
+                </div>
+                <input
+                  type="text"
+                  value={clientDono}
+                  onChange={(e) => setClientDono(e.target.value)}
+                  className="w-full border border-gray-200 rounded-xl px-5 py-3.5 text-base shadow-sm focus:outline-none focus:ring-2 focus:ring-teal-400 bg-white/90 backdrop-blur-sm transition-all duration-200 hover:border-teal-300 focus:bg-white"
+                  placeholder={t("dashboard.dono")}
+                />
+              </div>
+
+              <div>
+                <div className="flex items-center gap-2 mb-2">
+                  <FiShare2 className="w-4 h-4 text-pink-600" />
+                  <label className="text-sm font-semibold text-gray-700">
+                    {t("dashboard.social")}
+                  </label>
+                </div>
+                <input
+                  type="text"
+                  value={clientSocial}
+                  onChange={(e) => setClientSocial(e.target.value)}
+                  className="w-full border border-gray-200 rounded-xl px-5 py-3.5 text-base shadow-sm focus:outline-none focus:ring-2 focus:ring-pink-400 bg-white/90 backdrop-blur-sm transition-all duration-200 hover:border-pink-300 focus:bg-white"
+                  placeholder={t("dashboard.social")}
+                />
+              </div>
+
+              <div>
+                <div className="flex items-center gap-2 mb-2">
+                  <FiHash className="w-4 h-4 text-yellow-600" />
+                  <label className="text-sm font-semibold text-gray-700">
+                    EIN
+                  </label>
+                </div>
+                <input
+                  type="text"
+                  value={clientEin}
+                  onChange={(e) => setClientEin(e.target.value)}
+                  className="w-full border border-gray-200 rounded-xl px-5 py-3.5 text-base shadow-sm focus:outline-none focus:ring-2 focus:ring-yellow-400 bg-white/90 backdrop-blur-sm transition-all duration-200 hover:border-yellow-300 focus:bg-white"
+                  placeholder="E.g., 12-3456789"
+                />
+              </div>
+
+              <div>
+                <div className="flex items-center gap-2 mb-2">
+                  <FiTruck className="w-4 h-4 text-orange-600" />
+                  <label className="text-sm font-semibold text-gray-700">
+                    MC
+                  </label>
+                </div>
+                <input
+                  type="text"
+                  value={clientMc}
+                  onChange={(e) => setClientMc(e.target.value)}
+                  className="w-full border border-gray-200 rounded-xl px-5 py-3.5 text-base shadow-sm focus:outline-none focus:ring-2 focus:ring-orange-400 bg-white/90 backdrop-blur-sm transition-all duration-200 hover:border-orange-300 focus:bg-white"
+                  placeholder="E.g., MC123456"
+                />
               </div>
             </div>
 
             <div className="flex gap-4 pt-6">
               <button
                 onClick={handleAddClient}
-                className="flex-1 flex items-center justify-center gap-2 py-4 bg-gradient-to-r from-blue-500 to-blue-600 text-white rounded-2xl hover:from-blue-600 hover:to-blue-700 transition-all duration-300 shadow-lg hover:shadow-xl font-medium transform hover:scale-[1.02] active:scale-[0.98]"
+                className="flex-1 flex items-center justify-center gap-2 py-4 bg-gradient-to-r from-blue-500 to-blue-600 text-white rounded-xl hover:from-blue-600 hover:to-blue-700 transition-all duration-300 shadow-lg hover:shadow-xl font-medium transform hover:scale-[1.02] active:scale-[0.98]"
               >
                 <FiUserPlus className="w-5 h-5" />
                 {t("dashboard.add_client")}
               </button>
               <button
                 onClick={() => setAddClient(false)}
-                className="flex-1 flex items-center justify-center gap-2 py-4 bg-gradient-to-r from-gray-100 to-gray-200 text-gray-700 rounded-2xl hover:from-gray-200 hover:to-gray-300 transition-all duration-300 shadow-lg hover:shadow-xl font-medium transform hover:scale-[1.02] active:scale-[0.98] border border-gray-200"
+                className="flex-1 flex items-center justify-center gap-2 py-4 bg-gradient-to-r from-gray-100 to-gray-200 text-gray-700 rounded-xl hover:from-gray-200 hover:to-gray-300 transition-all duration-300 shadow-lg hover:shadow-xl font-medium transform hover:scale-[1.02] active:scale-[0.98] border border-gray-200"
               >
                 <FiX className="w-5 h-5" />
                 {t("buttons.cancel")}
               </button>
             </div>
           </div>
-
         )}
       </Modal>
       <Modal
