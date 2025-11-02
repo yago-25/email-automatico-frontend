@@ -211,7 +211,8 @@ const Clients = () => {
       filterEmail ||
       filterPhone ||
       filterDotNumber ||
-      filterOperationType
+      filterOperationType ||
+      filterStatus
     ) {
       filtered = filtered.filter((client) => {
         const matchesName = filterName
@@ -239,12 +240,20 @@ const Clients = () => {
             .includes(filterOperationType.toLowerCase())
           : true;
 
+        const matchesStatus =
+          filterStatus === ""
+            ? true
+            : filterStatus === "true"
+              ? client.active === true
+              : client.active === false;
+
         return (
           matchesName &&
           matchesEmail &&
           matchesPhone &&
           matchesDot &&
-          matchesOperationType
+          matchesOperationType &&
+          matchesStatus
         );
       });
     }
@@ -267,8 +276,10 @@ const Clients = () => {
     filterPhone,
     filterDotNumber,
     filterOperationType,
+    filterStatus,
     filteredTxt,
   ]);
+
 
   const totalPages = Math.ceil(filteredClients.length / itemsPerPage);
   const startIndex = (currentPage - 1) * itemsPerPage;
