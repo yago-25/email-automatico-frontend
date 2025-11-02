@@ -1,4 +1,5 @@
 /* eslint-disable react-hooks/exhaustive-deps */
+
 import { useEffect, useMemo, useState } from "react";
 import { useTranslation } from "react-i18next";
 import { api } from "../../api/api";
@@ -20,7 +21,7 @@ import {
 import "./Permits.css";
 import { FaCalendarAlt, FaClock, FaEraser, FaFilter, FaMapMarkerAlt, FaUser, FaWeightHanging } from "react-icons/fa";
 import { CiFilter } from "react-icons/ci";
-// import useSwr from "swr";
+import useSwr from "swr";
 import Modal from "../../components/Modal/Modal";
 
 interface Permit {
@@ -42,7 +43,6 @@ interface Client {
 const Permits = () => {
   const { t } = useTranslation();
   const [permits, setPermits] = useState<Permit[]>([]);
-  const [clients, setClients] = useState<Client[]>([]);
   const [loading, setLoading] = useState(true);
   const [permitToDelete, setPermitToDelete] = useState<number | null>(null);
   const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
@@ -55,9 +55,11 @@ const Permits = () => {
     oscar: "",
   });
   const [searchTerm, setSearchTerm] = useState("");
-  const [stateFilter, setStateFilter] = useState("");
   const [showModalFilter, setShowModalFilter] = useState(false);
+
+  // Filtros
   const [clientFilter, setClientFilter] = useState("");
+  const [stateFilter, setStateFilter] = useState("");
   const [dateStart, setDateStart] = useState("");
   const [dateEnd, setDateEnd] = useState("");
   const [overweightFilter, setOverweightFilter] = useState("");
@@ -74,16 +76,12 @@ const Permits = () => {
     setLoading(true);
     try {
       const token = localStorage.getItem("accessToken");
-      const [permRes, clientsRes] = await Promise.all([
+      const [permRes] = await Promise.all([
         api.get<Permit[]>("/permits", {
-          headers: { Authorization: `Bearer ${token}` },
-        }), 
-        api.get<Client[]>("/clients", {
           headers: { Authorization: `Bearer ${token}` },
         }),
       ]);
       setPermits(permRes.data);
-      setClients(clientsRes.data);
     } catch (err) {
       messageAlert({ type: "error", message: t("permits_page.fetch_error") });
       console.log(err);
@@ -91,6 +89,21 @@ const Permits = () => {
       setLoading(false);
     }
   };
+
+  const {
+    data: clients = [],
+    isLoading,
+    // mutate,
+  } = useSwr<Client[]>("/clients", {
+    fetcher: (url) =>
+      api
+        .get(url, {
+          headers: {
+            Authorization: `Bearer ${localStorage.getItem("accessToken")}`,
+          },
+        })
+        .then((res) => res.data),
+  });
 
   const today = useMemo(() => new Date(), []);
 
@@ -124,26 +137,61 @@ const Permits = () => {
   };
 
   const filteredPermits = useMemo(() => {
-    const bySearch = (p: Permit) => {
-      if (!searchTerm.trim()) return true;
-      const clientName = getClientName(p.client_id).toLowerCase();
-      return (
-        clientName.includes(searchTerm.toLowerCase()) ||
-        `${p.id}`.includes(searchTerm)
+    let filtered = [...permits];
+
+    // Filtro de busca
+    if (searchTerm.trim()) {
+      filtered = filtered.filter((p) => {
+        const clientName = getClientName(p.client_id).toLowerCase();
+        return (
+          clientName.includes(searchTerm.toLowerCase()) ||
+          `${p.id}`.includes(searchTerm)
+        );
+      });
+    }
+
+    // Filtro de cliente
+    if (clientFilter) {
+      filtered = filtered.filter(p => p.client_id === Number(clientFilter));
+    }
+
+    // Filtro de estado
+    if (stateFilter.trim()) {
+      filtered = filtered.filter(p =>
+        p.state.toLowerCase().includes(stateFilter.toLowerCase())
       );
-    };
-    const byState = (p: Permit) => {
-      if (!stateFilter.trim()) return true;
-      return p.state.toLowerCase() === stateFilter.toLowerCase();
-    };
-    return permits
-      .filter((p) => bySearch(p) && byState(p))
-      .sort(
-        (a, b) =>
-          new Date(a.expiration_date).getTime() -
-          new Date(b.expiration_date).getTime()
-      );
-  }, [permits, searchTerm, stateFilter, clients]);
+    }
+
+    // Filtro de data
+    if (dateStart && dateEnd) {
+      filtered = filtered.filter(p => {
+        const exp = new Date(p.expiration_date);
+        return exp >= new Date(dateStart) && exp <= new Date(dateEnd);
+      });
+    }
+
+    // Filtro de overweight
+    if (overweightFilter !== "") {
+      filtered = filtered.filter(p => p.overweight === (overweightFilter === "true"));
+    }
+
+    // Filtro de expirado
+    if (expiredFilter !== "") {
+      const now = new Date();
+      filtered = filtered.filter(p => {
+        const exp = new Date(p.expiration_date);
+        const isExpired = exp < now;
+        return expiredFilter === "true" ? isExpired : !isExpired;
+      });
+    }
+
+    // Ordenar por data de expiração
+    return filtered.sort(
+      (a, b) =>
+        new Date(a.expiration_date).getTime() -
+        new Date(b.expiration_date).getTime()
+    );
+  }, [permits, searchTerm, clientFilter, stateFilter, dateStart, dateEnd, overweightFilter, expiredFilter, clients]);
 
   const total = permits.length;
   const totalExpired = useMemo(
@@ -226,47 +274,20 @@ const Permits = () => {
     setDateEnd("");
     setOverweightFilter("");
     setExpiredFilter("");
-    // mutate();
+    setSearchTerm("");
   };
 
   const handleApplyFilters = () => {
-    let filtered = [...permits];
-
-    if (clientFilter) {
-      filtered = filtered.filter(p => p.client_id === Number(clientFilter));
-    }
-
-    if (stateFilter) {
-      filtered = filtered.filter(p =>
-        p.state.toLowerCase().includes(stateFilter.toLowerCase())
-      );
-    }
-
-    if (dateStart && dateEnd) {
-      filtered = filtered.filter(p => {
-        const exp = new Date(p.expiration_date);
-        return exp >= new Date(dateStart) && exp <= new Date(dateEnd);
-      });
-    }
-
-    if (overweightFilter !== "") {
-      filtered = filtered.filter(p => p.overweight === (overweightFilter === "true"));
-    }
-
-    if (expiredFilter !== "") {
-      const now = new Date();
-      filtered = filtered.filter(p => {
-        const exp = new Date(p.expiration_date);
-        const isExpired = exp < now;
-        return expiredFilter === "true" ? isExpired : !isExpired;
-      });
-    }
-
-    setPermits(filtered);
     setShowModalFilter(false);
   };
 
-  if (loading) return <Spin />;
+  if (loading || isLoading) {
+    return (
+      <div className="flex items-center justify-center h-full w-full">
+        <Spin />
+      </div>
+    );
+  }
 
   return (
     <>
@@ -429,7 +450,14 @@ const Permits = () => {
                   </div>
                 </div>
 
-                <div className="permit-actions">
+                <div className="permit-actions flex w-full sm:w-auto gap-2">
+                  <button
+                    onClick={() => openDeleteModal(permit.id)}
+                    className="permit-button delete"
+                  >
+                    <Trash2 size={16} />
+                    {t("permits_page.edit")}
+                  </button>
                   <button
                     onClick={() => openDeleteModal(permit.id)}
                     className="permit-button delete"
@@ -587,7 +615,7 @@ const Permits = () => {
           onConfirm={handleDeletePermit}
         />
       </div>
-      <Modal 
+      <Modal
         title={
           <div className="flex items-center gap-3 text-blue-600">
             <FaFilter className="w-6 h-6" />

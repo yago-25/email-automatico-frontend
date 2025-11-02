@@ -2,7 +2,7 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 import { ChangeEvent, useEffect, useMemo, useRef, useState } from "react";
 import Header from "../../components/Header/Header";
-import Modal from "../../components/Modal/Modal";
+import Modal from "../../components/Modal/ModalTicket";
 import { User } from "../../models/User";
 import { api } from "../../api/api";
 import { messageAlert } from "../../utils/messageAlert";
