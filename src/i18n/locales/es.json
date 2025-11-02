@@ -214,7 +214,14 @@
     "dot": "DOT number",
     "operationType": "Tipo de Operación",
     "active": "Activo",
-    "inactive": "Inactivo"
+    "inactive": "Inactivo",
+    "state": "Estado",
+    "startDate": "Fecha de inicio",
+    "endDate": "Fecha de fin",
+    "overweight": "Exceso de peso",
+    "yes": "Sí",
+    "no": "No",
+    "expired": "Vencido"
   },
   "status": {
     "open": "Abierto",

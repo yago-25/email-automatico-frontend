@@ -217,7 +217,14 @@
     "dot": "DOT number",
     "operationType": "Tipo de Operação",
     "active": "Ativo",
-    "inactive": "Inativo"
+    "inactive": "Inativo",
+    "state": "Estado",
+    "startDate": "Data de Início",
+    "endDate": "Data de Fim",
+    "overweight": "Excesso de Peso",
+    "yes": "Sim",
+    "no": "Não",
+    "expired": "Vencido"
   },
   "status": {
     "open": "Aberto",
@@ -753,7 +760,7 @@
     "expired": "Vencido",
     "active": "Ativo",
     "search_placeholder": "Buscar por cliente ou ID",
-    "filter_state": "Filtrar por UF",
+    "filter_state": "Filtrar por Estado",
     "created_at": "Criado em",
     "overweight": "Excesso de peso",
     "is_overweight": "Tem excesso de peso",

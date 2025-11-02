@@ -77,7 +77,7 @@ const Permits = () => {
       const [permRes, clientsRes] = await Promise.all([
         api.get<Permit[]>("/permits", {
           headers: { Authorization: `Bearer ${token}` },
-        }),
+        }), 
         api.get<Client[]>("/clients", {
           headers: { Authorization: `Bearer ${token}` },
         }),
@@ -587,7 +587,7 @@ const Permits = () => {
           onConfirm={handleDeletePermit}
         />
       </div>
-      <Modal
+      <Modal 
         title={
           <div className="flex items-center gap-3 text-blue-600">
             <FaFilter className="w-6 h-6" />

@@ -216,7 +216,14 @@
     "dot": "DOT number",
     "operationType": "Operation Type",
     "active": "Active",
-    "inactive": "Inactive"
+    "inactive": "Inactive",
+    "state": "State",
+    "startDate": "Start Date",
+    "endDate": "End Date",
+    "overweight": "Overweight",
+    "yes": "Yes",
+    "no": "No",
+    "expired": "Expired"
   },
   "status": {
     "open": "Not started",
