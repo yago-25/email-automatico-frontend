@@ -18,7 +18,10 @@ import {
   Weight,
 } from "lucide-react";
 import "./Permits.css";
-import { FaUser } from "react-icons/fa";
+import { FaCalendarAlt, FaClock, FaEraser, FaFilter, FaMapMarkerAlt, FaUser, FaWeightHanging } from "react-icons/fa";
+import { CiFilter } from "react-icons/ci";
+// import useSwr from "swr";
+import Modal from "../../components/Modal/Modal";
 
 interface Permit {
   id: number;
@@ -53,6 +56,12 @@ const Permits = () => {
   });
   const [searchTerm, setSearchTerm] = useState("");
   const [stateFilter, setStateFilter] = useState("");
+  const [showModalFilter, setShowModalFilter] = useState(false);
+  const [clientFilter, setClientFilter] = useState("");
+  const [dateStart, setDateStart] = useState("");
+  const [dateEnd, setDateEnd] = useState("");
+  const [overweightFilter, setOverweightFilter] = useState("");
+  const [expiredFilter, setExpiredFilter] = useState("");
 
   const storedUser = localStorage.getItem("user");
   const authUser: User | null = storedUser ? JSON.parse(storedUser) : null;
@@ -206,6 +215,57 @@ const Permits = () => {
     setIsDeleteModalOpen(true);
   };
 
+  const handleFilterToggle = () => {
+    setShowModalFilter(true);
+  };
+
+  const handleClearFilters = () => {
+    setClientFilter("");
+    setStateFilter("");
+    setDateStart("");
+    setDateEnd("");
+    setOverweightFilter("");
+    setExpiredFilter("");
+    // mutate();
+  };
+
+  const handleApplyFilters = () => {
+    let filtered = [...permits];
+
+    if (clientFilter) {
+      filtered = filtered.filter(p => p.client_id === Number(clientFilter));
+    }
+
+    if (stateFilter) {
+      filtered = filtered.filter(p =>
+        p.state.toLowerCase().includes(stateFilter.toLowerCase())
+      );
+    }
+
+    if (dateStart && dateEnd) {
+      filtered = filtered.filter(p => {
+        const exp = new Date(p.expiration_date);
+        return exp >= new Date(dateStart) && exp <= new Date(dateEnd);
+      });
+    }
+
+    if (overweightFilter !== "") {
+      filtered = filtered.filter(p => p.overweight === (overweightFilter === "true"));
+    }
+
+    if (expiredFilter !== "") {
+      const now = new Date();
+      filtered = filtered.filter(p => {
+        const exp = new Date(p.expiration_date);
+        const isExpired = exp < now;
+        return expiredFilter === "true" ? isExpired : !isExpired;
+      });
+    }
+
+    setPermits(filtered);
+    setShowModalFilter(false);
+  };
+
   if (loading) return <Spin />;
 
   return (
@@ -218,23 +278,36 @@ const Permits = () => {
             <ClipboardList />
             {t("permits_page.title")}
           </div>
-
-          <button
-            onClick={() => setIsAddModalOpen(true)}
-            className="add-permit-btn"
-          >
-            <PlusCircle size={20} />
-            {t("permits_page.add")}
-          </button>
-
-          
+          <div className="flex w-full sm:w-auto gap-2">
+            <button
+              onClick={() => setIsAddModalOpen(true)}
+              className="add-permit-btn"
+            >
+              <PlusCircle size={20} />
+              {t("permits_page.add")}
+            </button>
+            <button
+              onClick={handleFilterToggle}
+              className="flex items-center justify-center gap-2 px-4 py-2.5 bg-purple-600 text-white font-medium rounded-lg shadow-md hover:bg-purple-700 hover:shadow-lg transition-all duration-200"
+            >
+              <CiFilter className="w-5 h-5" />
+              {t("filters.titleup")}
+            </button>
+            <button
+              onClick={handleClearFilters}
+              className="flex items-center justify-center gap-2 min-w-[150px] px-4 py-2.5 bg-red-600 text-white font-medium rounded-lg shadow-md hover:bg-red-700 hover:shadow-lg transition-all duration-200"
+            >
+              <FaEraser className="w-5 h-5" />
+              {t("filters.clear")}
+            </button>
+          </div>
         </div>
 
         <div className="permits-stats">
           <div className="stat-card primary">
             <div className="stat-value">{total}</div>
             <div className="stat-label">
-              {t("permits_page.total") }
+              {t("permits_page.total")}
             </div>
           </div>
           <div className="stat-card warning">
@@ -246,7 +319,7 @@ const Permits = () => {
           <div className="stat-card danger">
             <div className="stat-value">{totalExpired}</div>
             <div className="stat-label">
-              {t("permits_page.expired") }
+              {t("permits_page.expired")}
             </div>
           </div>
         </div>
@@ -256,7 +329,7 @@ const Permits = () => {
             <input
               className="filter-input"
               placeholder={
-                t("permits_page.search_placeholder") 
+                t("permits_page.search_placeholder")
               }
               value={searchTerm}
               onChange={(e) => setSearchTerm(e.target.value)}
@@ -295,9 +368,8 @@ const Permits = () => {
                     Permit #{permit.id}
                   </div>
                   <div
-                    className={`status-badge ${
-                      getStatus(permit.expiration_date).key
-                    }`}
+                    className={`status-badge ${getStatus(permit.expiration_date).key
+                      }`}
                   >
                     {getStatus(permit.expiration_date).label}
                   </div>
@@ -515,6 +587,161 @@ const Permits = () => {
           onConfirm={handleDeletePermit}
         />
       </div>
+      <Modal
+        title={
+          <div className="flex items-center gap-3 text-blue-600">
+            <FaFilter className="w-6 h-6" />
+            <span className="text-2xl font-bold">{t("filters.title")}</span>
+          </div>
+        }
+        isVisible={showModalFilter}
+        onClose={() => setShowModalFilter(false)}
+      >
+        <div className="bg-gradient-to-br from-white to-blue-50/50 p-6 rounded-2xl shadow-lg mt-2 max-w-md mx-auto">
+          <div className="mt-4">
+            <div className="flex items-center gap-2 mb-2">
+              <div className="p-2 bg-blue-100 rounded-xl text-blue-600">
+                <FaUser className="w-5 h-5" />
+              </div>
+              <label className="text-sm font-semibold text-gray-700">
+                {t("filters.client")}
+              </label>
+            </div>
+            <select
+              value={clientFilter}
+              onChange={(e) => setClientFilter(e.target.value)}
+              className="w-full border border-gray-200 rounded-xl px-4 py-3 text-sm shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-400 bg-white/70 backdrop-blur-sm"
+            >
+              <option value="">{t("filters.all")}</option>
+              {clients.map((c) => (
+                <option key={c.id} value={c.id}>
+                  {c.name}
+                </option>
+              ))}
+            </select>
+          </div>
+
+          <div className="mt-4">
+            <div className="flex items-center gap-2 mb-2">
+              <div className="p-2 bg-indigo-100 rounded-xl text-indigo-600">
+                <FaMapMarkerAlt className="w-5 h-5" />
+              </div>
+              <label className="text-sm font-semibold text-gray-700">
+                {t("filters.state")}
+              </label>
+            </div>
+            <select
+              value={stateFilter}
+              onChange={(e) => setStateFilter(e.target.value.toUpperCase())}
+              className="w-full border border-gray-200 rounded-xl px-4 py-3 text-sm shadow-sm focus:outline-none focus:ring-2 focus:ring-indigo-400 bg-white/70 backdrop-blur-sm"
+            >
+              <option value="">{t("filters.all")}</option>
+              {[...new Set(permits.map((p) => p.state))].sort().map((uf) => (
+                <option key={uf} value={uf}>
+                  {uf}
+                </option>
+              ))}
+            </select>
+          </div>
+
+          <div className="grid grid-cols-2 gap-4 mt-4">
+            <div>
+              <div className="flex items-center gap-2 mb-2">
+                <div className="p-2 bg-yellow-100 rounded-xl text-yellow-600">
+                  <FaCalendarAlt className="w-5 h-5" />
+                </div>
+                <label className="text-sm font-semibold text-gray-700">
+                  {t("filters.startDate")}
+                </label>
+              </div>
+              <input
+                type="date"
+                value={dateStart}
+                onChange={(e) => setDateStart(e.target.value)}
+                className="w-full border border-gray-200 rounded-xl px-3 py-2 text-sm shadow-sm focus:outline-none focus:ring-2 focus:ring-yellow-400 bg-white/70 backdrop-blur-sm"
+              />
+            </div>
+            <div>
+              <div className="flex items-center gap-2 mb-2">
+                <div className="p-2 bg-yellow-100 rounded-xl text-yellow-600">
+                  <FaCalendarAlt className="w-5 h-5" />
+                </div>
+                <label className="text-sm font-semibold text-gray-700">
+                  {t("filters.endDate")}
+                </label>
+              </div>
+              <input
+                type="date"
+                value={dateEnd}
+                onChange={(e) => setDateEnd(e.target.value)}
+                className="w-full border border-gray-200 rounded-xl px-3 py-2 text-sm shadow-sm focus:outline-none focus:ring-2 focus:ring-yellow-400 bg-white/70 backdrop-blur-sm"
+              />
+            </div>
+          </div>
+
+          <div className="mt-4">
+            <div className="flex items-center gap-2 mb-2">
+              <div className="p-2 bg-orange-100 rounded-xl text-orange-600">
+                <FaWeightHanging className="w-5 h-5" />
+              </div>
+              <label className="text-sm font-semibold text-gray-700">
+                {t("filters.overweight")}
+              </label>
+            </div>
+            <select
+              value={overweightFilter}
+              onChange={(e) => setOverweightFilter(e.target.value)}
+              className="w-full border border-gray-200 rounded-xl px-4 py-3 text-sm shadow-sm focus:outline-none focus:ring-2 focus:ring-orange-400 bg-white/70 backdrop-blur-sm"
+            >
+              <option value="">{t("filters.all")}</option>
+              <option value="true">{t("filters.yes")}</option>
+              <option value="false">{t("filters.no")}</option>
+            </select>
+          </div>
+
+          <div className="mt-4">
+            <div className="flex items-center gap-2 mb-2">
+              <div className="p-2 bg-rose-100 rounded-xl text-rose-600">
+                <FaClock className="w-5 h-5" />
+              </div>
+              <label className="text-sm font-semibold text-gray-700">
+                {t("filters.expired")}
+              </label>
+            </div>
+            <select
+              value={expiredFilter}
+              onChange={(e) => setExpiredFilter(e.target.value)}
+              className="w-full border border-gray-200 rounded-xl px-4 py-3 text-sm shadow-sm focus:outline-none focus:ring-2 focus:ring-rose-400 bg-white/70 backdrop-blur-sm"
+            >
+              <option value="">{t("filters.all")}</option>
+              <option value="true">{t("filters.yes")}</option>
+              <option value="false">{t("filters.no")}</option>
+            </select>
+          </div>
+
+          <div className="flex gap-4 mt-6">
+            <button
+              onClick={() => {
+                handleApplyFilters();
+                setShowModalFilter(false);
+              }}
+              className="flex-1 flex items-center justify-center gap-2 py-3 bg-gradient-to-r from-green-500 to-green-600 text-white rounded-xl hover:from-green-600 hover:to-green-700 transition-all duration-300 shadow-lg hover:shadow-xl font-medium"
+            >
+              <FaFilter className="w-4 h-4" />
+              {t("filters.apply")}
+            </button>
+
+            <button
+              onClick={handleClearFilters}
+              className="flex-1 flex items-center justify-center gap-2 py-3 bg-gradient-to-r from-red-500 to-red-600 text-white rounded-xl hover:from-red-600 hover:to-red-700 transition-all duration-300 shadow-lg hover:shadow-xl font-medium"
+            >
+              <FaEraser className="w-4 h-4" />
+              {t("filters.clear")}
+            </button>
+          </div>
+        </div>
+      </Modal>
+
     </>
   );
 };
