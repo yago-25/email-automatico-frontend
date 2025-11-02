@@ -918,8 +918,6 @@ const Ticket = () => {
     }
 
     try {
-      // Aqui você implementa a lógica de envio do boleto
-      // Pode ser por email, whatsapp, etc.
       messageAlert({
         type: "success",
         message: "Boleto enviado com sucesso!",

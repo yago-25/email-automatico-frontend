@@ -538,7 +538,9 @@
     "selectFile": "Por favor, selecione um arquivo.",
     "invalidFile": "O arquivo selecionado é inválido.",
     "clientsImported": "Clientes importados com sucesso!",
-    "clientsImportError": "Erro ao importar clientes."
+    "clientsImportError": "Erro ao importar clientes.",
+    "client_status_updated": "Status do Cliente atualizado com sucesso!",
+    "client_status_update_error": "Erro ao alterar status do cliente."
   },
   "photo_upload": {
     "file_label": "Arquivo Foto"

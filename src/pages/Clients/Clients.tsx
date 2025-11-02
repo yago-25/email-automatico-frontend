@@ -379,7 +379,6 @@ const Clients = () => {
         type: "error",
         message: t("clients.create_error"),
       });
-      console.log("Erro ao criar cliente:", e);
     } finally {
       setLoadingPost(false);
     }
@@ -480,13 +479,12 @@ const Clients = () => {
       await mutate();
       messageAlert({
         type: "success",
-        message: "Status do Cliente atualizado com sucesso!",
+        message: t("alerts.client_status_updated"),
       });
     } catch (e) {
-      console.log("Erro ao alterar status do cliente: ", e);
       messageAlert({
         type: "error",
-        message: "Erro ao alterar status do cliente.",
+        message: t("alerts.client_status_update_error"),
       });
     } finally {
       setLoadingChangeStatus(false);
@@ -539,17 +537,18 @@ const Clients = () => {
               </button>
             )}
             <button
+              onClick={handleFilterToggle}
+              className="flex items-center justify-center gap-2 px-4 py-2.5 bg-purple-600 text-white font-medium rounded-lg shadow-md hover:bg-purple-700 hover:shadow-lg transition-all duration-200"
+            >
+              <CiFilter className="w-5 h-5" />
+              {t("filters.titleup")}
+            </button>
+            <button
               onClick={handleClearFilters}
               className="flex items-center justify-center gap-2 min-w-[150px] px-4 py-2.5 bg-red-600 text-white font-medium rounded-lg shadow-md hover:bg-red-700 hover:shadow-lg transition-all duration-200"
             >
               <FaEraser className="w-5 h-5" />
               {t("filters.clear")}
-            </button>
-            <button
-              onClick={handleFilterToggle}
-              className="flex items-center justify-center gap-2 px-4 py-2.5 bg-purple-600 text-white font-medium rounded-lg shadow-md hover:bg-purple-700 hover:shadow-lg transition-all duration-200"
-            >
-              <CiFilter className="w-5 h-5" />
             </button>
           </div>
         </div>

@@ -98,18 +98,18 @@ const Permits = () => {
     if (diffDays < 0)
       return {
         key: "expired",
-        label: t("permits_page.expired") || "Expired",
+        label: t("permits_page.expired"),
         diffDays,
       };
     if (diffDays <= 30)
       return {
         key: "expiring",
-        label: t("permits_page.expiring_soon") || "Expiring soon",
+        label: t("permits_page.expiring_soon"),
         diffDays,
       };
     return {
       key: "active",
-      label: t("permits_page.active") || "Active",
+      label: t("permits_page.active"),
       diffDays,
     };
   };
@@ -226,25 +226,27 @@ const Permits = () => {
             <PlusCircle size={20} />
             {t("permits_page.add")}
           </button>
+
+          
         </div>
 
         <div className="permits-stats">
           <div className="stat-card primary">
             <div className="stat-value">{total}</div>
             <div className="stat-label">
-              {t("permits_page.total") || "Total permits"}
+              {t("permits_page.total") }
             </div>
           </div>
           <div className="stat-card warning">
             <div className="stat-value">{totalExpiringSoon}</div>
             <div className="stat-label">
-              {t("permits_page.expiring_soon") || "Expiring soon"}
+              {t("permits_page.expiring_soon")}
             </div>
           </div>
           <div className="stat-card danger">
             <div className="stat-value">{totalExpired}</div>
             <div className="stat-label">
-              {t("permits_page.expired") || "Expired"}
+              {t("permits_page.expired") }
             </div>
           </div>
         </div>
@@ -254,7 +256,7 @@ const Permits = () => {
             <input
               className="filter-input"
               placeholder={
-                t("permits_page.search_placeholder") || "Search by client or ID"
+                t("permits_page.search_placeholder") 
               }
               value={searchTerm}
               onChange={(e) => setSearchTerm(e.target.value)}
@@ -267,7 +269,7 @@ const Permits = () => {
               onChange={(e) => setStateFilter(e.target.value.toUpperCase())}
             >
               <option value="">
-                {t("permits_page.filter_state") || "Filter by state"}
+                {t("permits_page.filter_state")}
               </option>
               {[...new Set(permits.map((p) => p.state))].sort().map((uf) => (
                 <option key={uf} value={uf}>
