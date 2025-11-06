@@ -281,6 +281,18 @@
   box-shadow: 0 4px 12px rgba(231, 76, 60, 0.3);
 }
 
+.permit-button.edit {
+  background-color: #cabd07;
+  padding: 0.6rem 1rem;
+  font-size: 0.9rem;
+}
+
+.permit-button.edit:hover {
+  background-color: #dbd81e;
+  transform: translateY(-1px);
+  box-shadow: 0 4px 12px rgba(231, 76, 60, 0.3);
+}
+
 /* Lista de Permits */
 .permits-empty {
   text-align: center;

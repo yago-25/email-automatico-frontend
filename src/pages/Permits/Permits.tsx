@@ -1,5 +1,4 @@
 /* eslint-disable react-hooks/exhaustive-deps */
-
 import { useEffect, useMemo, useState } from "react";
 import { useTranslation } from "react-i18next";
 import { api } from "../../api/api";
@@ -17,6 +16,8 @@ import {
   ClipboardList,
   X,
   Weight,
+  Save,
+  Edit,
 } from "lucide-react";
 import "./Permits.css";
 import { FaCalendarAlt, FaClock, FaEraser, FaFilter, FaMapMarkerAlt, FaUser, FaWeightHanging } from "react-icons/fa";
@@ -57,6 +58,10 @@ const Permits = () => {
   const [searchTerm, setSearchTerm] = useState("");
   const [showModalFilter, setShowModalFilter] = useState(false);
 
+  // Estado para edição
+  const [editingPermitId, setEditingPermitId] = useState<number | null>(null);
+  const [editedPermit, setEditedPermit] = useState<Permit | null>(null);
+
   // Filtros
   const [clientFilter, setClientFilter] = useState("");
   const [stateFilter, setStateFilter] = useState("");
@@ -93,7 +98,6 @@ const Permits = () => {
   const {
     data: clients = [],
     isLoading,
-    // mutate,
   } = useSwr<Client[]>("/clients", {
     fetcher: (url) =>
       api
@@ -139,7 +143,6 @@ const Permits = () => {
   const filteredPermits = useMemo(() => {
     let filtered = [...permits];
 
-    // Filtro de busca
     if (searchTerm.trim()) {
       filtered = filtered.filter((p) => {
         const clientName = getClientName(p.client_id).toLowerCase();
@@ -150,19 +153,16 @@ const Permits = () => {
       });
     }
 
-    // Filtro de cliente
     if (clientFilter) {
       filtered = filtered.filter(p => p.client_id === Number(clientFilter));
     }
 
-    // Filtro de estado
     if (stateFilter.trim()) {
       filtered = filtered.filter(p =>
         p.state.toLowerCase().includes(stateFilter.toLowerCase())
       );
     }
 
-    // Filtro de data
     if (dateStart && dateEnd) {
       filtered = filtered.filter(p => {
         const exp = new Date(p.expiration_date);
@@ -170,12 +170,10 @@ const Permits = () => {
       });
     }
 
-    // Filtro de overweight
     if (overweightFilter !== "") {
       filtered = filtered.filter(p => p.overweight === (overweightFilter === "true"));
     }
 
-    // Filtro de expirado
     if (expiredFilter !== "") {
       const now = new Date();
       filtered = filtered.filter(p => {
@@ -185,7 +183,6 @@ const Permits = () => {
       });
     }
 
-    // Ordenar por data de expiração
     return filtered.sort(
       (a, b) =>
         new Date(a.expiration_date).getTime() -
@@ -261,6 +258,49 @@ const Permits = () => {
   const openDeleteModal = (id: number) => {
     setPermitToDelete(id);
     setIsDeleteModalOpen(true);
+  };
+
+  // Funções de edição
+  const handleEditClick = (permit: Permit) => {
+    setEditingPermitId(permit.id);
+    setEditedPermit({ ...permit });
+  };
+
+  const handleCancelEdit = () => {
+    setEditingPermitId(null);
+    setEditedPermit(null);
+  };
+
+  const handleSaveEdit = async () => {
+    if (!editedPermit) return;
+
+    if (!editedPermit.client_id || !editedPermit.state || !editedPermit.expiration_date) {
+      messageAlert({ type: "error", message: t("permits_page.fill_fields") });
+      return;
+    }
+
+    setLoading(true);
+    try {
+      const token = localStorage.getItem("accessToken");
+      await api.put(`/permits/${editedPermit.id}`, {
+        client_id: editedPermit.client_id,
+        state: editedPermit.state,
+        expiration_date: editedPermit.expiration_date,
+        overweight: editedPermit.overweight,
+        oscar: editedPermit.oscar || "",
+      }, {
+        headers: { Authorization: `Bearer ${token}` },
+      });
+      messageAlert({ type: "success", message: t("permits_page.updated") || "Permit updated successfully" });
+      setEditingPermitId(null);
+      setEditedPermit(null);
+      fetchData();
+    } catch (err) {
+      messageAlert({ type: "error", message: t("permits_page.update_error") || "Error updating permit" });
+      console.log(err);
+    } finally {
+      setLoading(false);
+    }
   };
 
   const handleFilterToggle = () => {
@@ -381,95 +421,180 @@ const Permits = () => {
           </div>
         ) : (
           <div className="permits-list">
-            {filteredPermits.map((permit) => (
-              <div key={permit.id} className="permit-card">
-                <div className="permit-card-header">
-                  <div className="permit-id">
-                    <FileText size={16} />
-                    Permit #{permit.id}
+            {filteredPermits.map((permit) => {
+              const isEditing = editingPermitId === permit.id;
+              const displayPermit = isEditing && editedPermit ? editedPermit : permit;
+
+              return (
+                <div key={permit.id} className="permit-card">
+                  <div className="permit-card-header">
+                    <div className="permit-id">
+                      <FileText size={16} />
+                      Permit #{permit.id}
+                    </div>
+                    <div
+                      className={`status-badge ${getStatus(permit.expiration_date).key}`}
+                    >
+                      {getStatus(permit.expiration_date).label}
+                    </div>
                   </div>
-                  <div
-                    className={`status-badge ${getStatus(permit.expiration_date).key
-                      }`}
-                  >
-                    {getStatus(permit.expiration_date).label}
+
+                  <div className="permit-info">
+                    <div className="info-item">
+                      <div className="info-label">
+                        <FaUser size={14} />
+                        Client
+                      </div>
+                      <div className="info-value">
+                        {isEditing ? (
+                          <select
+                            className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                            value={editedPermit?.client_id || ""}
+                            onChange={(e) =>
+                              setEditedPermit(prev => prev ? { ...prev, client_id: Number(e.target.value) } : null)
+                            }
+                          >
+                            <option value="">Select client</option>
+                            {clients.map((client) => (
+                              <option key={client.id} value={client.id}>
+                                {client.name}
+                              </option>
+                            ))}
+                          </select>
+                        ) : (
+                          getClientName(displayPermit.client_id)
+                        )}
+                      </div>
+                    </div>
+
+                    <div className="info-item">
+                      <div className="info-label">
+                        <MapPin size={14} />
+                        State
+                      </div>
+                      <div className="info-value">
+                        {isEditing ? (
+                          <input
+                            type="text"
+                            className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                            value={editedPermit?.state || ""}
+                            onChange={(e) =>
+                              setEditedPermit(prev => prev ? { ...prev, state: e.target.value.toUpperCase() } : null)
+                            }
+                            maxLength={2}
+                          />
+                        ) : (
+                          displayPermit.state
+                        )}
+                      </div>
+                    </div>
+
+                    <div className="info-item">
+                      <div className="info-label">
+                        <Calendar size={14} />
+                        {t("permits_page.expiration")}
+                      </div>
+                      <div className="info-value">
+                        {isEditing ? (
+                          <input
+                            type="date"
+                            className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                            value={editedPermit?.expiration_date || ""}
+                            onChange={(e) =>
+                              setEditedPermit(prev => prev ? { ...prev, expiration_date: e.target.value } : null)
+                            }
+                          />
+                        ) : (
+                          new Date(displayPermit.expiration_date).toLocaleDateString()
+                        )}
+                      </div>
+                    </div>
+
+                    <div className="info-item">
+                      <div className="info-label">
+                        <Calendar size={14} />
+                        {t("permits_page.created_at") || "Created at"}
+                      </div>
+                      <div className="info-value">
+                        {new Date(permit.created_at).toLocaleDateString()}
+                      </div>
+                    </div>
+
+                    <div className="info-item">
+                      <div className="info-label">
+                        <Weight size={14} />
+                        {t("permits_page.overweight")}
+                      </div>
+                      <div className="info-value">
+                        {isEditing ? (
+                          <select
+                            className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                            value={editedPermit?.overweight ? "true" : "false"}
+                            onChange={(e) =>
+                              setEditedPermit(prev => prev ? { ...prev, overweight: e.target.value === "true" } : null)
+                            }
+                          >
+                            <option value="false">{t("email_preview.no")}</option>
+                            <option value="true">{t("email_preview.yes")}</option>
+                          </select>
+                        ) : (
+                          displayPermit.overweight ? (
+                            <span className="badge overweight">{t("email_preview.yes")}</span>
+                          ) : (
+                            <span className="badge normal">{t("email_preview.no")}</span>
+                          )
+                        )}
+                      </div>
+                    </div>
+                  </div>
+
+                  <div className="permit-actions flex w-full sm:w-auto gap-2">
+                    {isEditing ? (
+                      <>
+                        <button
+                          onClick={handleSaveEdit}
+                          className="permit-button bg-green-600 hover:bg-green-700"
+                        >
+                          <Save size={16} />
+                          {t("permits_page.save") || "Save"}
+                        </button>
+                        <button
+                          onClick={handleCancelEdit}
+                          className="permit-button bg-gray-600 hover:bg-gray-700"
+                        >
+                          <X size={16} />
+                          {t("permits_page.cancel") || "Cancel"}
+                        </button>
+                      </>
+                    ) : (
+                      <>
+                        <button
+                          onClick={() => handleEditClick(permit)}
+                          className="permit-button edit"
+                        >
+                          <Edit size={16} />
+                          {t("permits_page.edit")}
+                        </button>
+                        <button
+                          onClick={() => openDeleteModal(permit.id)}
+                          className="permit-button delete"
+                        >
+                          <Trash2 size={16} />
+                          {t("permits_page.delete")}
+                        </button>
+                      </>
+                    )}
                   </div>
                 </div>
-
-                <div className="permit-info">
-                  <div className="info-item">
-                    <div className="info-label">
-                      <FaUser size={14} />
-                      Client
-                    </div>
-                    <div className="info-value">
-                      {getClientName(permit.client_id)}
-                    </div>
-                  </div>
-
-                  <div className="info-item">
-                    <div className="info-label">
-                      <MapPin size={14} />
-                      State
-                    </div>
-                    <div className="info-value">{permit.state}</div>
-                  </div>
-
-                  <div className="info-item">
-                    <div className="info-label">
-                      <Calendar size={14} />
-                      {t("permits_page.expiration")}
-                    </div>
-                    <div className="info-value">
-                      {new Date(permit.expiration_date).toLocaleDateString()}
-                    </div>
-                  </div>
-
-                  <div className="info-item">
-                    <div className="info-label">
-                      <Calendar size={14} />
-                      {t("permits_page.created_at") || "Created at"}
-                    </div>
-                    <div className="info-value">
-                      {new Date(permit.created_at).toLocaleDateString()}
-                    </div>
-                  </div>
-
-                  <div className="info-item">
-                    <div className="info-label">
-                      <Weight size={14} />
-                      {t("permits_page.overweight")}
-                    </div>
-                    <div className="info-value">
-                      {permit.overweight ? (
-                        <span className="badge overweight">{t("email_preview.yes")}</span>
-                      ) : (
-                        <span className="badge normal">{t("email_preview.no")}</span>
-                      )}
-                    </div>
-                  </div>
-                </div>
-
-                <div className="permit-actions flex w-full sm:w-auto gap-2">
-                  <button
-                    onClick={() => openDeleteModal(permit.id)}
-                    className="permit-button delete"
-                  >
-                    <Trash2 size={16} />
-                    {t("permits_page.edit")}
-                  </button>
-                  <button
-                    onClick={() => openDeleteModal(permit.id)}
-                    className="permit-button delete"
-                  >
-                    <Trash2 size={16} />
-                    {t("permits_page.delete")}
-                  </button>
-                </div>
-              </div>
-            ))}
+              );
+            })}
           </div>
         )}
+        <DeleteConfirmModal
+          isVisible={isDeleteModalOpen}
+          onClose={() => setIsDeleteModalOpen(false)}
+          onConfirm={handleDeletePermit}
+        />
 
         {isAddModalOpen && (
           <div
