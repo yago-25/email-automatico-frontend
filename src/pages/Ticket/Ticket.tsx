@@ -1016,6 +1016,7 @@ const Ticket = () => {
     setFilterUser("");
     setFilterClient("");
     setClientFromState(undefined);
+    setShowModalFilter(false);
   };
 
   const handleToggleStatus = (status: string) => {

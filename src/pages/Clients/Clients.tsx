@@ -288,6 +288,12 @@ const Clients = () => {
     startIndex + itemsPerPage
   );
 
+  const goToPage = (page: number) => {
+    if (page >= 1 && page <= totalPages) {
+      setCurrentPage(page);
+    }
+  };
+
   const availableClientNames = useMemo(() => {
     return clients.map((client) => ({
       value: client.name,
@@ -323,12 +329,6 @@ const Clients = () => {
     return types.map((type) => ({ value: type, label: type }));
     return types.map((type) => ({ value: type, label: type }));
   }, [clients]);
-
-  const goToPage = (page: number) => {
-    if (page >= 1 && page <= totalPages) {
-      setCurrentPage(page);
-    }
-  };
 
   const handleAddClient = async () => {
     setLoadingPost(true);
@@ -460,6 +460,7 @@ const Clients = () => {
     setFilterStatus("");
     setHasFilteredByState(false);
     setCurrentPage(1);
+    setShowModalFilter(false);
     navigate("/clients", { replace: true, state: null });
   };
 
@@ -739,7 +740,7 @@ const Clients = () => {
           onConfirm={handleDelete}
         />
 
-        <div className="flex justify-center items-center gap-4 mt-8">
+        <div className="flex justify-center items-center gap-4 mt-8"> 
           <button
             onClick={() => goToPage(currentPage - 1)}
             disabled={currentPage === 1}

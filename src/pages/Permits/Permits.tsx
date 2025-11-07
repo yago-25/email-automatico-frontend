@@ -24,6 +24,7 @@ import { FaCalendarAlt, FaClock, FaEraser, FaFilter, FaMapMarkerAlt, FaUser, FaW
 import { CiFilter } from "react-icons/ci";
 import useSwr from "swr";
 import Modal from "../../components/Modal/Modal";
+import { MdArrowBackIos, MdArrowForwardIos } from "react-icons/md";
 
 interface Permit {
   id: number;
@@ -57,21 +58,19 @@ const Permits = () => {
   });
   const [searchTerm, setSearchTerm] = useState("");
   const [showModalFilter, setShowModalFilter] = useState(false);
-
-  // Estado para edição
   const [editingPermitId, setEditingPermitId] = useState<number | null>(null);
   const [editedPermit, setEditedPermit] = useState<Permit | null>(null);
-
-  // Filtros
   const [clientFilter, setClientFilter] = useState("");
   const [stateFilter, setStateFilter] = useState("");
   const [dateStart, setDateStart] = useState("");
   const [dateEnd, setDateEnd] = useState("");
   const [overweightFilter, setOverweightFilter] = useState("");
   const [expiredFilter, setExpiredFilter] = useState("");
-
+  const [currentPage, setCurrentPage] = useState(1);
+  const itemsPerPage = 6;
   const storedUser = localStorage.getItem("user");
   const authUser: User | null = storedUser ? JSON.parse(storedUser) : null;
+  
 
   useEffect(() => {
     fetchData();
@@ -82,11 +81,14 @@ const Permits = () => {
     try {
       const token = localStorage.getItem("accessToken");
       const [permRes] = await Promise.all([
-        api.get<Permit[]>("/permits", {
+        api.get("/permits", {
           headers: { Authorization: `Bearer ${token}` },
         }),
       ]);
-      setPermits(permRes.data);
+
+      const sorted = [...permRes.data].sort((a, b) => a.id - b.id);
+
+      setPermits(sorted);
     } catch (err) {
       messageAlert({ type: "error", message: t("permits_page.fetch_error") });
       console.log(err);
@@ -94,6 +96,7 @@ const Permits = () => {
       setLoading(false);
     }
   };
+
 
   const {
     data: clients = [],
@@ -189,6 +192,16 @@ const Permits = () => {
         new Date(b.expiration_date).getTime()
     );
   }, [permits, searchTerm, clientFilter, stateFilter, dateStart, dateEnd, overweightFilter, expiredFilter, clients]);
+
+  const totalPages = Math.ceil(filteredPermits.length / itemsPerPage);
+  const startIndex = (currentPage - 1) * itemsPerPage;
+  const currentPermits = filteredPermits.slice(startIndex, startIndex + itemsPerPage);
+
+  const goToPage = (page: number) => {
+    if (page >= 1 && page <= totalPages) {
+      setCurrentPage(page);
+    }
+  };
 
   const total = permits.length;
   const totalExpired = useMemo(
@@ -314,10 +327,12 @@ const Permits = () => {
     setOverweightFilter("");
     setExpiredFilter("");
     setSearchTerm("");
+    setShowModalFilter(false);
   };
 
   const handleApplyFilters = () => {
     setShowModalFilter(false);
+    setCurrentPage(1);
   };
 
   if (loading || isLoading) {
@@ -413,14 +428,14 @@ const Permits = () => {
           </div>
         </div>
 
-        {filteredPermits.length === 0 ? (
+        {currentPermits.length === 0 ? (
           <div className="permits-empty">
             <ClipboardList />
             {t("permits_page.no_permits")}
           </div>
         ) : (
           <div className="permits-list">
-            {filteredPermits.map((permit) => {
+            {currentPermits.map((permit) => {
               const isEditing = editingPermitId === permit.id;
               const displayPermit = isEditing && editedPermit ? editedPermit : permit;
 
@@ -450,7 +465,9 @@ const Permits = () => {
                             className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
                             value={editedPermit?.client_id || ""}
                             onChange={(e) =>
-                              setEditedPermit(prev => prev ? { ...prev, client_id: Number(e.target.value) } : null)
+                              setEditedPermit(prev =>
+                                prev ? { ...prev, client_id: Number(e.target.value) } : null
+                              )
                             }
                           >
                             <option value="">Select client</option>
@@ -478,7 +495,9 @@ const Permits = () => {
                             className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
                             value={editedPermit?.state || ""}
                             onChange={(e) =>
-                              setEditedPermit(prev => prev ? { ...prev, state: e.target.value.toUpperCase() } : null)
+                              setEditedPermit(prev =>
+                                prev ? { ...prev, state: e.target.value.toUpperCase() } : null
+                              )
                             }
                             maxLength={2}
                           />
@@ -500,7 +519,9 @@ const Permits = () => {
                             className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
                             value={editedPermit?.expiration_date || ""}
                             onChange={(e) =>
-                              setEditedPermit(prev => prev ? { ...prev, expiration_date: e.target.value } : null)
+                              setEditedPermit(prev =>
+                                prev ? { ...prev, expiration_date: e.target.value } : null
+                              )
                             }
                           />
                         ) : (
@@ -530,18 +551,18 @@ const Permits = () => {
                             className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
                             value={editedPermit?.overweight ? "true" : "false"}
                             onChange={(e) =>
-                              setEditedPermit(prev => prev ? { ...prev, overweight: e.target.value === "true" } : null)
+                              setEditedPermit(prev =>
+                                prev ? { ...prev, overweight: e.target.value === "true" } : null
+                              )
                             }
                           >
                             <option value="false">{t("email_preview.no")}</option>
                             <option value="true">{t("email_preview.yes")}</option>
                           </select>
+                        ) : displayPermit.overweight ? (
+                          <span className="badge overweight">{t("email_preview.yes")}</span>
                         ) : (
-                          displayPermit.overweight ? (
-                            <span className="badge overweight">{t("email_preview.yes")}</span>
-                          ) : (
-                            <span className="badge normal">{t("email_preview.no")}</span>
-                          )
+                          <span className="badge normal">{t("email_preview.no")}</span>
                         )}
                       </div>
                     </div>
@@ -555,7 +576,7 @@ const Permits = () => {
                           className="permit-button bg-green-600 hover:bg-green-700"
                         >
                           <Save size={16} />
-                          {t("buttons.save") }
+                          {t("buttons.save")}
                         </button>
                         <button
                           onClick={handleCancelEdit}
@@ -589,6 +610,27 @@ const Permits = () => {
             })}
           </div>
         )}
+
+        <div className="flex justify-center items-center gap-4 mt-8">
+          <button
+            onClick={() => goToPage(currentPage - 1)}
+            disabled={currentPage === 1}
+            className="p-2 bg-[#00448d] text-white rounded-full hover:bg-blue-700 disabled:bg-gray-300 disabled:cursor-not-allowed"
+          >
+            <MdArrowBackIos />
+          </button>
+          <span className="font-medium text-gray-700">
+            {currentPage} {t("clients.of")} {totalPages}
+          </span>
+          <button
+            onClick={() => goToPage(currentPage + 1)}
+            disabled={currentPage === totalPages}
+            className="p-2 bg-[#00448d] text-white rounded-full hover:bg-blue-700 disabled:bg-gray-300 disabled:cursor-not-allowed"
+          >
+            <MdArrowForwardIos />
+          </button>
+        </div>
+
         <DeleteConfirmModal
           isVisible={isDeleteModalOpen}
           onClose={() => setIsDeleteModalOpen(false)}
