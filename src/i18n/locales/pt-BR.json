@@ -769,6 +769,20 @@
     "state_label": "Estado",
     "expiration_label": "Data de Expiração",
     "total_permits": "permits",
-    "no_permits_description": "Este cliente ainda não possui permits cadastrados."
-  }
+    "no_permits_description": "Este cliente ainda não possui permits cadastrados.",
+    "updated": "Permit atualizado com sucesso",
+    "update_error": "Erro ao atualizar permit"
+  },
+    "permits_expiring": {
+      "title": "Permits Perto de Expirar",
+      "client_id": "ID do Cliente",
+      "state": "Estado",
+      "expiration_date": "Data de Expiração",
+      "status": "Status",
+      "near_expiration": "Perto de Expirar",
+      "none": "Nenhum permit perto de expirar",
+      "expired": "Expirado",
+    }
+    
+
 }

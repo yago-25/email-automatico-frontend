@@ -769,6 +769,18 @@
     "state_label": "State",
     "expiration_label": "Expiration Date",
     "total_permits": "permits",
-    "no_permits_description": "This client does not have any registered permits yet."
+    "no_permits_description": "This client does not have any registered permits yet.",
+    "updated": "Permit updated successfully",
+    "update_error": "Error updating permit"
+  },
+  "permits_expiring": {
+    "title": "Permits Near Expiration",
+    "client_id": "Client ID",
+    "state": "State",
+    "expiration_date": "Expiration Date",
+    "status": "Status",
+    "near_expiration": "Near Expiration",
+    "none": "No permits near expiration",
+    "expired": "Expired",
   }
 }

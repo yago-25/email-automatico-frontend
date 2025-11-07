@@ -767,6 +767,18 @@
     "state_label": "Estado",
     "expiration_label": "Fecha de Vencimiento",
     "total_permits": "permisos",
-    "no_permits_description": "Este cliente aún no tiene permisos registrados."
+    "no_permits_description": "Este cliente aún no tiene permisos registrados.",
+    "updated": "Permiso actualizado con éxito",
+    "update_error": "Error al actualizar el permiso"
+  },
+  "permits_expiring": {
+    "title": "Permisos Próximos a Vencer",
+    "client_id": "ID del Cliente",
+    "state": "Estado",
+    "expiration_date": "Fecha de Vencimiento",
+    "status": "Estado",
+    "near_expiration": "Próximo a Vencer",
+    "none": "No permits near expiration",
+    "expired": "Expirado",
   }
 }

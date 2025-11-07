@@ -8,6 +8,7 @@ import { Drawer, List, Card, Spin, Button, Badge } from "antd";
 import { api } from "../../api/api";
 import dayjs from "dayjs";
 import { LoadingOutlined } from "@ant-design/icons";
+import { useTranslation } from "react-i18next";
 
 interface HeaderProps {
   name?: string;
@@ -35,6 +36,7 @@ const Header: React.FC<HeaderProps> = ({ name, url }) => {
   const [notificationCount, setNotificationCount] = useState(0);
   const navigate = useNavigate();
   const location = useLocation();
+  const { t } = useTranslation();
 
   const { data } = useSwr<User>(authUser ? `usersTable/${authUser.id}` : "");
 
@@ -103,7 +105,7 @@ const Header: React.FC<HeaderProps> = ({ name, url }) => {
           ))}
 
         <Drawer
-          title="Permits Perto de Expirar"
+          title={t("permits_expiring.title")}
           closable
           onClose={onClose}
           open={open}
@@ -111,7 +113,7 @@ const Header: React.FC<HeaderProps> = ({ name, url }) => {
           footer={
             <div style={{ textAlign: "center" }}>
               <Button onClick={onClose} type="primary" block>
-                Fechar
+                {t("modal.close")}
               </Button>
             </div>
           }
@@ -139,22 +141,25 @@ const Header: React.FC<HeaderProps> = ({ name, url }) => {
                         }}
                       >
                         <h4 style={{ fontSize: "16px", fontWeight: "600" }}>
-                          Client ID: {permit.client_id}
+                          {t("permits_expiring.client_id")}: {permit.client_id}
                         </h4>
                         <p>
-                          <strong>Estado:</strong> {permit.state}
+                          <strong>{t("permits_expiring.state")}:</strong> {permit.state}
                         </p>
                         <p>
-                          <strong>Data de Expiração:</strong>{" "}
+                          <strong>{t("permits_expiring.expiration_date")}:</strong>{" "}
                           {formatExpirationDate(permit.expiration_date)}
                         </p>
                         <p>
-                          <strong>Status:</strong>{" "}
+                          <strong>{t("permits_expiring.status")}:</strong>{" "}
                           {dayjs(permit.expiration_date).isBefore(dayjs()) ? (
-                            <span style={{ color: "red" }}>Expirado</span>
+                            <span style={{ color: "red" }}>
+                              {t("permits_expiring.expired")}
+                            </span>
+
                           ) : (
                             <span style={{ color: "orange" }}>
-                              Perto de Expirar
+                              {t("permits_expiring.near_expiration")}
                             </span>
                           )}
                         </p>
@@ -164,7 +169,7 @@ const Header: React.FC<HeaderProps> = ({ name, url }) => {
                 />
               ) : (
                 <p style={{ textAlign: "center" }}>
-                  Nenhum permit perto de expirar.
+                  {t("permits_expiring.none")}
                 </p>
               )}
             </>
@@ -180,8 +185,7 @@ const Header: React.FC<HeaderProps> = ({ name, url }) => {
             src={
               url ||
               data?.url ||
-              `https://ui-avatars.com/api/?name=${
-                data?.nome_completo || data?.nome_usuario || "Usuário"
+              `https://ui-avatars.com/api/?name=${data?.nome_completo || data?.nome_usuario || "Usuário"
               }&background=0D8ABC&color=fff&size=128&rounded=true`
             }
             alt="Avatar"

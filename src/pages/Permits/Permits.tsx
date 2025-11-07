@@ -260,7 +260,6 @@ const Permits = () => {
     setIsDeleteModalOpen(true);
   };
 
-  // Funções de edição
   const handleEditClick = (permit: Permit) => {
     setEditingPermitId(permit.id);
     setEditedPermit({ ...permit });
@@ -291,12 +290,12 @@ const Permits = () => {
       }, {
         headers: { Authorization: `Bearer ${token}` },
       });
-      messageAlert({ type: "success", message: t("permits_page.updated") || "Permit updated successfully" });
+      messageAlert({ type: "success", message: t("permits_page.updated") });
       setEditingPermitId(null);
       setEditedPermit(null);
       fetchData();
     } catch (err) {
-      messageAlert({ type: "error", message: t("permits_page.update_error") || "Error updating permit" });
+      messageAlert({ type: "error", message: t("permits_page.update_error") });
       console.log(err);
     } finally {
       setLoading(false);
