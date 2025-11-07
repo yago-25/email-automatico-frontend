@@ -556,7 +556,7 @@ const Permits = () => {
                           className="permit-button bg-green-600 hover:bg-green-700"
                         >
                           <Save size={16} />
-                          {t("permits_page.save") || "Save"}
+                          {t("buttons.save") }
                         </button>
                         <button
                           onClick={handleCancelEdit}
@@ -573,7 +573,7 @@ const Permits = () => {
                           className="permit-button edit"
                         >
                           <Edit size={16} />
-                          {t("permits_page.edit")}
+                          {t("buttons.edit")}
                         </button>
                         <button
                           onClick={() => openDeleteModal(permit.id)}

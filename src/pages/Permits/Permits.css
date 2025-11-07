@@ -282,13 +282,13 @@
 }
 
 .permit-button.edit {
-  background-color: #cabd07;
+  background-color: #1e3be0;
   padding: 0.6rem 1rem;
   font-size: 0.9rem;
 }
 
 .permit-button.edit:hover {
-  background-color: #dbd81e;
+  background-color: #2f3ba5;
   transform: translateY(-1px);
   box-shadow: 0 4px 12px rgba(231, 76, 60, 0.3);
 }
