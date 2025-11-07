@@ -1,4 +1,3 @@
-/* eslint-disable @typescript-eslint/no-unused-vars */
 /* eslint-disable @typescript-eslint/no-explicit-any */
 import { ChangeEvent, useEffect, useMemo, useRef, useState } from "react";
 import Header from "../../components/Header/Header";
@@ -15,6 +14,7 @@ import {
   FaTrash,
   FaFileAlt,
   FaSave,
+  FaEye,
 } from "react-icons/fa";
 import { useLocation } from "react-router-dom";
 import Input from "../../components/Input/Input";
@@ -75,6 +75,7 @@ interface Ticket {
   observation?: string;
   histories?: TicketHistory[];
   deleted_at?: string | null;
+  file_url?: string;
 }
 
 interface Option {
@@ -200,6 +201,7 @@ const Ticket = () => {
   const [isDeleteModalVisible, setIsDeleteModalVisible] = useState(false);
 
   const [selectedTicket, setSelectedTicket] = useState<Ticket | null>(null);
+  console.log(selectedTicket, "selectedTicket");
   const [editingTicket, setEditingTicket] = useState<Ticket | null>(null);
   const [ticketToDelete, setTicketToDelete] = useState<number | null>(null);
   const [history, setHistory] = useState<TicketHistory[]>([]);
@@ -238,7 +240,9 @@ const Ticket = () => {
   const [isDeleting, setIsDeleting] = useState(false);
 
   const [selectedFile, setSelectedFile] = useState<File | null>(null);
-  const [uploadedFileUrl, setUploadedFileUrl] = useState<string>("");
+  const [loadingSaveBoleto, setLoadingSaveBoleto] = useState(false);
+  const [loadingSendBoleto, setLoadingSendBoleto] = useState(false);
+  const [loadingRemoveBoleto, setLoadingRemoveBoleto] = useState(false);
 
   const { data: rawClients = [], isLoading: loadingClients } = useSwr<
     Clients[]
@@ -872,6 +876,7 @@ const Ticket = () => {
       return;
     }
 
+    setLoadingSaveBoleto(true);
     const formData = new FormData();
     formData.append("file", selectedFile);
 
@@ -887,8 +892,19 @@ const Ticket = () => {
         }
       );
 
-      if (response.data.status === "success") {
-        setUploadedFileUrl(response.data.file_url);
+      if (response.data.file_url) {
+        setSelectedTicket({
+          ...ticket,
+          file_url: response.data.file_url,
+        });
+
+        setSelectedFile(null);
+        if (fileInputRef.current) {
+          fileInputRef.current.value = "";
+        }
+
+        mutate();
+
         messageAlert({
           type: "success",
           message: "Boleto salvo com sucesso!",
@@ -899,17 +915,19 @@ const Ticket = () => {
           message: response.data.message || "Erro ao salvar boleto",
         });
       }
-    } catch (error) {
+    } catch (error: any) {
       messageAlert({
         type: "error",
-        message: "Erro de comunicação com o servidor",
+        message: error?.response?.data?.error || "Erro ao salvar boleto",
       });
       console.error("Erro ao enviar arquivo:", error);
+    } finally {
+      setLoadingSaveBoleto(false);
     }
   };
 
-  const handleSendBoleto = async () => {
-    if (!uploadedFileUrl && !selectedFile) {
+  const handleSendBoleto = async (ticket: Ticket) => {
+    if (!ticket.file_url) {
       messageAlert({
         type: "error",
         message: "Nenhum boleto para enviar. Salve o boleto primeiro.",
@@ -917,7 +935,12 @@ const Ticket = () => {
       return;
     }
 
+    setLoadingSendBoleto(true);
+
     try {
+      // Aqui você pode adicionar a lógica de envio do boleto
+      // Por exemplo, enviar por email, WhatsApp, etc.
+
       messageAlert({
         type: "success",
         message: "Boleto enviado com sucesso!",
@@ -928,6 +951,47 @@ const Ticket = () => {
         message: "Erro ao enviar boleto",
       });
       console.error("Erro ao enviar boleto:", error);
+    } finally {
+      setLoadingSendBoleto(false);
+    }
+  };
+
+  const handleRemoveBoleto = async (ticketId: number) => {
+    if (!selectedTicket) return;
+
+    setLoadingRemoveBoleto(true);
+
+    try {
+      await api.delete(`/tickets/${ticketId}/file`, {
+        headers: {
+          Authorization: `Bearer ${localStorage.getItem("accessToken")}`,
+        },
+      });
+
+      setSelectedTicket({
+        ...selectedTicket,
+        file_url: "",
+      });
+
+      setSelectedFile(null);
+      if (fileInputRef.current) {
+        fileInputRef.current.value = "";
+      }
+
+      mutate();
+
+      messageAlert({
+        type: "success",
+        message: "Arquivo removido com sucesso!",
+      });
+    } catch (e: any) {
+      console.error("Erro ao remover arquivo:", e);
+      messageAlert({
+        type: "error",
+        message: e?.response?.data?.error || "Erro ao remover arquivo",
+      });
+    } finally {
+      setLoadingRemoveBoleto(false);
     }
   };
 
@@ -1653,65 +1717,160 @@ const Ticket = () => {
                     <FaFileAlt /> Enviar Boleto
                   </h3>
 
-                  <label
-                    onClick={handleFileClick}
-                    className="flex flex-col items-center justify-center w-full h-32 border-2 border-dashed border-gray-300 rounded-lg cursor-pointer bg-gray-50 hover:bg-gray-100 transition-colors"
-                  >
-                    <div className="flex flex-col items-center justify-center pt-5 pb-6">
-                      <svg
-                        className="w-10 h-10 mb-3 text-gray-400"
-                        fill="none"
-                        stroke="currentColor"
-                        viewBox="0 0 24 24"
+                  {selectedTicket.file_url ? (
+                    <div className="space-y-3">
+                      <div className="p-4 bg-blue-50 border border-blue-200 rounded-lg">
+                        <div className="flex items-center justify-between">
+                          <div className="flex items-center gap-3">
+                            <FaFileAlt className="w-6 h-6 text-blue-600" />
+                            <div>
+                              <p className="text-sm font-semibold text-blue-900">
+                                Boleto salvo
+                              </p>
+                              <p className="text-xs text-blue-600 break-all">
+                                {selectedTicket.file_url
+                                  .split("/")
+                                  .pop()
+                                  ?.replace(/_\d+\./, ".")}
+                              </p>
+                            </div>
+                          </div>
+                          <div className="flex gap-2">
+                            <a
+                              href={selectedTicket.file_url}
+                              target="_blank"
+                              rel="noopener noreferrer"
+                              className="px-3 py-2 bg-blue-600 text-white text-xs rounded-lg hover:bg-blue-700 transition flex items-center gap-1"
+                            >
+                              <FaEye className="w-3 h-3" />
+                              Ver
+                            </a>
+                            <button
+                              onClick={() =>
+                                handleRemoveBoleto(selectedTicket.id)
+                              }
+                              disabled={loadingRemoveBoleto}
+                              className="px-3 py-2 bg-red-600 text-white text-xs rounded-lg hover:bg-red-700 transition flex items-center gap-1 disabled:opacity-50 disabled:cursor-not-allowed"
+                            >
+                              {loadingRemoveBoleto ? (
+                                <Spin />
+                              ) : (
+                                <>
+                                  <FiTrash2 className="w-3 h-3" />
+                                  Remover
+                                </>
+                              )}
+                            </button>
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+                  ) : (
+                    <>
+                      <label
+                        onClick={handleFileClick}
+                        className="flex flex-col items-center justify-center w-full h-32 border-2 border-dashed border-gray-300 rounded-lg cursor-pointer bg-gray-50 hover:bg-gray-100 transition-colors"
                       >
-                        <path
-                          strokeLinecap="round"
-                          strokeLinejoin="round"
-                          strokeWidth={2}
-                          d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M15 13l-3-3m0 0l-3 3m3-3v12"
+                        <div className="flex flex-col items-center justify-center pt-5 pb-6">
+                          <svg
+                            className="w-10 h-10 mb-3 text-gray-400"
+                            fill="none"
+                            stroke="currentColor"
+                            viewBox="0 0 24 24"
+                          >
+                            <path
+                              strokeLinecap="round"
+                              strokeLinejoin="round"
+                              strokeWidth={2}
+                              d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M15 13l-3-3m0 0l-3 3m3-3v12"
+                            />
+                          </svg>
+                          <p className="mb-2 text-sm text-gray-500">
+                            <span className="font-semibold">
+                              Clique para enviar
+                            </span>{" "}
+                            ou arraste o arquivo
+                          </p>
+                          <p className="text-xs text-gray-400">
+                            PDF, PNG ou JPG (MAX. 5MB)
+                          </p>
+                        </div>
+                        <input
+                          ref={fileInputRef}
+                          type="file"
+                          className="hidden"
+                          accept=".pdf,.png,.jpg,.jpeg"
+                          onChange={handleFileSelect}
                         />
-                      </svg>
-                      <p className="mb-2 text-sm text-gray-500">
-                        <span className="font-semibold">
-                          Clique para enviar
-                        </span>{" "}
-                        ou arraste o arquivo
-                      </p>
-                      <p className="text-xs text-gray-400">
-                        PDF, PNG ou JPG (MAX. 5MB)
-                      </p>
-                    </div>
-                    <input
-                      ref={fileInputRef}
-                      type="file"
-                      className="hidden"
-                      accept=".pdf"
-                      onChange={handleFileSelect}
-                    />
-                  </label>
+                      </label>
 
-                  {selectedFile && (
-                    <div className="mt-2 p-3 bg-green-50 border border-green-200 rounded-lg">
-                      <p className="text-sm text-green-700 flex items-center gap-2">
-                        <FaFileAlt className="w-4 h-4" />
-                        <strong>Arquivo selecionado:</strong>{" "}
-                        {selectedFile.name}
-                      </p>
-                    </div>
+                      {selectedFile && (
+                        <div className="mt-2 p-3 bg-green-50 border border-green-200 rounded-lg">
+                          <div className="flex items-center justify-between">
+                            <div className="flex items-center gap-2">
+                              <FaFileAlt className="w-4 h-4 text-green-700" />
+                              <div>
+                                <p className="text-sm font-semibold text-green-700">
+                                  Arquivo selecionado
+                                </p>
+                                <p className="text-xs text-green-600">
+                                  {selectedFile.name}
+                                </p>
+                              </div>
+                            </div>
+                            <button
+                              onClick={() => {
+                                setSelectedFile(null);
+                                if (fileInputRef.current) {
+                                  fileInputRef.current.value = "";
+                                }
+                              }}
+                              className="text-green-700 hover:text-green-900"
+                            >
+                              <FiTrash2 className="w-4 h-4" />
+                            </button>
+                          </div>
+                        </div>
+                      )}
+                    </>
                   )}
 
-                  <div className="flex items-center justify-center w-full gap-5">
+                  <div className="flex items-center justify-center w-full gap-3">
+                    {!selectedTicket.file_url && (
+                      <button
+                        onClick={() => handleSaveBoleto(selectedTicket)}
+                        disabled={!selectedFile || loadingSaveBoleto}
+                        className="w-full flex items-center justify-center gap-2 bg-green-600 text-white px-5 py-3 rounded-xl shadow-md hover:bg-green-700 transition disabled:opacity-50 disabled:cursor-not-allowed"
+                      >
+                        {loadingSaveBoleto ? (
+                          <>
+                            <Spin />
+                            Salvando...
+                          </>
+                        ) : (
+                          <>
+                            Salvar Boleto
+                            <FaSave className="w-4 h-4" />
+                          </>
+                        )}
+                      </button>
+                    )}
                     <button
-                      onClick={() => handleSaveBoleto(selectedTicket)}
-                      disabled={!selectedFile}
-                      className=" w-full flex items-center justify-center gap-2 bg-white border-red-600 border-[1px] text-red-600 px-5 py-3 rounded-xl shadow-md hover:bg-gray-100 transition"
+                      onClick={() => handleSendBoleto(selectedTicket)}
+                      disabled={!selectedTicket.file_url || loadingSendBoleto}
+                      className="w-full flex items-center justify-center gap-2 bg-red-600 text-white px-5 py-3 rounded-xl shadow-md hover:bg-red-700 transition disabled:opacity-50 disabled:cursor-not-allowed"
                     >
-                      Salvar Boleto
-                      <FaSave className="w-4 h-4 text-red" />
-                    </button>
-                    <button className="w-full flex items-center justify-center gap-2 bg-red-600 text-white px-5 py-3 rounded-xl shadow-md hover:bg-red-700 transition">
-                      Enviar Boleto
-                      <IoSend className="w-4 h-4 text-white" />
+                      {loadingSendBoleto ? (
+                        <>
+                          <Spin />
+                          Enviando...
+                        </>
+                      ) : (
+                        <>
+                          Enviar Boleto
+                          <IoSend className="w-4 h-4" />
+                        </>
+                      )}
                     </button>
                   </div>
                 </div>

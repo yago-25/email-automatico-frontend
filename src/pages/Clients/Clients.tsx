@@ -390,6 +390,7 @@ const Clients = () => {
         type: "error",
         message: t("clients.create_error"),
       });
+      console.log("Erro: ", e);
     } finally {
       setLoadingPost(false);
     }
@@ -497,6 +498,7 @@ const Clients = () => {
         type: "error",
         message: t("alerts.client_status_update_error"),
       });
+      console.log("Erro: ", e);
     } finally {
       setLoadingChangeStatus(false);
     }
