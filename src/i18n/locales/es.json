@@ -779,6 +779,6 @@
     "status": "Estado",
     "near_expiration": "Próximo a Vencer",
     "none": "No permits near expiration",
-    "expired": "Expirado",
+    "expired": "Expirado"
   }
 }

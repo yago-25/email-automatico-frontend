@@ -781,6 +781,6 @@
     "status": "Status",
     "near_expiration": "Near Expiration",
     "none": "No permits near expiration",
-    "expired": "Expired",
+    "expired": "Expired"
   }
 }
