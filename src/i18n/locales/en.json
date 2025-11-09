@@ -782,5 +782,19 @@
     "near_expiration": "Near Expiration",
     "none": "No permits near expiration",
     "expired": "Expired"
+  },
+  "send_invoice": {
+    "title": "Send Invoice",
+    "saved": "Invoice saved",
+    "view": "View",
+    "remove": "Remove",
+    "file_hint": "PDF, PNG or JPG (MAX. 5MB)",
+    "file_selected": "File selected",
+    "saving": "Saving...",
+    "save": "Save Invoice",
+    "sending": "Sending...",
+    "send": "Send Invoice",
+    "click_to_send": "Click to send",
+    "or_drag_file": "or drag the file"
   }
 }

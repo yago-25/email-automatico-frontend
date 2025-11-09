@@ -782,7 +782,19 @@
       "near_expiration": "Perto de Expirar",
       "none": "Nenhum permit perto de expirar",
       "expired": "Expirado"
-    }
-    
-
+    },
+    "send_invoice": {
+    "title": "Enviar Boleto",
+    "saved": "Boleto salvo",
+    "view": "Ver",
+    "remove": "Remover",
+    "file_hint": "PDF, PNG ou JPG (MAX. 5MB)",
+    "file_selected": "Arquivo selecionado",
+    "saving": "Salvando...",
+    "save": "Salvar Boleto",
+    "sending": "Enviando...",
+    "send": "Enviar Boleto",
+    "click_to_send": "Clique para enviar",
+    "or_drag_file": "ou arraste o arquivo"
+  }
 }

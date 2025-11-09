@@ -780,5 +780,19 @@
     "near_expiration": "Próximo a Vencer",
     "none": "No permits near expiration",
     "expired": "Expirado"
+  },
+  "send_invoice": {
+    "title": "Enviar Factura",
+    "saved": "Factura guardada",
+    "view": "Ver",
+    "remove": "Eliminar",
+    "file_hint": "PDF, PNG o JPG (MÁX. 5MB)",
+    "file_selected": "Archivo seleccionado",
+    "saving": "Guardando...",
+    "save": "Guardar Factura",
+    "sending": "Enviando...",
+    "send": "Enviar Factura",
+    "click_to_send": "Haz clic para enviar",
+    "or_drag_file": "o arrastra el archivo"
   }
 }

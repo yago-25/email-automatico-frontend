@@ -118,16 +118,14 @@ export const Button: React.FC<ButtonProps> = ({ text, onClick, disabled }) => {
           onClick?.(e);
         }
       }}
-      className={`w-44 h-12 text-white rounded-lg transition-all ease-in-out ${
-        disabled
-          ? "bg-blue-400 cursor-not-allowed opacity-50"
-          : "bg-blue-600 hover:bg-blue-700 hover:shadow-lg cursor-pointer active:w-11 active:h-11 active:rounded-full active:duration-300"
-      } group`}
+      className={`w-44 h-12 text-white rounded-lg transition-all ease-in-out ${disabled
+        ? "bg-blue-400 cursor-not-allowed opacity-50"
+        : "bg-blue-600 hover:bg-blue-700 hover:shadow-lg cursor-pointer active:w-11 active:h-11 active:rounded-full active:duration-300"
+        } group`}
     >
       <svg
-        className={`animate-spin mx-auto ${
-          disabled ? "hidden" : "group-active:block hidden"
-        }`}
+        className={`animate-spin mx-auto ${disabled ? "hidden" : "group-active:block hidden"
+          }`}
         width="33"
         height="32"
         viewBox="0 0 33 32"
@@ -335,22 +333,22 @@ const Ticket = () => {
       const matchesTag = filterTag
         ? Array.isArray(ticket.tags)
           ? ticket.tags.some((tag) =>
-              tag.toLowerCase().includes(filterTag.toLowerCase())
-            )
+            tag.toLowerCase().includes(filterTag.toLowerCase())
+          )
           : ticket.tags?.toLowerCase().includes(filterTag.toLowerCase())
         : true;
 
       const matchesType = filterType
         ? Array.isArray(ticket.type)
           ? ticket.type.some((type) =>
-              type.toLowerCase().includes(filterType.toLowerCase())
-            )
+            type.toLowerCase().includes(filterType.toLowerCase())
+          )
           : ticket.type?.toLowerCase().includes(filterType.toLowerCase())
         : true;
 
       const matchesDate = filterDate
         ? new Date(ticket.created_at).toLocaleDateString() ===
-          new Date(filterDate).toLocaleDateString()
+        new Date(filterDate).toLocaleDateString()
         : true;
 
       const matchesTicket = filterTicket
@@ -1089,11 +1087,10 @@ const Ticket = () => {
         <button
           onClick={() => setShowOnlyDeleted((prev) => !prev)}
           className={`flex items-center justify-center gap-2 min-w-[150px] px-4 py-2.5 text-white font-medium rounded-lg shadow-md hover:shadow-lg transition-all duration-200
-          ${
-            showOnlyDeleted
+          ${showOnlyDeleted
               ? "bg-green-600 hover:bg-green-700"
               : "bg-red-600 hover:bg-red-700"
-          }`}
+            }`}
         >
           <FaTrash size={20} />
           {showOnlyDeleted
@@ -1198,16 +1195,15 @@ const Ticket = () => {
                   <div
                     className={`
                       px-4 py-2 rounded-xl flex items-center gap-2 w-full justify-center
-                      ${
-                        ticket.status === "Não iniciada"
-                          ? "bg-gray-100 text-gray-600"
-                          : ticket.status === "Esperando"
+                      ${ticket.status === "Não iniciada"
+                        ? "bg-gray-100 text-gray-600"
+                        : ticket.status === "Esperando"
                           ? "bg-yellow-100 text-yellow-600"
                           : ticket.status === "Em progresso"
-                          ? "bg-blue-100 text-blue-600"
-                          : ticket.status === "Completo"
-                          ? "bg-green-100 text-green-600"
-                          : "bg-red-100 text-red-600"
+                            ? "bg-blue-100 text-blue-600"
+                            : ticket.status === "Completo"
+                              ? "bg-green-100 text-green-600"
+                              : "bg-red-100 text-red-600"
                       } 
                       group-hover:bg-opacity-20 transition-all duration-300
                     `}
@@ -1216,7 +1212,7 @@ const Ticket = () => {
                     <span className="text-sm font-medium">
                       {t(
                         statusTranslations[
-                          ticket.status as keyof typeof statusTranslations
+                        ticket.status as keyof typeof statusTranslations
                         ]
                       )}
                     </span>
@@ -1449,11 +1445,10 @@ const Ticket = () => {
                     setIsDeleteModalVisible(true);
                   }
                 }}
-                className={`flex items-center gap-1.5 px-2.5 py-1 text-xs font-medium rounded-lg transition-all duration-200 shadow-sm hover:shadow-md ${
-                  selectedTicket.deleted_at
-                    ? "bg-green-500 hover:bg-green-600 text-white"
-                    : "bg-red-500 hover:bg-red-600 text-white"
-                }`}
+                className={`flex items-center gap-1.5 px-2.5 py-1 text-xs font-medium rounded-lg transition-all duration-200 shadow-sm hover:shadow-md ${selectedTicket.deleted_at
+                  ? "bg-green-500 hover:bg-green-600 text-white"
+                  : "bg-red-500 hover:bg-red-600 text-white"
+                  }`}
               >
                 {selectedTicket.deleted_at ? (
                   <>
@@ -1470,9 +1465,8 @@ const Ticket = () => {
 
               {selectedTicket?.deleted_at && daysLeft !== null && (
                 <p
-                  className={`mt-1 text-sm ${
-                    daysLeft <= 5 ? "text-red-600" : "text-gray-500"
-                  }`}
+                  className={`mt-1 text-sm ${daysLeft <= 5 ? "text-red-600" : "text-gray-500"
+                    }`}
                 >
                   {t("messages.expiresInDays", { days: daysLeft })}
                 </p>
@@ -1692,7 +1686,7 @@ const Ticket = () => {
                   )}
                 </div>
 
-                <div className="bg-white p-4 rounded-xl shadow-md">
+                <div className="bg-white p-4 rounded-xl shadow-md"> 
                   <h3 className="text-lg font-semibold flex items-center gap-2 text-yellow-600">
                     <FaRegStickyNote /> {t("ticket.notes_title")}
                   </h3>
@@ -1715,7 +1709,7 @@ const Ticket = () => {
 
                 <div className="bg-white p-4 rounded-xl shadow-md flex flex-col w-full gap-3">
                   <h3 className="text-lg font-semibold flex items-center gap-2 text-red-600 mb-4">
-                    <FaFileAlt /> Enviar Boleto
+                    <FaFileAlt /> {t("send_invoice.title")}
                   </h3>
 
                   {selectedTicket.file_url ? (
@@ -1726,7 +1720,7 @@ const Ticket = () => {
                             <FaFileAlt className="w-6 h-6 text-blue-600" />
                             <div>
                               <p className="text-sm font-semibold text-blue-900">
-                                Boleto salvo
+                                {t("send_invoice.saved")}
                               </p>
                               <p className="text-xs text-blue-600 break-all">
                                 {selectedTicket.file_url
@@ -1743,8 +1737,7 @@ const Ticket = () => {
                               rel="noopener noreferrer"
                               className="px-3 py-2 bg-blue-600 text-white text-xs rounded-lg hover:bg-blue-700 transition flex items-center gap-1"
                             >
-                              <FaEye className="w-3 h-3" />
-                              Ver
+                              <FaEye className="w-3 h-3" /> {t("send_invoice.view")}
                             </a>
                             <button
                               onClick={() =>
@@ -1757,8 +1750,7 @@ const Ticket = () => {
                                 <Spin />
                               ) : (
                                 <>
-                                  <FiTrash2 className="w-3 h-3" />
-                                  Remover
+                                  <FiTrash2 className="w-3 h-3" /> {t("send_invoice.remove")}
                                 </>
                               )}
                             </button>
@@ -1787,13 +1779,11 @@ const Ticket = () => {
                             />
                           </svg>
                           <p className="mb-2 text-sm text-gray-500">
-                            <span className="font-semibold">
-                              Clique para enviar
-                            </span>{" "}
-                            ou arraste o arquivo
+                            <span className="font-semibold">{t("send_invoice.click_to_send")}</span>{" "}
+                            {t("send_invoice.or_drag_file")}
                           </p>
                           <p className="text-xs text-gray-400">
-                            PDF, PNG ou JPG (MAX. 5MB)
+                            {t("send_invoice.file_hint")}
                           </p>
                         </div>
                         <input
@@ -1812,7 +1802,7 @@ const Ticket = () => {
                               <FaFileAlt className="w-4 h-4 text-green-700" />
                               <div>
                                 <p className="text-sm font-semibold text-green-700">
-                                  Arquivo selecionado
+                                  {t("send_invoice.file_selected")}
                                 </p>
                                 <p className="text-xs text-green-600">
                                   {selectedFile.name}
@@ -1846,11 +1836,11 @@ const Ticket = () => {
                         {loadingSaveBoleto ? (
                           <>
                             <Spin />
-                            Salvando...
+                            {t("send_invoice.saving")}
                           </>
                         ) : (
                           <>
-                            Salvar Boleto
+                            {t("send_invoice.save")}
                             <FaSave className="w-4 h-4" />
                           </>
                         )}
@@ -1864,11 +1854,11 @@ const Ticket = () => {
                       {loadingSendBoleto ? (
                         <>
                           <Spin />
-                          Enviando...
+                          {t("send_invoice.sending")}
                         </>
                       ) : (
                         <>
-                          Enviar Boleto
+                          {t("send_invoice.send")}
                           <IoSend className="w-4 h-4" />
                         </>
                       )}
