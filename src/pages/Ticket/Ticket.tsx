@@ -925,34 +925,71 @@ const Ticket = () => {
   };
 
   const handleSendBoleto = async (ticket: Ticket) => {
-    if (!ticket.file_url) {
-      messageAlert({
-        type: "error",
-        message: "Nenhum boleto para enviar. Salve o boleto primeiro.",
-      });
-      return;
-    }
+  if (!ticket.file_url) {
+    messageAlert({
+      type: "error",
+      message: "Nenhum boleto para enviar. Salve o boleto primeiro.",
+    });
+    return;
+  }
 
-    setLoadingSendBoleto(true);
+  setLoadingSendBoleto(true);
 
-    try {
-      // Aqui você pode adicionar a lógica de envio do boleto
-      // Por exemplo, enviar por email, WhatsApp, etc.
+  try {
+    const token = localStorage.getItem("accessToken");
+    if (!token) throw new Error("Token de autenticação não encontrado.");
 
+    console.log("🔹 Token carregado:", token);
+    console.log("🔹 Ticket recebido:", ticket);
+
+    const payload = {
+      subject: "Boleto do seu atendimento",
+      body: "Segue o boleto referente ao seu atendimento.",
+      client_id: Number(ticket.client?.id ?? ticket.client),
+      attachments: [
+        {
+          name: ticket.file_url.split("/").pop() || "boleto.pdf",
+          url: encodeURI(ticket.file_url),
+        },
+      ],
+    };
+
+    console.log("📦 Payload a ser enviado:", payload);
+
+    const { data } = await api.post("/enviar-email", payload, {
+      headers: {
+        Authorization: `Bearer ${token}`,
+        "Content-Type": "application/json",
+      },
+    });
+
+    console.log("✅ Resposta da API:", data);
+
+    if (data.success) {
       messageAlert({
         type: "success",
         message: "Boleto enviado com sucesso!",
       });
-    } catch (error) {
+    } else {
+      console.error("❌ Erro retornado pela API:", data);
       messageAlert({
         type: "error",
-        message: "Erro ao enviar boleto",
+        message: data?.error || "Erro ao enviar boleto.",
       });
-      console.error("Erro ao enviar boleto:", error);
-    } finally {
-      setLoadingSendBoleto(false);
     }
-  };
+  } catch (error) {
+    console.error("💥 Erro ao enviar boleto:", error);
+    messageAlert({
+      type: "error",
+      message: "Erro ao enviar boleto.",
+    });
+  } finally {
+    console.log("🔄 Finalizando envio de boleto...");
+    setLoadingSendBoleto(false);
+  }
+};
+
+
 
   const handleRemoveBoleto = async (ticketId: number) => {
     if (!selectedTicket) return;
@@ -1686,7 +1723,7 @@ const Ticket = () => {
                   )}
                 </div>
 
-                <div className="bg-white p-4 rounded-xl shadow-md"> 
+                <div className="bg-white p-4 rounded-xl shadow-md">
                   <h3 className="text-lg font-semibold flex items-center gap-2 text-yellow-600">
                     <FaRegStickyNote /> {t("ticket.notes_title")}
                   </h3>
