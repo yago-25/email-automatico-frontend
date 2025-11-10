@@ -989,8 +989,6 @@ const Ticket = () => {
   }
 };
 
-
-
   const handleRemoveBoleto = async (ticketId: number) => {
     if (!selectedTicket) return;
 
