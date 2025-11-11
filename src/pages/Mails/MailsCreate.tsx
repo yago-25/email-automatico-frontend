@@ -134,8 +134,6 @@ const MailsCreate = () => {
     e.preventDefault();
   };
 
-
-
   const handleRemoveAttachment = (index: number) => {
     const updated = attachments.filter((_, i) => i !== index);
     setAttachments(updated);

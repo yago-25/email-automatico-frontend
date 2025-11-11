@@ -1,26 +1,39 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
-import { useEffect, useMemo, useState } from "react";
+import { ChangeEvent, useEffect, useMemo, useRef, useState } from "react";
 import Header from "../../components/Header/Header";
-import Modal from "../../components/Modal/Modal";
+import Modal from "../../components/Modal/ModalTicket";
 import { User } from "../../models/User";
 import { api } from "../../api/api";
 import { messageAlert } from "../../utils/messageAlert";
 import Spin from "../../components/Spin/Spin";
 import useSwr from "swr";
-import { FaFilter, FaEraser, FaTicketAlt, FaTrash } from "react-icons/fa";
+import {
+  FaFilter,
+  FaEraser,
+  FaTicketAlt,
+  FaTrash,
+  FaFileAlt,
+  FaSave,
+  FaEye,
+} from "react-icons/fa";
 import { useLocation } from "react-router-dom";
 import Input from "../../components/Input/Input";
 import Select from "../../components/Select/Select";
 // import { useSwre } from "../../api/useSwr";
 // import TagInput from "../../components/TagInput/TagInput";
 import { useTranslation } from "react-i18next";
-import { IoTicketOutline, IoPersonSharp } from "react-icons/io5";
+import { IoTicketOutline, IoPersonSharp, IoSend } from "react-icons/io5";
 import { AlertCircle } from "lucide-react";
 import { motion } from "framer-motion";
-import { MdCheckCircle, MdEdit, MdSave, MdCancel, MdRestore } from "react-icons/md";
+import {
+  MdCheckCircle,
+  MdEdit,
+  MdSave,
+  MdCancel,
+  MdRestore,
+} from "react-icons/md";
 import { FiTrash2 } from "react-icons/fi";
-import { differenceInDays } from 'date-fns';
-import dayjs from "dayjs";
+import { differenceInDays } from "date-fns";
 import DeleteConfirmModal from "../../components/DeleteConfirm/DeleteConfirmModal";
 
 import {
@@ -59,9 +72,11 @@ interface Ticket {
   create: User;
   message: string;
   created_at: string;
+  paid: boolean;
   observation?: string;
   histories?: TicketHistory[];
   deleted_at?: string | null;
+  file_url?: string;
 }
 
 interface Option {
@@ -104,14 +119,16 @@ export const Button: React.FC<ButtonProps> = ({ text, onClick, disabled }) => {
           onClick?.(e);
         }
       }}
-      className={`w-44 h-12 text-white rounded-lg transition-all ease-in-out ${disabled
-        ? "bg-blue-400 cursor-not-allowed opacity-50"
-        : "bg-blue-600 hover:bg-blue-700 hover:shadow-lg cursor-pointer active:w-11 active:h-11 active:rounded-full active:duration-300"
-        } group`}
+      className={`w-44 h-12 text-white rounded-lg transition-all ease-in-out ${
+        disabled
+          ? "bg-blue-400 cursor-not-allowed opacity-50"
+          : "bg-blue-600 hover:bg-blue-700 hover:shadow-lg cursor-pointer active:w-11 active:h-11 active:rounded-full active:duration-300"
+      } group`}
     >
       <svg
-        className={`animate-spin mx-auto ${disabled ? "hidden" : "group-active:block hidden"
-          }`}
+        className={`animate-spin mx-auto ${
+          disabled ? "hidden" : "group-active:block hidden"
+        }`}
         width="33"
         height="32"
         viewBox="0 0 33 32"
@@ -127,44 +144,78 @@ export const Button: React.FC<ButtonProps> = ({ text, onClick, disabled }) => {
 
 const Ticket = () => {
   const location = useLocation();
-  const [clientFromState, setClientFromState] = useState<Clients | undefined>(location.state?.ticket);
-  const id = clientFromState?.id;
+  const { t } = useTranslation();
+
+  const fileInputRef = useRef<HTMLInputElement | null>(null);
 
   const user = JSON.parse(localStorage.getItem("user") || "{}");
   const cargo = user.cargo_id;
-
-  const { t } = useTranslation();
+  const storedUser = localStorage.getItem("user");
+  const authUser: User | null = storedUser ? JSON.parse(storedUser) : null;
 
   const statusTickets = [
-    { name: "Não iniciada", title: t("tickets.types.not_started"), color: "bg-gray-500" },
-    { name: "Esperando", title: t("tickets.types.waiting"), color: "bg-yellow-500" },
-    { name: "Em progresso", title: t("tickets.types.in_progress"), color: "bg-blue-500" },
-    { name: "Completo", title: t("tickets.types.completed"), color: "bg-green-500" },
-    { name: "Descartada", title: t("tickets.types.discarded"), color: "bg-red-500" },
+    {
+      name: "Não iniciada",
+      title: t("tickets.types.not_started"),
+      color: "bg-gray-500",
+    },
+    {
+      name: "Esperando",
+      title: t("tickets.types.waiting"),
+      color: "bg-yellow-500",
+    },
+    {
+      name: "Em progresso",
+      title: t("tickets.types.in_progress"),
+      color: "bg-blue-500",
+    },
+    {
+      name: "Completo",
+      title: t("tickets.types.completed"),
+      color: "bg-green-500",
+    },
+    {
+      name: "Descartada",
+      title: t("tickets.types.discarded"),
+      color: "bg-red-500",
+    },
   ];
 
   const statusTranslations = {
     "Não iniciada": "status.not_started",
-    "Esperando": "status.waiting",
+    Esperando: "status.waiting",
     "Em progresso": "status.in_progress",
-    "Completo": "status.resolved",
-    "Descartada": "status.discarded",
+    Completo: "status.resolved",
+    Descartada: "status.discarded",
   };
 
-  const storedUser = localStorage.getItem("user");
-  const authUser: User | null = storedUser ? JSON.parse(storedUser) : null;
-  const [selectedTicket, setSelectedTicket] = useState<Ticket | null>(null);
+  const expirationDays = 30;
+
+  const [clientFromState, setClientFromState] = useState<Clients | undefined>(
+    location.state?.ticket
+  );
+
   const [showModal, setShowModal] = useState(false);
   const [showModalFilter, setShowModalFilter] = useState(false);
+  const [addTicket, setAddTicket] = useState(false);
+  const [isEditing, setIsEditing] = useState(false);
+  const [isDeleteModalVisible, setIsDeleteModalVisible] = useState(false);
+
+  const [selectedTicket, setSelectedTicket] = useState<Ticket | null>(null);
+  console.log(selectedTicket, "selectedTicket");
+  const [editingTicket, setEditingTicket] = useState<Ticket | null>(null);
+  const [ticketToDelete, setTicketToDelete] = useState<number | null>(null);
   const [history, setHistory] = useState<TicketHistory[]>([]);
+  const [showOnlyDeleted, setShowOnlyDeleted] = useState(false);
+
+  const [selectedStatuses, setSelectedStatuses] = useState<string[]>([]);
   const [filterTag, setFilterTag] = useState<string>("");
   const [filterDate, setFilterDate] = useState<string>("");
   const [filterTicket, setFilterTicket] = useState<string>("");
   const [filterUser, setFilterUser] = useState("");
   const [filterClient, setFilterClient] = useState<string>("");
   const [filterType, setFilterType] = useState("");
-  const [addTicket, setAddTicket] = useState(false);
-  const [loadingPost, setLoadingPost] = useState(false);
+
   const [clientName, setClientName] = useState("");
   const [typeName, setTypeName] = useState("");
   const [statusTicket, setStatusTicket] = useState("");
@@ -172,12 +223,9 @@ const Ticket = () => {
   const [selectedAdmin, setSelectedAdmin] = useState<string>("");
   const [tags, setTags] = useState<string[]>([]);
   const [observation, setObservation] = useState("");
-  const [loadingModal, setLoadingModal] = useState(false);
-  const [selectedStatuses, setSelectedStatuses] = useState<string[]>([]);
   const [tagInputValue, setTagInputValue] = useState("");
   const [isFocused, setIsFocused] = useState(false);
-  const [isEditing, setIsEditing] = useState(false);
-  const [editingTicket, setEditingTicket] = useState<Ticket | null>(null);
+
   const [editName, setEditName] = useState("");
   const [editType, setEditType] = useState("");
   const [editClient, setEditClient] = useState("");
@@ -186,18 +234,24 @@ const Ticket = () => {
   const [editObservation, setEditObservation] = useState("");
   const [editTagInputValue, setEditTagInputValue] = useState("");
   const [isEditTagFocused, setIsEditTagFocused] = useState(false);
-  const [loadingEdit, setLoadingEdit] = useState(false);
-  const [_, setFilteredTickets] = useState<Ticket[]>([]);
-  const [__, setFilterStatus] = useState<string>("");
-  const [showOnlyDeleted, setShowOnlyDeleted] = useState(false);
-  const [isDeleteModalVisible, setIsDeleteModalVisible] = useState(false);
-  const [ticketToDelete, setTicketToDelete] = useState<number | null>(null);
-  const [isDeleting, setIsDeleting] = useState(false);
-  const expirationDays = 30;
-  let daysLeft: number | null = null;
 
-  const { data: rawClients = [], isLoading: loadingClients } = useSwr<Clients[]>(
-    "/clients", {
+  const [loadingPost, setLoadingPost] = useState(false);
+  const [loadingModal, setLoadingModal] = useState(false);
+  const [loadingEdit, setLoadingEdit] = useState(false);
+  const [isDeleting, setIsDeleting] = useState(false);
+
+  const [selectedFile, setSelectedFile] = useState<File | null>(null);
+  const [loadingSaveBoleto, setLoadingSaveBoleto] = useState(false);
+  const [loadingSendBoleto, setLoadingSendBoleto] = useState(false);
+  const [loadingRemoveBoleto, setLoadingRemoveBoleto] = useState(false);
+
+  const [openModalSendBoleto, setOpenModalSendBoleto] = useState(false);
+  const [message, setMessage] = useState("");
+  const [isSending, setIsSending] = useState(false);
+
+  const { data: rawClients = [], isLoading: loadingClients } = useSwr<
+    Clients[]
+  >("/clients", {
     fetcher: (url) =>
       api
         .get(url, {
@@ -222,240 +276,86 @@ const Ticket = () => {
     }
   );
 
-  const { data: rawTickets = [], isLoading, mutate } = useSwr<Ticket[]>(
-    "/tickets",
-    (url: string) =>
-      api
-        .get(url, {
-          headers: {
-            Authorization: `Bearer ${localStorage.getItem("accessToken")}`,
-          },
-        })
-        .then((res) => res.data)
-  );
-
-  const { data: trashedTickets = [], isLoading: loadingTrashed, mutate: mutateTrashed } = useSwr<Ticket[]>(
-    "/tickets/trashed",
-    (url: string) =>
-      api
-        .get(url, {
-          headers: { Authorization: `Bearer ${localStorage.getItem("accessToken")}` },
-        })
-        .then((res) => res.data)
-  );
-
-  const optionsClient: Option[] = rawClients.map((client: Clients) => ({
-    value: String(client.id),
-    label: client.name,
-  }));
-
-  const optionsAdmin: Option[] = rawAdmins.map((admin: Admins) => ({
-    value: String(admin.id),
-    label: admin.nome_completo,
-  }));
-
-  const formatDate = (dateString: string, t: (key: string) => string) => {
-    const date = new Date(dateString);
-    const today = new Date();
-    const yesterday = new Date();
-    yesterday.setDate(today.getDate() - 1);
-
-    const isSameDay = (a: Date, b: Date) =>
-      a.getFullYear() === b.getFullYear() &&
-      a.getMonth() === b.getMonth() &&
-      a.getDate() === b.getDate();
-
-    if (isSameDay(date, today)) return t("date.today");
-    if (isSameDay(date, yesterday)) return t("date.yesterday");
-
-    return date.toLocaleDateString();
-  };
-
-  const handleCardClick = (ticket: Ticket) => {
-    setSelectedTicket(ticket);
-    setShowModal(true);
-    fetchHistory(ticket.id);
-  };
-
-  const fetchHistory = async (ticketId: number) => {
-    try {
-      setLoadingModal(true);
-
-      const { data } = await api.get(`/tickets/${ticketId}/history`, {
+  const {
+    data: rawTickets = [],
+    isLoading,
+    mutate,
+  } = useSwr<Ticket[]>("/tickets", (url: string) =>
+    api
+      .get(url, {
         headers: {
           Authorization: `Bearer ${localStorage.getItem("accessToken")}`,
         },
-      });
+      })
+      .then((res) => res.data)
+  );
 
-      setHistory(data);
-    } catch (error) {
-      console.error("Erro ao buscar histórico:", error);
-      setHistory([]);
-    } finally {
-      setLoadingModal(false);
-    }
-  };
-
-  // const { data: history = [], isLoading: loadingHistory } = useSwr(
-  //   selectedTicket?.id ? `/tickets/${selectedTicket.id}/history` : null,
-  //   (url: string) =>
-  //     api
-  //       .get(url, {
-  //         headers: {
-  //           Authorization: `Bearer ${localStorage.getItem("accessToken")}`,
-  //         },
-  //       })
-  //       .then((res) => res.data),
-  //   { revalidateOnFocus: false }
-  // );
-
-  const handleChangeStatus = async (newStatus: string) => {
-    setLoadingModal(true);
-    if (!selectedTicket) return;
-
-    try {
-      await updateTicketStatus(selectedTicket.id, newStatus);
-
-      const { data } = await api.get<Ticket>(`/tickets/${selectedTicket.id}`, {
+  const {
+    data: trashedTickets = [],
+    isLoading: loadingTrashed,
+    mutate: mutateTrashed,
+  } = useSwr<Ticket[]>("/tickets/trashed", (url: string) =>
+    api
+      .get(url, {
         headers: {
           Authorization: `Bearer ${localStorage.getItem("accessToken")}`,
         },
-      });
+      })
+      .then((res) => res.data)
+  );
 
-      setSelectedTicket((prev) => {
-        if (!prev) return prev;
+  const optionsClient: Option[] = useMemo(
+    () =>
+      rawClients.map((client: Clients) => ({
+        value: String(client.id),
+        label: client.name,
+      })),
+    [rawClients]
+  );
 
-        return {
-          ...prev,
-          status: data.status,
-        };
-      });
-
-      await fetchHistory(selectedTicket.id);
-
-      setSelectedTicket({
-        ...data,
-        tags: typeof data.tags === "string" ? JSON.parse(data.tags) : data.tags,
-      });
-
-      mutate();
-
-      messageAlert({
-        type: "success",
-        message: "Status atualizado com sucesso!",
-      });
-    } catch (error) {
-      messageAlert({
-        type: "error",
-        message: "Erro ao atualizar status",
-      });
-      console.log(error, "error");
-    } finally {
-      setLoadingModal(false);
-    }
-  };
-
-  const handleFilterToggle = () => {
-    setShowModalFilter(true);
-  };
-
-  const handleFilterChange = () => {
-    mutate();
-
-    const filtered = rawTickets.filter((ticket) => {
-      const matchesStatus = selectedStatuses.length > 0
-        ? selectedStatuses.includes(ticket.status)
-        : true;
-
-      const matchesTag = filterTag
-        ? Array.isArray(ticket.tags)
-          ? ticket.tags.some((tag) =>
-            tag.toLowerCase().includes(filterTag.toLowerCase())
-          )
-          : ticket.tags.toLowerCase().includes(filterTag.toLowerCase())
-        : true;
-
-      const matchesType = filterType
-        ? Array.isArray(ticket.type)
-          ? ticket.type.some((type) =>
-            type.toLowerCase().includes(filterType.toLowerCase())
-          )
-          : ticket.type.toLowerCase().includes(filterType.toLowerCase())
-        : true;
-
-      const matchesDate = filterDate
-        ? new Date(ticket.created_at).toLocaleDateString() ===
-        new Date(filterDate).toLocaleDateString()
-        : true;
-
-      const matchesTicket = filterTicket
-        ? String(ticket.id) === filterTicket
-        : true;
-
-      const matchesUser = filterUser
-        ? ticket.user?.id === Number(filterUser)
-        : true;
-
-      const matchesClient = filterClient
-        ? ticket.client?.name.toLowerCase().includes(filterClient.toLowerCase())
-        : true;
-
-      return (
-        matchesStatus &&
-        matchesTag &&
-        matchesDate &&
-        matchesTicket &&
-        matchesUser &&
-        matchesClient &&
-        matchesType
-      );
-    });
-
-    setFilteredTickets(filtered);
-  };
-
-  const handleClearFilters = () => {
-    setFilterStatus("");
-    setFilterTag("");
-    setFilterDate("");
-    setFilterType("");
-    setFilterTicket("");
-    setSelectedStatuses([]);
-    setFilterUser("");
-    setFilterClient("");
-
-    setClientFromState(undefined);
-  };
+  const optionsAdmin: Option[] = useMemo(
+    () =>
+      rawAdmins.map((admin: Admins) => ({
+        value: String(admin.id),
+        label: admin.nome_completo,
+      })),
+    [rawAdmins]
+  );
 
   const filteredTickets = useMemo(() => {
-    const ticketsByClient = clientFromState && !filterClient
-      ? rawTickets.filter(ticket => ticket.client?.id === clientFromState.id)
-      : rawTickets;
+    let filtered = [...rawTickets];
 
-    const filtered = ticketsByClient.filter((ticket) => {
-      const matchesStatus = selectedStatuses.length > 0
-        ? selectedStatuses.includes(ticket.status)
-        : true;
+    if (clientFromState && !filterClient) {
+      filtered = filtered.filter(
+        (ticket) => ticket.client?.id === clientFromState.id
+      );
+    }
+
+    filtered = filtered.filter((ticket) => {
+      const matchesStatus =
+        selectedStatuses.length > 0
+          ? selectedStatuses.includes(ticket.status)
+          : true;
 
       const matchesTag = filterTag
         ? Array.isArray(ticket.tags)
           ? ticket.tags.some((tag) =>
-            tag.toLowerCase().includes(filterTag.toLowerCase())
-          )
+              tag.toLowerCase().includes(filterTag.toLowerCase())
+            )
           : ticket.tags?.toLowerCase().includes(filterTag.toLowerCase())
         : true;
 
       const matchesType = filterType
         ? Array.isArray(ticket.type)
           ? ticket.type.some((type) =>
-            type.toLowerCase().includes(filterType.toLowerCase())
-          )
+              type.toLowerCase().includes(filterType.toLowerCase())
+            )
           : ticket.type?.toLowerCase().includes(filterType.toLowerCase())
         : true;
 
       const matchesDate = filterDate
         ? new Date(ticket.created_at).toLocaleDateString() ===
-        new Date(filterDate).toLocaleDateString()
+          new Date(filterDate).toLocaleDateString()
         : true;
 
       const matchesTicket = filterTicket
@@ -485,8 +385,16 @@ const Ticket = () => {
       const dateA = new Date(a.created_at);
       const dateB = new Date(b.created_at);
 
-      const onlyDateA = new Date(dateA.getFullYear(), dateA.getMonth(), dateA.getDate());
-      const onlyDateB = new Date(dateB.getFullYear(), dateB.getMonth(), dateB.getDate());
+      const onlyDateA = new Date(
+        dateA.getFullYear(),
+        dateA.getMonth(),
+        dateA.getDate()
+      );
+      const onlyDateB = new Date(
+        dateB.getFullYear(),
+        dateB.getMonth(),
+        dateB.getDate()
+      );
 
       const diff = onlyDateA.getTime() - onlyDateB.getTime();
 
@@ -496,6 +404,7 @@ const Ticket = () => {
     });
   }, [
     rawTickets,
+    clientFromState,
     selectedStatuses,
     filterType,
     filterTag,
@@ -503,96 +412,25 @@ const Ticket = () => {
     filterTicket,
     filterUser,
     filterClient,
-    clientFromState,
   ]);
 
-  const handleToggleStatus = (status: string) => {
-    setSelectedStatuses((prev) => {
-      if (prev.includes(status)) {
-        return prev.filter((s) => s !== status);
-      }
-      return [...prev, status];
-    });
-  };
-
-  const handleAddTicket = async () => {
-    if (tags.length > 7) {
-      messageAlert({
-        type: "error",
-        message: t('alerts.maxTags')
-      });
-      return;
+  const visibleTickets = useMemo(() => {
+    if (showOnlyDeleted) {
+      return trashedTickets;
     }
 
-    setLoadingPost(true);
-    try {
-      if (
-        !statusTicket ||
-        !clientName ||
-        !typeName ||
-        !selected ||
-        !selectedAdmin
-      ) {
-        messageAlert({
-          type: "error",
-          message: t('alerts.fillAllFields')
-        });
-        return;
-      }
+    const statusToShow = [
+      "Em progresso",
+      "Não iniciada",
+      "Esperando",
+      "Descartada",
+      "Completo",
+    ];
 
-      await api.post(
-        "/tickets",
-        {
-          name: clientName,
-          type: typeName,
-          tags: tags,
-          client_id: selected,
-          user_id: selectedAdmin,
-          create_id: authUser?.id,
-          status: statusTicket,
-          observation: observation,
-        },
-        {
-          headers: {
-            Authorization: `Bearer ${localStorage.getItem("accessToken")}`,
-          },
-        }
-      );
-
-      mutate();
-
-      messageAlert({
-        type: "success",
-        message: t('alerts.ticketCreated')
-      });
-
-      setAddTicket(false);
-
-      setStatusTicket("");
-      setClientName("");
-      setTypeName("");
-      setSelected("");
-      setSelectedAdmin("");
-      setFilterType("");
-      setTags([]);
-      setObservation("");
-    } catch (e) {
-      messageAlert({
-        type: "error",
-        message: t('alerts.ticketError')
-      });
-    } finally {
-      setLoadingPost(false);
-    }
-  };
-
-  const handleSelectChange = (value: string | number) => {
-    setSelected(value.toString());
-  };
-
-  const handleSelectChangeAdmin = (value: string | number) => {
-    setSelectedAdmin(value.toString());
-  };
+    return filteredTickets.filter((ticket) =>
+      statusToShow.includes(ticket.status)
+    );
+  }, [showOnlyDeleted, trashedTickets, filteredTickets]);
 
   const availableTickets = useMemo(() => {
     return rawTickets.filter((ticket) => {
@@ -631,12 +469,21 @@ const Ticket = () => {
     );
   }, [availableTags, tagInputValue, tags]);
 
+  const filteredEditTags = useMemo(() => {
+    const input = editTagInputValue.toLowerCase();
+    return availableTags.filter(
+      (tag) =>
+        (input === "" || tag.toLowerCase().includes(input)) &&
+        !editTags.includes(tag)
+    );
+  }, [availableTags, editTagInputValue, editTags]);
+
   const availableTicketOptions = useMemo(() => {
     return availableTickets.map((ticket) => ({
       value: ticket.id,
-      label: `${ticket.id} - ${ticket.client?.name || t('labels.noClient')}`,
+      label: `${ticket.id} - ${ticket.client?.name || t("labels.noClient")}`,
     }));
-  }, [availableTickets]);
+  }, [availableTickets, t]);
 
   const availableClients = useMemo(() => {
     if (!filterUser) return rawClients;
@@ -663,6 +510,53 @@ const Ticket = () => {
     return Array.from(typesSet);
   }, [availableTickets]);
 
+  const daysLeft = useMemo(() => {
+    if (!selectedTicket?.deleted_at) return null;
+
+    const deletedDate = new Date(selectedTicket.deleted_at);
+    const now = new Date();
+    const daysPassed = differenceInDays(now, deletedDate);
+    const remaining = expirationDays - daysPassed;
+
+    return remaining < 0 ? 0 : remaining;
+  }, [selectedTicket?.deleted_at, expirationDays]);
+
+  const formatDate = (dateString: string, t: (key: string) => string) => {
+    const date = new Date(dateString);
+    const today = new Date();
+    const yesterday = new Date();
+    yesterday.setDate(today.getDate() - 1);
+
+    const isSameDay = (a: Date, b: Date) =>
+      a.getFullYear() === b.getFullYear() &&
+      a.getMonth() === b.getMonth() &&
+      a.getDate() === b.getDate();
+
+    if (isSameDay(date, today)) return t("date.today");
+    if (isSameDay(date, yesterday)) return t("date.yesterday");
+
+    return date.toLocaleDateString();
+  };
+
+  const fetchHistory = async (ticketId: number) => {
+    try {
+      setLoadingModal(true);
+
+      const { data } = await api.get(`/tickets/${ticketId}/history`, {
+        headers: {
+          Authorization: `Bearer ${localStorage.getItem("accessToken")}`,
+        },
+      });
+
+      setHistory(data);
+    } catch (error) {
+      console.error("Erro ao buscar histórico:", error);
+      setHistory([]);
+    } finally {
+      setLoadingModal(false);
+    }
+  };
+
   const updateTicketStatus = async (ticketId: number, newStatus: string) => {
     await api.put(
       `/tickets/${ticketId}/status`,
@@ -675,40 +569,182 @@ const Ticket = () => {
     );
   };
 
-  useEffect(() => {
-    if (location.state) {
-      window.history.replaceState({}, document.title);
+  const handleCardClick = (ticket: Ticket) => {
+    setSelectedTicket(ticket);
+    setShowModal(true);
+    fetchHistory(ticket.id);
+  };
+
+  const handleChangeStatus = async (newStatus: string) => {
+    if (!selectedTicket) return;
+
+    setLoadingModal(true);
+    try {
+      await updateTicketStatus(selectedTicket.id, newStatus);
+
+      const { data } = await api.get<Ticket>(`/tickets/${selectedTicket.id}`, {
+        headers: {
+          Authorization: `Bearer ${localStorage.getItem("accessToken")}`,
+        },
+      });
+
+      const updatedTicket = {
+        ...data,
+        tags: typeof data.tags === "string" ? JSON.parse(data.tags) : data.tags,
+      };
+
+      setSelectedTicket(updatedTicket);
+      await fetchHistory(selectedTicket.id);
+      mutate();
+
+      messageAlert({
+        type: "success",
+        message: "Status atualizado com sucesso!",
+      });
+    } catch (error) {
+      messageAlert({
+        type: "error",
+        message: "Erro ao atualizar status",
+      });
+      console.log(error, "error");
+    } finally {
+      setLoadingModal(false);
     }
-  }, []);
+  };
 
-  useEffect(() => {
-    if (showModal && selectedTicket?.id) {
-      fetchHistory(selectedTicket.id);
+  const handleAddTicket = async () => {
+    if (tags.length > 7) {
+      messageAlert({
+        type: "error",
+        message: t("alerts.maxTags"),
+      });
+      return;
     }
-  }, [showModal, selectedTicket?.id]);
 
-  useEffect(() => {
-    setFilteredTickets(rawTickets);
-  }, [rawTickets]);
+    if (
+      !statusTicket ||
+      !clientName ||
+      !typeName ||
+      !selected ||
+      !selectedAdmin
+    ) {
+      messageAlert({
+        type: "error",
+        message: t("alerts.fillAllFields"),
+      });
+      return;
+    }
 
-  useEffect(() => {
-    if (id && rawTickets.length > 0) {
-      const matchedTickets = rawTickets.filter(
-        (ticket) => ticket.client.id === id
+    setLoadingPost(true);
+    try {
+      await api.post(
+        "/tickets",
+        {
+          name: clientName,
+          type: typeName,
+          tags: tags,
+          client_id: selected,
+          user_id: selectedAdmin,
+          create_id: authUser?.id,
+          status: statusTicket,
+          observation: observation,
+        },
+        {
+          headers: {
+            Authorization: `Bearer ${localStorage.getItem("accessToken")}`,
+          },
+        }
       );
 
-      if (matchedTickets.length > 0) {
-        setFilterClient(matchedTickets[0].client?.name || "");
-        setSelectedTicket(matchedTickets[0]);
-        fetchHistory(matchedTickets[0].id);
-        setFilteredTickets(matchedTickets);
-      } else {
-        setFilterClient("");
-        setSelectedTicket(null);
-        setFilteredTickets([]);
-      }
+      mutate();
+
+      messageAlert({
+        type: "success",
+        message: t("alerts.ticketCreated"),
+      });
+
+      setAddTicket(false);
+      setStatusTicket("");
+      setClientName("");
+      setTypeName("");
+      setSelected("");
+      setSelectedAdmin("");
+      setFilterType("");
+      setTags([]);
+      setObservation("");
+    } catch (e) {
+      messageAlert({
+        type: "error",
+        message: t("alerts.ticketError"),
+      });
+      console.log(e, "Error");
+    } finally {
+      setLoadingPost(false);
     }
-  }, [id, rawTickets]);
+  };
+
+  const handleDelete = async () => {
+    if (ticketToDelete === null) return;
+
+    setIsDeleting(true);
+    try {
+      await api.delete(`/tickets/${ticketToDelete}`, {
+        headers: {
+          Authorization: `Bearer ${localStorage.getItem("accessToken")}`,
+        },
+      });
+
+      messageAlert({
+        type: "success",
+        message: t("messages.ticketDeleted"),
+      });
+
+      setTimeout(() => {
+        setIsDeleting(false);
+        setIsDeleteModalVisible(false);
+        setTicketToDelete(null);
+        setShowModal(false);
+        mutate();
+        mutateTrashed();
+      }, 400);
+    } catch (error) {
+      setIsDeleting(false);
+      messageAlert({
+        type: "error",
+        message: t("messages.errorDeletingTicket"),
+      });
+      console.log(error, "Error");
+    }
+  };
+
+  const handleRestore = async (ticketId: number) => {
+    try {
+      await api.put(
+        `/tickets/${ticketId}/restore`,
+        {},
+        {
+          headers: {
+            Authorization: `Bearer ${localStorage.getItem("accessToken")}`,
+          },
+        }
+      );
+
+      messageAlert({
+        type: "success",
+        message: t("messages.ticketRestored"),
+      });
+
+      setShowModal(false);
+      mutate();
+      mutateTrashed();
+    } catch (error) {
+      messageAlert({
+        type: "error",
+        message: t("messages.errorRestoringTicket"),
+      });
+      console.log(error, "Error");
+    }
+  };
 
   const handleEditClick = () => {
     if (!selectedTicket) return;
@@ -719,7 +755,11 @@ const Ticket = () => {
     setEditType(selectedTicket.type);
     setEditClient(selectedTicket.client?.name || "");
     setEditOperator(selectedTicket.user?.nome_completo || "");
-    setEditTags(Array.isArray(selectedTicket.tags) ? selectedTicket.tags : JSON.parse(selectedTicket.tags || "[]"));
+    setEditTags(
+      Array.isArray(selectedTicket.tags)
+        ? selectedTicket.tags
+        : JSON.parse(selectedTicket.tags || "[]")
+    );
     setEditObservation(selectedTicket.observation || "");
   };
 
@@ -738,19 +778,23 @@ const Ticket = () => {
   const handleSaveEdit = async () => {
     if (!selectedTicket || !editingTicket) return;
 
+    const selectedClient = rawClients.find(
+      (client) => client.name === editClient
+    );
+    const selectedOperator = rawAdmins.find(
+      (admin) => admin.nome_completo === editOperator
+    );
+
+    if (!selectedClient || !selectedOperator) {
+      messageAlert({
+        type: "error",
+        message: t("alerts.clientOrOperatorNotFound"),
+      });
+      return;
+    }
+
     setLoadingEdit(true);
     try {
-      const selectedClient = rawClients.find(client => client.name === editClient);
-      const selectedOperator = rawAdmins.find(admin => admin.nome_completo === editOperator);
-
-      if (!selectedClient || !selectedOperator) {
-        messageAlert({
-          type: "error",
-          message: t('alerts.clientOrOperatorNotFound')
-        });
-        return;
-      }
-
       await api.put(
         `/tickets/${selectedTicket.id}`,
         {
@@ -786,13 +830,13 @@ const Ticket = () => {
 
       messageAlert({
         type: "success",
-        message: t('alerts.ticketUpdated')
+        message: t("alerts.ticketUpdated"),
       });
     } catch (error) {
       console.error("Erro ao atualizar ticket:", error);
       messageAlert({
         type: "error",
-        message: t('alerts.ticketUpdateError')
+        message: t("alerts.ticketUpdateError"),
       });
     } finally {
       setLoadingEdit(false);
@@ -800,111 +844,247 @@ const Ticket = () => {
   };
 
   const handleEditTagAdd = (tag: string) => {
-    if (tag.trim() && !editTags.includes(tag.trim())) {
-      if (editTags.length >= 7) {
+    if (!tag.trim() || editTags.includes(tag.trim())) return;
+
+    if (editTags.length >= 7) {
+      messageAlert({
+        type: "error",
+        message: t("alerts.maxTags"),
+      });
+      return;
+    }
+
+    setEditTags([...editTags, tag.trim()]);
+  };
+
+  const handleFileSelect = (event: ChangeEvent<HTMLInputElement>) => {
+    const file = event.target.files?.[0];
+    if (!file) return;
+
+    setSelectedFile(file);
+    messageAlert({
+      type: "success",
+      message: `Arquivo "${file.name}" selecionado`,
+    });
+  };
+
+  const handleFileClick = () => {
+    fileInputRef.current?.click();
+  };
+
+  const handleSaveBoleto = async (ticket: Ticket) => {
+    if (!selectedFile) {
+      messageAlert({
+        type: "error",
+        message: "Nenhum arquivo selecionado",
+      });
+      return;
+    }
+
+    setLoadingSaveBoleto(true);
+    const formData = new FormData();
+    formData.append("file", selectedFile);
+
+    try {
+      const response = await api.post(
+        `/s3/upload-url/profile/ticket/${ticket.id}`,
+        formData,
+        {
+          headers: {
+            "Content-Type": "multipart/form-data",
+            Authorization: `Bearer ${localStorage.getItem("accessToken")}`,
+          },
+        }
+      );
+
+      if (response.data.file_url) {
+        setSelectedTicket({
+          ...ticket,
+          file_url: response.data.file_url,
+        });
+
+        setSelectedFile(null);
+        if (fileInputRef.current) {
+          fileInputRef.current.value = "";
+        }
+
+        mutate();
+
+        messageAlert({
+          type: "success",
+          message: "Boleto salvo com sucesso!",
+        });
+      } else {
         messageAlert({
           type: "error",
-          message: t('alerts.maxTags')
+          message: response.data.message || "Erro ao salvar boleto",
         });
-        return;
       }
-      setEditTags([...editTags, tag.trim()]);
+    } catch (error: any) {
+      messageAlert({
+        type: "error",
+        message: error?.response?.data?.error || "Erro ao salvar boleto",
+      });
+      console.error("Erro ao enviar arquivo:", error);
+    } finally {
+      setLoadingSaveBoleto(false);
+    }
+  };
+
+  const handleSendBoleto = async (ticket: Ticket | null) => {
+    if (!ticket?.file_url) {
+      messageAlert({
+        type: "error",
+        message: "Nenhum boleto para enviar. Salve o boleto primeiro.",
+      });
+      return;
+    }
+
+    setLoadingSendBoleto(true);
+    setIsSending(true);
+
+    try {
+      const token = localStorage.getItem("accessToken");
+      if (!token) throw new Error("Token de autenticação não encontrado.");
+
+      const payload = {
+        subject: "Your Service Invoice",
+        body: "Please find attached the payment slip for your service.",
+        client_id: Number(ticket.client?.id ?? ticket.client),
+        attachments: [
+          {
+            name: ticket.file_url.split("/").pop() || "boleto.pdf",
+            url: encodeURI(ticket.file_url),
+          },
+        ],
+        emailMessage: message,
+      };
+
+      const { data } = await api.post("/enviar-email", payload, {
+        headers: {
+          Authorization: `Bearer ${token}`,
+          "Content-Type": "application/json",
+        },
+      });
+
+      if (data.success) {
+        messageAlert({
+          type: "success",
+          message: "Boleto enviado com sucesso!",
+        });
+        setOpenModalSendBoleto(false);
+        setMessage("");
+      } else {
+        messageAlert({
+          type: "error",
+          message: data?.error || "Erro ao enviar boleto.",
+        });
+      }
+    } catch (error) {
+      messageAlert({
+        type: "error",
+        message: "Erro ao enviar boleto.",
+      });
+      console.log(error, "Erro");
+    } finally {
+      setLoadingSendBoleto(false);
+      setIsSending(false);
+    }
+  };
+
+  const handleRemoveBoleto = async (ticketId: number) => {
+    if (!selectedTicket) return;
+
+    setLoadingRemoveBoleto(true);
+
+    try {
+      await api.delete(`/tickets/${ticketId}/file`, {
+        headers: {
+          Authorization: `Bearer ${localStorage.getItem("accessToken")}`,
+        },
+      });
+
+      setSelectedTicket({
+        ...selectedTicket,
+        file_url: "",
+      });
+
+      setSelectedFile(null);
+      if (fileInputRef.current) {
+        fileInputRef.current.value = "";
+      }
+
+      mutate();
+
+      messageAlert({
+        type: "success",
+        message: "Arquivo removido com sucesso!",
+      });
+    } catch (e: any) {
+      console.error("Erro ao remover arquivo:", e);
+      messageAlert({
+        type: "error",
+        message: e?.response?.data?.error || "Erro ao remover arquivo",
+      });
+    } finally {
+      setLoadingRemoveBoleto(false);
     }
   };
 
   const handleEditTagRemove = (tagToRemove: string) => {
-    setEditTags(editTags.filter(tag => tag !== tagToRemove));
+    setEditTags(editTags.filter((tag) => tag !== tagToRemove));
   };
 
-  const handleDelete = async () => {
-    if (ticketToDelete === null) return;
+  const handleFilterToggle = () => {
+    setShowModalFilter(true);
+  };
 
-    try {
-      setIsDeleting(true);
+  const handleFilterChange = () => {
+    setShowModalFilter(false);
+  };
 
-      await api.delete(`/tickets/${ticketToDelete}`, {
-        headers: {
-          Authorization: `Bearer ${localStorage.getItem("accessToken")}`,
-        },
-      });
+  const handleClearFilters = () => {
+    setFilterTag("");
+    setFilterDate("");
+    setFilterType("");
+    setFilterTicket("");
+    setSelectedStatuses([]);
+    setFilterUser("");
+    setFilterClient("");
+    setClientFromState(undefined);
+    setShowModalFilter(false);
+  };
 
-      messageAlert({
-        type: "success",
-        message: t("messages.ticketDeleted"),
-      });
+  const handleToggleStatus = (status: string) => {
+    setSelectedStatuses((prev) => {
+      if (prev.includes(status)) {
+        return prev.filter((s) => s !== status);
+      }
+      return [...prev, status];
+    });
+  };
 
-      setTimeout(() => {
-        setIsDeleting(false);
-        setIsDeleteModalVisible(false);
-        setTicketToDelete(null);
-        setShowModal(false);
-        mutate();
-        mutateTrashed();
-      }, 400);
-    } catch (error) {
-      setIsDeleting(false);
-      messageAlert({
-        type: "error",
-        message: t("messages.errorDeletingTicket"),
-      });
+  const handleSelectChange = (value: string | number) => {
+    setSelected(value.toString());
+  };
+
+  const handleSelectChangeAdmin = (value: string | number) => {
+    setSelectedAdmin(value.toString());
+  };
+
+  useEffect(() => {
+    if (location.state) {
+      window.history.replaceState({}, document.title);
     }
-  };
+  }, [location.state]);
 
-  const handleRestore = async (ticketId: number) => {
-    try {
-      await api.put(`/tickets/${ticketId}/restore`, {}, {
-        headers: {
-          Authorization: `Bearer ${localStorage.getItem("accessToken")}`,
-        },
-      });
-
-      messageAlert({
-        type: "success",
-        message: t("messages.ticketRestored"),
-      });
-
-      setShowModal(false);
-      mutate();
-      mutateTrashed();
-    } catch (error) {
-      messageAlert({
-        type: "error",
-        message: t("messages.errorRestoringTicket"),
-      });
+  useEffect(() => {
+    if (showModal && selectedTicket?.id) {
+      fetchHistory(selectedTicket.id);
     }
-  };
+  }, [showModal, selectedTicket?.id]);
 
-  if (selectedTicket?.deleted_at) {
-    daysLeft = 30 - dayjs().diff(dayjs(selectedTicket.deleted_at), "day");
-  }
-
-  const filteredEditTags = useMemo(() => {
-    const input = editTagInputValue.toLowerCase();
-    return availableTags.filter(
-      (tag) =>
-        (input === "" || tag.toLowerCase().includes(input)) &&
-        !editTags.includes(tag)
-    );
-  }, [availableTags, editTagInputValue, editTags]);
-
-  const statusToShow = showOnlyDeleted
-    ? []
-    : ["Em progresso", "Não iniciada", "Esperando", "Descartada", "Completo"];
-
-  const visibleTickets = showOnlyDeleted
-    ? trashedTickets
-    : filteredTickets.filter(ticket => statusToShow.includes(ticket.status));
-
-
-  if (selectedTicket?.deleted_at) {
-    const deletedDate = new Date(selectedTicket.deleted_at);
-    const now = new Date();
-    const daysPassed = differenceInDays(now, deletedDate);
-    daysLeft = expirationDays - daysPassed;
-    if (daysLeft < 0) daysLeft = 0;
-  }
-
-  if (!filteredTickets || isLoading || loadingAdmins || loadingClients) {
+  if (isLoading || loadingAdmins || loadingClients || loadingTrashed) {
     return (
       <div className="flex items-center justify-center h-full w-full">
         <Spin />
@@ -945,15 +1125,17 @@ const Ticket = () => {
         <button
           onClick={() => setShowOnlyDeleted((prev) => !prev)}
           className={`flex items-center justify-center gap-2 min-w-[150px] px-4 py-2.5 text-white font-medium rounded-lg shadow-md hover:shadow-lg transition-all duration-200
-          ${showOnlyDeleted
-              ? 'bg-green-600 hover:bg-green-700'
-              : 'bg-red-600 hover:bg-red-700'
-            }`}
+          ${
+            showOnlyDeleted
+              ? "bg-green-600 hover:bg-green-700"
+              : "bg-red-600 hover:bg-red-700"
+          }`}
         >
           <FaTrash size={20} />
-          {showOnlyDeleted ? t("statusFilter.active") : t("statusFilter.deleted")}
+          {showOnlyDeleted
+            ? t("statusFilter.active")
+            : t("statusFilter.deleted")}
         </button>
-
 
         <div className="flex items-center gap-4 flex-wrap">
           {statusTickets.map((status) => (
@@ -972,9 +1154,7 @@ const Ticket = () => {
                   focus:outline-none focus:ring-2 focus:ring-blue-300 focus:ring-offset-1
                   transition-all duration-200 ease-in-out"
                 />
-                <MdCheckCircle
-                  className="absolute w-3.5 h-3.5 text-white scale-0 peer-checked:scale-100 transition-transform duration-200"
-                />
+                <MdCheckCircle className="absolute w-3.5 h-3.5 text-white scale-0 peer-checked:scale-100 transition-transform duration-200" />
               </div>
 
               <div className="flex items-center gap-2">
@@ -986,11 +1166,10 @@ const Ticket = () => {
             </label>
           ))}
         </div>
-
       </div>
 
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6 p-6 w-full">
-        {(isLoading || (showOnlyDeleted && loadingTrashed)) ? (
+        {isLoading || (showOnlyDeleted && loadingTrashed) ? (
           <div className="col-span-full flex justify-center items-center py-12">
             <Spin />
           </div>
@@ -1003,8 +1182,29 @@ const Ticket = () => {
               whileHover={{ scale: 1.02 }}
               transition={{ duration: 0.3 }}
               onClick={() => handleCardClick(ticket)}
-              className="bg-white rounded-2xl shadow-lg hover:shadow-xl transition-all duration-300 border border-gray-100 overflow-hidden group cursor-pointer"
+              className="bg-white rounded-2xl shadow-lg hover:shadow-xl transition-all duration-300 border border-gray-100 overflow-hidden group cursor-pointer relative"
             >
+              {ticket.paid && (
+                <div className="absolute top-4 right-4 z-10">
+                  <div className="flex items-center gap-1.5 bg-green-500 text-white px-3 py-1.5 rounded-full shadow-lg">
+                    <svg
+                      className="w-4 h-4"
+                      fill="none"
+                      stroke="currentColor"
+                      viewBox="0 0 24 24"
+                    >
+                      <path
+                        strokeLinecap="round"
+                        strokeLinejoin="round"
+                        strokeWidth={2}
+                        d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"
+                      />
+                    </svg>
+                    <span className="text-xs font-semibold">Paid</span>
+                  </div>
+                </div>
+              )}
+
               <div className="p-6 space-y-4">
                 <div className="flex justify-between items-start">
                   <div className="flex items-center gap-3">
@@ -1027,9 +1227,7 @@ const Ticket = () => {
                     <div className="p-2 bg-purple-100 rounded-xl group-hover:bg-purple-600 transition-all duration-300">
                       <IoTicketOutline className="w-5 h-5 text-purple-600 group-hover:text-white" />
                     </div>
-                    <h4 className="font-medium text-gray-800">
-                      {ticket.name}
-                    </h4>
+                    <h4 className="font-medium text-gray-800">{ticket.name}</h4>
                   </div>
                   <div className="flex items-start gap-3">
                     <div className="p-2 bg-yellow-100 rounded-xl group-hover:bg-yellow-600 transition-all duration-300">
@@ -1057,15 +1255,16 @@ const Ticket = () => {
                   <div
                     className={`
                       px-4 py-2 rounded-xl flex items-center gap-2 w-full justify-center
-                      ${ticket.status === "Não iniciada"
-                        ? "bg-gray-100 text-gray-600"
-                        : ticket.status === "Esperando"
+                      ${
+                        ticket.status === "Não iniciada"
+                          ? "bg-gray-100 text-gray-600"
+                          : ticket.status === "Esperando"
                           ? "bg-yellow-100 text-yellow-600"
                           : ticket.status === "Em progresso"
-                            ? "bg-blue-100 text-blue-600"
-                            : ticket.status === "Completo"
-                              ? "bg-green-100 text-green-600"
-                              : "bg-red-100 text-red-600"
+                          ? "bg-blue-100 text-blue-600"
+                          : ticket.status === "Completo"
+                          ? "bg-green-100 text-green-600"
+                          : "bg-red-100 text-red-600"
                       } 
                       group-hover:bg-opacity-20 transition-all duration-300
                     `}
@@ -1074,7 +1273,7 @@ const Ticket = () => {
                     <span className="text-sm font-medium">
                       {t(
                         statusTranslations[
-                        ticket.status as keyof typeof statusTranslations
+                          ticket.status as keyof typeof statusTranslations
                         ]
                       )}
                     </span>
@@ -1083,7 +1282,8 @@ const Ticket = () => {
               </div>
             </motion.div>
           ))
-        ) : ((showOnlyDeleted && trashedTickets.length === 0) || (!showOnlyDeleted && filteredTickets.length === 0)) ? (
+        ) : (showOnlyDeleted && trashedTickets.length === 0) ||
+          (!showOnlyDeleted && filteredTickets.length === 0) ? (
           <div className="col-span-full flex flex-col items-center justify-center py-12 text-gray-500">
             <IoTicketOutline className="w-16 h-16 mb-4 text-white" />
             <p className="text-lg font-medium text-white">
@@ -1091,7 +1291,6 @@ const Ticket = () => {
             </p>
           </div>
         ) : null}
-
       </div>
 
       <Modal
@@ -1151,7 +1350,6 @@ const Ticket = () => {
                   {client.name}
                 </option>
               ))}
-
             </select>
           </div>
           <div className="mt-4">
@@ -1197,7 +1395,6 @@ const Ticket = () => {
                   {tag}
                 </option>
               ))}
-
             </select>
           </div>
 
@@ -1238,7 +1435,6 @@ const Ticket = () => {
                   {option.label}
                 </option>
               ))}
-
             </select>
           </div>
 
@@ -1280,7 +1476,7 @@ const Ticket = () => {
                       className="flex items-center gap-1.5 px-2.5 py-1 bg-green-500 text-white text-xs font-medium rounded-lg hover:bg-green-600 transition-all duration-200 disabled:opacity-50 disabled:cursor-not-allowed shadow-sm hover:shadow-md"
                     >
                       <MdSave className="w-3.5 h-3.5" />
-                      {loadingEdit ? t('buttons.saving') : t('buttons.save')}
+                      {loadingEdit ? t("buttons.saving") : t("buttons.save")}
                     </button>
                     <button
                       onClick={handleCancelEdit}
@@ -1288,7 +1484,7 @@ const Ticket = () => {
                       className="flex items-center gap-1.5 px-2.5 py-1 bg-red-500 text-white text-xs font-medium rounded-lg hover:bg-red-600 transition-all duration-200 disabled:opacity-50 disabled:cursor-not-allowed shadow-sm hover:shadow-md"
                     >
                       <MdCancel className="w-3.5 h-3.5" />
-                      {t('buttons.cancel')}
+                      {t("buttons.cancel")}
                     </button>
                   </>
                 ) : (
@@ -1297,7 +1493,7 @@ const Ticket = () => {
                     className="flex items-center gap-1.5 px-2.5 py-1 bg-blue-500 text-white text-xs font-medium rounded-lg hover:bg-blue-600 transition-all duration-200 shadow-sm hover:shadow-md"
                   >
                     <MdEdit className="w-3.5 h-3.5" />
-                    {t('buttons.edit')}
+                    {t("buttons.edit")}
                   </button>
                 )}
               </div>
@@ -1310,28 +1506,30 @@ const Ticket = () => {
                     setIsDeleteModalVisible(true);
                   }
                 }}
-                className={`flex items-center gap-1.5 px-2.5 py-1 text-xs font-medium rounded-lg transition-all duration-200 shadow-sm hover:shadow-md ${selectedTicket.deleted_at
-                  ? 'bg-green-500 hover:bg-green-600 text-white'
-                  : 'bg-red-500 hover:bg-red-600 text-white'
-                  }`}
+                className={`flex items-center gap-1.5 px-2.5 py-1 text-xs font-medium rounded-lg transition-all duration-200 shadow-sm hover:shadow-md ${
+                  selectedTicket.deleted_at
+                    ? "bg-green-500 hover:bg-green-600 text-white"
+                    : "bg-red-500 hover:bg-red-600 text-white"
+                }`}
               >
                 {selectedTicket.deleted_at ? (
                   <>
                     <MdRestore className="w-3.5 h-3.5" />
-                    {t('buttons.restore')}
+                    {t("buttons.restore")}
                   </>
                 ) : (
                   <>
                     <FiTrash2 className="w-3.5 h-3.5" />
-                    {t('buttons.delete')}
+                    {t("buttons.delete")}
                   </>
                 )}
               </button>
 
               {selectedTicket?.deleted_at && daysLeft !== null && (
                 <p
-                  className={`mt-1 text-sm ${daysLeft <= 5 ? "text-red-600" : "text-gray-500"
-                    }`}
+                  className={`mt-1 text-sm ${
+                    daysLeft <= 5 ? "text-red-600" : "text-gray-500"
+                  }`}
                 >
                   {t("messages.expiresInDays", { days: daysLeft })}
                 </p>
@@ -1391,7 +1589,9 @@ const Ticket = () => {
                             onChange={(e) => setEditClient(e.target.value)}
                             className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-400"
                           >
-                            <option value="">{t('placeholders.selectClient')}</option>
+                            <option value="">
+                              {t("placeholders.selectClient")}
+                            </option>
                             {rawClients.map((client) => (
                               <option key={client.id} value={client.name}>
                                 {client.name}
@@ -1408,9 +1608,14 @@ const Ticket = () => {
                             onChange={(e) => setEditOperator(e.target.value)}
                             className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-400"
                           >
-                            <option value="">{t('placeholders.selectOperator')}</option>
+                            <option value="">
+                              {t("placeholders.selectOperator")}
+                            </option>
                             {rawAdmins.map((admin) => (
-                              <option key={admin.id} value={admin.nome_completo}>
+                              <option
+                                key={admin.id}
+                                value={admin.nome_completo}
+                              >
                                 {admin.nome_completo}
                               </option>
                             ))}
@@ -1420,10 +1625,12 @@ const Ticket = () => {
                     ) : (
                       <>
                         <p>
-                          <strong>{t("ticket.name")}:</strong> {selectedTicket.name}
+                          <strong>{t("ticket.name")}:</strong>{" "}
+                          {selectedTicket.name}
                         </p>
                         <p>
-                          <strong>{t("ticket.type")}:</strong> {selectedTicket.type}
+                          <strong>{t("ticket.type")}:</strong>{" "}
+                          {selectedTicket.type}
                         </p>
                         <p>
                           <strong>{t("ticket.client")}:</strong>{" "}
@@ -1480,7 +1687,10 @@ const Ticket = () => {
                             setTimeout(() => setIsEditTagFocused(false), 150);
                           }}
                           onKeyDown={(e) => {
-                            if (e.key === "Enter" && editTagInputValue.trim() !== "") {
+                            if (
+                              e.key === "Enter" &&
+                              editTagInputValue.trim() !== ""
+                            ) {
                               e.preventDefault();
                               handleEditTagAdd(editTagInputValue.trim());
                               setEditTagInputValue("");
@@ -1558,6 +1768,171 @@ const Ticket = () => {
                       {selectedTicket.observation || t("ticket.no_notes")}
                     </p>
                   )}
+                </div>
+
+                <div className="bg-white p-4 rounded-xl shadow-md flex flex-col w-full gap-3">
+                  <h3 className="text-lg font-semibold flex items-center gap-2 text-red-600 mb-4">
+                    <FaFileAlt /> {t("send_invoice.title")}
+                  </h3>
+
+                  {selectedTicket.file_url ? (
+                    <div className="space-y-3">
+                      <div className="p-4 bg-blue-50 border border-blue-200 rounded-lg">
+                        <div className="flex items-center justify-between">
+                          <div className="flex items-center gap-3">
+                            <FaFileAlt className="w-6 h-6 text-blue-600" />
+                            <div>
+                              <p className="text-sm font-semibold text-blue-900">
+                                {t("send_invoice.saved")}
+                              </p>
+                              <p className="text-xs text-blue-600 break-all">
+                                {selectedTicket.file_url
+                                  .split("/")
+                                  .pop()
+                                  ?.replace(/_\d+\./, ".")}
+                              </p>
+                            </div>
+                          </div>
+                          <div className="flex gap-2">
+                            <a
+                              href={selectedTicket.file_url}
+                              target="_blank"
+                              rel="noopener noreferrer"
+                              className="px-3 py-2 bg-blue-600 text-white text-xs rounded-lg hover:bg-blue-700 transition flex items-center gap-1"
+                            >
+                              <FaEye className="w-3 h-3" />{" "}
+                              {t("send_invoice.view")}
+                            </a>
+                            <button
+                              onClick={() =>
+                                handleRemoveBoleto(selectedTicket.id)
+                              }
+                              disabled={loadingRemoveBoleto}
+                              className="px-3 py-2 bg-red-600 text-white text-xs rounded-lg hover:bg-red-700 transition flex items-center gap-1 disabled:opacity-50 disabled:cursor-not-allowed"
+                            >
+                              {loadingRemoveBoleto ? (
+                                <Spin />
+                              ) : (
+                                <>
+                                  <FiTrash2 className="w-3 h-3" />{" "}
+                                  {t("send_invoice.remove")}
+                                </>
+                              )}
+                            </button>
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+                  ) : (
+                    <>
+                      <label
+                        onClick={handleFileClick}
+                        className="flex flex-col items-center justify-center w-full h-32 border-2 border-dashed border-gray-300 rounded-lg cursor-pointer bg-gray-50 hover:bg-gray-100 transition-colors"
+                      >
+                        <div className="flex flex-col items-center justify-center pt-5 pb-6">
+                          <svg
+                            className="w-10 h-10 mb-3 text-gray-400"
+                            fill="none"
+                            stroke="currentColor"
+                            viewBox="0 0 24 24"
+                          >
+                            <path
+                              strokeLinecap="round"
+                              strokeLinejoin="round"
+                              strokeWidth={2}
+                              d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M15 13l-3-3m0 0l-3 3m3-3v12"
+                            />
+                          </svg>
+                          <p className="mb-2 text-sm text-gray-500">
+                            <span className="font-semibold">
+                              {t("send_invoice.click_to_send")}
+                            </span>{" "}
+                            {t("send_invoice.or_drag_file")}
+                          </p>
+                          <p className="text-xs text-gray-400">
+                            {t("send_invoice.file_hint")}
+                          </p>
+                        </div>
+                        <input
+                          ref={fileInputRef}
+                          type="file"
+                          className="hidden"
+                          accept=".pdf"
+                          onChange={handleFileSelect}
+                        />
+                      </label>
+
+                      {selectedFile && (
+                        <div className="mt-2 p-3 bg-green-50 border border-green-200 rounded-lg">
+                          <div className="flex items-center justify-between">
+                            <div className="flex items-center gap-2">
+                              <FaFileAlt className="w-4 h-4 text-green-700" />
+                              <div>
+                                <p className="text-sm font-semibold text-green-700">
+                                  {t("send_invoice.file_selected")}
+                                </p>
+                                <p className="text-xs text-green-600">
+                                  {selectedFile.name}
+                                </p>
+                              </div>
+                            </div>
+                            <button
+                              onClick={() => {
+                                setSelectedFile(null);
+                                if (fileInputRef.current) {
+                                  fileInputRef.current.value = "";
+                                }
+                              }}
+                              className="text-green-700 hover:text-green-900"
+                            >
+                              <FiTrash2 className="w-4 h-4" />
+                            </button>
+                          </div>
+                        </div>
+                      )}
+                    </>
+                  )}
+
+                  <div className="flex items-center justify-center w-full gap-3">
+                    {!selectedTicket.file_url && (
+                      <button
+                        onClick={() => handleSaveBoleto(selectedTicket)}
+                        disabled={!selectedFile || loadingSaveBoleto}
+                        className="w-full flex items-center justify-center gap-2 bg-green-600 text-white px-5 py-3 rounded-xl shadow-md hover:bg-green-700 transition disabled:opacity-50 disabled:cursor-not-allowed"
+                      >
+                        {loadingSaveBoleto ? (
+                          <>
+                            <Spin />
+                            {t("send_invoice.saving")}
+                          </>
+                        ) : (
+                          <>
+                            {t("send_invoice.save")}
+                            <FaSave className="w-4 h-4" />
+                          </>
+                        )}
+                      </button>
+                    )}
+                    <button
+                      onClick={() => {
+                        setOpenModalSendBoleto(true);
+                      }}
+                      disabled={!selectedTicket.file_url || loadingSendBoleto}
+                      className="w-full flex items-center justify-center gap-2 bg-red-600 text-white px-5 py-3 rounded-xl shadow-md hover:bg-red-700 transition disabled:opacity-50 disabled:cursor-not-allowed"
+                    >
+                      {loadingSendBoleto ? (
+                        <>
+                          <Spin />
+                          {t("send_invoice.sending")}
+                        </>
+                      ) : (
+                        <>
+                          {t("send_invoice.send")}
+                          <IoSend className="w-4 h-4" />
+                        </>
+                      )}
+                    </button>
+                  </div>
                 </div>
 
                 {Array.isArray(history) && history.length > 0 && (
@@ -1650,6 +2025,76 @@ const Ticket = () => {
           </div>
         </Modal>
       )}
+      <Modal
+        title="✍️ Adicionar Mensagem ao Boleto"
+        isVisible={openModalSendBoleto}
+        onClose={() => setOpenModalSendBoleto(false)}
+      >
+        <div className="bg-white rounded-xl shadow-2xl w-full w-full transform transition-all">
+          <div className="p-6 flex flex-col space-y-5">
+            <div>
+              <label
+                htmlFor="message-input"
+                className="block text-sm font-semibold text-gray-700 mb-2"
+              >
+                Mensagem para o corpo do e-mail:
+              </label>
+              <textarea
+                id="message-input"
+                placeholder="Digite o texto que acompanhará o boleto..."
+                rows={5}
+                value={message}
+                onChange={(e) => setMessage(e.target.value)}
+                className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-blue-500 focus:border-blue-500 transition duration-150 resize-none shadow-sm text-sm"
+              />
+            </div>
+
+            <p className="text-xs text-gray-400 text-center">
+              Esta mensagem será incluída no corpo do e-mail acima do boleto
+              anexado.
+            </p>
+          </div>
+
+          <div className="p-6 pt-0">
+            <button
+              onClick={() => handleSendBoleto(selectedTicket)}
+              disabled={isSending}
+              className={`w-full py-3 rounded-lg text-lg font-semibold transition duration-200 ease-in-out shadow-lg 
+              ${
+                isSending
+                  ? "bg-blue-400 cursor-not-allowed"
+                  : "bg-blue-600 text-white hover:bg-blue-700 active:bg-blue-800"
+              }`}
+            >
+              {isSending ? (
+                <span className="flex items-center justify-center gap-2">
+                  <svg
+                    className="animate-spin h-5 w-5 text-white"
+                    viewBox="0 0 24 24"
+                  >
+                    <circle
+                      className="opacity-25"
+                      cx="12"
+                      cy="12"
+                      r="10"
+                      stroke="currentColor"
+                      strokeWidth="4"
+                    ></circle>
+                    <path
+                      className="opacity-75"
+                      fill="currentColor"
+                      d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"
+                    ></path>
+                  </svg>
+                  Preparando Mensagem...
+                </span>
+              ) : (
+                "✉️ Confirmar Mensagem"
+              )}
+            </button>
+          </div>
+        </div>
+      </Modal>
       <Modal
         title={`📝 ${t("modal.add_ticket")}`}
         isVisible={addTicket}
@@ -1809,9 +2254,7 @@ const Ticket = () => {
                       >
                         {tag}
                         <button
-                          onClick={() =>
-                            setTags(tags.filter((t) => t !== tag))
-                          }
+                          onClick={() => setTags(tags.filter((t) => t !== tag))}
                           className="text-yellow-700 hover:text-yellow-900"
                         >
                           &times;
@@ -1855,7 +2298,6 @@ const Ticket = () => {
         onConfirm={handleDelete}
         loading={isDeleting}
       />
-
     </div>
   );
 };

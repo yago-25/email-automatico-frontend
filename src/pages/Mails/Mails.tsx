@@ -155,7 +155,6 @@ const Mails = () => {
     setFilteredMails(filtered);
   };
 
-
   const clearFilters = () => {
     setSubject("");
     setRecipients("");

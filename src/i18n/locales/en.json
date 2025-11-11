@@ -122,6 +122,11 @@
     "name": "Name",
     "email": "Email",
     "phone": "Phone",
+    "empresa": "Company",
+    "dono": "Owner",
+    "social": "Social",
+    "ein": "EIN",
+    "mc": "MC",
     "previous": "Previous",
     "next": "Next",
     "of": "of",
@@ -204,7 +209,21 @@
     "failed": "Failed",
     "date_sent": "Send Date",
     "close": "Close",
-    "open": "Open Filters"
+    "open": "Open Filters",
+    "name": "Name",
+    "email": "Email",
+    "phone": "Phone",
+    "dot": "DOT number",
+    "operationType": "Operation Type",
+    "active": "Active",
+    "inactive": "Inactive",
+    "state": "State",
+    "startDate": "Start Date",
+    "endDate": "End Date",
+    "overweight": "Overweight",
+    "yes": "Yes",
+    "no": "No",
+    "expired": "Expired"
   },
   "status": {
     "open": "Not started",
@@ -524,7 +543,9 @@
     "selectFile": "Please select a file.",
     "invalidFile": "The selected file is invalid.",
     "clientsImported": "Clients successfully imported!",
-    "clientsImportError": "Error importing clients."
+    "clientsImportError": "Error importing clients.",
+    "client_status_updated": "Client status updated successfully!",
+    "client_status_update_error": "Error updating client status."
   },
   "photo_upload": {
     "file_label": "Photo File"
@@ -683,11 +704,13 @@
     "failed": "Failed"
   },
   "labels": {
-    "noClient": "No Client"
+    "noClient": "No Client",
+    "expiration_date": "Expiration Date"
   },
   "placeholders": {
     "selectClient": "Select a client",
-    "selectOperator": "Select an operator"
+    "selectOperator": "Select an operator",
+    "select_date": "Select a date"
   },
   "ticketsStats": {
     "total": "Total Tickets",
@@ -711,10 +734,67 @@
     "numberWithDDD": "Number with area code",
     "addInstance": "Add Instance"
   },
-   "whatsappAlerts": {
+  "whatsappAlerts": {
     "fillNumber": "Please enter the number to connect",
     "qrCodeError": "Unable to get QR Code. Please try again.",
     "connectError": "Error connecting number. Please try again.",
     "invalidInstanceName": "Invalid instance name to update status."
+  },
+  "permits_page": {
+    "title": "Permit Management",
+    "fetch_error": "Error loading permits",
+    "fill_fields": "Please fill in all fields",
+    "created": "Permit successfully created",
+    "create_error": "Error creating permit",
+    "deleted": "Permit successfully removed",
+    "delete_error": "Error removing permit",
+    "select_client": "Select a client",
+    "state_placeholder": "State",
+    "oscar_placeholder": "Oscar",
+    "expiration": "Expiration Date",
+    "add": "Add Permit",
+    "delete": "Delete",
+    "no_permits": "No permits registered",
+    "total": "Total Permits",
+    "expiring_soon": "Expiring Soon",
+    "expired": "Expired",
+    "active": "Active",
+    "search_placeholder": "Search by client or ID",
+    "filter_state": "Filter by State",
+    "created_at": "Created at",
+    "overweight": "Overweight",
+    "is_overweight": "Has overweight",
+    "cancel": "Cancel",
+    "client_label": "Client",
+    "state_label": "State",
+    "expiration_label": "Expiration Date",
+    "total_permits": "permits",
+    "no_permits_description": "This client does not have any registered permits yet.",
+    "updated": "Permit updated successfully",
+    "update_error": "Error updating permit"
+  },
+  "permits_expiring": {
+    "title": "Permits Near Expiration",
+    "client_id": "Client ID",
+    "state": "State",
+    "expiration_date": "Expiration Date",
+    "status": "Status",
+    "near_expiration": "Near Expiration",
+    "none": "No permits near expiration",
+    "expired": "Expired"
+  },
+  "send_invoice": {
+    "title": "Send Invoice",
+    "saved": "Invoice saved",
+    "view": "View",
+    "remove": "Remove",
+    "file_hint": "PDF (MAX. 5MB)",
+    "file_selected": "File selected",
+    "saving": "Saving...",
+    "save": "Save Invoice",
+    "sending": "Sending...",
+    "send": "Send Invoice",
+    "click_to_send": "Click to send",
+    "or_drag_file": "or drag the file"
   }
 }

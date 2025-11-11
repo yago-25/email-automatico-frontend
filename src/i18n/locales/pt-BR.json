@@ -122,6 +122,11 @@
     "name": "Nome",
     "email": "Email",
     "phone": "Telefone",
+    "empresa": "Empresa",
+    "dono": "Dono",
+    "social": "Social",
+    "ein": "EIN",
+    "mc": "MC",
     "previous": "Anterior",
     "next": "Próximo",
     "of": "de",
@@ -205,7 +210,21 @@
     "failed": "Falha",
     "date_sent": "Data de envio",
     "close": "Fechar",
-    "open": "Abrir Filtros"
+    "open": "Abrir Filtros",
+    "name": "Nome",
+    "email": "E-mail",
+    "phone": "Telefone",
+    "dot": "DOT number",
+    "operationType": "Tipo de Operação",
+    "active": "Ativo",
+    "inactive": "Inativo",
+    "state": "Estado",
+    "startDate": "Data de Início",
+    "endDate": "Data de Fim",
+    "overweight": "Excesso de Peso",
+    "yes": "Sim",
+    "no": "Não",
+    "expired": "Vencido"
   },
   "status": {
     "open": "Aberto",
@@ -526,7 +545,9 @@
     "selectFile": "Por favor, selecione um arquivo.",
     "invalidFile": "O arquivo selecionado é inválido.",
     "clientsImported": "Clientes importados com sucesso!",
-    "clientsImportError": "Erro ao importar clientes."
+    "clientsImportError": "Erro ao importar clientes.",
+    "client_status_updated": "Status do Cliente atualizado com sucesso!",
+    "client_status_update_error": "Erro ao alterar status do cliente."
   },
   "photo_upload": {
     "file_label": "Arquivo Foto"
@@ -683,11 +704,13 @@
     "failed": "Falharam"
   },
   "labels": {
-    "noClient": "Sem Cliente"
+    "noClient": "Sem Cliente",
+    "expiration_date": "Data de Expiração"
   },
   "placeholders": {
     "selectClient": "Selecione um cliente",
-    "selectOperator": "Selecione um operador"
+    "selectOperator": "Selecione um operador",
+    "select_date": "Selecione a data"
   },
   "ticketsStats": {
     "total": "Total de Tickets",
@@ -716,5 +739,62 @@
     "qrCodeError": "Não foi possível obter o QR Code. Tente novamente.",
     "connectError": "Erro ao conectar número. Tente novamente.",
     "invalidInstanceName": "Nome da instância inválido para atualizar status."
+  },
+  "permits_page": {
+    "title": "Gerenciamento de Permits",
+    "fetch_error": "Erro ao carregar permits",
+    "fill_fields": "Preencha todos os campos",
+    "created": "Permit criado com sucesso",
+    "create_error": "Erro ao criar permit",
+    "deleted": "Permit removido com sucesso",
+    "delete_error": "Erro ao remover permit",
+    "select_client": "Selecione um cliente",
+    "state_placeholder": "UF",
+    "oscar_placeholder": "Oscar",
+    "expiration": "Data de Expiração",
+    "add": "Adicionar Permit",
+    "delete": "Remover",
+    "no_permits": "Nenhum permit cadastrado",
+    "total": "Total de Permits",
+    "expiring_soon": "Vencendo em breve",
+    "expired": "Vencido",
+    "active": "Ativo",
+    "search_placeholder": "Buscar por cliente ou ID",
+    "filter_state": "Filtrar por Estado",
+    "created_at": "Criado em",
+    "overweight": "Excesso de peso",
+    "is_overweight": "Tem excesso de peso",
+    "cancel": "Cancelar",
+    "client_label": "Cliente",
+    "state_label": "Estado",
+    "expiration_label": "Data de Expiração",
+    "total_permits": "permits",
+    "no_permits_description": "Este cliente ainda não possui permits cadastrados.",
+    "updated": "Permit atualizado com sucesso",
+    "update_error": "Erro ao atualizar permit"
+  },
+    "permits_expiring": {
+      "title": "Permits Perto de Expirar",
+      "client_id": "ID do Cliente",
+      "state": "Estado",
+      "expiration_date": "Data de Expiração",
+      "status": "Status",
+      "near_expiration": "Perto de Expirar",
+      "none": "Nenhum permit perto de expirar",
+      "expired": "Expirado"
+    },
+    "send_invoice": {
+    "title": "Enviar Boleto",
+    "saved": "Boleto salvo",
+    "view": "Ver",
+    "remove": "Remover",
+    "file_hint": "PDF (MAX. 5MB)",
+    "file_selected": "Arquivo selecionado",
+    "saving": "Salvando...",
+    "save": "Salvar Boleto",
+    "sending": "Enviando...",
+    "send": "Enviar Boleto",
+    "click_to_send": "Clique para enviar",
+    "or_drag_file": "ou arraste o arquivo"
   }
 }

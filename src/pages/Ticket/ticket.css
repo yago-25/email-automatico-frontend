@@ -183,3 +183,7 @@
     overflow: hidden;
     text-overflow: ellipsis;
   } */
+
+.testeTicket {
+  width: 45rem;
+}

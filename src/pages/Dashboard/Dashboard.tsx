@@ -6,7 +6,8 @@ import "./dashboard.css";
 import {
   MdArrowBackIos,
   MdArrowForwardIos,
-  MdOutlinePassword,
+  MdLoop,
+  MdWarning,
 } from "react-icons/md";
 import { api } from "../../api/api";
 import { messageAlert } from "../../utils/messageAlert";
@@ -16,22 +17,36 @@ import Input from "../../components/Input/Input";
 import Select from "../../components/Select/Select";
 import { useSwr } from "../../api/useSwr";
 import { MdOutlineFormatListNumbered } from "react-icons/md";
-import { CiPhone } from "react-icons/ci";
+import { CiCalendarDate, CiPhone } from "react-icons/ci";
 import { CiMail } from "react-icons/ci";
-import { FaGear } from "react-icons/fa6";
+import { FaGear, FaTruckRampBox } from "react-icons/fa6";
 import { HiOutlineUser } from "react-icons/hi";
 import { IoTicketOutline } from "react-icons/io5";
 import { IoPersonSharp } from "react-icons/io5";
 import { useNavigate } from "react-router-dom";
 import { FaTags, FaClipboardList, FaRegStickyNote } from "react-icons/fa";
-import { HiUserAdd, HiX } from "react-icons/hi";
-import { HiMail, HiPhone, HiUser } from "react-icons/hi";
+import { HiOutlineNumberedList } from "react-icons/hi2";
+import { HiUserAdd } from "react-icons/hi";
 import PhoneInput from "react-phone-input-2";
 import "react-phone-input-2/lib/style.css";
-import { FiBriefcase } from "react-icons/fi";
+import {
+  FiBriefcase,
+  FiCalendar,
+  FiHash,
+  FiLock,
+  FiMail,
+  FiPhone,
+  FiShare2,
+  FiTruck,
+  FiUser,
+  FiUserCheck,
+  FiUserPlus,
+  FiX,
+} from "react-icons/fi";
 import { RiFileExcel2Line } from "react-icons/ri";
 import { parsePhoneNumberFromString } from "libphonenumber-js";
 import { Tooltip } from "antd";
+import { motion } from "framer-motion";
 
 interface Option {
   label: string;
@@ -43,6 +58,10 @@ interface Clients {
   name: string;
   phone: string;
   mail: string;
+  active: boolean;
+  dot_number: string;
+  operation_type: string;
+  expiration_date: Date;
   value?: string;
   user?: string;
   password?: string;
@@ -165,6 +184,15 @@ const Dashboard = () => {
   const [isFocused, setIsFocused] = useState(false);
   const [observation, setObservation] = useState("");
   const [profileFile, setProfileFile] = useState<File | null>(null);
+  const [loadingChangeStatus, setLoadingChangeStatus] = useState(false);
+  const [clientDot, setClientDot] = useState("");
+  const [clientOperationType, setClientOperationType] = useState("");
+  const [clientExpirationDate, setClientExpirationDate] = useState<string>("");
+  const [clientEmpresa, setClientEmpresa] = useState("");
+  const [clientDono, setClientDono] = useState("");
+  const [clientSocial, setClientSocial] = useState("");
+  const [clientEin, setClientEin] = useState("");
+  const [clientMc, setClientMc] = useState("");
   const itemsPerPage = 5;
 
   const filteredClients = rawClients.filter(
@@ -173,12 +201,21 @@ const Dashboard = () => {
       client.mail.toLowerCase().includes(filteredTxt.toLowerCase())
   );
 
+  const sortedClients = [...filteredClients].sort((a, b) => a.id - b.id);
+
   const totalPages = Math.ceil(filteredClients.length / itemsPerPage);
   const startIndex = (currentPage - 1) * itemsPerPage;
-  const currentClients = filteredClients.slice(
+  const currentClients = sortedClients.slice(
     startIndex,
     startIndex + itemsPerPage
   );
+
+  const calculateDaysLeft = (expirationDate: string | Date) => {
+    const currentDate = new Date();
+    const expiration = new Date(expirationDate);
+    const timeDiff = expiration.getTime() - currentDate.getTime();
+    return Math.ceil(timeDiff / (1000 * 3600 * 24));
+  };
 
   const formatPhone = (phone: string): string => {
     try {
@@ -230,6 +267,14 @@ const Dashboard = () => {
           mail: clientMail,
           user: clientUser,
           password: clientPassword,
+          dot_number: clientDot,
+          operation_type: clientOperationType,
+          expiration_date: clientExpirationDate,
+          empresa: clientEmpresa,
+          dono: clientDono,
+          social: clientSocial,
+          ein: clientEin,
+          mc: clientMc,
         },
         {
           headers: {
@@ -248,6 +293,16 @@ const Dashboard = () => {
       setClientName("");
       setClientPhone("");
       setClientMail("");
+      setClientUser("");
+      setClientPassword("");
+      setClientDot("");
+      setClientOperationType("");
+      setClientExpirationDate("");
+      setClientEmpresa("");
+      setClientDono("");
+      setClientSocial("");
+      setClientEin("");
+      setClientMc("");
     } catch (e) {
       console.log("Erro ao criar usuário: ", e);
       messageAlert({ type: "error", message: t("dashboard.create_error") });
@@ -313,6 +368,38 @@ const Dashboard = () => {
       });
     } finally {
       setLoadingPost(false);
+    }
+  };
+
+  const handleStatus = async (client: Clients) => {
+    setLoadingChangeStatus(true);
+    try {
+      await api.patch(
+        "/update-client-status",
+        {
+          clientId: client.id,
+          active: !client.active,
+        },
+        {
+          headers: {
+            Authorization: `Bearer ${localStorage.getItem("accessToken")}`,
+          },
+        }
+      );
+
+      mutateClients();
+      messageAlert({
+        type: "success",
+        message: "Status do Cliente atualizado com sucesso!.",
+      });
+    } catch (e) {
+      console.log("Erro ao alterar status do cliente: ", e);
+      messageAlert({
+        type: "error",
+        message: "Erro ao alterar status do cliente.",
+      });
+    } finally {
+      setLoadingChangeStatus(false);
     }
   };
 
@@ -415,7 +502,7 @@ const Dashboard = () => {
     );
   }, [availableTags, tagInputValue, tags]);
 
-  if (loadingClients || loadingAdmins) {
+  if (loadingClients || loadingAdmins || loadingChangeStatus) {
     return (
       <div className="flex items-center justify-center h-full w-full">
         <Spin />
@@ -486,8 +573,8 @@ const Dashboard = () => {
         )}
       </div>
 
-      <div className="w-full max-w-[80rem] mx-auto mt-10 rounded-3xl overflow-hidden shadow-lg border border-gray-200 bg-white">
-        <div className="grid grid-cols-5 gap-x-6 items-center justify-items-center px-6 py-4 bg-gradient-to-r from-blue-100 to-blue-200 border-b font-semibold text-blue-900 text-sm uppercase tracking-wide">
+      <div className="w-full max-w-[90rem] mx-auto mt-10 rounded-3xl overflow-hidden shadow-lg bg-white">
+        <div className="grid grid-cols-8 gap-x-6 items-center justify-items-center px-6 py-4 bg-gradient-to-r from-blue-100 to-blue-200 font-semibold text-blue-900 text-sm uppercase tracking-wide">
           <p className="flex items-center gap-2 justify-center">
             <MdOutlineFormatListNumbered className="text-blue-700" /> ID
           </p>
@@ -501,52 +588,141 @@ const Dashboard = () => {
             <CiPhone className="text-blue-700" /> {t("clients.phone")}
           </p>
           <p className="flex items-center gap-2 justify-center">
+            <HiOutlineNumberedList className="text-blue-700" /> DOT Number
+          </p>
+          <p className="flex items-center gap-2 justify-center">
+            <FaTruckRampBox className="text-blue-700" /> Operation Type
+          </p>
+          <p className="flex items-center gap-2 justify-center">
+            <CiCalendarDate className="text-blue-700" /> Expiration Date
+          </p>
+          <p className="flex items-center gap-2 justify-center">
             <FaGear className="text-blue-700" /> {t("clients.actions")}
           </p>
         </div>
 
-        {currentClients.map((client, index) => (
-          <div
-            key={client.id}
-            className={`grid grid-cols-5 gap-x-6 items-center justify-items-center px-6 py-4 text-sm border-b transition duration-200 ${
-              index % 2 === 0 ? "bg-gray-50" : "bg-white"
-            } hover:bg-blue-50`}
-          >
-            <p className="text-center text-gray-800 font-medium">{client.id}</p>
-            <Tooltip title={client.name}>
-              <p className="text-center max-w-[100px] truncate text-gray-700">
-                {client.name}
-              </p>
+        {currentClients.map((client, index) => {
+          const daysLeft = client.expiration_date
+            ? calculateDaysLeft(client.expiration_date)
+            : 0;
+
+          const getAlertIconStyle = () => {
+            if (daysLeft <= 0) {
+              return { color: "red", animation: "shake 0.5s infinite" };
+            } else if (daysLeft <= 15) {
+              return { color: "red" };
+            } else if (daysLeft <= 30) {
+              return { color: "yellow" };
+            } else {
+              return { color: "transparent" };
+            }
+          };
+
+          return (
+            <Tooltip
+              title={client.active === false ? "Inativo" : ""}
+              key={client.id}
+              placement="left"
+            >
+              <div
+                className={`grid grid-cols-8 gap-x-6 items-center justify-items-center px-6 py-4 text-sm transition duration-200 ${
+                  client.active === false
+                    ? "bg-red-300"
+                    : index % 2 === 0
+                    ? "bg-gray-50"
+                    : "bg-white"
+                } ${
+                  client.active === false
+                    ? "hover:bg-red-300"
+                    : "hover:bg-blue-50"
+                }`}
+              >
+                <p className="text-center text-gray-800 font-medium">
+                  {client.id}
+                </p>
+                <Tooltip title={client.name}>
+                  <p className="text-center max-w-[100px] truncate text-gray-700">
+                    {client.name}
+                  </p>
+                </Tooltip>
+                <Tooltip title={client.mail}>
+                  <p
+                    className="text-center truncate text-gray-700"
+                    title={client.mail}
+                  >
+                    {client.mail}
+                  </p>
+                </Tooltip>
+                <p className="text-center text-gray-700" title={client.phone}>
+                  {formatPhone(client.phone)}
+                </p>
+                <p
+                  className="text-center text-gray-700"
+                  title={client.dot_number}
+                >
+                  {client.dot_number ?? "-"}
+                </p>
+                <p
+                  className="text-center text-gray-700"
+                  title={client.operation_type}
+                >
+                  {client.operation_type ?? "-"}
+                </p>
+                <div className="flex items-center justify-center gap-2">
+                  <p
+                    className="text-center text-gray-700"
+                    title={
+                      client.expiration_date
+                        ? new Date(client.expiration_date).toLocaleDateString()
+                        : "-"
+                    }
+                  >
+                    {client.expiration_date
+                      ? new Date(client.expiration_date).toLocaleDateString()
+                      : "-"}
+                  </p>
+                  <Tooltip title={`Faltam ${daysLeft} dias`}>
+                    <MdWarning
+                      style={getAlertIconStyle()}
+                      className={`h-6 w-6 ${
+                        daysLeft <= 0 ? "text-red-600" : ""
+                      }`}
+                    />
+                  </Tooltip>
+                </div>
+                <div className="flex justify-center items-center gap-3">
+                  <Tooltip title="Visualizar Cliente">
+                    <button
+                      onClick={() => handleClient(client)}
+                      className="text-blue-600 hover:text-blue-800 transition-colors duration-200"
+                      title={t("tooltips.viewClients")}
+                    >
+                      <IoPersonSharp className="h-5 w-5" />
+                    </button>
+                  </Tooltip>
+                  <Tooltip title="Visualizar Tickets">
+                    <button
+                      onClick={() => handleTicket(client)}
+                      className="text-red-600 hover:text-red-800 transition-colors duration-200"
+                      title={t("tooltips.viewTickets")}
+                    >
+                      <IoTicketOutline className="h-5 w-5" />
+                    </button>
+                  </Tooltip>
+                  <Tooltip title="Alterar Status">
+                    <button
+                      onClick={() => handleStatus(client)}
+                      className="text-green-600 hover:text-green-800 transition-colors duration-200"
+                      title={t("tooltips.viewTickets")}
+                    >
+                      <MdLoop className="h-5 w-5" />
+                    </button>
+                  </Tooltip>
+                </div>
+              </div>
             </Tooltip>
-            <Tooltip title={client.mail}>
-              <p
-                className="text-center truncate text-gray-700"
-                title={client.mail}
-              >
-                {client.mail}
-              </p>
-            </Tooltip>
-            <p className="text-center text-gray-700" title={client.phone}>
-              {formatPhone(client.phone)}
-            </p>
-            <div className="flex justify-center items-center gap-3">
-              <button
-                onClick={() => handleClient(client)}
-                className="text-blue-600 hover:text-blue-800 transition-colors duration-200"
-                title={t("tooltips.viewClients")}
-              >
-                <IoPersonSharp className="h-5 w-5" />
-              </button>
-              <button
-                onClick={() => handleTicket(client)}
-                className="text-red-600 hover:text-red-800 transition-colors duration-200"
-                title={t("tooltips.viewTickets")}
-              >
-                <IoTicketOutline className="h-5 w-5" />
-              </button>
-            </div>
-          </div>
-        ))}
+          );
+        })}
       </div>
 
       <div className="pagination flex justify-center items-center gap-4 mt-6 text-white">
@@ -571,152 +747,284 @@ const Dashboard = () => {
 
       <Modal
         title={
-          <div className="flex items-center gap-3 mb-4">
-            <div className="bg-gradient-to-br from-blue-500 to-blue-600 p-3 rounded-2xl shadow-md">
-              <HiUserAdd className="w-6 h-6 text-white" />
+          <motion.div
+            className="flex items-center gap-4 mb-6"
+            initial={{ opacity: 0, y: -10 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.4, ease: "easeOut" }}
+          >
+            <motion.div
+              className="relative bg-gradient-to-tr from-blue-500 via-indigo-500 to-purple-600 p-3.5 rounded-2xl shadow-lg overflow-hidden"
+              whileHover={{ scale: 1.08, rotate: 3 }}
+              transition={{ type: "spring", stiffness: 200, damping: 10 }}
+            >
+              <div className="absolute inset-0 bg-gradient-to-tr from-white/20 to-transparent blur-md animate-pulse" />
+              <HiUserAdd className="w-7 h-7 text-white relative z-10 drop-shadow-md" />
+            </motion.div>
+
+            <div className="flex flex-col">
+              <motion.h2
+                className="text-3xl font-extrabold bg-gradient-to-r from-blue-600 via-indigo-600 to-purple-600 bg-clip-text text-transparent drop-shadow-sm"
+                initial={{ opacity: 0, x: -10 }}
+                animate={{ opacity: 1, x: 0 }}
+                transition={{ delay: 0.15, duration: 0.5 }}
+              >
+                {t("clients.add_client")}
+              </motion.h2>
+              <motion.p
+                className="text-sm text-gray-500 font-medium"
+                initial={{ opacity: 0 }}
+                animate={{ opacity: 1 }}
+                transition={{ delay: 0.3, duration: 0.6 }}
+              >
+                {t("clients.clients")}
+              </motion.p>
             </div>
-            <div>
-              <h2 className="text-2xl font-bold text-gray-800">
-                {t("dashboard.add_client")}
-              </h2>
-            </div>
-          </div>
+          </motion.div>
         }
         isVisible={addClient}
         onClose={() => setAddClient(false)}
+        width={1900}
       >
-        {loadingPost || loadingImport ? (
-          <div className="flex flex-col items-center justify-center w-full gap-4">
+        {loadingPost ? (
+          <div className="flex flex-col items-center justify-center w-full gap-4 py-10">
             <Spin />
+            <p className="text-gray-500 text-sm">
+              {t("ticketsStats.inProgress")}
+            </p>
           </div>
         ) : (
-          <div className="bg-gradient-to-br from-white to-blue-50/50 p-8 rounded-3xl shadow-lg space-y-6">
-            <div className="space-y-2">
-              <div className="flex items-center gap-3 mb-2">
-                <div className="p-2.5 bg-gradient-to-br from-blue-500 to-blue-600 rounded-xl text-white shadow-sm">
-                  <HiUser className="w-5 h-5" />
+          <div className="bg-gradient-to-br from-white to-blue-50/50 p-6 rounded-3xl shadow-lg">
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+              <div>
+                <div className="flex items-center gap-2 mb-2">
+                  <FiUser className="w-4 h-4 text-blue-600" />
+                  <label className="text-sm font-semibold text-gray-700">
+                    {t("dashboard.name")}
+                  </label>
                 </div>
-                <label className="text-sm font-semibold text-gray-700">
-                  {t("dashboard.name")}
-                </label>
+                <input
+                  type="text"
+                  value={clientName}
+                  onChange={(e) => setClientName(e.target.value)}
+                  className="w-full border border-gray-200 rounded-xl px-5 py-3.5 text-base shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-400 bg-white/90 backdrop-blur-sm transition-all duration-200 hover:border-blue-300 focus:bg-white"
+                  placeholder={t("dashboard.name")}
+                />
               </div>
-              <input
-                type="text"
-                value={clientName}
-                onChange={(e) => setClientName(e.target.value)}
-                className="w-full border border-gray-200 rounded-2xl px-5 py-4 text-base shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-400 bg-white/70 backdrop-blur-sm transition-all duration-200 hover:border-blue-300"
-                placeholder={t("dashboard.name")}
-              />
-            </div>
 
-            <div className="space-y-2">
-              <div className="flex items-center gap-3 mb-2">
-                <div className="p-2.5 bg-gradient-to-br from-green-500 to-green-600 rounded-xl text-white shadow-sm">
-                  <HiPhone className="w-5 h-5" />
+              <div>
+                <div className="flex items-center gap-2 mb-2">
+                  <FiPhone className="w-4 h-4 text-green-600" />
+                  <label className="text-sm font-semibold text-gray-700">
+                    {t("dashboard.phone")}
+                  </label>
                 </div>
-                <label className="text-sm font-semibold text-gray-700">
-                  {t("dashboard.phone")}
-                </label>
+                <PhoneInput
+                  country={"us"}
+                  value={clientPhone}
+                  onChange={setClientPhone}
+                  prefix="+"
+                  inputProps={{
+                    required: true,
+                    className:
+                      "w-full border border-gray-200 rounded-xl px-5 py-3.5 text-base shadow-sm focus:outline-none focus:ring-2 focus:ring-green-400 bg-white/90 backdrop-blur-sm transition-all duration-200 hover:border-green-300 focus:bg-white",
+                  }}
+                  containerStyle={{ width: "100%" }}
+                  inputStyle={{
+                    width: "100%",
+                    height: "54px",
+                    borderRadius: "0.75rem",
+                    border: "1px solid #E5E7EB",
+                    fontSize: "16px",
+                    paddingLeft: "48px",
+                  }}
+                  buttonStyle={{
+                    borderTopLeftRadius: "0.75rem",
+                    borderBottomLeftRadius: "0.75rem",
+                    backgroundColor: "#F9FAFB",
+                    border: "1px solid #E5E7EB",
+                    borderRight: "none",
+                  }}
+                  enableSearch={false}
+                  disableSearchIcon={true}
+                  countryCodeEditable={false}
+                />
               </div>
-              <PhoneInput
-                country={"us"}
-                value={clientPhone}
-                onChange={setClientPhone}
-                prefix="+"
-                inputProps={{
-                  required: true,
-                  className:
-                    "w-full border border-gray-200 rounded-2xl px-5 py-4 text-base shadow-sm focus:outline-none focus:ring-2 focus:ring-green-400 bg-white/70 backdrop-blur-sm transition-all duration-200 hover:border-green-300",
-                }}
-                containerStyle={{ width: "100%" }}
-                inputStyle={{
-                  width: "100%",
-                  height: "56px",
-                  borderRadius: "1rem",
-                  border: "1px solid #E5E7EB",
-                  fontSize: "16px",
-                  paddingLeft: "48px",
-                }}
-                buttonStyle={{
-                  borderTopLeftRadius: "1rem",
-                  borderBottomLeftRadius: "1rem",
-                  backgroundColor: "#F3F4F6",
-                  border: "1px solid #E5E7EB",
-                  borderRight: "none",
-                }}
-                enableSearch={false}
-                disableSearchIcon={true}
-                countryCodeEditable={false}
-              />
-            </div>
 
-            <div className="space-y-2">
-              <div className="flex items-center gap-3 mb-2">
-                <div className="p-2.5 bg-gradient-to-br from-purple-500 to-purple-600 rounded-xl text-white shadow-sm">
-                  <HiMail className="w-5 h-5" />
+              <div>
+                <div className="flex items-center gap-2 mb-2">
+                  <FiMail className="w-4 h-4 text-purple-600" />
+                  <label className="text-sm font-semibold text-gray-700">
+                    {t("dashboard.email")}
+                  </label>
                 </div>
-                <label className="text-sm font-semibold text-gray-700">
-                  {t("dashboard.email")}
-                </label>
+                <input
+                  type="email"
+                  value={clientMail}
+                  onChange={(e) => setClientMail(e.target.value)}
+                  className="w-full border border-gray-200 rounded-xl px-5 py-3.5 text-base shadow-sm focus:outline-none focus:ring-2 focus:ring-purple-400 bg-white/90 backdrop-blur-sm transition-all duration-200 hover:border-purple-300 focus:bg-white"
+                  placeholder={t("dashboard.email")}
+                />
               </div>
-              <input
-                type="email"
-                value={clientMail}
-                onChange={(e) => setClientMail(e.target.value)}
-                className="w-full border border-gray-200 rounded-2xl px-5 py-4 text-base shadow-sm focus:outline-none focus:ring-2 focus:ring-purple-400 bg-white/70 backdrop-blur-sm transition-all duration-200 hover:border-purple-300"
-                placeholder={t("dashboard.email")}
-              />
-            </div>
 
-            <div className="space-y-2">
-              <div className="flex items-center gap-3 mb-2">
-                <div className="p-2.5 bg-gradient-to-br from-red-500 to-red-600 rounded-xl text-white shadow-sm">
-                  <HiUser className="w-5 h-5" />
+              <div>
+                <div className="flex items-center gap-2 mb-2">
+                  <FiCalendar className="w-4 h-4 text-purple-600" />
+                  <label className="text-sm font-semibold text-gray-700">
+                    {t("labels.expiration_date")}
+                  </label>
                 </div>
-                <label className="text-sm font-semibold text-gray-700">
-                  {t("clients.user")} (Opcional)
-                </label>
+                <input
+                  type="date"
+                  value={clientExpirationDate}
+                  onChange={(e) => setClientExpirationDate(e.target.value)}
+                  className="w-full border border-gray-200 rounded-xl px-5 py-3.5 text-base shadow-sm focus:outline-none focus:ring-2 focus:ring-purple-400 bg-white/90 backdrop-blur-sm transition-all duration-200 hover:border-purple-300 focus:bg-white"
+                  placeholder="Selecione a data"
+                />
               </div>
-              <input
-                type="text"
-                value={clientUser}
-                onChange={(e) => setClientUser(e.target.value)}
-                className="w-full border border-gray-200 rounded-2xl px-5 py-4 text-base shadow-sm focus:outline-none focus:ring-2 focus:ring-purple-400 bg-white/70 backdrop-blur-sm transition-all duration-200 hover:border-purple-300"
-                placeholder={t("clients.user")}
-              />
-            </div>
 
-            <div className="space-y-2">
-              <div className="flex items-center gap-3 mb-2">
-                <div className="p-2.5 bg-gradient-to-br from-yellow-500 to-yellow-600 rounded-xl text-white shadow-sm">
-                  <MdOutlinePassword className="w-5 h-5" />
+              <div>
+                <div className="flex items-center gap-2 mb-2">
+                  <FiUser className="w-4 h-4 text-red-600" />
+                  <label className="text-sm font-semibold text-gray-700">
+                    {t("clients.user")}
+                  </label>
                 </div>
-                <label className="text-sm font-semibold text-gray-700">
-                  {t("clients.password")} (Opcional)
-                </label>
+                <input
+                  type="text"
+                  value={clientUser}
+                  onChange={(e) => setClientUser(e.target.value)}
+                  className="w-full border border-gray-200 rounded-xl px-5 py-3.5 text-base shadow-sm focus:outline-none focus:ring-2 focus:ring-purple-400 bg-white/90 backdrop-blur-sm transition-all duration-200 hover:border-purple-300 focus:bg-white"
+                  placeholder={t("clients.user")}
+                />
               </div>
-              <input
-                type="email"
-                value={clientPassword}
-                onChange={(e) => setClientPassword(e.target.value)}
-                className="w-full border border-gray-200 rounded-2xl px-5 py-4 text-base shadow-sm focus:outline-none focus:ring-2 focus:ring-purple-400 bg-white/70 backdrop-blur-sm transition-all duration-200 hover:border-purple-300"
-                placeholder={t("clients.password")}
-              />
+
+              <div>
+                <div className="flex items-center gap-2 mb-2">
+                  <FiLock className="w-4 h-4 text-red-600" />
+                  <label className="text-sm font-semibold text-gray-700">
+                    {t("clients.password")}
+                  </label>
+                </div>
+                <input
+                  type="password"
+                  value={clientPassword}
+                  onChange={(e) => setClientPassword(e.target.value)}
+                  className="w-full border border-gray-200 rounded-xl px-5 py-3.5 text-base shadow-sm focus:outline-none focus:ring-2 focus:ring-purple-400 bg-white/90 backdrop-blur-sm transition-all duration-200 hover:border-purple-300 focus:bg-white"
+                  placeholder={t("clients.password")}
+                />
+              </div>
+
+              <div>
+                <div className="flex items-center gap-2 mb-2">
+                  <FiHash className="w-4 h-4 text-yellow-600" />
+                  <label className="text-sm font-semibold text-gray-700">
+                    DOT Number
+                  </label>
+                </div>
+                <input
+                  type="text"
+                  value={clientDot}
+                  onChange={(e) => setClientDot(e.target.value)}
+                  className="w-full border border-gray-200 rounded-xl px-5 py-3.5 text-base shadow-sm focus:outline-none focus:ring-2 focus:ring-purple-400 bg-white/90 backdrop-blur-sm transition-all duration-200 hover:border-purple-300 focus:bg-white"
+                  placeholder="Ex: 1234567"
+                />
+              </div>
+
+              <div>
+                <div className="flex items-center gap-2 mb-2">
+                  <FiBriefcase className="w-4 h-4 text-indigo-600" />
+                  <label className="text-sm font-semibold text-gray-700">
+                    {t("dashboard.empresa")}
+                  </label>
+                </div>
+                <input
+                  type="text"
+                  value={clientEmpresa}
+                  onChange={(e) => setClientEmpresa(e.target.value)}
+                  className="w-full border border-gray-200 rounded-xl px-5 py-3.5 text-base shadow-sm focus:outline-none focus:ring-2 focus:ring-indigo-400 bg-white/90 backdrop-blur-sm transition-all duration-200 hover:border-indigo-300 focus:bg-white"
+                  placeholder={t("dashboard.empresa")}
+                />
+              </div>
+
+              <div>
+                <div className="flex items-center gap-2 mb-2">
+                  <FiUserCheck className="w-4 h-4 text-teal-600" />
+                  <label className="text-sm font-semibold text-gray-700">
+                    {t("dashboard.dono")}
+                  </label>
+                </div>
+                <input
+                  type="text"
+                  value={clientDono}
+                  onChange={(e) => setClientDono(e.target.value)}
+                  className="w-full border border-gray-200 rounded-xl px-5 py-3.5 text-base shadow-sm focus:outline-none focus:ring-2 focus:ring-teal-400 bg-white/90 backdrop-blur-sm transition-all duration-200 hover:border-teal-300 focus:bg-white"
+                  placeholder={t("dashboard.dono")}
+                />
+              </div>
+
+              <div>
+                <div className="flex items-center gap-2 mb-2">
+                  <FiShare2 className="w-4 h-4 text-pink-600" />
+                  <label className="text-sm font-semibold text-gray-700">
+                    {t("dashboard.social")}
+                  </label>
+                </div>
+                <input
+                  type="text"
+                  value={clientSocial}
+                  onChange={(e) => setClientSocial(e.target.value)}
+                  className="w-full border border-gray-200 rounded-xl px-5 py-3.5 text-base shadow-sm focus:outline-none focus:ring-2 focus:ring-pink-400 bg-white/90 backdrop-blur-sm transition-all duration-200 hover:border-pink-300 focus:bg-white"
+                  placeholder={t("dashboard.social")}
+                />
+              </div>
+
+              <div>
+                <div className="flex items-center gap-2 mb-2">
+                  <FiHash className="w-4 h-4 text-yellow-600" />
+                  <label className="text-sm font-semibold text-gray-700">
+                    EIN
+                  </label>
+                </div>
+                <input
+                  type="text"
+                  value={clientEin}
+                  onChange={(e) => setClientEin(e.target.value)}
+                  className="w-full border border-gray-200 rounded-xl px-5 py-3.5 text-base shadow-sm focus:outline-none focus:ring-2 focus:ring-yellow-400 bg-white/90 backdrop-blur-sm transition-all duration-200 hover:border-yellow-300 focus:bg-white"
+                  placeholder="E.g., 12-3456789"
+                />
+              </div>
+
+              <div>
+                <div className="flex items-center gap-2 mb-2">
+                  <FiTruck className="w-4 h-4 text-orange-600" />
+                  <label className="text-sm font-semibold text-gray-700">
+                    MC
+                  </label>
+                </div>
+                <input
+                  type="text"
+                  value={clientMc}
+                  onChange={(e) => setClientMc(e.target.value)}
+                  className="w-full border border-gray-200 rounded-xl px-5 py-3.5 text-base shadow-sm focus:outline-none focus:ring-2 focus:ring-orange-400 bg-white/90 backdrop-blur-sm transition-all duration-200 hover:border-orange-300 focus:bg-white"
+                  placeholder="E.g., MC123456"
+                />
+              </div>
             </div>
 
             <div className="flex gap-4 pt-6">
               <button
                 onClick={handleAddClient}
-                className="flex-1 flex items-center justify-center gap-2 py-4 bg-gradient-to-r from-blue-500 to-blue-600 text-white rounded-2xl hover:from-blue-600 hover:to-blue-700 transition-all duration-300 shadow-lg hover:shadow-xl font-medium transform hover:scale-[1.02] active:scale-[0.98]"
+                className="flex-1 flex items-center justify-center gap-2 py-4 bg-gradient-to-r from-blue-500 to-blue-600 text-white rounded-xl hover:from-blue-600 hover:to-blue-700 transition-all duration-300 shadow-lg hover:shadow-xl font-medium transform hover:scale-[1.02] active:scale-[0.98]"
               >
-                <HiUserAdd className="w-5 h-5" />
+                <FiUserPlus className="w-5 h-5" />
                 {t("dashboard.add_client")}
               </button>
               <button
                 onClick={() => setAddClient(false)}
-                className="flex-1 flex items-center justify-center gap-2 py-4 bg-gradient-to-r from-gray-100 to-gray-200 text-gray-700 rounded-2xl hover:from-gray-200 hover:to-gray-300 transition-all duration-300 shadow-lg hover:shadow-xl font-medium transform hover:scale-[1.02] active:scale-[0.98] border border-gray-200"
+                className="flex-1 flex items-center justify-center gap-2 py-4 bg-gradient-to-r from-gray-100 to-gray-200 text-gray-700 rounded-xl hover:from-gray-200 hover:to-gray-300 transition-all duration-300 shadow-lg hover:shadow-xl font-medium transform hover:scale-[1.02] active:scale-[0.98] border border-gray-200"
               >
-                <HiX className="w-5 h-5" />
+                <FiX className="w-5 h-5" />
                 {t("buttons.cancel")}
               </button>
             </div>
@@ -734,7 +1042,7 @@ const Dashboard = () => {
           </div>
         ) : (
           <div className="flex flex-col gap-4 text-sm text-gray-800 max-h-[80vh] overflow-y-auto pr-1">
-            <div className="bg-white p-4 rounded-xl shadow-md space-y-2">
+            <div className="bg-white p-4 rounded-xl shadow-md ">
               <h3 className="text-lg font-semibold flex items-center gap-2 text-blue-600">
                 <FaClipboardList /> {t("modal.ticket_details")}
               </h3>

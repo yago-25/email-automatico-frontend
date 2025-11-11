@@ -121,6 +121,11 @@
     "name": "Nombre",
     "email": "Correo electrónico",
     "phone": "Teléfono",
+    "empresa": "Empresa",
+    "dono": "Propietario",
+    "social": "Social",
+    "ein": "EIN",
+    "mc": "MC",
     "previous": "Anterior",
     "next": "Siguiente",
     "of": "de",
@@ -202,7 +207,21 @@
     "failed": "Fallido",
     "date_sent": "Fecha de envío",
     "close": "Cerrar",
-    "open": "Abrir filtros"
+    "open": "Abrir filtros",
+    "name": "Nombre",
+    "email": "Correo electrónico",
+    "phone": "Teléfono",
+    "dot": "DOT number",
+    "operationType": "Tipo de Operación",
+    "active": "Activo",
+    "inactive": "Inactivo",
+    "state": "Estado",
+    "startDate": "Fecha de inicio",
+    "endDate": "Fecha de fin",
+    "overweight": "Exceso de peso",
+    "yes": "Sí",
+    "no": "No",
+    "expired": "Vencido"
   },
   "status": {
     "open": "Abierto",
@@ -522,7 +541,9 @@
     "selectFile": "Por favor, selecciona un archivo.",
     "invalidFile": "El archivo seleccionado no es válido.",
     "clientsImported": "¡Clientes importados con éxito!",
-    "clientsImportError": "Error al importar clientes."
+    "clientsImportError": "Error al importar clientes.",
+    "client_status_updated": "¡Estado del cliente actualizado con éxito!",
+    "client_status_update_error": "Error al actualizar el estado del cliente."
   },
   "photo_upload": {
     "file_label": "Archivo de Foto"
@@ -678,11 +699,13 @@
     "failed": "Fallaron"
   },
   "labels": {
-    "noClient": "Sin Cliente"
+    "noClient": "Sin Cliente",
+    "expiration_date": "Fecha de Vencimiento"
   },
   "placeholders": {
     "selectClient": "Selecciona un cliente",
-    "selectOperator": "Selecciona un operador"
+    "selectOperator": "Selecciona un operador",
+    "select_date": "Seleccione una fecha"
   },
   "ticketsStats": {
     "total": "Total de Tickets",
@@ -714,5 +737,62 @@
     "qrCodeError": "No se pudo obtener el código QR. Inténtalo de nuevo.",
     "connectError": "Error al conectar el número. Inténtalo de nuevo.",
     "invalidInstanceName": "Nombre de instancia no válido para actualizar el estado."
+  },
+  "permits_page": {
+    "title": "Gestión de Permisos",
+    "fetch_error": "Error al cargar los permisos",
+    "fill_fields": "Por favor, complete todos los campos",
+    "created": "Permiso creado con éxito",
+    "create_error": "Error al crear el permiso",
+    "deleted": "Permiso eliminado con éxito",
+    "delete_error": "Error al eliminar el permiso",
+    "select_client": "Seleccione un cliente",
+    "state_placeholder": "Estado",
+    "oscar_placeholder": "Oscar",
+    "expiration": "Fecha de Vencimiento",
+    "add": "Agregar Permiso",
+    "delete": "Eliminar",
+    "no_permits": "No hay permisos registrados",
+    "total": "Total de Permisos",
+    "expiring_soon": "Próximos a vencer",
+    "expired": "Vencido",
+    "active": "Activo",
+    "search_placeholder": "Buscar por cliente o ID",
+    "filter_state": "Filtrar por Estado",
+    "created_at": "Creado el",
+    "overweight": "Exceso de peso",
+    "is_overweight": "Tiene exceso de peso",
+    "cancel": "Cancelar",
+    "client_label": "Cliente",
+    "state_label": "Estado",
+    "expiration_label": "Fecha de Vencimiento",
+    "total_permits": "permisos",
+    "no_permits_description": "Este cliente aún no tiene permisos registrados.",
+    "updated": "Permiso actualizado con éxito",
+    "update_error": "Error al actualizar el permiso"
+  },
+  "permits_expiring": {
+    "title": "Permisos Próximos a Vencer",
+    "client_id": "ID del Cliente",
+    "state": "Estado",
+    "expiration_date": "Fecha de Vencimiento",
+    "status": "Estado",
+    "near_expiration": "Próximo a Vencer",
+    "none": "No permits near expiration",
+    "expired": "Expirado"
+  },
+  "send_invoice": {
+    "title": "Enviar Factura",
+    "saved": "Factura guardada",
+    "view": "Ver",
+    "remove": "Eliminar",
+    "file_hint": "PDF (MÁX. 5MB)",
+    "file_selected": "Archivo seleccionado",
+    "saving": "Guardando...",
+    "save": "Guardar Factura",
+    "sending": "Enviando...",
+    "send": "Enviar Factura",
+    "click_to_send": "Haz clic para enviar",
+    "or_drag_file": "o arrastra el archivo"
   }
 }

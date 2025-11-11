@@ -8,7 +8,7 @@ interface ModalProps {
   width?: number;
 }
 
-const Modal: React.FC<ModalProps> = ({
+const ModalTicket: React.FC<ModalProps> = ({
   title,
   isVisible,
   onClose,
@@ -20,7 +20,7 @@ const Modal: React.FC<ModalProps> = ({
   return (
     <div className="fixed inset-0 bg-gray-500 bg-opacity-50 flex justify-center items-center z-50">
       <div
-        className={`teste bg-white rounded-lg shadow-lg p-6 ${
+        className={`testeTicket bg-white rounded-lg shadow-lg p-6 ${
           width ? `w-[${width}px]` : "w-96"
         }`}
       >
@@ -39,4 +39,4 @@ const Modal: React.FC<ModalProps> = ({
   );
 };
 
-export default Modal;
+export default ModalTicket;
