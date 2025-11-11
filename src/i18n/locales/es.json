@@ -786,7 +786,7 @@
     "saved": "Factura guardada",
     "view": "Ver",
     "remove": "Eliminar",
-    "file_hint": "PDF, PNG o JPG (MÁX. 5MB)",
+    "file_hint": "PDF (MÁX. 5MB)",
     "file_selected": "Archivo seleccionado",
     "saving": "Guardando...",
     "save": "Guardar Factura",

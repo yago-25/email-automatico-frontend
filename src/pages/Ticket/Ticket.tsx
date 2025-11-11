@@ -72,6 +72,7 @@ interface Ticket {
   create: User;
   message: string;
   created_at: string;
+  paid: boolean;
   observation?: string;
   histories?: TicketHistory[];
   deleted_at?: string | null;
@@ -118,14 +119,16 @@ export const Button: React.FC<ButtonProps> = ({ text, onClick, disabled }) => {
           onClick?.(e);
         }
       }}
-      className={`w-44 h-12 text-white rounded-lg transition-all ease-in-out ${disabled
-        ? "bg-blue-400 cursor-not-allowed opacity-50"
-        : "bg-blue-600 hover:bg-blue-700 hover:shadow-lg cursor-pointer active:w-11 active:h-11 active:rounded-full active:duration-300"
-        } group`}
+      className={`w-44 h-12 text-white rounded-lg transition-all ease-in-out ${
+        disabled
+          ? "bg-blue-400 cursor-not-allowed opacity-50"
+          : "bg-blue-600 hover:bg-blue-700 hover:shadow-lg cursor-pointer active:w-11 active:h-11 active:rounded-full active:duration-300"
+      } group`}
     >
       <svg
-        className={`animate-spin mx-auto ${disabled ? "hidden" : "group-active:block hidden"
-          }`}
+        className={`animate-spin mx-auto ${
+          disabled ? "hidden" : "group-active:block hidden"
+        }`}
         width="33"
         height="32"
         viewBox="0 0 33 32"
@@ -242,6 +245,10 @@ const Ticket = () => {
   const [loadingSendBoleto, setLoadingSendBoleto] = useState(false);
   const [loadingRemoveBoleto, setLoadingRemoveBoleto] = useState(false);
 
+  const [openModalSendBoleto, setOpenModalSendBoleto] = useState(false);
+  const [message, setMessage] = useState("");
+  const [isSending, setIsSending] = useState(false);
+
   const { data: rawClients = [], isLoading: loadingClients } = useSwr<
     Clients[]
   >("/clients", {
@@ -333,22 +340,22 @@ const Ticket = () => {
       const matchesTag = filterTag
         ? Array.isArray(ticket.tags)
           ? ticket.tags.some((tag) =>
-            tag.toLowerCase().includes(filterTag.toLowerCase())
-          )
+              tag.toLowerCase().includes(filterTag.toLowerCase())
+            )
           : ticket.tags?.toLowerCase().includes(filterTag.toLowerCase())
         : true;
 
       const matchesType = filterType
         ? Array.isArray(ticket.type)
           ? ticket.type.some((type) =>
-            type.toLowerCase().includes(filterType.toLowerCase())
-          )
+              type.toLowerCase().includes(filterType.toLowerCase())
+            )
           : ticket.type?.toLowerCase().includes(filterType.toLowerCase())
         : true;
 
       const matchesDate = filterDate
         ? new Date(ticket.created_at).toLocaleDateString() ===
-        new Date(filterDate).toLocaleDateString()
+          new Date(filterDate).toLocaleDateString()
         : true;
 
       const matchesTicket = filterTicket
@@ -924,70 +931,66 @@ const Ticket = () => {
     }
   };
 
-  const handleSendBoleto = async (ticket: Ticket) => {
-  if (!ticket.file_url) {
-    messageAlert({
-      type: "error",
-      message: "Nenhum boleto para enviar. Salve o boleto primeiro.",
-    });
-    return;
-  }
-
-  setLoadingSendBoleto(true);
-
-  try {
-    const token = localStorage.getItem("accessToken");
-    if (!token) throw new Error("Token de autenticação não encontrado.");
-
-    console.log("🔹 Token carregado:", token);
-    console.log("🔹 Ticket recebido:", ticket);
-
-    const payload = {
-      subject: "Boleto do seu atendimento",
-      body: "Segue o boleto referente ao seu atendimento.",
-      client_id: Number(ticket.client?.id ?? ticket.client),
-      attachments: [
-        {
-          name: ticket.file_url.split("/").pop() || "boleto.pdf",
-          url: encodeURI(ticket.file_url),
-        },
-      ],
-    };
-
-    console.log("📦 Payload a ser enviado:", payload);
-
-    const { data } = await api.post("/enviar-email", payload, {
-      headers: {
-        Authorization: `Bearer ${token}`,
-        "Content-Type": "application/json",
-      },
-    });
-
-    console.log("✅ Resposta da API:", data);
-
-    if (data.success) {
-      messageAlert({
-        type: "success",
-        message: "Boleto enviado com sucesso!",
-      });
-    } else {
-      console.error("❌ Erro retornado pela API:", data);
+  const handleSendBoleto = async (ticket: Ticket | null) => {
+    if (!ticket?.file_url) {
       messageAlert({
         type: "error",
-        message: data?.error || "Erro ao enviar boleto.",
+        message: "Nenhum boleto para enviar. Salve o boleto primeiro.",
       });
+      return;
     }
-  } catch (error) {
-    console.error("💥 Erro ao enviar boleto:", error);
-    messageAlert({
-      type: "error",
-      message: "Erro ao enviar boleto.",
-    });
-  } finally {
-    console.log("🔄 Finalizando envio de boleto...");
-    setLoadingSendBoleto(false);
-  }
-};
+
+    setLoadingSendBoleto(true);
+    setIsSending(true);
+
+    try {
+      const token = localStorage.getItem("accessToken");
+      if (!token) throw new Error("Token de autenticação não encontrado.");
+
+      const payload = {
+        subject: "Your Service Invoice",
+        body: "Please find attached the payment slip for your service.",
+        client_id: Number(ticket.client?.id ?? ticket.client),
+        attachments: [
+          {
+            name: ticket.file_url.split("/").pop() || "boleto.pdf",
+            url: encodeURI(ticket.file_url),
+          },
+        ],
+        emailMessage: message,
+      };
+
+      const { data } = await api.post("/enviar-email", payload, {
+        headers: {
+          Authorization: `Bearer ${token}`,
+          "Content-Type": "application/json",
+        },
+      });
+
+      if (data.success) {
+        messageAlert({
+          type: "success",
+          message: "Boleto enviado com sucesso!",
+        });
+        setOpenModalSendBoleto(false);
+        setMessage("");
+      } else {
+        messageAlert({
+          type: "error",
+          message: data?.error || "Erro ao enviar boleto.",
+        });
+      }
+    } catch (error) {
+      messageAlert({
+        type: "error",
+        message: "Erro ao enviar boleto.",
+      });
+      console.log(error, "Erro");
+    } finally {
+      setLoadingSendBoleto(false);
+      setIsSending(false);
+    }
+  };
 
   const handleRemoveBoleto = async (ticketId: number) => {
     if (!selectedTicket) return;
@@ -1122,10 +1125,11 @@ const Ticket = () => {
         <button
           onClick={() => setShowOnlyDeleted((prev) => !prev)}
           className={`flex items-center justify-center gap-2 min-w-[150px] px-4 py-2.5 text-white font-medium rounded-lg shadow-md hover:shadow-lg transition-all duration-200
-          ${showOnlyDeleted
+          ${
+            showOnlyDeleted
               ? "bg-green-600 hover:bg-green-700"
               : "bg-red-600 hover:bg-red-700"
-            }`}
+          }`}
         >
           <FaTrash size={20} />
           {showOnlyDeleted
@@ -1178,8 +1182,29 @@ const Ticket = () => {
               whileHover={{ scale: 1.02 }}
               transition={{ duration: 0.3 }}
               onClick={() => handleCardClick(ticket)}
-              className="bg-white rounded-2xl shadow-lg hover:shadow-xl transition-all duration-300 border border-gray-100 overflow-hidden group cursor-pointer"
+              className="bg-white rounded-2xl shadow-lg hover:shadow-xl transition-all duration-300 border border-gray-100 overflow-hidden group cursor-pointer relative"
             >
+              {ticket.paid && (
+                <div className="absolute top-4 right-4 z-10">
+                  <div className="flex items-center gap-1.5 bg-green-500 text-white px-3 py-1.5 rounded-full shadow-lg">
+                    <svg
+                      className="w-4 h-4"
+                      fill="none"
+                      stroke="currentColor"
+                      viewBox="0 0 24 24"
+                    >
+                      <path
+                        strokeLinecap="round"
+                        strokeLinejoin="round"
+                        strokeWidth={2}
+                        d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"
+                      />
+                    </svg>
+                    <span className="text-xs font-semibold">Paid</span>
+                  </div>
+                </div>
+              )}
+
               <div className="p-6 space-y-4">
                 <div className="flex justify-between items-start">
                   <div className="flex items-center gap-3">
@@ -1230,15 +1255,16 @@ const Ticket = () => {
                   <div
                     className={`
                       px-4 py-2 rounded-xl flex items-center gap-2 w-full justify-center
-                      ${ticket.status === "Não iniciada"
-                        ? "bg-gray-100 text-gray-600"
-                        : ticket.status === "Esperando"
+                      ${
+                        ticket.status === "Não iniciada"
+                          ? "bg-gray-100 text-gray-600"
+                          : ticket.status === "Esperando"
                           ? "bg-yellow-100 text-yellow-600"
                           : ticket.status === "Em progresso"
-                            ? "bg-blue-100 text-blue-600"
-                            : ticket.status === "Completo"
-                              ? "bg-green-100 text-green-600"
-                              : "bg-red-100 text-red-600"
+                          ? "bg-blue-100 text-blue-600"
+                          : ticket.status === "Completo"
+                          ? "bg-green-100 text-green-600"
+                          : "bg-red-100 text-red-600"
                       } 
                       group-hover:bg-opacity-20 transition-all duration-300
                     `}
@@ -1247,7 +1273,7 @@ const Ticket = () => {
                     <span className="text-sm font-medium">
                       {t(
                         statusTranslations[
-                        ticket.status as keyof typeof statusTranslations
+                          ticket.status as keyof typeof statusTranslations
                         ]
                       )}
                     </span>
@@ -1480,10 +1506,11 @@ const Ticket = () => {
                     setIsDeleteModalVisible(true);
                   }
                 }}
-                className={`flex items-center gap-1.5 px-2.5 py-1 text-xs font-medium rounded-lg transition-all duration-200 shadow-sm hover:shadow-md ${selectedTicket.deleted_at
-                  ? "bg-green-500 hover:bg-green-600 text-white"
-                  : "bg-red-500 hover:bg-red-600 text-white"
-                  }`}
+                className={`flex items-center gap-1.5 px-2.5 py-1 text-xs font-medium rounded-lg transition-all duration-200 shadow-sm hover:shadow-md ${
+                  selectedTicket.deleted_at
+                    ? "bg-green-500 hover:bg-green-600 text-white"
+                    : "bg-red-500 hover:bg-red-600 text-white"
+                }`}
               >
                 {selectedTicket.deleted_at ? (
                   <>
@@ -1500,8 +1527,9 @@ const Ticket = () => {
 
               {selectedTicket?.deleted_at && daysLeft !== null && (
                 <p
-                  className={`mt-1 text-sm ${daysLeft <= 5 ? "text-red-600" : "text-gray-500"
-                    }`}
+                  className={`mt-1 text-sm ${
+                    daysLeft <= 5 ? "text-red-600" : "text-gray-500"
+                  }`}
                 >
                   {t("messages.expiresInDays", { days: daysLeft })}
                 </p>
@@ -1772,7 +1800,8 @@ const Ticket = () => {
                               rel="noopener noreferrer"
                               className="px-3 py-2 bg-blue-600 text-white text-xs rounded-lg hover:bg-blue-700 transition flex items-center gap-1"
                             >
-                              <FaEye className="w-3 h-3" /> {t("send_invoice.view")}
+                              <FaEye className="w-3 h-3" />{" "}
+                              {t("send_invoice.view")}
                             </a>
                             <button
                               onClick={() =>
@@ -1785,7 +1814,8 @@ const Ticket = () => {
                                 <Spin />
                               ) : (
                                 <>
-                                  <FiTrash2 className="w-3 h-3" /> {t("send_invoice.remove")}
+                                  <FiTrash2 className="w-3 h-3" />{" "}
+                                  {t("send_invoice.remove")}
                                 </>
                               )}
                             </button>
@@ -1814,7 +1844,9 @@ const Ticket = () => {
                             />
                           </svg>
                           <p className="mb-2 text-sm text-gray-500">
-                            <span className="font-semibold">{t("send_invoice.click_to_send")}</span>{" "}
+                            <span className="font-semibold">
+                              {t("send_invoice.click_to_send")}
+                            </span>{" "}
                             {t("send_invoice.or_drag_file")}
                           </p>
                           <p className="text-xs text-gray-400">
@@ -1825,7 +1857,7 @@ const Ticket = () => {
                           ref={fileInputRef}
                           type="file"
                           className="hidden"
-                          accept=".pdf,.png,.jpg,.jpeg"
+                          accept=".pdf"
                           onChange={handleFileSelect}
                         />
                       </label>
@@ -1882,7 +1914,9 @@ const Ticket = () => {
                       </button>
                     )}
                     <button
-                      onClick={() => handleSendBoleto(selectedTicket)}
+                      onClick={() => {
+                        setOpenModalSendBoleto(true);
+                      }}
                       disabled={!selectedTicket.file_url || loadingSendBoleto}
                       className="w-full flex items-center justify-center gap-2 bg-red-600 text-white px-5 py-3 rounded-xl shadow-md hover:bg-red-700 transition disabled:opacity-50 disabled:cursor-not-allowed"
                     >
@@ -1991,6 +2025,76 @@ const Ticket = () => {
           </div>
         </Modal>
       )}
+      <Modal
+        title="✍️ Adicionar Mensagem ao Boleto"
+        isVisible={openModalSendBoleto}
+        onClose={() => setOpenModalSendBoleto(false)}
+      >
+        <div className="bg-white rounded-xl shadow-2xl w-full w-full transform transition-all">
+          <div className="p-6 flex flex-col space-y-5">
+            <div>
+              <label
+                htmlFor="message-input"
+                className="block text-sm font-semibold text-gray-700 mb-2"
+              >
+                Mensagem para o corpo do e-mail:
+              </label>
+              <textarea
+                id="message-input"
+                placeholder="Digite o texto que acompanhará o boleto..."
+                rows={5}
+                value={message}
+                onChange={(e) => setMessage(e.target.value)}
+                className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-blue-500 focus:border-blue-500 transition duration-150 resize-none shadow-sm text-sm"
+              />
+            </div>
+
+            <p className="text-xs text-gray-400 text-center">
+              Esta mensagem será incluída no corpo do e-mail acima do boleto
+              anexado.
+            </p>
+          </div>
+
+          <div className="p-6 pt-0">
+            <button
+              onClick={() => handleSendBoleto(selectedTicket)}
+              disabled={isSending}
+              className={`w-full py-3 rounded-lg text-lg font-semibold transition duration-200 ease-in-out shadow-lg 
+              ${
+                isSending
+                  ? "bg-blue-400 cursor-not-allowed"
+                  : "bg-blue-600 text-white hover:bg-blue-700 active:bg-blue-800"
+              }`}
+            >
+              {isSending ? (
+                <span className="flex items-center justify-center gap-2">
+                  <svg
+                    className="animate-spin h-5 w-5 text-white"
+                    viewBox="0 0 24 24"
+                  >
+                    <circle
+                      className="opacity-25"
+                      cx="12"
+                      cy="12"
+                      r="10"
+                      stroke="currentColor"
+                      strokeWidth="4"
+                    ></circle>
+                    <path
+                      className="opacity-75"
+                      fill="currentColor"
+                      d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"
+                    ></path>
+                  </svg>
+                  Preparando Mensagem...
+                </span>
+              ) : (
+                "✉️ Confirmar Mensagem"
+              )}
+            </button>
+          </div>
+        </div>
+      </Modal>
       <Modal
         title={`📝 ${t("modal.add_ticket")}`}
         isVisible={addTicket}

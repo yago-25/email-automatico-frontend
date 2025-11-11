@@ -788,7 +788,7 @@
     "saved": "Invoice saved",
     "view": "View",
     "remove": "Remove",
-    "file_hint": "PDF, PNG or JPG (MAX. 5MB)",
+    "file_hint": "PDF (MAX. 5MB)",
     "file_selected": "File selected",
     "saving": "Saving...",
     "save": "Save Invoice",
