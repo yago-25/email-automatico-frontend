@@ -32,13 +32,12 @@ import "react-phone-input-2/lib/style.css";
 import {
   FiBriefcase,
   FiCalendar,
+  FiFileText,
   FiHash,
-  FiLock,
   FiMail,
+  FiMapPin,
   FiPhone,
-  FiShare2,
   FiTruck,
-  FiUser,
   FiUserCheck,
   FiUserPlus,
   FiX,
@@ -55,16 +54,23 @@ interface Option {
 
 interface Clients {
   id: number;
-  name: string;
+  company: string;
   phone: string;
   mail: string;
   active: boolean;
   dot_number: string;
   operation_type: string;
-  expiration_date: Date;
+  owner: Date;
   value?: string;
-  user?: string;
-  password?: string;
+  address?: string;
+  ein?: string;
+  ny?: string;
+  nm?: string;
+  ifta?: string;
+  ct?: string;
+  kyu?: string;
+  automatico?: boolean;
+  notes?: string;
 }
 
 interface Admins {
@@ -143,7 +149,7 @@ const Dashboard = () => {
 
   const optionsClient: Option[] = rawClients.map((client: Clients) => ({
     value: String(client.id),
-    label: client.name,
+    label: client.company,
   }));
 
   const optionsAdmin: Option[] = rawAdmins.map((admin: Admins) => ({
@@ -172,8 +178,6 @@ const Dashboard = () => {
   const [typeName, setTypeName] = useState("");
   const [clientPhone, setClientPhone] = useState("");
   const [clientMail, setClientMail] = useState("");
-  const [clientUser, setClientUser] = useState("");
-  const [clientPassword, setClientPassword] = useState("");
   const [statusTicket, setStatusTicket] = useState("");
   const [loadingPost, setLoadingPost] = useState(false);
   const [loadingImport, setLoadingImport] = useState(false);
@@ -188,16 +192,25 @@ const Dashboard = () => {
   const [clientDot, setClientDot] = useState("");
   const [clientOperationType, setClientOperationType] = useState("");
   const [clientExpirationDate, setClientExpirationDate] = useState<string>("");
-  const [clientEmpresa, setClientEmpresa] = useState("");
-  const [clientDono, setClientDono] = useState("");
-  const [clientSocial, setClientSocial] = useState("");
   const [clientEin, setClientEin] = useState("");
   const [clientMc, setClientMc] = useState("");
+  const [clientAddress, setClientAddress] = useState("");
+  const [clientIfta, setClientIfta] = useState<"yes" | "no" | null>(null);
+  const [clientCt, setClientCt] = useState<"yes" | "no" | null>(null);
+  const [clientNy, setClientNy] = useState<"yes" | "no" | null>(null);
+  const [clientKyu, setClientKyu] = useState<"yes" | "no" | null>(null);
+  const [clientNm, setClientNm] = useState<"yes" | "no" | null>(null);
+  const [clientAutomatico, setClientAutomatico] = useState<boolean | null>(
+    null
+  );
+  const [clientStatus, setClientStatus] = useState("");
+  const [clientNotes, setClientNotes] = useState("");
+
   const itemsPerPage = 5;
 
   const filteredClients = rawClients.filter(
     (client: Clients) =>
-      client.name.toLowerCase().includes(filteredTxt.toLowerCase()) ||
+      client.company.toLowerCase().includes(filteredTxt.toLowerCase()) ||
       client.mail.toLowerCase().includes(filteredTxt.toLowerCase())
   );
 
@@ -262,19 +275,23 @@ const Dashboard = () => {
       await api.post(
         "/clients",
         {
-          name: clientName,
+          company: clientName,
           phone: clientPhone,
           mail: clientMail,
-          user: clientUser,
-          password: clientPassword,
           dot_number: clientDot,
           operation_type: clientOperationType,
-          expiration_date: clientExpirationDate,
-          empresa: clientEmpresa,
-          dono: clientDono,
-          social: clientSocial,
+          owner: clientExpirationDate,
+          address: clientAddress,
           ein: clientEin,
           mc: clientMc,
+          ifta: clientIfta,
+          ct: clientCt,
+          ny: clientNy,
+          kyu: clientKyu,
+          nm: clientNm,
+          automatico: clientAutomatico,
+          status: clientStatus,
+          notes: clientNotes,
         },
         {
           headers: {
@@ -290,19 +307,24 @@ const Dashboard = () => {
       mutateClients();
       mutateAdmins();
       setAddClient(false);
+
       setClientName("");
       setClientPhone("");
       setClientMail("");
-      setClientUser("");
-      setClientPassword("");
       setClientDot("");
       setClientOperationType("");
       setClientExpirationDate("");
-      setClientEmpresa("");
-      setClientDono("");
-      setClientSocial("");
+      setClientAddress("");
       setClientEin("");
       setClientMc("");
+      setClientIfta(null);
+      setClientCt(null);
+      setClientNy(null);
+      setClientKyu(null);
+      setClientNm(null);
+      setClientAutomatico(null);
+      setClientStatus("");
+      setClientNotes("");
     } catch (e) {
       console.log("Erro ao criar usuário: ", e);
       messageAlert({ type: "error", message: t("dashboard.create_error") });
@@ -602,9 +624,7 @@ const Dashboard = () => {
         </div>
 
         {currentClients.map((client, index) => {
-          const daysLeft = client.expiration_date
-            ? calculateDaysLeft(client.expiration_date)
-            : 0;
+          const daysLeft = client.owner ? calculateDaysLeft(client.owner) : 0;
 
           const getAlertIconStyle = () => {
             if (daysLeft <= 0) {
@@ -640,9 +660,9 @@ const Dashboard = () => {
                 <p className="text-center text-gray-800 font-medium">
                   {client.id}
                 </p>
-                <Tooltip title={client.name}>
+                <Tooltip title={client.company}>
                   <p className="text-center max-w-[100px] truncate text-gray-700">
-                    {client.name}
+                    {client.company}
                   </p>
                 </Tooltip>
                 <Tooltip title={client.mail}>
@@ -672,13 +692,13 @@ const Dashboard = () => {
                   <p
                     className="text-center text-gray-700"
                     title={
-                      client.expiration_date
-                        ? new Date(client.expiration_date).toLocaleDateString()
+                      client.owner
+                        ? new Date(client.owner).toLocaleDateString()
                         : "-"
                     }
                   >
-                    {client.expiration_date
-                      ? new Date(client.expiration_date).toLocaleDateString()
+                    {client.owner
+                      ? new Date(client.owner).toLocaleDateString()
                       : "-"}
                   </p>
                   <Tooltip title={`Faltam ${daysLeft} dias`}>
@@ -784,7 +804,7 @@ const Dashboard = () => {
         }
         isVisible={addClient}
         onClose={() => setAddClient(false)}
-        width={1900}
+        width={2300}
       >
         {loadingPost ? (
           <div className="flex flex-col items-center justify-center w-full gap-4 py-10">
@@ -798,9 +818,9 @@ const Dashboard = () => {
             <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
               <div>
                 <div className="flex items-center gap-2 mb-2">
-                  <FiUser className="w-4 h-4 text-blue-600" />
+                  <FiBriefcase className="w-4 h-4 text-blue-600" />
                   <label className="text-sm font-semibold text-gray-700">
-                    {t("dashboard.name")}
+                    Company
                   </label>
                 </div>
                 <input
@@ -808,7 +828,7 @@ const Dashboard = () => {
                   value={clientName}
                   onChange={(e) => setClientName(e.target.value)}
                   className="w-full border border-gray-200 rounded-xl px-5 py-3.5 text-base shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-400 bg-white/90 backdrop-blur-sm transition-all duration-200 hover:border-blue-300 focus:bg-white"
-                  placeholder={t("dashboard.name")}
+                  placeholder="Company Name"
                 />
               </div>
 
@@ -816,7 +836,7 @@ const Dashboard = () => {
                 <div className="flex items-center gap-2 mb-2">
                   <FiPhone className="w-4 h-4 text-green-600" />
                   <label className="text-sm font-semibold text-gray-700">
-                    {t("dashboard.phone")}
+                    Phone
                   </label>
                 </div>
                 <PhoneInput
@@ -855,7 +875,7 @@ const Dashboard = () => {
                 <div className="flex items-center gap-2 mb-2">
                   <FiMail className="w-4 h-4 text-purple-600" />
                   <label className="text-sm font-semibold text-gray-700">
-                    {t("dashboard.email")}
+                    Email
                   </label>
                 </div>
                 <input
@@ -863,7 +883,7 @@ const Dashboard = () => {
                   value={clientMail}
                   onChange={(e) => setClientMail(e.target.value)}
                   className="w-full border border-gray-200 rounded-xl px-5 py-3.5 text-base shadow-sm focus:outline-none focus:ring-2 focus:ring-purple-400 bg-white/90 backdrop-blur-sm transition-all duration-200 hover:border-purple-300 focus:bg-white"
-                  placeholder={t("dashboard.email")}
+                  placeholder="Email"
                 />
               </div>
 
@@ -871,7 +891,7 @@ const Dashboard = () => {
                 <div className="flex items-center gap-2 mb-2">
                   <FiCalendar className="w-4 h-4 text-purple-600" />
                   <label className="text-sm font-semibold text-gray-700">
-                    {t("labels.expiration_date")}
+                    Owner (Expiration Date)
                   </label>
                 </div>
                 <input
@@ -879,39 +899,7 @@ const Dashboard = () => {
                   value={clientExpirationDate}
                   onChange={(e) => setClientExpirationDate(e.target.value)}
                   className="w-full border border-gray-200 rounded-xl px-5 py-3.5 text-base shadow-sm focus:outline-none focus:ring-2 focus:ring-purple-400 bg-white/90 backdrop-blur-sm transition-all duration-200 hover:border-purple-300 focus:bg-white"
-                  placeholder="Selecione a data"
-                />
-              </div>
-
-              <div>
-                <div className="flex items-center gap-2 mb-2">
-                  <FiUser className="w-4 h-4 text-red-600" />
-                  <label className="text-sm font-semibold text-gray-700">
-                    {t("clients.user")}
-                  </label>
-                </div>
-                <input
-                  type="text"
-                  value={clientUser}
-                  onChange={(e) => setClientUser(e.target.value)}
-                  className="w-full border border-gray-200 rounded-xl px-5 py-3.5 text-base shadow-sm focus:outline-none focus:ring-2 focus:ring-purple-400 bg-white/90 backdrop-blur-sm transition-all duration-200 hover:border-purple-300 focus:bg-white"
-                  placeholder={t("clients.user")}
-                />
-              </div>
-
-              <div>
-                <div className="flex items-center gap-2 mb-2">
-                  <FiLock className="w-4 h-4 text-red-600" />
-                  <label className="text-sm font-semibold text-gray-700">
-                    {t("clients.password")}
-                  </label>
-                </div>
-                <input
-                  type="password"
-                  value={clientPassword}
-                  onChange={(e) => setClientPassword(e.target.value)}
-                  className="w-full border border-gray-200 rounded-xl px-5 py-3.5 text-base shadow-sm focus:outline-none focus:ring-2 focus:ring-purple-400 bg-white/90 backdrop-blur-sm transition-all duration-200 hover:border-purple-300 focus:bg-white"
-                  placeholder={t("clients.password")}
+                  placeholder="mm/dd/yyyy"
                 />
               </div>
 
@@ -926,62 +914,30 @@ const Dashboard = () => {
                   type="text"
                   value={clientDot}
                   onChange={(e) => setClientDot(e.target.value)}
-                  className="w-full border border-gray-200 rounded-xl px-5 py-3.5 text-base shadow-sm focus:outline-none focus:ring-2 focus:ring-purple-400 bg-white/90 backdrop-blur-sm transition-all duration-200 hover:border-purple-300 focus:bg-white"
+                  className="w-full border border-gray-200 rounded-xl px-5 py-3.5 text-base shadow-sm focus:outline-none focus:ring-2 focus:ring-yellow-400 bg-white/90 backdrop-blur-sm transition-all duration-200 hover:border-yellow-300 focus:bg-white"
                   placeholder="Ex: 1234567"
                 />
               </div>
 
               <div>
                 <div className="flex items-center gap-2 mb-2">
-                  <FiBriefcase className="w-4 h-4 text-indigo-600" />
+                  <FiMapPin className="w-4 h-4 text-red-600" />
                   <label className="text-sm font-semibold text-gray-700">
-                    {t("dashboard.empresa")}
+                    Address
                   </label>
                 </div>
                 <input
                   type="text"
-                  value={clientEmpresa}
-                  onChange={(e) => setClientEmpresa(e.target.value)}
-                  className="w-full border border-gray-200 rounded-xl px-5 py-3.5 text-base shadow-sm focus:outline-none focus:ring-2 focus:ring-indigo-400 bg-white/90 backdrop-blur-sm transition-all duration-200 hover:border-indigo-300 focus:bg-white"
-                  placeholder={t("dashboard.empresa")}
+                  value={clientAddress}
+                  onChange={(e) => setClientAddress(e.target.value)}
+                  className="w-full border border-gray-200 rounded-xl px-5 py-3.5 text-base shadow-sm focus:outline-none focus:ring-2 focus:ring-red-400 bg-white/90 backdrop-blur-sm transition-all duration-200 hover:border-red-300 focus:bg-white"
+                  placeholder="Address"
                 />
               </div>
 
               <div>
                 <div className="flex items-center gap-2 mb-2">
-                  <FiUserCheck className="w-4 h-4 text-teal-600" />
-                  <label className="text-sm font-semibold text-gray-700">
-                    {t("dashboard.dono")}
-                  </label>
-                </div>
-                <input
-                  type="text"
-                  value={clientDono}
-                  onChange={(e) => setClientDono(e.target.value)}
-                  className="w-full border border-gray-200 rounded-xl px-5 py-3.5 text-base shadow-sm focus:outline-none focus:ring-2 focus:ring-teal-400 bg-white/90 backdrop-blur-sm transition-all duration-200 hover:border-teal-300 focus:bg-white"
-                  placeholder={t("dashboard.dono")}
-                />
-              </div>
-
-              <div>
-                <div className="flex items-center gap-2 mb-2">
-                  <FiShare2 className="w-4 h-4 text-pink-600" />
-                  <label className="text-sm font-semibold text-gray-700">
-                    {t("dashboard.social")}
-                  </label>
-                </div>
-                <input
-                  type="text"
-                  value={clientSocial}
-                  onChange={(e) => setClientSocial(e.target.value)}
-                  className="w-full border border-gray-200 rounded-xl px-5 py-3.5 text-base shadow-sm focus:outline-none focus:ring-2 focus:ring-pink-400 bg-white/90 backdrop-blur-sm transition-all duration-200 hover:border-pink-300 focus:bg-white"
-                  placeholder={t("dashboard.social")}
-                />
-              </div>
-
-              <div>
-                <div className="flex items-center gap-2 mb-2">
-                  <FiHash className="w-4 h-4 text-yellow-600" />
+                  <FiHash className="w-4 h-4 text-indigo-600" />
                   <label className="text-sm font-semibold text-gray-700">
                     EIN
                   </label>
@@ -990,8 +946,8 @@ const Dashboard = () => {
                   type="text"
                   value={clientEin}
                   onChange={(e) => setClientEin(e.target.value)}
-                  className="w-full border border-gray-200 rounded-xl px-5 py-3.5 text-base shadow-sm focus:outline-none focus:ring-2 focus:ring-yellow-400 bg-white/90 backdrop-blur-sm transition-all duration-200 hover:border-yellow-300 focus:bg-white"
-                  placeholder="E.g., 12-3456789"
+                  className="w-full border border-gray-200 rounded-xl px-5 py-3.5 text-base shadow-sm focus:outline-none focus:ring-2 focus:ring-indigo-400 bg-white/90 backdrop-blur-sm transition-all duration-200 hover:border-indigo-300 focus:bg-white"
+                  placeholder="EIN"
                 />
               </div>
 
@@ -1007,8 +963,234 @@ const Dashboard = () => {
                   value={clientMc}
                   onChange={(e) => setClientMc(e.target.value)}
                   className="w-full border border-gray-200 rounded-xl px-5 py-3.5 text-base shadow-sm focus:outline-none focus:ring-2 focus:ring-orange-400 bg-white/90 backdrop-blur-sm transition-all duration-200 hover:border-orange-300 focus:bg-white"
-                  placeholder="E.g., MC123456"
+                  placeholder="MC"
                 />
+              </div>
+
+              <div>
+                <div className="flex items-center gap-2 mb-2">
+                  <FiUserCheck className="w-4 h-4 text-teal-600" />
+                  <label className="text-sm font-semibold text-gray-700">
+                    Status
+                  </label>
+                </div>
+                <input
+                  type="text"
+                  value={clientStatus}
+                  onChange={(e) => setClientStatus(e.target.value)}
+                  className="w-full border border-gray-200 rounded-xl px-5 py-3.5 text-base shadow-sm focus:outline-none focus:ring-2 focus:ring-teal-400 bg-white/90 backdrop-blur-sm transition-all duration-200 hover:border-teal-300 focus:bg-white"
+                  placeholder="Owner Name"
+                />
+              </div>
+            </div>
+
+            <div className="mt-6 pt-6 border-t border-gray-200">
+              <h3 className="text-lg font-semibold text-gray-700 mb-4">
+                Additional Information
+              </h3>
+              <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-4">
+                <div className="flex flex-col items-center gap-2">
+                  <label className="text-sm font-medium text-gray-700">
+                    IFTA
+                  </label>
+                  <div className="flex gap-2">
+                    <button
+                      type="button"
+                      onClick={() => setClientIfta("yes")}
+                      className={`px-4 py-2 rounded-lg text-sm font-medium transition-all ${
+                        clientIfta === "yes"
+                          ? "bg-green-500 text-white"
+                          : "bg-gray-200 text-gray-700 hover:bg-gray-300"
+                      }`}
+                    >
+                      Yes
+                    </button>
+                    <button
+                      type="button"
+                      onClick={() => setClientIfta("no")}
+                      className={`px-4 py-2 rounded-lg text-sm font-medium transition-all ${
+                        clientIfta === "no"
+                          ? "bg-red-500 text-white"
+                          : "bg-gray-200 text-gray-700 hover:bg-gray-300"
+                      }`}
+                    >
+                      No
+                    </button>
+                  </div>
+                </div>
+
+                <div className="flex flex-col items-center gap-2">
+                  <label className="text-sm font-medium text-gray-700">
+                    CT
+                  </label>
+                  <div className="flex gap-2">
+                    <button
+                      type="button"
+                      onClick={() => setClientCt("yes")}
+                      className={`px-4 py-2 rounded-lg text-sm font-medium transition-all ${
+                        clientCt === "yes"
+                          ? "bg-green-500 text-white"
+                          : "bg-gray-200 text-gray-700 hover:bg-gray-300"
+                      }`}
+                    >
+                      Yes
+                    </button>
+                    <button
+                      type="button"
+                      onClick={() => setClientCt("no")}
+                      className={`px-4 py-2 rounded-lg text-sm font-medium transition-all ${
+                        clientCt === "no"
+                          ? "bg-red-500 text-white"
+                          : "bg-gray-200 text-gray-700 hover:bg-gray-300"
+                      }`}
+                    >
+                      No
+                    </button>
+                  </div>
+                </div>
+
+                <div className="flex flex-col items-center gap-2">
+                  <label className="text-sm font-medium text-gray-700">
+                    NY
+                  </label>
+                  <div className="flex gap-2">
+                    <button
+                      type="button"
+                      onClick={() => setClientNy("yes")}
+                      className={`px-4 py-2 rounded-lg text-sm font-medium transition-all ${
+                        clientNy === "yes"
+                          ? "bg-green-500 text-white"
+                          : "bg-gray-200 text-gray-700 hover:bg-gray-300"
+                      }`}
+                    >
+                      Yes
+                    </button>
+                    <button
+                      type="button"
+                      onClick={() => setClientNy("no")}
+                      className={`px-4 py-2 rounded-lg text-sm font-medium transition-all ${
+                        clientNy === "no"
+                          ? "bg-red-500 text-white"
+                          : "bg-gray-200 text-gray-700 hover:bg-gray-300"
+                      }`}
+                    >
+                      No
+                    </button>
+                  </div>
+                </div>
+
+                <div className="flex flex-col items-center gap-2">
+                  <label className="text-sm font-medium text-gray-700">
+                    KYU
+                  </label>
+                  <div className="flex gap-2">
+                    <button
+                      type="button"
+                      onClick={() => setClientKyu("yes")}
+                      className={`px-4 py-2 rounded-lg text-sm font-medium transition-all ${
+                        clientKyu === "yes"
+                          ? "bg-green-500 text-white"
+                          : "bg-gray-200 text-gray-700 hover:bg-gray-300"
+                      }`}
+                    >
+                      Yes
+                    </button>
+                    <button
+                      type="button"
+                      onClick={() => setClientKyu("no")}
+                      className={`px-4 py-2 rounded-lg text-sm font-medium transition-all ${
+                        clientKyu === "no"
+                          ? "bg-red-500 text-white"
+                          : "bg-gray-200 text-gray-700 hover:bg-gray-300"
+                      }`}
+                    >
+                      No
+                    </button>
+                  </div>
+                </div>
+
+                <div className="flex flex-col items-center gap-2">
+                  <label className="text-sm font-medium text-gray-700">
+                    NM
+                  </label>
+                  <div className="flex gap-2">
+                    <button
+                      type="button"
+                      onClick={() => setClientNm("yes")}
+                      className={`px-4 py-2 rounded-lg text-sm font-medium transition-all ${
+                        clientNm === "yes"
+                          ? "bg-green-500 text-white"
+                          : "bg-gray-200 text-gray-700 hover:bg-gray-300"
+                      }`}
+                    >
+                      Yes
+                    </button>
+                    <button
+                      type="button"
+                      onClick={() => setClientNm("no")}
+                      className={`px-4 py-2 rounded-lg text-sm font-medium transition-all ${
+                        clientNm === "no"
+                          ? "bg-red-500 text-white"
+                          : "bg-gray-200 text-gray-700 hover:bg-gray-300"
+                      }`}
+                    >
+                      No
+                    </button>
+                  </div>
+                </div>
+
+                <div className="flex flex-col items-center gap-2">
+                  <label className="text-sm font-medium text-gray-700">
+                    Automático
+                  </label>
+                  <div className="flex gap-2">
+                    <button
+                      type="button"
+                      onClick={() => setClientAutomatico(true)}
+                      className={`px-4 py-2 rounded-lg text-sm font-medium transition-all ${
+                        clientAutomatico === true
+                          ? "bg-green-500 text-white"
+                          : "bg-gray-200 text-gray-700 hover:bg-gray-300"
+                      }`}
+                    >
+                      Yes
+                    </button>
+                    <button
+                      type="button"
+                      onClick={() => setClientAutomatico(false)}
+                      className={`px-4 py-2 rounded-lg text-sm font-medium transition-all ${
+                        clientAutomatico === false
+                          ? "bg-red-500 text-white"
+                          : "bg-gray-200 text-gray-700 hover:bg-gray-300"
+                      }`}
+                    >
+                      No
+                    </button>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <div className="mt-6 pt-6 border-t border-gray-200">
+              <h3 className="text-lg font-semibold text-gray-700 mb-4">
+                Notes
+              </h3>
+              <div className="grid grid-cols-1 gap-4">
+                <div>
+                  <div className="flex items-center gap-2 mb-2">
+                    <FiFileText className="w-4 h-4 text-gray-600" />
+                    <label className="text-sm font-semibold text-gray-700">
+                      Notes
+                    </label>
+                  </div>
+                  <textarea
+                    value={clientNotes}
+                    onChange={(e) => setClientNotes(e.target.value)}
+                    rows={4}
+                    className="w-full border border-gray-200 rounded-xl px-5 py-3.5 text-base shadow-sm focus:outline-none focus:ring-2 focus:ring-gray-400 bg-white/90 backdrop-blur-sm transition-all duration-200 hover:border-gray-300 focus:bg-white resize-none"
+                    placeholder="Additional notes..."
+                  />
+                </div>
               </div>
             </div>
 
@@ -1018,14 +1200,14 @@ const Dashboard = () => {
                 className="flex-1 flex items-center justify-center gap-2 py-4 bg-gradient-to-r from-blue-500 to-blue-600 text-white rounded-xl hover:from-blue-600 hover:to-blue-700 transition-all duration-300 shadow-lg hover:shadow-xl font-medium transform hover:scale-[1.02] active:scale-[0.98]"
               >
                 <FiUserPlus className="w-5 h-5" />
-                {t("dashboard.add_client")}
+                Add Client
               </button>
               <button
                 onClick={() => setAddClient(false)}
                 className="flex-1 flex items-center justify-center gap-2 py-4 bg-gradient-to-r from-gray-100 to-gray-200 text-gray-700 rounded-xl hover:from-gray-200 hover:to-gray-300 transition-all duration-300 shadow-lg hover:shadow-xl font-medium transform hover:scale-[1.02] active:scale-[0.98] border border-gray-200"
               >
                 <FiX className="w-5 h-5" />
-                {t("buttons.cancel")}
+                Cancel
               </button>
             </div>
           </div>
