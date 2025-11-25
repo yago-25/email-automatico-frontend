@@ -808,5 +808,12 @@
   "file": {
     "removed_success": "¡Archivo eliminado con éxito!",
     "remove_error": "Error al eliminar el archivo"
+  },
+  "boleto_message": {
+    "add_title": "✍️ Agregar Mensaje al Boleto",
+    "body_label": "Mensaje para el cuerpo del correo:",
+    "body_description": "Este mensaje se incluirá en el cuerpo del correo sobre el boleto adjunto.",
+    "preparing": "Preparando Mensaje...",
+    "confirm": "✉️ Confirmar Mensaje"
   }
 }
