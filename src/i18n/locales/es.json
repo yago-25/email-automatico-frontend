@@ -796,5 +796,13 @@
     "send": "Enviar Factura",
     "click_to_send": "Haz clic para enviar",
     "or_drag_file": "o arrastra el archivo"
+  },
+   "boleto": {
+    "no_file_selected": "Ningún archivo seleccionado",
+    "saved_success": "¡Boleto guardado con éxito!",
+    "save_error": "Error al guardar el boleto",
+    "no_boleto_to_send": "No hay boleto para enviar. Guarde el boleto primero.",
+    "sent_success": "¡Boleto enviado con éxito!",
+    "send_error": "Error al enviar el boleto"
   }
 }

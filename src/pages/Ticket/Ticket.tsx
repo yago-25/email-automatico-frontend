@@ -876,7 +876,7 @@ const Ticket = () => {
     if (!selectedFile) {
       messageAlert({
         type: "error",
-        message: "Nenhum arquivo selecionado",
+        message: t("boleto.no_file_selected"),
       });
       return;
     }
@@ -912,18 +912,18 @@ const Ticket = () => {
 
         messageAlert({
           type: "success",
-          message: "Boleto salvo com sucesso!",
+          message: t("boleto.saved_success"),
         });
       } else {
         messageAlert({
           type: "error",
-          message: response.data.message || "Erro ao salvar boleto",
+          message: response.data.message || t("boleto.save_error"),
         });
       }
     } catch (error: any) {
       messageAlert({
         type: "error",
-        message: error?.response?.data?.error || "Erro ao salvar boleto",
+        message: error?.response?.data?.error || t("boleto.save_error"),
       });
       console.error("Erro ao enviar arquivo:", error);
     } finally {
@@ -935,7 +935,7 @@ const Ticket = () => {
     if (!ticket?.file_url) {
       messageAlert({
         type: "error",
-        message: "Nenhum boleto para enviar. Salve o boleto primeiro.",
+        message: t("boleto.no_boleto_to_send"),
       });
       return;
     }
@@ -970,20 +970,20 @@ const Ticket = () => {
       if (data.success) {
         messageAlert({
           type: "success",
-          message: "Boleto enviado com sucesso!",
+          message: t("boleto.sent_success"),
         });
         setOpenModalSendBoleto(false);
         setMessage("");
       } else {
         messageAlert({
           type: "error",
-          message: data?.error || "Erro ao enviar boleto.",
+          message: data?.error || t("boleto.send_error"),
         });
       }
     } catch (error) {
       messageAlert({
         type: "error",
-        message: "Erro ao enviar boleto.",
+        message: t("boleto.send_error"),
       });
       console.log(error, "Erro");
     } finally {

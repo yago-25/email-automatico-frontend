@@ -798,5 +798,13 @@
     "send": "Send Invoice",
     "click_to_send": "Click to send",
     "or_drag_file": "or drag the file"
+  },
+   "boleto": {
+    "no_file_selected": "No file selected",
+    "saved_success": "Boleto saved successfully!",
+    "save_error": "Error saving boleto",
+    "no_boleto_to_send": "No boleto to send. Save the boleto first.",
+    "sent_success": "Boleto sent successfully!",
+    "send_error": "Error sending boleto"
   }
 }

@@ -798,5 +798,13 @@
     "send": "Enviar Boleto",
     "click_to_send": "Clique para enviar",
     "or_drag_file": "ou arraste o arquivo"
+  },
+   "boleto": {
+    "no_file_selected": "Nenhum arquivo selecionado",
+    "saved_success": "Boleto salvo com sucesso!",
+    "save_error": "Erro ao salvar boleto",
+    "no_boleto_to_send": "Nenhum boleto para enviar. Salve o boleto primeiro.",
+    "sent_success": "Boleto enviado com sucesso!",
+    "send_error": "Erro ao enviar boleto"
   }
 }

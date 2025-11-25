@@ -411,13 +411,13 @@ const Dashboard = () => {
       mutateClients();
       messageAlert({
         type: "success",
-        message: "Status do Cliente atualizado com sucesso!.",
+        message: t("alerts.client_status_updated"),
       });
     } catch (e) {
       console.log("Erro ao alterar status do cliente: ", e);
       messageAlert({
         type: "error",
-        message: "Erro ao alterar status do cliente.",
+        message: t("client_status_update_error"),
       });
     } finally {
       setLoadingChangeStatus(false);
@@ -1349,7 +1349,6 @@ const Dashboard = () => {
                   )}
                 </div>
 
-                {/* Tags selecionadas */}
                 <div className="flex flex-wrap gap-2 mt-2">
                   {tags.map((tag, idx) => (
                     <div
