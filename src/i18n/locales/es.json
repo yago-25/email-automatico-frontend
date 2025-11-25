@@ -804,5 +804,9 @@
     "no_boleto_to_send": "No hay boleto para enviar. Guarde el boleto primero.",
     "sent_success": "¡Boleto enviado con éxito!",
     "send_error": "Error al enviar el boleto"
+  },
+  "file": {
+    "removed_success": "¡Archivo eliminado con éxito!",
+    "remove_error": "Error al eliminar el archivo"
   }
 }

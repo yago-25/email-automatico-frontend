@@ -1018,13 +1018,13 @@ const Ticket = () => {
 
       messageAlert({
         type: "success",
-        message: "Arquivo removido com sucesso!",
+        message: t("file.removed_success"),
       });
     } catch (e: any) {
       console.error("Erro ao remover arquivo:", e);
       messageAlert({
         type: "error",
-        message: e?.response?.data?.error || "Erro ao remover arquivo",
+        message: e?.response?.data?.error || t("file.remove_error"),
       });
     } finally {
       setLoadingRemoveBoleto(false);

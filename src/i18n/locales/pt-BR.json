@@ -806,5 +806,9 @@
     "no_boleto_to_send": "Nenhum boleto para enviar. Salve o boleto primeiro.",
     "sent_success": "Boleto enviado com sucesso!",
     "send_error": "Erro ao enviar boleto"
+  },
+  "file": {
+    "removed_success": "Arquivo removido com sucesso!",
+    "remove_error": "Erro ao remover arquivo"
   }
 }
