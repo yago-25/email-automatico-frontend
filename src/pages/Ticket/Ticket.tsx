@@ -2088,7 +2088,7 @@ const Ticket = () => {
                   {t("boleto.preparing")}
                 </span>
               ) : (
-                {t("boleto.confirm")}
+                t("boleto.confirm")
               )}
             </button>
           </div>
