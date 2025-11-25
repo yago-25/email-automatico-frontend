@@ -545,6 +545,8 @@
     "clientsImported": "Clients successfully imported!",
     "clientsImportError": "Error importing clients.",
     "client_status_updated": "Client status updated successfully!",
+    "client_status_update_error": "Error updating client status.",
+    "client_status_updated": "Client status updated successfully!",
     "client_status_update_error": "Error updating client status."
   },
   "photo_upload": {

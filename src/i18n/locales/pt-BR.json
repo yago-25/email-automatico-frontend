@@ -547,6 +547,8 @@
     "clientsImported": "Clientes importados com sucesso!",
     "clientsImportError": "Erro ao importar clientes.",
     "client_status_updated": "Status do Cliente atualizado com sucesso!",
+    "client_status_update_error": "Erro ao alterar status do cliente.",
+    "client_status_updated": "Status do Cliente atualizado com sucesso!",
     "client_status_update_error": "Erro ao alterar status do cliente."
   },
   "photo_upload": {

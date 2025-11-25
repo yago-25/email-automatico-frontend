@@ -208,12 +208,11 @@ const Dashboard = () => {
 
   const itemsPerPage = 5;
 
-  const filteredClients = rawClients.filter(
-    (client: Clients) =>
-      client.company.toLowerCase().includes(filteredTxt.toLowerCase()) ||
-      client.mail.toLowerCase().includes(filteredTxt.toLowerCase())
-  );
-
+  const filteredClients = rawClients.filter((client: Clients) =>
+    (client.company?.toLowerCase().includes(filteredTxt.toLowerCase()) || 
+    client.mail?.toLowerCase().includes(filteredTxt.toLowerCase()))
+);
+  
   const sortedClients = [...filteredClients].sort((a, b) => a.id - b.id);
 
   const totalPages = Math.ceil(filteredClients.length / itemsPerPage);
