@@ -545,6 +545,8 @@
     "clientsImported": "Clients successfully imported!",
     "clientsImportError": "Error importing clients.",
     "client_status_updated": "Client status updated successfully!",
+    "client_status_update_error": "Error updating client status.",
+    "client_status_updated": "Client status updated successfully!",
     "client_status_update_error": "Error updating client status."
   },
   "photo_upload": {
@@ -796,5 +798,24 @@
     "send": "Send Invoice",
     "click_to_send": "Click to send",
     "or_drag_file": "or drag the file"
+  },
+   "boleto": {
+    "no_file_selected": "No file selected",
+    "saved_success": "Boleto saved successfully!",
+    "save_error": "Error saving boleto",
+    "no_boleto_to_send": "No boleto to send. Save the boleto first.",
+    "sent_success": "Boleto sent successfully!",
+    "send_error": "Error sending boleto"
+  },
+  "file": {
+    "removed_success": "File removed successfully!",
+    "remove_error": "Error removing file"
+  },
+  "boleto_message": {
+    "add_title": "✍️ Add Message to Boleto",
+    "body_label": "Message for the email body:",
+    "body_description": "This message will be included in the email body above the attached boleto.",
+    "preparing": "Preparing Message...",
+    "confirm": "✉️ Confirm Message"
   }
 }

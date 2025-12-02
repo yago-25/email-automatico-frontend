@@ -876,7 +876,7 @@ const Ticket = () => {
     if (!selectedFile) {
       messageAlert({
         type: "error",
-        message: "Nenhum arquivo selecionado",
+        message: t("boleto.no_file_selected"),
       });
       return;
     }
@@ -912,18 +912,18 @@ const Ticket = () => {
 
         messageAlert({
           type: "success",
-          message: "Boleto salvo com sucesso!",
+          message: t("boleto.saved_success"),
         });
       } else {
         messageAlert({
           type: "error",
-          message: response.data.message || "Erro ao salvar boleto",
+          message: response.data.message || t("boleto.save_error"),
         });
       }
     } catch (error: any) {
       messageAlert({
         type: "error",
-        message: error?.response?.data?.error || "Erro ao salvar boleto",
+        message: error?.response?.data?.error || t("boleto.save_error"),
       });
       console.error("Erro ao enviar arquivo:", error);
     } finally {
@@ -935,7 +935,7 @@ const Ticket = () => {
     if (!ticket?.file_url) {
       messageAlert({
         type: "error",
-        message: "Nenhum boleto para enviar. Salve o boleto primeiro.",
+        message: t("boleto.no_boleto_to_send"),
       });
       return;
     }
@@ -970,20 +970,20 @@ const Ticket = () => {
       if (data.success) {
         messageAlert({
           type: "success",
-          message: "Boleto enviado com sucesso!",
+          message: t("boleto.sent_success"),
         });
         setOpenModalSendBoleto(false);
         setMessage("");
       } else {
         messageAlert({
           type: "error",
-          message: data?.error || "Erro ao enviar boleto.",
+          message: data?.error || t("boleto.send_error"),
         });
       }
     } catch (error) {
       messageAlert({
         type: "error",
-        message: "Erro ao enviar boleto.",
+        message: t("boleto.send_error"),
       });
       console.log(error, "Erro");
     } finally {
@@ -1018,13 +1018,13 @@ const Ticket = () => {
 
       messageAlert({
         type: "success",
-        message: "Arquivo removido com sucesso!",
+        message: t("file.removed_success"),
       });
     } catch (e: any) {
       console.error("Erro ao remover arquivo:", e);
       messageAlert({
         type: "error",
-        message: e?.response?.data?.error || "Erro ao remover arquivo",
+        message: e?.response?.data?.error || t("file.remove_error"),
       });
     } finally {
       setLoadingRemoveBoleto(false);
@@ -2026,7 +2026,7 @@ const Ticket = () => {
         </Modal>
       )}
       <Modal
-        title="✍️ Adicionar Mensagem ao Boleto"
+        title={t("boleto_message.add_title")}
         isVisible={openModalSendBoleto}
         onClose={() => setOpenModalSendBoleto(false)}
       >
@@ -2037,7 +2037,7 @@ const Ticket = () => {
                 htmlFor="message-input"
                 className="block text-sm font-semibold text-gray-700 mb-2"
               >
-                Mensagem para o corpo do e-mail:
+                {t("boleto.body_label")}
               </label>
               <textarea
                 id="message-input"
@@ -2050,8 +2050,7 @@ const Ticket = () => {
             </div>
 
             <p className="text-xs text-gray-400 text-center">
-              Esta mensagem será incluída no corpo do e-mail acima do boleto
-              anexado.
+              {t("boleto.body_description")}
             </p>
           </div>
 
@@ -2086,10 +2085,10 @@ const Ticket = () => {
                       d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"
                     ></path>
                   </svg>
-                  Preparando Mensagem...
+                  {t("boleto.preparing")}
                 </span>
               ) : (
-                "✉️ Confirmar Mensagem"
+                t("boleto.confirm")
               )}
             </button>
           </div>

@@ -547,6 +547,8 @@
     "clientsImported": "Clientes importados com sucesso!",
     "clientsImportError": "Erro ao importar clientes.",
     "client_status_updated": "Status do Cliente atualizado com sucesso!",
+    "client_status_update_error": "Erro ao alterar status do cliente.",
+    "client_status_updated": "Status do Cliente atualizado com sucesso!",
     "client_status_update_error": "Erro ao alterar status do cliente."
   },
   "photo_upload": {
@@ -796,5 +798,24 @@
     "send": "Enviar Boleto",
     "click_to_send": "Clique para enviar",
     "or_drag_file": "ou arraste o arquivo"
+  },
+   "boleto": {
+    "no_file_selected": "Nenhum arquivo selecionado",
+    "saved_success": "Boleto salvo com sucesso!",
+    "save_error": "Erro ao salvar boleto",
+    "no_boleto_to_send": "Nenhum boleto para enviar. Salve o boleto primeiro.",
+    "sent_success": "Boleto enviado com sucesso!",
+    "send_error": "Erro ao enviar boleto"
+  },
+  "file": {
+    "removed_success": "Arquivo removido com sucesso!",
+    "remove_error": "Erro ao remover arquivo"
+  },
+  "boleto_message": {
+    "add_title": "✍️ Adicionar Mensagem ao Boleto",
+    "body_label": "Mensagem para o corpo do e-mail:",
+    "body_description": "Esta mensagem será incluída no corpo do e-mail acima do boleto anexado.",
+    "preparing": "Preparando Mensagem...",
+    "confirm": "✉️ Confirmar Mensagem"
   }
 }

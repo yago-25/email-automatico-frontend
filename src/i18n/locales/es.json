@@ -543,6 +543,8 @@
     "clientsImported": "¡Clientes importados con éxito!",
     "clientsImportError": "Error al importar clientes.",
     "client_status_updated": "¡Estado del cliente actualizado con éxito!",
+    "client_status_update_error": "Error al actualizar el estado del cliente.",
+    "client_status_updated": "¡Estado del cliente actualizado con éxito!",
     "client_status_update_error": "Error al actualizar el estado del cliente."
   },
   "photo_upload": {
@@ -794,5 +796,24 @@
     "send": "Enviar Factura",
     "click_to_send": "Haz clic para enviar",
     "or_drag_file": "o arrastra el archivo"
+  },
+   "boleto": {
+    "no_file_selected": "Ningún archivo seleccionado",
+    "saved_success": "¡Boleto guardado con éxito!",
+    "save_error": "Error al guardar el boleto",
+    "no_boleto_to_send": "No hay boleto para enviar. Guarde el boleto primero.",
+    "sent_success": "¡Boleto enviado con éxito!",
+    "send_error": "Error al enviar el boleto"
+  },
+  "file": {
+    "removed_success": "¡Archivo eliminado con éxito!",
+    "remove_error": "Error al eliminar el archivo"
+  },
+  "boleto_message": {
+    "add_title": "✍️ Agregar Mensaje al Boleto",
+    "body_label": "Mensaje para el cuerpo del correo:",
+    "body_description": "Este mensaje se incluirá en el cuerpo del correo sobre el boleto adjunto.",
+    "preparing": "Preparando Mensaje...",
+    "confirm": "✉️ Confirmar Mensaje"
   }
 }

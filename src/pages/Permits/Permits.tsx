@@ -20,7 +20,15 @@ import {
   Edit,
 } from "lucide-react";
 import "./Permits.css";
-import { FaCalendarAlt, FaClock, FaEraser, FaFilter, FaMapMarkerAlt, FaUser, FaWeightHanging } from "react-icons/fa";
+import {
+  FaCalendarAlt,
+  FaClock,
+  FaEraser,
+  FaFilter,
+  FaMapMarkerAlt,
+  FaUser,
+  FaWeightHanging,
+} from "react-icons/fa";
 import { CiFilter } from "react-icons/ci";
 import useSwr from "swr";
 import Modal from "../../components/Modal/Modal";
@@ -70,7 +78,6 @@ const Permits = () => {
   const itemsPerPage = 6;
   const storedUser = localStorage.getItem("user");
   const authUser: User | null = storedUser ? JSON.parse(storedUser) : null;
-  
 
   useEffect(() => {
     fetchData();
@@ -97,11 +104,7 @@ const Permits = () => {
     }
   };
 
-
-  const {
-    data: clients = [],
-    isLoading,
-  } = useSwr<Client[]>("/clients", {
+  const { data: clients = [], isLoading } = useSwr<Client[]>("/clients", {
     fetcher: (url) =>
       api
         .get(url, {
@@ -157,29 +160,31 @@ const Permits = () => {
     }
 
     if (clientFilter) {
-      filtered = filtered.filter(p => p.client_id === Number(clientFilter));
+      filtered = filtered.filter((p) => p.client_id === Number(clientFilter));
     }
 
     if (stateFilter.trim()) {
-      filtered = filtered.filter(p =>
+      filtered = filtered.filter((p) =>
         p.state.toLowerCase().includes(stateFilter.toLowerCase())
       );
     }
 
     if (dateStart && dateEnd) {
-      filtered = filtered.filter(p => {
+      filtered = filtered.filter((p) => {
         const exp = new Date(p.expiration_date);
         return exp >= new Date(dateStart) && exp <= new Date(dateEnd);
       });
     }
 
     if (overweightFilter !== "") {
-      filtered = filtered.filter(p => p.overweight === (overweightFilter === "true"));
+      filtered = filtered.filter(
+        (p) => p.overweight === (overweightFilter === "true")
+      );
     }
 
     if (expiredFilter !== "") {
       const now = new Date();
-      filtered = filtered.filter(p => {
+      filtered = filtered.filter((p) => {
         const exp = new Date(p.expiration_date);
         const isExpired = exp < now;
         return expiredFilter === "true" ? isExpired : !isExpired;
@@ -191,11 +196,24 @@ const Permits = () => {
         new Date(a.expiration_date).getTime() -
         new Date(b.expiration_date).getTime()
     );
-  }, [permits, searchTerm, clientFilter, stateFilter, dateStart, dateEnd, overweightFilter, expiredFilter, clients]);
+  }, [
+    permits,
+    searchTerm,
+    clientFilter,
+    stateFilter,
+    dateStart,
+    dateEnd,
+    overweightFilter,
+    expiredFilter,
+    clients,
+  ]);
 
   const totalPages = Math.ceil(filteredPermits.length / itemsPerPage);
   const startIndex = (currentPage - 1) * itemsPerPage;
-  const currentPermits = filteredPermits.slice(startIndex, startIndex + itemsPerPage);
+  const currentPermits = filteredPermits.slice(
+    startIndex,
+    startIndex + itemsPerPage
+  );
 
   const goToPage = (page: number) => {
     if (page >= 1 && page <= totalPages) {
@@ -286,7 +304,11 @@ const Permits = () => {
   const handleSaveEdit = async () => {
     if (!editedPermit) return;
 
-    if (!editedPermit.client_id || !editedPermit.state || !editedPermit.expiration_date) {
+    if (
+      !editedPermit.client_id ||
+      !editedPermit.state ||
+      !editedPermit.expiration_date
+    ) {
       messageAlert({ type: "error", message: t("permits_page.fill_fields") });
       return;
     }
@@ -294,15 +316,19 @@ const Permits = () => {
     setLoading(true);
     try {
       const token = localStorage.getItem("accessToken");
-      await api.put(`/permits/${editedPermit.id}`, {
-        client_id: editedPermit.client_id,
-        state: editedPermit.state,
-        expiration_date: editedPermit.expiration_date,
-        overweight: editedPermit.overweight,
-        oscar: editedPermit.oscar || "",
-      }, {
-        headers: { Authorization: `Bearer ${token}` },
-      });
+      await api.put(
+        `/permits/${editedPermit.id}`,
+        {
+          client_id: editedPermit.client_id,
+          state: editedPermit.state,
+          expiration_date: editedPermit.expiration_date,
+          overweight: editedPermit.overweight,
+          oscar: editedPermit.oscar || "",
+        },
+        {
+          headers: { Authorization: `Bearer ${token}` },
+        }
+      );
       messageAlert({ type: "success", message: t("permits_page.updated") });
       setEditingPermitId(null);
       setEditedPermit(null);
@@ -381,21 +407,15 @@ const Permits = () => {
         <div className="permits-stats">
           <div className="stat-card primary">
             <div className="stat-value">{total}</div>
-            <div className="stat-label">
-              {t("permits_page.total")}
-            </div>
+            <div className="stat-label">{t("permits_page.total")}</div>
           </div>
           <div className="stat-card warning">
             <div className="stat-value">{totalExpiringSoon}</div>
-            <div className="stat-label">
-              {t("permits_page.expiring_soon")}
-            </div>
+            <div className="stat-label">{t("permits_page.expiring_soon")}</div>
           </div>
           <div className="stat-card danger">
             <div className="stat-value">{totalExpired}</div>
-            <div className="stat-label">
-              {t("permits_page.expired")}
-            </div>
+            <div className="stat-label">{t("permits_page.expired")}</div>
           </div>
         </div>
 
@@ -403,9 +423,7 @@ const Permits = () => {
           <div className="filter-group">
             <input
               className="filter-input"
-              placeholder={
-                t("permits_page.search_placeholder")
-              }
+              placeholder={t("permits_page.search_placeholder")}
               value={searchTerm}
               onChange={(e) => setSearchTerm(e.target.value)}
             />
@@ -416,9 +434,7 @@ const Permits = () => {
               value={stateFilter}
               onChange={(e) => setStateFilter(e.target.value.toUpperCase())}
             >
-              <option value="">
-                {t("permits_page.filter_state")}
-              </option>
+              <option value="">{t("permits_page.filter_state")}</option>
               {[...new Set(permits.map((p) => p.state))].sort().map((uf) => (
                 <option key={uf} value={uf}>
                   {uf}
@@ -437,7 +453,8 @@ const Permits = () => {
           <div className="permits-list">
             {currentPermits.map((permit) => {
               const isEditing = editingPermitId === permit.id;
-              const displayPermit = isEditing && editedPermit ? editedPermit : permit;
+              const displayPermit =
+                isEditing && editedPermit ? editedPermit : permit;
 
               return (
                 <div key={permit.id} className="permit-card">
@@ -447,7 +464,9 @@ const Permits = () => {
                       Permit #{permit.id}
                     </div>
                     <div
-                      className={`status-badge ${getStatus(permit.expiration_date).key}`}
+                      className={`status-badge ${
+                        getStatus(permit.expiration_date).key
+                      }`}
                     >
                       {getStatus(permit.expiration_date).label}
                     </div>
@@ -465,8 +484,13 @@ const Permits = () => {
                             className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
                             value={editedPermit?.client_id || ""}
                             onChange={(e) =>
-                              setEditedPermit(prev =>
-                                prev ? { ...prev, client_id: Number(e.target.value) } : null
+                              setEditedPermit((prev) =>
+                                prev
+                                  ? {
+                                      ...prev,
+                                      client_id: Number(e.target.value),
+                                    }
+                                  : null
                               )
                             }
                           >
@@ -495,8 +519,13 @@ const Permits = () => {
                             className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
                             value={editedPermit?.state || ""}
                             onChange={(e) =>
-                              setEditedPermit(prev =>
-                                prev ? { ...prev, state: e.target.value.toUpperCase() } : null
+                              setEditedPermit((prev) =>
+                                prev
+                                  ? {
+                                      ...prev,
+                                      state: e.target.value.toUpperCase(),
+                                    }
+                                  : null
                               )
                             }
                             maxLength={2}
@@ -519,13 +548,17 @@ const Permits = () => {
                             className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
                             value={editedPermit?.expiration_date || ""}
                             onChange={(e) =>
-                              setEditedPermit(prev =>
-                                prev ? { ...prev, expiration_date: e.target.value } : null
+                              setEditedPermit((prev) =>
+                                prev
+                                  ? { ...prev, expiration_date: e.target.value }
+                                  : null
                               )
                             }
                           />
                         ) : (
-                          new Date(displayPermit.expiration_date).toLocaleDateString()
+                          new Date(
+                            displayPermit.expiration_date
+                          ).toLocaleDateString()
                         )}
                       </div>
                     </div>
@@ -551,18 +584,31 @@ const Permits = () => {
                             className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
                             value={editedPermit?.overweight ? "true" : "false"}
                             onChange={(e) =>
-                              setEditedPermit(prev =>
-                                prev ? { ...prev, overweight: e.target.value === "true" } : null
+                              setEditedPermit((prev) =>
+                                prev
+                                  ? {
+                                      ...prev,
+                                      overweight: e.target.value === "true",
+                                    }
+                                  : null
                               )
                             }
                           >
-                            <option value="false">{t("email_preview.no")}</option>
-                            <option value="true">{t("email_preview.yes")}</option>
+                            <option value="false">
+                              {t("email_preview.no")}
+                            </option>
+                            <option value="true">
+                              {t("email_preview.yes")}
+                            </option>
                           </select>
                         ) : displayPermit.overweight ? (
-                          <span className="badge overweight">{t("email_preview.yes")}</span>
+                          <span className="badge overweight">
+                            {t("email_preview.yes")}
+                          </span>
                         ) : (
-                          <span className="badge normal">{t("email_preview.no")}</span>
+                          <span className="badge normal">
+                            {t("email_preview.no")}
+                          </span>
                         )}
                       </div>
                     </div>
@@ -685,7 +731,6 @@ const Permits = () => {
                     type="text"
                     placeholder={t("permits_page.state_placeholder")}
                     value={newPermit.state}
-                    maxLength={2}
                     onChange={(e) =>
                       setNewPermit({
                         ...newPermit,
@@ -935,7 +980,6 @@ const Permits = () => {
           </div>
         </div>
       </Modal>
-
     </>
   );
 };
